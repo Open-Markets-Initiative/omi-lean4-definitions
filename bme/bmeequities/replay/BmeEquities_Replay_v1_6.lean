@@ -1477,6 +1477,27 @@ theorem encode_length_pos (message : LogonMessage) : (encode message).length > 0
 
 end LogonMessage
 
+/-- Logout Message: 0 bytes -/
+structure LogoutMessage where
+  deriving DecidableEq, Repr
+
+namespace LogoutMessage
+
+def encode (_ : LogoutMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (LogoutMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : LogoutMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : LogoutMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end LogoutMessage
+
 /-- Reject Message: 70 bytes -/
 structure RejectMessage where
   sequenceNumber : BitVec 32
@@ -3701,6 +3722,7 @@ inductive Payload where
   | heartbeatMessage (message : HeartbeatMessage) -- 48
   | networkStatusMessage (message : NetworkStatusMessage) -- 10
   | logonMessage (message : LogonMessage) -- 65
+  | logoutMessage (message : LogoutMessage) -- 53
   | rejectMessage (message : RejectMessage) -- 13
   | replayRequestMessage (message : ReplayRequestMessage) -- 9
   | replayRequestAckNackMessage (message : ReplayRequestAckNackMessage) -- 12
@@ -3731,6 +3753,7 @@ def tag : Payload → BitVec 8
   | .heartbeatMessage _ => 48
   | .networkStatusMessage _ => 10
   | .logonMessage _ => 65
+  | .logoutMessage _ => 53
   | .rejectMessage _ => 13
   | .replayRequestMessage _ => 9
   | .replayRequestAckNackMessage _ => 12
@@ -3757,6 +3780,7 @@ def encode : Payload → List UInt8
   | .heartbeatMessage message => HeartbeatMessage.encode message
   | .networkStatusMessage message => NetworkStatusMessage.encode message
   | .logonMessage message => LogonMessage.encode message
+  | .logoutMessage message => LogoutMessage.encode message
   | .rejectMessage message => RejectMessage.encode message
   | .replayRequestMessage message => ReplayRequestMessage.encode message
   | .replayRequestAckNackMessage message => ReplayRequestAckNackMessage.encode message
@@ -3794,6 +3818,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 976 :
     omega
   | logonMessage inner =>
     simp only [encode, LogonMessage.encode_length]
+    omega
+  | logoutMessage inner =>
+    simp only [encode, LogoutMessage.encode_length]
     omega
   | rejectMessage inner =>
     simp only [encode, RejectMessage.encode_length]
@@ -3859,6 +3886,7 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8
   else if tag = 48 then (HeartbeatMessage.decode bytes).map fun (message, rest) => (.heartbeatMessage message, rest)
   else if tag = 10 then (NetworkStatusMessage.decode bytes).map fun (message, rest) => (.networkStatusMessage message, rest)
   else if tag = 65 then (LogonMessage.decode bytes).map fun (message, rest) => (.logonMessage message, rest)
+  else if tag = 53 then (LogoutMessage.decode bytes).map fun (message, rest) => (.logoutMessage message, rest)
   else if tag = 13 then (RejectMessage.decode bytes).map fun (message, rest) => (.rejectMessage message, rest)
   else if tag = 9 then (ReplayRequestMessage.decode bytes).map fun (message, rest) => (.replayRequestMessage message, rest)
   else if tag = 12 then (ReplayRequestAckNackMessage.decode bytes).map fun (message, rest) => (.replayRequestAckNackMessage message, rest)
@@ -3928,6 +3956,9 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
   | logonMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, LogonMessage.encode_length]
+    omega
+  | logoutMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, LogoutMessage.encode_length]
     omega
   | rejectMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, RejectMessage.encode_length]

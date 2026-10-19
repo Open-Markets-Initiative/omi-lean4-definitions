@@ -441,7 +441,7 @@ end Side
 
 /-- Order Capacity: one byte code -/
 def OrderCapacity.codes : List UInt8 :=
-  [0x43, 0x46, 0x4D, 0x42, 0x50, 0x4F, 0x4A, 0x20]
+  [0x43, 0x46, 0x4D, 0x42, 0x50, 0x4F, 0x20]
 
 inductive OrderCapacity where
   | customerOrder -- Customer Order
@@ -450,7 +450,6 @@ inductive OrderCapacity where
   | brokerDealerOrder -- Broker Dealer Order
   | professionalOrder -- Professional Order
   | otherExchangeMarketMakerOrder -- Other Exchange Market Maker Order
-  | jointBackOffice -- Joint Back Office
   | na -- Na
   | unlisted (byte : { byte : UInt8 // byte ∉ OrderCapacity.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -464,7 +463,6 @@ def toByte : OrderCapacity → UInt8
   | .brokerDealerOrder => 0x42
   | .professionalOrder => 0x50
   | .otherExchangeMarketMakerOrder => 0x4F
-  | .jointBackOffice => 0x4A
   | .na => 0x20
   | .unlisted byte => byte.val
 
@@ -476,7 +474,6 @@ def listed (byte : UInt8) : OrderCapacity :=
   else if byte = 0x42 then .brokerDealerOrder
   else if byte = 0x50 then .professionalOrder
   else if byte = 0x4F then .otherExchangeMarketMakerOrder
-  else if byte = 0x4A then .jointBackOffice
   else .na
 
 def ofByte (byte : UInt8) : OrderCapacity :=
@@ -490,7 +487,6 @@ theorem ofByte_toByte (value : OrderCapacity) : ofByte value.toByte = value := b
   | brokerDealerOrder => decide
   | professionalOrder => decide
   | otherExchangeMarketMakerOrder => decide
-  | jointBackOffice => decide
   | na => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -748,13 +744,11 @@ end TradeType
 
 /-- Auction Type: one byte code -/
 def AuctionType.codes : List UInt8 :=
-  [0x4F, 0x52, 0x50, 0x42]
+  [0x4F, 0x52]
 
 inductive AuctionType where
   | opening -- Opening
   | reopening -- Reopening
-  | priceImprovementAuction -- Price Improvement Auction
-  | blockAuction -- Block Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ AuctionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -763,16 +757,12 @@ namespace AuctionType
 def toByte : AuctionType → UInt8
   | .opening => 0x4F
   | .reopening => 0x52
-  | .priceImprovementAuction => 0x50
-  | .blockAuction => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : AuctionType :=
   if byte = 0x4F then .opening
-  else if byte = 0x52 then .reopening
-  else if byte = 0x50 then .priceImprovementAuction
-  else .blockAuction
+  else .reopening
 
 def ofByte (byte : UInt8) : AuctionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -781,8 +771,6 @@ theorem ofByte_toByte (value : AuctionType) : ofByte value.toByte = value := by
   cases value with
   | opening => decide
   | reopening => decide
-  | priceImprovementAuction => decide
-  | blockAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AuctionType) : List UInt8 :=

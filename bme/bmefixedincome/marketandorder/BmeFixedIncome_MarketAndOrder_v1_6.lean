@@ -227,11 +227,11 @@ def CalculationMethod.codes : List UInt8 :=
   [0x30, 0x31, 0x32, 0x33, 0x34, 0x35]
 
 inductive CalculationMethod where
-  | t30360Usnasd -- 30360 Usnasd
+  | thirty360UsNasd -- Thirty 360 US NASD
   | actualActual -- Actual Actual
   | actual360 -- Actual 360
   | actual365 -- Actual 365
-  | t30360European -- 30360 European
+  | thirty360European -- Thirty 360 European
   | ifDaysToMaturity365Actual360ElseActual365 -- If Days To Maturity 365 Actual 360 Else Actual 365
   | unlisted (byte : { byte : UInt8 // byte ∉ CalculationMethod.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -239,21 +239,21 @@ inductive CalculationMethod where
 namespace CalculationMethod
 
 def toByte : CalculationMethod → UInt8
-  | .t30360Usnasd => 0x30
+  | .thirty360UsNasd => 0x30
   | .actualActual => 0x31
   | .actual360 => 0x32
   | .actual365 => 0x33
-  | .t30360European => 0x34
+  | .thirty360European => 0x34
   | .ifDaysToMaturity365Actual360ElseActual365 => 0x35
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CalculationMethod :=
-  if byte = 0x30 then .t30360Usnasd
+  if byte = 0x30 then .thirty360UsNasd
   else if byte = 0x31 then .actualActual
   else if byte = 0x32 then .actual360
   else if byte = 0x33 then .actual365
-  else if byte = 0x34 then .t30360European
+  else if byte = 0x34 then .thirty360European
   else .ifDaysToMaturity365Actual360ElseActual365
 
 def ofByte (byte : UInt8) : CalculationMethod :=
@@ -261,11 +261,11 @@ def ofByte (byte : UInt8) : CalculationMethod :=
 
 theorem ofByte_toByte (value : CalculationMethod) : ofByte value.toByte = value := by
   cases value with
-  | t30360Usnasd => decide
+  | thirty360UsNasd => decide
   | actualActual => decide
   | actual360 => decide
   | actual365 => decide
-  | t30360European => decide
+  | thirty360European => decide
   | ifDaysToMaturity365Actual360ElseActual365 => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -2881,6 +2881,27 @@ theorem encode_length_pos (message : LogonMessage) : (encode message).length > 0
   rfl
 
 end LogonMessage
+
+/-- Logout Message: 0 bytes -/
+structure LogoutMessage where
+  deriving DecidableEq, Repr
+
+namespace LogoutMessage
+
+def encode (_ : LogoutMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (LogoutMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : LogoutMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : LogoutMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end LogoutMessage
 
 /-- Reject Message: 70 bytes -/
 structure RejectMessage where
@@ -8260,6 +8281,7 @@ inductive Payload where
   | heartbeatMessage (message : HeartbeatMessage) -- 48
   | networkStatusMessage (message : NetworkStatusMessage) -- 10
   | logonMessage (message : LogonMessage) -- 65
+  | logoutMessage (message : LogoutMessage) -- 53
   | rejectMessage (message : RejectMessage) -- 13
   | tradingSessionStatusMessage (message : TradingSessionStatusMessage) -- 104
   | newsMessage (message : NewsMessage) -- 66
@@ -8313,6 +8335,7 @@ def tag : Payload → BitVec 8
   | .heartbeatMessage _ => 48
   | .networkStatusMessage _ => 10
   | .logonMessage _ => 65
+  | .logoutMessage _ => 53
   | .rejectMessage _ => 13
   | .tradingSessionStatusMessage _ => 104
   | .newsMessage _ => 66
@@ -8362,6 +8385,7 @@ def encode : Payload → List UInt8
   | .heartbeatMessage message => HeartbeatMessage.encode message
   | .networkStatusMessage message => NetworkStatusMessage.encode message
   | .logonMessage message => LogonMessage.encode message
+  | .logoutMessage message => LogoutMessage.encode message
   | .rejectMessage message => RejectMessage.encode message
   | .tradingSessionStatusMessage message => TradingSessionStatusMessage.encode message
   | .newsMessage message => NewsMessage.encode message
@@ -8422,6 +8446,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 450 :
     omega
   | logonMessage inner =>
     simp only [encode, LogonMessage.encode_length]
+    omega
+  | logoutMessage inner =>
+    simp only [encode, LogoutMessage.encode_length]
     omega
   | rejectMessage inner =>
     simp only [encode, RejectMessage.encode_length]
@@ -8556,6 +8583,7 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8
   else if tag = 48 then (HeartbeatMessage.decode bytes).map fun (message, rest) => (.heartbeatMessage message, rest)
   else if tag = 10 then (NetworkStatusMessage.decode bytes).map fun (message, rest) => (.networkStatusMessage message, rest)
   else if tag = 65 then (LogonMessage.decode bytes).map fun (message, rest) => (.logonMessage message, rest)
+  else if tag = 53 then (LogoutMessage.decode bytes).map fun (message, rest) => (.logoutMessage message, rest)
   else if tag = 13 then (RejectMessage.decode bytes).map fun (message, rest) => (.rejectMessage message, rest)
   else if tag = 104 then (TradingSessionStatusMessage.decode bytes).map fun (message, rest) => (.tradingSessionStatusMessage message, rest)
   else if tag = 66 then (NewsMessage.decode bytes).map fun (message, rest) => (.newsMessage message, rest)
@@ -8648,6 +8676,9 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
   | logonMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, LogonMessage.encode_length]
+    omega
+  | logoutMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, LogoutMessage.encode_length]
     omega
   | rejectMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, RejectMessage.encode_length]
