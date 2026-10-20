@@ -3063,6 +3063,27 @@ theorem encode_length_pos (message : TradingSessionStatus) : (encode message).le
 
 end TradingSessionStatus
 
+/-- Heartbeat: 0 bytes -/
+structure Heartbeat where
+  deriving DecidableEq, Repr
+
+namespace Heartbeat
+
+def encode (_ : Heartbeat) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (Heartbeat × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : Heartbeat) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : Heartbeat) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end Heartbeat
+
 /-- Test Event: 201 bytes -/
 structure TestEvent where
   scenarioName : Alpha 200
@@ -3374,6 +3395,7 @@ inductive Payload where
   | realTimeIndex (message : RealTimeIndex) -- 500
   | indexSummary (message : IndexSummary) -- 501
   | tradingSessionStatus (message : TradingSessionStatus) -- 23
+  | heartbeat (message : Heartbeat) -- 1
   | testEvent (message : TestEvent) -- 8192
   | orderAdd (message : OrderAdd) -- 9
   | orderModify (message : OrderModify) -- 10
@@ -3415,6 +3437,7 @@ def tag : Payload → BitVec 16
   | .realTimeIndex _ => 500
   | .indexSummary _ => 501
   | .tradingSessionStatus _ => 23
+  | .heartbeat _ => 1
   | .testEvent _ => 8192
   | .orderAdd _ => 9
   | .orderModify _ => 10
@@ -3452,6 +3475,7 @@ def encode : Payload → List UInt8
   | .realTimeIndex message => RealTimeIndex.encode message
   | .indexSummary message => IndexSummary.encode message
   | .tradingSessionStatus message => TradingSessionStatus.encode message
+  | .heartbeat message => Heartbeat.encode message
   | .testEvent message => TestEvent.encode message
   | .orderAdd message => OrderAdd.encode message
   | .orderModify message => OrderModify.encode message
@@ -3549,6 +3573,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 890 :
   | tradingSessionStatus inner =>
     simp only [encode, TradingSessionStatus.encode_length]
     omega
+  | heartbeat inner =>
+    simp only [encode, Heartbeat.encode_length]
+    omega
   | testEvent inner =>
     simp only [encode, TestEvent.encode_length]
     omega
@@ -3598,6 +3625,7 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt
   else if tag = 500 then (RealTimeIndex.decode bytes).map fun (message, rest) => (.realTimeIndex message, rest)
   else if tag = 501 then (IndexSummary.decode bytes).map fun (message, rest) => (.indexSummary message, rest)
   else if tag = 23 then (TradingSessionStatus.decode bytes).map fun (message, rest) => (.tradingSessionStatus message, rest)
+  else if tag = 1 then (Heartbeat.decode bytes).map fun (message, rest) => (.heartbeat message, rest)
   else if tag = 8192 then (TestEvent.decode bytes).map fun (message, rest) => (.testEvent message, rest)
   else if tag = 9 then (OrderAdd.decode bytes).map fun (message, rest) => (.orderAdd message, rest)
   else if tag = 10 then (OrderModify.decode bytes).map fun (message, rest) => (.orderModify message, rest)
@@ -3753,6 +3781,9 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 932 :
     omega
   | tradingSessionStatus inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, TradingSessionStatus.encode_length]
+    omega
+  | heartbeat inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Heartbeat.encode_length]
     omega
   | testEvent inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, TestEvent.encode_length]

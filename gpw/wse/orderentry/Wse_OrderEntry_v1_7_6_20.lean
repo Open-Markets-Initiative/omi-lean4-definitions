@@ -109,6 +109,48 @@ theorem encode_length_pos (message : LoginResponse) : (encode message).length > 
 
 end LoginResponse
 
+/-- Logout: 0 bytes -/
+structure Logout where
+  deriving DecidableEq, Repr
+
+namespace Logout
+
+def encode (_ : Logout) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (Logout × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : Logout) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : Logout) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end Logout
+
+/-- Logout Response: 0 bytes -/
+structure LogoutResponse where
+  deriving DecidableEq, Repr
+
+namespace LogoutResponse
+
+def encode (_ : LogoutResponse) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (LogoutResponse × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : LogoutResponse) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : LogoutResponse) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end LogoutResponse
+
 /-- Connection Close: 1 bytes -/
 structure ConnectionClose where
   reasonConnectionCloseReason : BitVec 8
@@ -138,6 +180,27 @@ theorem encode_length_pos (message : ConnectionClose) : (encode message).length 
   rfl
 
 end ConnectionClose
+
+/-- Heartbeat: 0 bytes -/
+structure Heartbeat where
+  deriving DecidableEq, Repr
+
+namespace Heartbeat
+
+def encode (_ : Heartbeat) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (Heartbeat × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : Heartbeat) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : Heartbeat) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end Heartbeat
 
 /-- Reject: 5 bytes -/
 structure Reject where
@@ -173,6 +236,27 @@ theorem encode_length_pos (message : Reject) : (encode message).length > 0 := by
   rfl
 
 end Reject
+
+/-- Gap Fill: 0 bytes -/
+structure GapFill where
+  deriving DecidableEq, Repr
+
+namespace GapFill
+
+def encode (_ : GapFill) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (GapFill × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : GapFill) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : GapFill) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end GapFill
 
 /-- Test: 8 bytes -/
 structure Test where
@@ -2156,8 +2240,12 @@ end TradeBust
 inductive Payload where
   | login (message : Login) -- 2
   | loginResponse (message : LoginResponse) -- 3
+  | logout (message : Logout) -- 11
+  | logoutResponse (message : LogoutResponse) -- 14
   | connectionClose (message : ConnectionClose) -- 12
+  | heartbeat (message : Heartbeat) -- 13
   | reject (message : Reject) -- 15
+  | gapFill (message : GapFill) -- 34
   | test (message : Test) -- 1
   | testEvent (message : TestEvent) -- 255
   | tradingSessionStatus (message : TradingSessionStatus) -- 35
@@ -2188,8 +2276,12 @@ namespace Payload
 def tag : Payload → BitVec 16
   | .login _ => 2
   | .loginResponse _ => 3
+  | .logout _ => 11
+  | .logoutResponse _ => 14
   | .connectionClose _ => 12
+  | .heartbeat _ => 13
   | .reject _ => 15
+  | .gapFill _ => 34
   | .test _ => 1
   | .testEvent _ => 255
   | .tradingSessionStatus _ => 35
@@ -2216,8 +2308,12 @@ def tag : Payload → BitVec 16
 def encode : Payload → List UInt8
   | .login message => Login.encode message
   | .loginResponse message => LoginResponse.encode message
+  | .logout message => Logout.encode message
+  | .logoutResponse message => LogoutResponse.encode message
   | .connectionClose message => ConnectionClose.encode message
+  | .heartbeat message => Heartbeat.encode message
   | .reject message => Reject.encode message
+  | .gapFill message => GapFill.encode message
   | .test message => Test.encode message
   | .testEvent message => TestEvent.encode message
   | .tradingSessionStatus message => TradingSessionStatus.encode message
@@ -2250,11 +2346,23 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 1184 
   | loginResponse inner =>
     simp only [encode, LoginResponse.encode_length]
     omega
+  | logout inner =>
+    simp only [encode, Logout.encode_length]
+    omega
+  | logoutResponse inner =>
+    simp only [encode, LogoutResponse.encode_length]
+    omega
   | connectionClose inner =>
     simp only [encode, ConnectionClose.encode_length]
     omega
+  | heartbeat inner =>
+    simp only [encode, Heartbeat.encode_length]
+    omega
   | reject inner =>
     simp only [encode, Reject.encode_length]
+    omega
+  | gapFill inner =>
+    simp only [encode, GapFill.encode_length]
     omega
   | test inner =>
     simp only [encode, Test.encode_length]
@@ -2326,8 +2434,12 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 1184 
 def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt8) :=
   if tag = 2 then (Login.decode bytes).map fun (message, rest) => (.login message, rest)
   else if tag = 3 then (LoginResponse.decode bytes).map fun (message, rest) => (.loginResponse message, rest)
+  else if tag = 11 then (Logout.decode bytes).map fun (message, rest) => (.logout message, rest)
+  else if tag = 14 then (LogoutResponse.decode bytes).map fun (message, rest) => (.logoutResponse message, rest)
   else if tag = 12 then (ConnectionClose.decode bytes).map fun (message, rest) => (.connectionClose message, rest)
+  else if tag = 13 then (Heartbeat.decode bytes).map fun (message, rest) => (.heartbeat message, rest)
   else if tag = 15 then (Reject.decode bytes).map fun (message, rest) => (.reject message, rest)
+  else if tag = 34 then (GapFill.decode bytes).map fun (message, rest) => (.gapFill message, rest)
   else if tag = 1 then (Test.decode bytes).map fun (message, rest) => (.test message, rest)
   else if tag = 255 then (TestEvent.decode bytes).map fun (message, rest) => (.testEvent message, rest)
   else if tag = 35 then (TradingSessionStatus.decode bytes).map fun (message, rest) => (.tradingSessionStatus message, rest)
@@ -2401,11 +2513,23 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 1208 
   | loginResponse inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, LoginResponse.encode_length]
     omega
+  | logout inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Logout.encode_length]
+    omega
+  | logoutResponse inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, LogoutResponse.encode_length]
+    omega
   | connectionClose inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, ConnectionClose.encode_length]
     omega
+  | heartbeat inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Heartbeat.encode_length]
+    omega
   | reject inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Reject.encode_length]
+    omega
+  | gapFill inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, GapFill.encode_length]
     omega
   | test inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Test.encode_length]

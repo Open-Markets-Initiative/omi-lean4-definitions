@@ -85,8 +85,8 @@ theorem encode_length_pos (value : ResultCode) : (encode value).length > 0 := by
 
 end ResultCode
 
-/-- Login Request Message: 15 bytes -/
-structure LoginRequestMessage where
+/-- Login Request Retransmission Message: 15 bytes -/
+structure LoginRequestRetransmissionMessage where
   userId : Alpha 6
   multicastGroupNumber : BitVec 8
   numberOfSystemReboots : BitVec 8
@@ -94,16 +94,16 @@ structure LoginRequestMessage where
   requestedMessageCount : BitVec 24
   deriving DecidableEq, Repr
 
-namespace LoginRequestMessage
+namespace LoginRequestRetransmissionMessage
 
-def encode (message : LoginRequestMessage) : List UInt8 :=
+def encode (message : LoginRequestRetransmissionMessage) : List UInt8 :=
   Alpha.encode message.userId
     ++ (encodeUInt 1 message.multicastGroupNumber
     ++ (encodeUInt 1 message.numberOfSystemReboots
     ++ (encodeUInt 4 message.sequenceNumber
     ++ (encodeUInt 3 message.requestedMessageCount))))
 
-def decode (bytes : List UInt8) : Option (LoginRequestMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (LoginRequestRetransmissionMessage × List UInt8) := do
   let (userId, bytes) ← Alpha.decode 6 bytes
   let (multicastGroupNumber, bytes) ← decodeUInt 1 bytes
   let (numberOfSystemReboots, bytes) ← decodeUInt 1 bytes
@@ -111,15 +111,15 @@ def decode (bytes : List UInt8) : Option (LoginRequestMessage × List UInt8) := 
   let (requestedMessageCount, bytes) ← decodeUInt 3 bytes
   pure ({ userId, multicastGroupNumber, numberOfSystemReboots, sequenceNumber, requestedMessageCount }, bytes)
 
-@[simp] theorem encode_length (message : LoginRequestMessage) : (encode message).length = 15 := by
+@[simp] theorem encode_length (message : LoginRequestRetransmissionMessage) : (encode message).length = 15 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : LoginRequestMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : LoginRequestRetransmissionMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : LoginRequestMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : LoginRequestRetransmissionMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -134,37 +134,91 @@ theorem encode_length_pos (message : LoginRequestMessage) : (encode message).len
   rfl
 
 /-- Decoded as the whole of a frame: nothing follows -/
-theorem decode_encode_nil (message : LoginRequestMessage) : decode (encode message) = some (message, []) :=
+theorem decode_encode_nil (message : LoginRequestRetransmissionMessage) : decode (encode message) = some (message, []) :=
   List.append_nil (encode message) ▸ decode_encode message []
 
-end LoginRequestMessage
+end LoginRequestRetransmissionMessage
 
-/-- Login Result Message: 2 bytes -/
-structure LoginResultMessage where
+/-- Login Request Snapshot Message: 15 bytes -/
+structure LoginRequestSnapshotMessage where
+  userId : Alpha 6
+  multicastGroupNumber : BitVec 8
+  numberOfSystemReboots : BitVec 8
+  sequenceNumber : BitVec 32
+  requestedMessageCount : BitVec 24
+  deriving DecidableEq, Repr
+
+namespace LoginRequestSnapshotMessage
+
+def encode (message : LoginRequestSnapshotMessage) : List UInt8 :=
+  Alpha.encode message.userId
+    ++ (encodeUInt 1 message.multicastGroupNumber
+    ++ (encodeUInt 1 message.numberOfSystemReboots
+    ++ (encodeUInt 4 message.sequenceNumber
+    ++ (encodeUInt 3 message.requestedMessageCount))))
+
+def decode (bytes : List UInt8) : Option (LoginRequestSnapshotMessage × List UInt8) := do
+  let (userId, bytes) ← Alpha.decode 6 bytes
+  let (multicastGroupNumber, bytes) ← decodeUInt 1 bytes
+  let (numberOfSystemReboots, bytes) ← decodeUInt 1 bytes
+  let (sequenceNumber, bytes) ← decodeUInt 4 bytes
+  let (requestedMessageCount, bytes) ← decodeUInt 3 bytes
+  pure ({ userId, multicastGroupNumber, numberOfSystemReboots, sequenceNumber, requestedMessageCount }, bytes)
+
+@[simp] theorem encode_length (message : LoginRequestSnapshotMessage) : (encode message).length = 15 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
+
+theorem encode_length_pos (message : LoginRequestSnapshotMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LoginRequestSnapshotMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+/-- Decoded as the whole of a frame: nothing follows -/
+theorem decode_encode_nil (message : LoginRequestSnapshotMessage) : decode (encode message) = some (message, []) :=
+  List.append_nil (encode message) ▸ decode_encode message []
+
+end LoginRequestSnapshotMessage
+
+/-- Login Result Accepted Message: 2 bytes -/
+structure LoginResultAcceptedMessage where
   multicastGroupNumber : BitVec 8
   resultCode : ResultCode
   deriving DecidableEq, Repr
 
-namespace LoginResultMessage
+namespace LoginResultAcceptedMessage
 
-def encode (message : LoginResultMessage) : List UInt8 :=
+def encode (message : LoginResultAcceptedMessage) : List UInt8 :=
   encodeUInt 1 message.multicastGroupNumber
     ++ (ResultCode.encode message.resultCode)
 
-def decode (bytes : List UInt8) : Option (LoginResultMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (LoginResultAcceptedMessage × List UInt8) := do
   let (multicastGroupNumber, bytes) ← decodeUInt 1 bytes
   let (resultCode, bytes) ← ResultCode.decode bytes
   pure ({ multicastGroupNumber, resultCode }, bytes)
 
-@[simp] theorem encode_length (message : LoginResultMessage) : (encode message).length = 2 := by
+@[simp] theorem encode_length (message : LoginResultAcceptedMessage) : (encode message).length = 2 := by
   unfold encode
   simp only [List.length_append, encodeUInt_length, ResultCode.encode_length]
 
-theorem encode_length_pos (message : LoginResultMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : LoginResultAcceptedMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : LoginResultMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : LoginResultAcceptedMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
@@ -173,10 +227,49 @@ theorem encode_length_pos (message : LoginResultMessage) : (encode message).leng
   rfl
 
 /-- Decoded as the whole of a frame: nothing follows -/
-theorem decode_encode_nil (message : LoginResultMessage) : decode (encode message) = some (message, []) :=
+theorem decode_encode_nil (message : LoginResultAcceptedMessage) : decode (encode message) = some (message, []) :=
   List.append_nil (encode message) ▸ decode_encode message []
 
-end LoginResultMessage
+end LoginResultAcceptedMessage
+
+/-- Login Result Rejected Message: 2 bytes -/
+structure LoginResultRejectedMessage where
+  multicastGroupNumber : BitVec 8
+  resultCode : ResultCode
+  deriving DecidableEq, Repr
+
+namespace LoginResultRejectedMessage
+
+def encode (message : LoginResultRejectedMessage) : List UInt8 :=
+  encodeUInt 1 message.multicastGroupNumber
+    ++ (ResultCode.encode message.resultCode)
+
+def decode (bytes : List UInt8) : Option (LoginResultRejectedMessage × List UInt8) := do
+  let (multicastGroupNumber, bytes) ← decodeUInt 1 bytes
+  let (resultCode, bytes) ← ResultCode.decode bytes
+  pure ({ multicastGroupNumber, resultCode }, bytes)
+
+@[simp] theorem encode_length (message : LoginResultRejectedMessage) : (encode message).length = 2 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, ResultCode.encode_length]
+
+theorem encode_length_pos (message : LoginResultRejectedMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LoginResultRejectedMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [ResultCode.decode_encode, some_bind]
+  rfl
+
+/-- Decoded as the whole of a frame: nothing follows -/
+theorem decode_encode_nil (message : LoginResultRejectedMessage) : decode (encode message) = some (message, []) :=
+  List.append_nil (encode message) ▸ decode_encode message []
+
+end LoginResultRejectedMessage
 
 /-- Message Response Message -/
 structure MessageResponseMessage where
@@ -253,8 +346,10 @@ end EndOfMessageMessage
 
 /-- Any Tcp Payload, selected by Packet Type -/
 inductive TcpPayload where
-  | loginRequestMessage (message : LoginRequestMessage) -- "R" 0x52
-  | loginResultMessage (message : LoginResultMessage) -- "A" 0x41
+  | loginRequestRetransmissionMessage (message : LoginRequestRetransmissionMessage) -- "R" 0x52
+  | loginRequestSnapshotMessage (message : LoginRequestSnapshotMessage) -- "L" 0x4C
+  | loginResultAcceptedMessage (message : LoginResultAcceptedMessage) -- "A" 0x41
+  | loginResultRejectedMessage (message : LoginResultRejectedMessage) -- "J" 0x4A
   | messageResponseMessage (message : MessageResponseMessage) -- "S" 0x53
   | endOfMessageMessage (message : EndOfMessageMessage) -- "G" 0x47
   deriving DecidableEq, Repr
@@ -263,25 +358,35 @@ namespace TcpPayload
 
 /-- The Packet Type each message is sent under -/
 def tag : TcpPayload → BitVec 8
-  | .loginRequestMessage _ => 82
-  | .loginResultMessage _ => 65
+  | .loginRequestRetransmissionMessage _ => 82
+  | .loginRequestSnapshotMessage _ => 76
+  | .loginResultAcceptedMessage _ => 65
+  | .loginResultRejectedMessage _ => 74
   | .messageResponseMessage _ => 83
   | .endOfMessageMessage _ => 71
 
 def encode : TcpPayload → List UInt8
-  | .loginRequestMessage message => LoginRequestMessage.encode message
-  | .loginResultMessage message => LoginResultMessage.encode message
+  | .loginRequestRetransmissionMessage message => LoginRequestRetransmissionMessage.encode message
+  | .loginRequestSnapshotMessage message => LoginRequestSnapshotMessage.encode message
+  | .loginResultAcceptedMessage message => LoginResultAcceptedMessage.encode message
+  | .loginResultRejectedMessage message => LoginResultRejectedMessage.encode message
   | .messageResponseMessage message => MessageResponseMessage.encode message
   | .endOfMessageMessage message => EndOfMessageMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : TcpPayload) : (encode message).length ≤ 65519 := by
   cases message with
-  | loginRequestMessage inner =>
-    simp only [encode, LoginRequestMessage.encode_length]
+  | loginRequestRetransmissionMessage inner =>
+    simp only [encode, LoginRequestRetransmissionMessage.encode_length]
     omega
-  | loginResultMessage inner =>
-    simp only [encode, LoginResultMessage.encode_length]
+  | loginRequestSnapshotMessage inner =>
+    simp only [encode, LoginRequestSnapshotMessage.encode_length]
+    omega
+  | loginResultAcceptedMessage inner =>
+    simp only [encode, LoginResultAcceptedMessage.encode_length]
+    omega
+  | loginResultRejectedMessage inner =>
+    simp only [encode, LoginResultRejectedMessage.encode_length]
     omega
   | messageResponseMessage inner =>
     have bound_inner := MessageResponseMessage.encode_length_le inner
@@ -293,8 +398,10 @@ theorem encode_length_le (message : TcpPayload) : (encode message).length ≤ 65
 
 /-- Decoded from the whole of the frame: a message that reads to its end takes it all, any other must leave nothing -/
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option TcpPayload :=
-  if tag = 82 then (LoginRequestMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginRequestMessage message) else none
-  else if tag = 65 then (LoginResultMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginResultMessage message) else none
+  if tag = 82 then (LoginRequestRetransmissionMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginRequestRetransmissionMessage message) else none
+  else if tag = 76 then (LoginRequestSnapshotMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginRequestSnapshotMessage message) else none
+  else if tag = 65 then (LoginResultAcceptedMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginResultAcceptedMessage message) else none
+  else if tag = 74 then (LoginResultRejectedMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.loginResultRejectedMessage message) else none
   else if tag = 83 then (MessageResponseMessage.decode bytes).map fun message => .messageResponseMessage message
   else if tag = 71 then (EndOfMessageMessage.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.endOfMessageMessage message) else none
   else none
@@ -302,8 +409,10 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option TcpPayload :=
 theorem decode_encode (message : TcpPayload) :
     decode (tag message) (encode message) = some message := by
   cases message with
-  | loginRequestMessage message => simp [decode, encode, tag, LoginRequestMessage.decode_encode_nil]
-  | loginResultMessage message => simp [decode, encode, tag, LoginResultMessage.decode_encode_nil]
+  | loginRequestRetransmissionMessage message => simp [decode, encode, tag, LoginRequestRetransmissionMessage.decode_encode_nil]
+  | loginRequestSnapshotMessage message => simp [decode, encode, tag, LoginRequestSnapshotMessage.decode_encode_nil]
+  | loginResultAcceptedMessage message => simp [decode, encode, tag, LoginResultAcceptedMessage.decode_encode_nil]
+  | loginResultRejectedMessage message => simp [decode, encode, tag, LoginResultRejectedMessage.decode_encode_nil]
   | messageResponseMessage message => simp [decode, encode, tag, MessageResponseMessage.decode_encode]
   | endOfMessageMessage message => simp [decode, encode, tag, EndOfMessageMessage.decode_encode_nil]
 
@@ -336,11 +445,17 @@ theorem decodeBody_encodeBody (message : TcpPacket) : decodeBody (encodeBody mes
 theorem encodeBody_length_lt (message : TcpPacket) : (encodeBody message).length + 0 < 256 ^ 2 := by
   unfold encodeBody
   cases message.tcpPayload with
-  | loginRequestMessage inner =>
-    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginRequestMessage.encode_length]
+  | loginRequestRetransmissionMessage inner =>
+    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginRequestRetransmissionMessage.encode_length]
     omega
-  | loginResultMessage inner =>
-    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginResultMessage.encode_length]
+  | loginRequestSnapshotMessage inner =>
+    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginRequestSnapshotMessage.encode_length]
+    omega
+  | loginResultAcceptedMessage inner =>
+    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginResultAcceptedMessage.encode_length]
+    omega
+  | loginResultRejectedMessage inner =>
+    simp only [TcpPayload.encode, List.length_append, encodeUInt_length, LoginResultRejectedMessage.encode_length]
     omega
   | messageResponseMessage inner =>
     have bound_inner := MessageResponseMessage.encode_length_le inner

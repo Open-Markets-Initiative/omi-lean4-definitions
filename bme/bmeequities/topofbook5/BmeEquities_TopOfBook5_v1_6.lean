@@ -14,6 +14,192 @@ Prices with implied decimals are proven as the integers on the wire.
 
 namespace Omi.BmeBmeequitiesTopofbook5BmegateV16
 
+/-- Test Production Ind: one byte code -/
+def TestProductionInd.codes : List UInt8 :=
+  [0x54, 0x50]
+
+inductive TestProductionInd where
+  | test -- Test
+  | production -- Production
+  | unlisted (byte : { byte : UInt8 // byte ∉ TestProductionInd.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace TestProductionInd
+
+def toByte : TestProductionInd → UInt8
+  | .test => 0x54
+  | .production => 0x50
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : TestProductionInd :=
+  if byte = 0x54 then .test
+  else .production
+
+def ofByte (byte : UInt8) : TestProductionInd :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : TestProductionInd) : ofByte value.toByte = value := by
+  cases value with
+  | test => decide
+  | production => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : TestProductionInd) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (TestProductionInd × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : TestProductionInd) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : TestProductionInd) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : TestProductionInd) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end TestProductionInd
+
+/-- Data Code: one byte code -/
+def DataCode.codes : List UInt8 :=
+  [0x44, 0x64, 0x45, 0x65, 0x66, 0x47, 0x48, 0x68, 0x4A, 0x4D, 0x4E, 0x51, 0x52, 0x56, 0x76, 0x57, 0x5A, 0x7A, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E]
+
+inductive DataCode where
+  | averagePrice -- Average Price
+  | previousForwardPrice -- Previous Forward Price
+  | publishedCashAmount -- Published Cash Amount
+  | orderModalityCashAmount -- Order Modality Cash Amount
+  | endOfSessionIndicator -- End Of Session Indicator
+  | first -- First
+  | high -- High
+  | maximumBid -- Maximum Bid
+  | notPublishedVolume -- Not Published Volume
+  | last -- Last
+  | numberOfTrades -- Number Of Trades
+  | previousClosingPrice -- Previous Closing Price
+  | openingVolatility -- Opening Volatility
+  | publishedVolume -- Published Volume
+  | publishedVolumeOrderModality -- Published Volume Order Modality
+  | volumeOfLastTrade -- Volume Of Last Trade
+  | low -- Low
+  | minimumAsk -- Minimum Ask
+  | closingPrice -- Closing Price
+  | closingYield -- Closing Yield
+  | volatility -- Volatility
+  | delta -- Delta
+  | forwardPrice -- Forward Price
+  | unlisted (byte : { byte : UInt8 // byte ∉ DataCode.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace DataCode
+
+def toByte : DataCode → UInt8
+  | .averagePrice => 0x44
+  | .previousForwardPrice => 0x64
+  | .publishedCashAmount => 0x45
+  | .orderModalityCashAmount => 0x65
+  | .endOfSessionIndicator => 0x66
+  | .first => 0x47
+  | .high => 0x48
+  | .maximumBid => 0x68
+  | .notPublishedVolume => 0x4A
+  | .last => 0x4D
+  | .numberOfTrades => 0x4E
+  | .previousClosingPrice => 0x51
+  | .openingVolatility => 0x52
+  | .publishedVolume => 0x56
+  | .publishedVolumeOrderModality => 0x76
+  | .volumeOfLastTrade => 0x57
+  | .low => 0x5A
+  | .minimumAsk => 0x7A
+  | .closingPrice => 0x6A
+  | .closingYield => 0x6B
+  | .volatility => 0x6C
+  | .delta => 0x6D
+  | .forwardPrice => 0x6E
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : DataCode :=
+  if byte = 0x44 then .averagePrice
+  else if byte = 0x64 then .previousForwardPrice
+  else if byte = 0x45 then .publishedCashAmount
+  else if byte = 0x65 then .orderModalityCashAmount
+  else if byte = 0x66 then .endOfSessionIndicator
+  else if byte = 0x47 then .first
+  else if byte = 0x48 then .high
+  else if byte = 0x68 then .maximumBid
+  else if byte = 0x4A then .notPublishedVolume
+  else if byte = 0x4D then .last
+  else if byte = 0x4E then .numberOfTrades
+  else if byte = 0x51 then .previousClosingPrice
+  else if byte = 0x52 then .openingVolatility
+  else if byte = 0x56 then .publishedVolume
+  else if byte = 0x76 then .publishedVolumeOrderModality
+  else if byte = 0x57 then .volumeOfLastTrade
+  else if byte = 0x5A then .low
+  else if byte = 0x7A then .minimumAsk
+  else if byte = 0x6A then .closingPrice
+  else if byte = 0x6B then .closingYield
+  else if byte = 0x6C then .volatility
+  else if byte = 0x6D then .delta
+  else .forwardPrice
+
+def ofByte (byte : UInt8) : DataCode :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : DataCode) : ofByte value.toByte = value := by
+  cases value with
+  | averagePrice => decide
+  | previousForwardPrice => decide
+  | publishedCashAmount => decide
+  | orderModalityCashAmount => decide
+  | endOfSessionIndicator => decide
+  | first => decide
+  | high => decide
+  | maximumBid => decide
+  | notPublishedVolume => decide
+  | last => decide
+  | numberOfTrades => decide
+  | previousClosingPrice => decide
+  | openingVolatility => decide
+  | publishedVolume => decide
+  | publishedVolumeOrderModality => decide
+  | volumeOfLastTrade => decide
+  | low => decide
+  | minimumAsk => decide
+  | closingPrice => decide
+  | closingYield => decide
+  | volatility => decide
+  | delta => decide
+  | forwardPrice => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : DataCode) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (DataCode × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : DataCode) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : DataCode) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : DataCode) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end DataCode
+
 /-- Security Status: one byte code -/
 def SecurityStatus.codes : List UInt8 :=
   [0x31, 0x32]
@@ -511,7 +697,7 @@ end StaticRangeType
 
 /-- Trade Type: one byte code -/
 def TradeType.codes : List UInt8 :=
-  [0x4D, 0x58, 0x54, 0x48, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]
+  [0x4D, 0x58, 0x54, 0x48, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x41, 0x42, 0x43, 0x46, 0x47, 0x49, 0x4A, 0x45, 0x4E, 0x4F, 0x50, 0x4C, 0x61, 0x62, 0x63, 0x44, 0x4B, 0x64, 0x65, 0x66, 0x57]
 
 inductive TradeType where
   | market -- Market
@@ -524,6 +710,31 @@ inductive TradeType where
   | authorisedApplicationExecutionOfContracts -- Authorised Application Execution Of Contracts
   | authorisedApplicationOtherCauses -- Authorised Application Other Causes
   | validationCommunicated -- Validation Communicated
+  | authorisedValidationTrades -- Authorised Validation Trades
+  | authorisedValidationCorporateInterest -- Authorised Validation Corporate Interest
+  | authorisedValidationExecutionOfContracts -- Authorised Validation Execution Of Contracts
+  | authorisedValidationOtherCauses -- Authorised Validation Other Causes
+  | transactionBetweenMembersCommunicated -- Transaction Between Members Communicated
+  | transactionBetweenMembersTrades -- Transaction Between Members Trades
+  | transactionBetweenMembersCorporateInterest -- Transaction Between Members Corporate Interest
+  | transactionBetweenMembersExecutionOfContracts -- Transaction Between Members Execution Of Contracts
+  | transactionBetweenMembersOtherCauses -- Transaction Between Members Other Causes
+  | applicationToCaterForALinkedPosition -- Application To Cater For A Linked Position
+  | transactionToCaterForALinkedPosition -- Transaction To Cater For A Linked Position
+  | transactionOfExerciseOfOptions -- Transaction Of Exercise Of Options
+  | publicShareBidOfferTypeTransaction -- Public Share Bid Offer Type Transaction
+  | publicShareAskOfferTypeTransaction -- Public Share Ask Offer Type Transaction
+  | publicShareSubscriptionOfferTypeTransaction -- Public Share Subscription Offer Type Transaction
+  | specialTradesDeltaType -- Special Trades Delta Type
+  | netAssetValueSpecialTradeDPlus1 -- Net Asset Value Special Trade D Plus 1
+  | netAssetValueSpecialTradeDPlus2 -- Net Asset Value Special Trade D Plus 2
+  | netAssetValueSpecialTradeDPlus3 -- Net Asset Value Special Trade D Plus 3
+  | applicationWithoutCcp -- Application Without CCP
+  | transactionWithoutCcp -- Transaction Without CCP
+  | investmentFundDPlus1 -- Investment Fund D Plus 1
+  | investmentFundDPlus2 -- Investment Fund D Plus 2
+  | investmentFundDPlus3 -- Investment Fund D Plus 3
+  | vwap -- VWAP
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -540,6 +751,31 @@ def toByte : TradeType → UInt8
   | .authorisedApplicationExecutionOfContracts => 0x34
   | .authorisedApplicationOtherCauses => 0x35
   | .validationCommunicated => 0x36
+  | .authorisedValidationTrades => 0x37
+  | .authorisedValidationCorporateInterest => 0x38
+  | .authorisedValidationExecutionOfContracts => 0x39
+  | .authorisedValidationOtherCauses => 0x30
+  | .transactionBetweenMembersCommunicated => 0x41
+  | .transactionBetweenMembersTrades => 0x42
+  | .transactionBetweenMembersCorporateInterest => 0x43
+  | .transactionBetweenMembersExecutionOfContracts => 0x46
+  | .transactionBetweenMembersOtherCauses => 0x47
+  | .applicationToCaterForALinkedPosition => 0x49
+  | .transactionToCaterForALinkedPosition => 0x4A
+  | .transactionOfExerciseOfOptions => 0x45
+  | .publicShareBidOfferTypeTransaction => 0x4E
+  | .publicShareAskOfferTypeTransaction => 0x4F
+  | .publicShareSubscriptionOfferTypeTransaction => 0x50
+  | .specialTradesDeltaType => 0x4C
+  | .netAssetValueSpecialTradeDPlus1 => 0x61
+  | .netAssetValueSpecialTradeDPlus2 => 0x62
+  | .netAssetValueSpecialTradeDPlus3 => 0x63
+  | .applicationWithoutCcp => 0x44
+  | .transactionWithoutCcp => 0x4B
+  | .investmentFundDPlus1 => 0x64
+  | .investmentFundDPlus2 => 0x65
+  | .investmentFundDPlus3 => 0x66
+  | .vwap => 0x57
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -553,7 +789,32 @@ def listed (byte : UInt8) : TradeType :=
   else if byte = 0x33 then .authorisedApplicationCorporateInterest
   else if byte = 0x34 then .authorisedApplicationExecutionOfContracts
   else if byte = 0x35 then .authorisedApplicationOtherCauses
-  else .validationCommunicated
+  else if byte = 0x36 then .validationCommunicated
+  else if byte = 0x37 then .authorisedValidationTrades
+  else if byte = 0x38 then .authorisedValidationCorporateInterest
+  else if byte = 0x39 then .authorisedValidationExecutionOfContracts
+  else if byte = 0x30 then .authorisedValidationOtherCauses
+  else if byte = 0x41 then .transactionBetweenMembersCommunicated
+  else if byte = 0x42 then .transactionBetweenMembersTrades
+  else if byte = 0x43 then .transactionBetweenMembersCorporateInterest
+  else if byte = 0x46 then .transactionBetweenMembersExecutionOfContracts
+  else if byte = 0x47 then .transactionBetweenMembersOtherCauses
+  else if byte = 0x49 then .applicationToCaterForALinkedPosition
+  else if byte = 0x4A then .transactionToCaterForALinkedPosition
+  else if byte = 0x45 then .transactionOfExerciseOfOptions
+  else if byte = 0x4E then .publicShareBidOfferTypeTransaction
+  else if byte = 0x4F then .publicShareAskOfferTypeTransaction
+  else if byte = 0x50 then .publicShareSubscriptionOfferTypeTransaction
+  else if byte = 0x4C then .specialTradesDeltaType
+  else if byte = 0x61 then .netAssetValueSpecialTradeDPlus1
+  else if byte = 0x62 then .netAssetValueSpecialTradeDPlus2
+  else if byte = 0x63 then .netAssetValueSpecialTradeDPlus3
+  else if byte = 0x44 then .applicationWithoutCcp
+  else if byte = 0x4B then .transactionWithoutCcp
+  else if byte = 0x64 then .investmentFundDPlus1
+  else if byte = 0x65 then .investmentFundDPlus2
+  else if byte = 0x66 then .investmentFundDPlus3
+  else .vwap
 
 def ofByte (byte : UInt8) : TradeType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -570,6 +831,31 @@ theorem ofByte_toByte (value : TradeType) : ofByte value.toByte = value := by
   | authorisedApplicationExecutionOfContracts => decide
   | authorisedApplicationOtherCauses => decide
   | validationCommunicated => decide
+  | authorisedValidationTrades => decide
+  | authorisedValidationCorporateInterest => decide
+  | authorisedValidationExecutionOfContracts => decide
+  | authorisedValidationOtherCauses => decide
+  | transactionBetweenMembersCommunicated => decide
+  | transactionBetweenMembersTrades => decide
+  | transactionBetweenMembersCorporateInterest => decide
+  | transactionBetweenMembersExecutionOfContracts => decide
+  | transactionBetweenMembersOtherCauses => decide
+  | applicationToCaterForALinkedPosition => decide
+  | transactionToCaterForALinkedPosition => decide
+  | transactionOfExerciseOfOptions => decide
+  | publicShareBidOfferTypeTransaction => decide
+  | publicShareAskOfferTypeTransaction => decide
+  | publicShareSubscriptionOfferTypeTransaction => decide
+  | specialTradesDeltaType => decide
+  | netAssetValueSpecialTradeDPlus1 => decide
+  | netAssetValueSpecialTradeDPlus2 => decide
+  | netAssetValueSpecialTradeDPlus3 => decide
+  | applicationWithoutCcp => decide
+  | transactionWithoutCcp => decide
+  | investmentFundDPlus1 => decide
+  | investmentFundDPlus2 => decide
+  | investmentFundDPlus3 => decide
+  | vwap => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeType) : List UInt8 :=
@@ -910,7 +1196,7 @@ def TradePriceCondition.codes : List UInt8 :=
 inductive TradePriceCondition where
   | plainVanillaTrade -- Plain Vanilla Trade
   | nonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft -- Non Price Forming Trade Formerly Defined As A Technical Trade Npft
-  | tradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024 -- Trade Not Contributing To The Price Discovery Process Formerly Defined As A Technical Trade Tncp To Be Discontinued As Of 1 St January 2024
+  | tradeNotContributingToPriceDiscoveryTncp -- Trade Not Contributing To Price Discovery TNCP
   | unlisted (byte : { byte : UInt8 // byte ∉ TradePriceCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -919,14 +1205,14 @@ namespace TradePriceCondition
 def toByte : TradePriceCondition → UInt8
   | .plainVanillaTrade => 0x20
   | .nonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft => 0x35
-  | .tradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024 => 0x36
+  | .tradeNotContributingToPriceDiscoveryTncp => 0x36
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradePriceCondition :=
   if byte = 0x20 then .plainVanillaTrade
   else if byte = 0x35 then .nonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft
-  else .tradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024
+  else .tradeNotContributingToPriceDiscoveryTncp
 
 def ofByte (byte : UInt8) : TradePriceCondition :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -935,7 +1221,7 @@ theorem ofByte_toByte (value : TradePriceCondition) : ofByte value.toByte = valu
   cases value with
   | plainVanillaTrade => decide
   | nonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft => decide
-  | tradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024 => decide
+  | tradeNotContributingToPriceDiscoveryTncp => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradePriceCondition) : List UInt8 :=
@@ -965,7 +1251,7 @@ def PreTradeTransparencyWaiver.codes : List UInt8 :=
 inductive PreTradeTransparencyWaiver where
   | negotiatedTradeInLiquidFinancialInstrumentsNliq -- Negotiated Trade In Liquid Financial Instruments Nliq
   | negotiatedTradeInIlliquidFinancialInstrumentsOilq -- Negotiated Trade In Illiquid Financial Instruments Oilq
-  | negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric -- Negotiated Trade Subject To Conditions Other Than The Current Market Price Pric
+  | negotiatedTradeOtherThanCurrentMarketPricePric -- Negotiated Trade Other Than Current Market Price PRIC
   | unlisted (byte : { byte : UInt8 // byte ∉ PreTradeTransparencyWaiver.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -974,14 +1260,14 @@ namespace PreTradeTransparencyWaiver
 def toByte : PreTradeTransparencyWaiver → UInt8
   | .negotiatedTradeInLiquidFinancialInstrumentsNliq => 0x30
   | .negotiatedTradeInIlliquidFinancialInstrumentsOilq => 0x31
-  | .negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric => 0x32
+  | .negotiatedTradeOtherThanCurrentMarketPricePric => 0x32
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : PreTradeTransparencyWaiver :=
   if byte = 0x30 then .negotiatedTradeInLiquidFinancialInstrumentsNliq
   else if byte = 0x31 then .negotiatedTradeInIlliquidFinancialInstrumentsOilq
-  else .negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric
+  else .negotiatedTradeOtherThanCurrentMarketPricePric
 
 def ofByte (byte : UInt8) : PreTradeTransparencyWaiver :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -990,7 +1276,7 @@ theorem ofByte_toByte (value : PreTradeTransparencyWaiver) : ofByte value.toByte
   cases value with
   | negotiatedTradeInLiquidFinancialInstrumentsNliq => decide
   | negotiatedTradeInIlliquidFinancialInstrumentsOilq => decide
-  | negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric => decide
+  | negotiatedTradeOtherThanCurrentMarketPricePric => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : PreTradeTransparencyWaiver) : List UInt8 :=
@@ -1062,12 +1348,11 @@ end DeferralWaiver
 
 /-- Sicav Fund Counterparty Side: one byte code -/
 def SicavFundCounterpartySide.codes : List UInt8 :=
-  [0x31, 0x32, 0x20]
+  [0x31, 0x32]
 
 inductive SicavFundCounterpartySide where
   | buyer -- Buyer
   | seller -- Seller
-  | na -- Na
   | unlisted (byte : { byte : UInt8 // byte ∉ SicavFundCounterpartySide.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1076,14 +1361,12 @@ namespace SicavFundCounterpartySide
 def toByte : SicavFundCounterpartySide → UInt8
   | .buyer => 0x31
   | .seller => 0x32
-  | .na => 0x20
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SicavFundCounterpartySide :=
   if byte = 0x31 then .buyer
-  else if byte = 0x32 then .seller
-  else .na
+  else .seller
 
 def ofByte (byte : UInt8) : SicavFundCounterpartySide :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1092,7 +1375,6 @@ theorem ofByte_toByte (value : SicavFundCounterpartySide) : ofByte value.toByte 
   cases value with
   | buyer => decide
   | seller => decide
-  | na => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SicavFundCounterpartySide) : List UInt8 :=
@@ -1117,7 +1399,7 @@ end SicavFundCounterpartySide
 
 /-- Amended Trade Type: one byte code -/
 def AmendedTradeType.codes : List UInt8 :=
-  [0x4D, 0x58, 0x54, 0x48, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]
+  [0x4D, 0x58, 0x54, 0x48, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x41, 0x42, 0x43, 0x46, 0x47, 0x49, 0x4A, 0x45, 0x4E, 0x4F, 0x50, 0x4C, 0x61, 0x62, 0x63, 0x44, 0x4B, 0x64, 0x65, 0x66, 0x57]
 
 inductive AmendedTradeType where
   | market -- Market
@@ -1130,6 +1412,31 @@ inductive AmendedTradeType where
   | authorisedApplicationExecutionOfContracts -- Authorised Application Execution Of Contracts
   | authorisedApplicationOtherCauses -- Authorised Application Other Causes
   | validationCommunicated -- Validation Communicated
+  | authorisedValidationTrades -- Authorised Validation Trades
+  | authorisedValidationCorporateInterest -- Authorised Validation Corporate Interest
+  | authorisedValidationExecutionOfContracts -- Authorised Validation Execution Of Contracts
+  | authorisedValidationOtherCauses -- Authorised Validation Other Causes
+  | transactionBetweenMembersCommunicated -- Transaction Between Members Communicated
+  | transactionBetweenMembersTrades -- Transaction Between Members Trades
+  | transactionBetweenMembersCorporateInterest -- Transaction Between Members Corporate Interest
+  | transactionBetweenMembersExecutionOfContracts -- Transaction Between Members Execution Of Contracts
+  | transactionBetweenMembersOtherCauses -- Transaction Between Members Other Causes
+  | applicationToCaterForALinkedPosition -- Application To Cater For A Linked Position
+  | transactionToCaterForALinkedPosition -- Transaction To Cater For A Linked Position
+  | transactionOfExerciseOfOptions -- Transaction Of Exercise Of Options
+  | publicShareBidOfferTypeTransaction -- Public Share Bid Offer Type Transaction
+  | publicShareAskOfferTypeTransaction -- Public Share Ask Offer Type Transaction
+  | publicShareSubscriptionOfferTypeTransaction -- Public Share Subscription Offer Type Transaction
+  | specialTradesDeltaType -- Special Trades Delta Type
+  | netAssetValueSpecialTradeDPlus1 -- Net Asset Value Special Trade D Plus 1
+  | netAssetValueSpecialTradeDPlus2 -- Net Asset Value Special Trade D Plus 2
+  | netAssetValueSpecialTradeDPlus3 -- Net Asset Value Special Trade D Plus 3
+  | applicationWithoutCcp -- Application Without CCP
+  | transactionWithoutCcp -- Transaction Without CCP
+  | investmentFundDPlus1 -- Investment Fund D Plus 1
+  | investmentFundDPlus2 -- Investment Fund D Plus 2
+  | investmentFundDPlus3 -- Investment Fund D Plus 3
+  | vwap -- VWAP
   | unlisted (byte : { byte : UInt8 // byte ∉ AmendedTradeType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1146,6 +1453,31 @@ def toByte : AmendedTradeType → UInt8
   | .authorisedApplicationExecutionOfContracts => 0x34
   | .authorisedApplicationOtherCauses => 0x35
   | .validationCommunicated => 0x36
+  | .authorisedValidationTrades => 0x37
+  | .authorisedValidationCorporateInterest => 0x38
+  | .authorisedValidationExecutionOfContracts => 0x39
+  | .authorisedValidationOtherCauses => 0x30
+  | .transactionBetweenMembersCommunicated => 0x41
+  | .transactionBetweenMembersTrades => 0x42
+  | .transactionBetweenMembersCorporateInterest => 0x43
+  | .transactionBetweenMembersExecutionOfContracts => 0x46
+  | .transactionBetweenMembersOtherCauses => 0x47
+  | .applicationToCaterForALinkedPosition => 0x49
+  | .transactionToCaterForALinkedPosition => 0x4A
+  | .transactionOfExerciseOfOptions => 0x45
+  | .publicShareBidOfferTypeTransaction => 0x4E
+  | .publicShareAskOfferTypeTransaction => 0x4F
+  | .publicShareSubscriptionOfferTypeTransaction => 0x50
+  | .specialTradesDeltaType => 0x4C
+  | .netAssetValueSpecialTradeDPlus1 => 0x61
+  | .netAssetValueSpecialTradeDPlus2 => 0x62
+  | .netAssetValueSpecialTradeDPlus3 => 0x63
+  | .applicationWithoutCcp => 0x44
+  | .transactionWithoutCcp => 0x4B
+  | .investmentFundDPlus1 => 0x64
+  | .investmentFundDPlus2 => 0x65
+  | .investmentFundDPlus3 => 0x66
+  | .vwap => 0x57
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -1159,7 +1491,32 @@ def listed (byte : UInt8) : AmendedTradeType :=
   else if byte = 0x33 then .authorisedApplicationCorporateInterest
   else if byte = 0x34 then .authorisedApplicationExecutionOfContracts
   else if byte = 0x35 then .authorisedApplicationOtherCauses
-  else .validationCommunicated
+  else if byte = 0x36 then .validationCommunicated
+  else if byte = 0x37 then .authorisedValidationTrades
+  else if byte = 0x38 then .authorisedValidationCorporateInterest
+  else if byte = 0x39 then .authorisedValidationExecutionOfContracts
+  else if byte = 0x30 then .authorisedValidationOtherCauses
+  else if byte = 0x41 then .transactionBetweenMembersCommunicated
+  else if byte = 0x42 then .transactionBetweenMembersTrades
+  else if byte = 0x43 then .transactionBetweenMembersCorporateInterest
+  else if byte = 0x46 then .transactionBetweenMembersExecutionOfContracts
+  else if byte = 0x47 then .transactionBetweenMembersOtherCauses
+  else if byte = 0x49 then .applicationToCaterForALinkedPosition
+  else if byte = 0x4A then .transactionToCaterForALinkedPosition
+  else if byte = 0x45 then .transactionOfExerciseOfOptions
+  else if byte = 0x4E then .publicShareBidOfferTypeTransaction
+  else if byte = 0x4F then .publicShareAskOfferTypeTransaction
+  else if byte = 0x50 then .publicShareSubscriptionOfferTypeTransaction
+  else if byte = 0x4C then .specialTradesDeltaType
+  else if byte = 0x61 then .netAssetValueSpecialTradeDPlus1
+  else if byte = 0x62 then .netAssetValueSpecialTradeDPlus2
+  else if byte = 0x63 then .netAssetValueSpecialTradeDPlus3
+  else if byte = 0x44 then .applicationWithoutCcp
+  else if byte = 0x4B then .transactionWithoutCcp
+  else if byte = 0x64 then .investmentFundDPlus1
+  else if byte = 0x65 then .investmentFundDPlus2
+  else if byte = 0x66 then .investmentFundDPlus3
+  else .vwap
 
 def ofByte (byte : UInt8) : AmendedTradeType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1176,6 +1533,31 @@ theorem ofByte_toByte (value : AmendedTradeType) : ofByte value.toByte = value :
   | authorisedApplicationExecutionOfContracts => decide
   | authorisedApplicationOtherCauses => decide
   | validationCommunicated => decide
+  | authorisedValidationTrades => decide
+  | authorisedValidationCorporateInterest => decide
+  | authorisedValidationExecutionOfContracts => decide
+  | authorisedValidationOtherCauses => decide
+  | transactionBetweenMembersCommunicated => decide
+  | transactionBetweenMembersTrades => decide
+  | transactionBetweenMembersCorporateInterest => decide
+  | transactionBetweenMembersExecutionOfContracts => decide
+  | transactionBetweenMembersOtherCauses => decide
+  | applicationToCaterForALinkedPosition => decide
+  | transactionToCaterForALinkedPosition => decide
+  | transactionOfExerciseOfOptions => decide
+  | publicShareBidOfferTypeTransaction => decide
+  | publicShareAskOfferTypeTransaction => decide
+  | publicShareSubscriptionOfferTypeTransaction => decide
+  | specialTradesDeltaType => decide
+  | netAssetValueSpecialTradeDPlus1 => decide
+  | netAssetValueSpecialTradeDPlus2 => decide
+  | netAssetValueSpecialTradeDPlus3 => decide
+  | applicationWithoutCcp => decide
+  | transactionWithoutCcp => decide
+  | investmentFundDPlus1 => decide
+  | investmentFundDPlus2 => decide
+  | investmentFundDPlus3 => decide
+  | vwap => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AmendedTradeType) : List UInt8 :=
@@ -1203,7 +1585,7 @@ structure LogonResponseMessage where
   sequenceNumber : BitVec 32
   heartBtInt : BitVec 8
   protocolVersion : Alpha 6
-  testProductionInd : Alpha 1
+  testProductionInd : TestProductionInd
   environmentCode : Alpha 2
   sessionDate : BitVec 32
   expectedSequenceNumber : BitVec 32
@@ -1216,7 +1598,7 @@ def encode (message : LogonResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 1 message.heartBtInt
     ++ (Alpha.encode message.protocolVersion
-    ++ (Alpha.encode message.testProductionInd
+    ++ (TestProductionInd.encode message.testProductionInd
     ++ (Alpha.encode message.environmentCode
     ++ (encodeUIntLE 4 message.sessionDate
     ++ (encodeUIntLE 4 message.expectedSequenceNumber
@@ -1226,7 +1608,7 @@ def decode (bytes : List UInt8) : Option (LogonResponseMessage × List UInt8) :=
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (heartBtInt, bytes) ← decodeUIntLE 1 bytes
   let (protocolVersion, bytes) ← Alpha.decode 6 bytes
-  let (testProductionInd, bytes) ← Alpha.decode 1 bytes
+  let (testProductionInd, bytes) ← TestProductionInd.decode bytes
   let (environmentCode, bytes) ← Alpha.decode 2 bytes
   let (sessionDate, bytes) ← decodeUIntLE 4 bytes
   let (expectedSequenceNumber, bytes) ← decodeUIntLE 4 bytes
@@ -1235,7 +1617,7 @@ def decode (bytes : List UInt8) : Option (LogonResponseMessage × List UInt8) :=
 
 @[simp] theorem encode_length (message : LogonResponseMessage) : (encode message).length = 26 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TestProductionInd.encode_length]
 
 theorem encode_length_pos (message : LogonResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1250,7 +1632,7 @@ theorem encode_length_pos (message : LogonResponseMessage) : (encode message).le
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, TestProductionInd.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1503,13 +1885,47 @@ theorem encode_length_pos (message : SecurityListCancellationReportMessage) : (e
 
 end SecurityListCancellationReportMessage
 
-/-- Statistics Message: 18 bytes -/
+/-- Statistics Repeating Group: 9 bytes -/
+structure StatisticsRepeatingGroup where
+  dataCode : DataCode
+  dataValue : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace StatisticsRepeatingGroup
+
+def encode (message : StatisticsRepeatingGroup) : List UInt8 :=
+  DataCode.encode message.dataCode
+    ++ (encodeUIntLE 8 message.dataValue)
+
+def decode (bytes : List UInt8) : Option (StatisticsRepeatingGroup × List UInt8) := do
+  let (dataCode, bytes) ← DataCode.decode bytes
+  let (dataValue, bytes) ← decodeUIntLE 8 bytes
+  pure ({ dataCode, dataValue }, bytes)
+
+@[simp] theorem encode_length (message : StatisticsRepeatingGroup) : (encode message).length = 9 := by
+  unfold encode
+  simp only [List.length_append, DataCode.encode_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : StatisticsRepeatingGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : StatisticsRepeatingGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, DataCode.decode_encode, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end StatisticsRepeatingGroup
+
+/-- Statistics Message -/
 structure StatisticsMessage where
   sequenceNumber : BitVec 32
   securityCode : BitVec 32
   transactionDateAndTime : BitVec 64
-  dataCount : BitVec 8
-  dataCode : Alpha 1
+  statisticsRepeatingGroup : Bounded 1 StatisticsRepeatingGroup
   deriving DecidableEq, Repr
 
 namespace StatisticsMessage
@@ -1518,24 +1934,30 @@ def encode (message : StatisticsMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
-    ++ (encodeUIntLE 1 message.dataCount
-    ++ (Alpha.encode message.dataCode))))
+    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.statisticsRepeatingGroup.val.length)
+    ++ (encodeMany StatisticsRepeatingGroup.encode message.statisticsRepeatingGroup.val))))
 
 def decode (bytes : List UInt8) : Option (StatisticsMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (dataCount, bytes) ← decodeUIntLE 1 bytes
-  let (dataCode, bytes) ← Alpha.decode 1 bytes
-  pure ({ sequenceNumber, securityCode, transactionDateAndTime, dataCount, dataCode }, bytes)
-
-@[simp] theorem encode_length (message : StatisticsMessage) : (encode message).length = 18 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  let (statisticsRepeatingGroup_, bytes) ← decodeMany StatisticsRepeatingGroup.decode dataCount.toNat bytes
+  if fits_statisticsRepeatingGroup : statisticsRepeatingGroup_.length < 256 ^ 1 then
+    pure ({ sequenceNumber, securityCode, transactionDateAndTime, statisticsRepeatingGroup := ⟨statisticsRepeatingGroup_, fits_statisticsRepeatingGroup⟩ }, bytes)
+  else none
 
 theorem encode_length_pos (message : StatisticsMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : StatisticsMessage) : (encode message).length ≤ 2312 := by
+  have bound_statisticsRepeatingGroup := message.statisticsRepeatingGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeMany_length_const StatisticsRepeatingGroup.encode 9 StatisticsRepeatingGroup.encode_length]
+  omega
 
 @[simp] theorem decode_encode (message : StatisticsMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
@@ -1548,7 +1970,9 @@ theorem encode_length_pos (message : StatisticsMessage) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [Alpha.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 StatisticsRepeatingGroup.encode StatisticsRepeatingGroup.decode StatisticsRepeatingGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.statisticsRepeatingGroup.length_lt]
   rfl
 
 end StatisticsMessage
@@ -3222,7 +3646,7 @@ def encode : Payload → List UInt8
   | .topofbook5LevelsMessage message => Topofbook5LevelsMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : Payload) : (encode message).length ≤ 976 := by
+theorem encode_length_le (message : Payload) : (encode message).length ≤ 2312 := by
   cases message with
   | logonResponseMessage inner =>
     simp only [encode, LogonResponseMessage.encode_length]
@@ -3246,7 +3670,8 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 976 :
     simp only [encode, SecurityListCancellationReportMessage.encode_length]
     omega
   | statisticsMessage inner =>
-    simp only [encode, StatisticsMessage.encode_length]
+    have bound_inner := StatisticsMessage.encode_length_le inner
+    simp only [encode]
     omega
   | securityListMessage inner =>
     simp only [encode, SecurityListMessage.encode_length]
@@ -3344,7 +3769,8 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityListCancellationReportMessage.encode_length]
     omega
   | statisticsMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, StatisticsMessage.encode_length]
+    have bound_inner := StatisticsMessage.encode_length_le inner
+    simp only [Payload.encode, List.length_append, encodeUInt_length]
     omega
   | securityListMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityListMessage.encode_length]

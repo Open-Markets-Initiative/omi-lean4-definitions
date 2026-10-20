@@ -7009,347 +7009,6 @@ theorem encode_length_le (message : QuoteCancelAck) : (encode message).length �
 
 end QuoteCancelAck
 
-/-- Execution Report Pending Cancel: 194 bytes -/
-structure ExecutionReportPendingCancel where
-  seqNum : BitVec 32
-  uuid : BitVec 64
-  execId : Alpha 40
-  senderId : Alpha 20
-  clordid : Alpha 20
-  partyDetailsListReqId : BitVec 64
-  orderId : BitVec 64
-  price : BitVec 64
-  transactTime : BitVec 64
-  sendingTimeEpoch : BitVec 64
-  orderRequestId : BitVec 64
-  location : Alpha 5
-  securityId : BitVec 32
-  orderQty : BitVec 32
-  cumQty : BitVec 32
-  leavesQtyOptional : BitVec 32
-  minQty : BitVec 32
-  displayQty : BitVec 32
-  expireDate : BitVec 16
-  ordTypeOptional : OrdTypeOptional
-  side : BitVec 8
-  timeInForce : BitVec 8
-  manualOrderIndicator : BitVec 8
-  possRetransFlag : BitVec 8
-  splitMsg : BitVec 8
-  liquidityFlag : BitVec 8
-  delayToTime : BitVec 64
-  discretionPrice : BitVec 64
-  deriving DecidableEq, Repr
-
-namespace ExecutionReportPendingCancel
-
-def encode (message : ExecutionReportPendingCancel) : List UInt8 :=
-  encodeUIntLE 4 message.seqNum
-    ++ (encodeUIntLE 8 message.uuid
-    ++ (Alpha.encode message.execId
-    ++ (Alpha.encode message.senderId
-    ++ (Alpha.encode message.clordid
-    ++ (encodeUIntLE 8 message.partyDetailsListReqId
-    ++ (encodeUIntLE 8 message.orderId
-    ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 8 message.sendingTimeEpoch
-    ++ (encodeUIntLE 8 message.orderRequestId
-    ++ (Alpha.encode message.location
-    ++ (encodeUIntLE 4 message.securityId
-    ++ (encodeUIntLE 4 message.orderQty
-    ++ (encodeUIntLE 4 message.cumQty
-    ++ (encodeUIntLE 4 message.leavesQtyOptional
-    ++ (encodeUIntLE 4 message.minQty
-    ++ (encodeUIntLE 4 message.displayQty
-    ++ (encodeUIntLE 2 message.expireDate
-    ++ (OrdTypeOptional.encode message.ordTypeOptional
-    ++ (encodeUInt 1 message.side
-    ++ (encodeUInt 1 message.timeInForce
-    ++ (encodeUInt 1 message.manualOrderIndicator
-    ++ (encodeUInt 1 message.possRetransFlag
-    ++ (encodeUInt 1 message.splitMsg
-    ++ (encodeUInt 1 message.liquidityFlag
-    ++ (encodeUIntLE 8 message.delayToTime
-    ++ (encodeUIntLE 8 message.discretionPrice)))))))))))))))))))))))))))
-
--- a long run of fields nests deeper than the elaborator's default limit
-set_option maxRecDepth 4096 in
-def decode (bytes : List UInt8) : Option (ExecutionReportPendingCancel × List UInt8) := do
-  let (seqNum, bytes) ← decodeUIntLE 4 bytes
-  let (uuid, bytes) ← decodeUIntLE 8 bytes
-  let (execId, bytes) ← Alpha.decode 40 bytes
-  let (senderId, bytes) ← Alpha.decode 20 bytes
-  let (clordid, bytes) ← Alpha.decode 20 bytes
-  let (partyDetailsListReqId, bytes) ← decodeUIntLE 8 bytes
-  let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (sendingTimeEpoch, bytes) ← decodeUIntLE 8 bytes
-  let (orderRequestId, bytes) ← decodeUIntLE 8 bytes
-  let (location, bytes) ← Alpha.decode 5 bytes
-  let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (orderQty, bytes) ← decodeUIntLE 4 bytes
-  let (cumQty, bytes) ← decodeUIntLE 4 bytes
-  let (leavesQtyOptional, bytes) ← decodeUIntLE 4 bytes
-  let (minQty, bytes) ← decodeUIntLE 4 bytes
-  let (displayQty, bytes) ← decodeUIntLE 4 bytes
-  let (expireDate, bytes) ← decodeUIntLE 2 bytes
-  let (ordTypeOptional, bytes) ← OrdTypeOptional.decode bytes
-  let (side, bytes) ← decodeUInt 1 bytes
-  let (timeInForce, bytes) ← decodeUInt 1 bytes
-  let (manualOrderIndicator, bytes) ← decodeUInt 1 bytes
-  let (possRetransFlag, bytes) ← decodeUInt 1 bytes
-  let (splitMsg, bytes) ← decodeUInt 1 bytes
-  let (liquidityFlag, bytes) ← decodeUInt 1 bytes
-  let (delayToTime, bytes) ← decodeUIntLE 8 bytes
-  let (discretionPrice, bytes) ← decodeUIntLE 8 bytes
-  pure ({ seqNum, uuid, execId, senderId, clordid, partyDetailsListReqId, orderId, price, transactTime, sendingTimeEpoch, orderRequestId, location, securityId, orderQty, cumQty, leavesQtyOptional, minQty, displayQty, expireDate, ordTypeOptional, side, timeInForce, manualOrderIndicator, possRetransFlag, splitMsg, liquidityFlag, delayToTime, discretionPrice }, bytes)
-
-@[simp] theorem encode_length (message : ExecutionReportPendingCancel) : (encode message).length = 194 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, OrdTypeOptional.encode_length, encodeUInt_length]
-
-theorem encode_length_pos (message : ExecutionReportPendingCancel) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-set_option maxRecDepth 4096 in
-@[simp] theorem decode_encode (message : ExecutionReportPendingCancel) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, OrdTypeOptional.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
-  rfl
-
-end ExecutionReportPendingCancel
-
-/-- Execution Report Pending Replace: 195 bytes -/
-structure ExecutionReportPendingReplace where
-  seqNum : BitVec 32
-  uuid : BitVec 64
-  execId : Alpha 40
-  senderId : Alpha 20
-  clordid : Alpha 20
-  partyDetailsListReqId : BitVec 64
-  orderId : BitVec 64
-  price : BitVec 64
-  transactTime : BitVec 64
-  sendingTimeEpoch : BitVec 64
-  orderRequestId : BitVec 64
-  location : Alpha 5
-  securityId : BitVec 32
-  orderQty : BitVec 32
-  cumQty : BitVec 32
-  leaves : BitVec 32
-  minQty : BitVec 32
-  displayQty : BitVec 32
-  expireDate : BitVec 16
-  ordTypeOptional : OrdTypeOptional
-  side : BitVec 8
-  timeInForce : BitVec 8
-  manualOrderIndicator : BitVec 8
-  possRetransFlag : BitVec 8
-  splitMsg : BitVec 8
-  liquidityFlag : BitVec 8
-  shortSaleType : BitVec 8
-  delayToTime : BitVec 64
-  discretionPrice : BitVec 64
-  deriving DecidableEq, Repr
-
-namespace ExecutionReportPendingReplace
-
-def encode (message : ExecutionReportPendingReplace) : List UInt8 :=
-  encodeUIntLE 4 message.seqNum
-    ++ (encodeUIntLE 8 message.uuid
-    ++ (Alpha.encode message.execId
-    ++ (Alpha.encode message.senderId
-    ++ (Alpha.encode message.clordid
-    ++ (encodeUIntLE 8 message.partyDetailsListReqId
-    ++ (encodeUIntLE 8 message.orderId
-    ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 8 message.sendingTimeEpoch
-    ++ (encodeUIntLE 8 message.orderRequestId
-    ++ (Alpha.encode message.location
-    ++ (encodeUIntLE 4 message.securityId
-    ++ (encodeUIntLE 4 message.orderQty
-    ++ (encodeUIntLE 4 message.cumQty
-    ++ (encodeUIntLE 4 message.leaves
-    ++ (encodeUIntLE 4 message.minQty
-    ++ (encodeUIntLE 4 message.displayQty
-    ++ (encodeUIntLE 2 message.expireDate
-    ++ (OrdTypeOptional.encode message.ordTypeOptional
-    ++ (encodeUInt 1 message.side
-    ++ (encodeUInt 1 message.timeInForce
-    ++ (encodeUInt 1 message.manualOrderIndicator
-    ++ (encodeUInt 1 message.possRetransFlag
-    ++ (encodeUInt 1 message.splitMsg
-    ++ (encodeUInt 1 message.liquidityFlag
-    ++ (encodeUInt 1 message.shortSaleType
-    ++ (encodeUIntLE 8 message.delayToTime
-    ++ (encodeUIntLE 8 message.discretionPrice))))))))))))))))))))))))))))
-
--- a long run of fields nests deeper than the elaborator's default limit
-set_option maxRecDepth 4096 in
-def decode (bytes : List UInt8) : Option (ExecutionReportPendingReplace × List UInt8) := do
-  let (seqNum, bytes) ← decodeUIntLE 4 bytes
-  let (uuid, bytes) ← decodeUIntLE 8 bytes
-  let (execId, bytes) ← Alpha.decode 40 bytes
-  let (senderId, bytes) ← Alpha.decode 20 bytes
-  let (clordid, bytes) ← Alpha.decode 20 bytes
-  let (partyDetailsListReqId, bytes) ← decodeUIntLE 8 bytes
-  let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (sendingTimeEpoch, bytes) ← decodeUIntLE 8 bytes
-  let (orderRequestId, bytes) ← decodeUIntLE 8 bytes
-  let (location, bytes) ← Alpha.decode 5 bytes
-  let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (orderQty, bytes) ← decodeUIntLE 4 bytes
-  let (cumQty, bytes) ← decodeUIntLE 4 bytes
-  let (leaves, bytes) ← decodeUIntLE 4 bytes
-  let (minQty, bytes) ← decodeUIntLE 4 bytes
-  let (displayQty, bytes) ← decodeUIntLE 4 bytes
-  let (expireDate, bytes) ← decodeUIntLE 2 bytes
-  let (ordTypeOptional, bytes) ← OrdTypeOptional.decode bytes
-  let (side, bytes) ← decodeUInt 1 bytes
-  let (timeInForce, bytes) ← decodeUInt 1 bytes
-  let (manualOrderIndicator, bytes) ← decodeUInt 1 bytes
-  let (possRetransFlag, bytes) ← decodeUInt 1 bytes
-  let (splitMsg, bytes) ← decodeUInt 1 bytes
-  let (liquidityFlag, bytes) ← decodeUInt 1 bytes
-  let (shortSaleType, bytes) ← decodeUInt 1 bytes
-  let (delayToTime, bytes) ← decodeUIntLE 8 bytes
-  let (discretionPrice, bytes) ← decodeUIntLE 8 bytes
-  pure ({ seqNum, uuid, execId, senderId, clordid, partyDetailsListReqId, orderId, price, transactTime, sendingTimeEpoch, orderRequestId, location, securityId, orderQty, cumQty, leaves, minQty, displayQty, expireDate, ordTypeOptional, side, timeInForce, manualOrderIndicator, possRetransFlag, splitMsg, liquidityFlag, shortSaleType, delayToTime, discretionPrice }, bytes)
-
-@[simp] theorem encode_length (message : ExecutionReportPendingReplace) : (encode message).length = 195 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, OrdTypeOptional.encode_length, encodeUInt_length]
-
-theorem encode_length_pos (message : ExecutionReportPendingReplace) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-set_option maxRecDepth 4096 in
-@[simp] theorem decode_encode (message : ExecutionReportPendingReplace) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, OrdTypeOptional.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
-  rfl
-
-end ExecutionReportPendingReplace
-
 /-- Any Server Payload, selected by Template Id -/
 inductive ServerPayload where
   | negotiationResponse (message : NegotiationResponse) -- 501
@@ -7383,8 +7042,6 @@ inductive ServerPayload where
   | securityDefinitionResponse (message : SecurityDefinitionResponse) -- 561
   | orderMassActionReport (message : OrderMassActionReport) -- 562
   | quoteCancelAck (message : QuoteCancelAck) -- 563
-  | executionReportPendingCancel (message : ExecutionReportPendingCancel) -- 564
-  | executionReportPendingReplace (message : ExecutionReportPendingReplace) -- 565
   deriving DecidableEq, Repr
 
 namespace ServerPayload
@@ -7422,8 +7079,6 @@ def tag : ServerPayload → BitVec 16
   | .securityDefinitionResponse _ => 561
   | .orderMassActionReport _ => 562
   | .quoteCancelAck _ => 563
-  | .executionReportPendingCancel _ => 564
-  | .executionReportPendingReplace _ => 565
 
 def encode : ServerPayload → List UInt8
   | .negotiationResponse message => NegotiationResponse.encode message
@@ -7457,8 +7112,6 @@ def encode : ServerPayload → List UInt8
   | .securityDefinitionResponse message => SecurityDefinitionResponse.encode message
   | .orderMassActionReport message => OrderMassActionReport.encode message
   | .quoteCancelAck message => QuoteCancelAck.encode message
-  | .executionReportPendingCancel message => ExecutionReportPendingCancel.encode message
-  | .executionReportPendingReplace message => ExecutionReportPendingReplace.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : ServerPayload) : (encode message).length ≤ 65569 := by
@@ -7569,12 +7222,6 @@ theorem encode_length_le (message : ServerPayload) : (encode message).length ≤
     have bound_inner := QuoteCancelAck.encode_length_le inner
     simp only [encode]
     omega
-  | executionReportPendingCancel inner =>
-    simp only [encode, ExecutionReportPendingCancel.encode_length]
-    omega
-  | executionReportPendingReplace inner =>
-    simp only [encode, ExecutionReportPendingReplace.encode_length]
-    omega
 
 def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ServerPayload × List UInt8) :=
   if tag = 501 then (NegotiationResponse.decode bytes).map fun (message, rest) => (.negotiationResponse message, rest)
@@ -7608,8 +7255,6 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ServerPayload × Lis
   else if tag = 561 then (SecurityDefinitionResponse.decode bytes).map fun (message, rest) => (.securityDefinitionResponse message, rest)
   else if tag = 562 then (OrderMassActionReport.decode bytes).map fun (message, rest) => (.orderMassActionReport message, rest)
   else if tag = 563 then (QuoteCancelAck.decode bytes).map fun (message, rest) => (.quoteCancelAck message, rest)
-  else if tag = 564 then (ExecutionReportPendingCancel.decode bytes).map fun (message, rest) => (.executionReportPendingCancel message, rest)
-  else if tag = 565 then (ExecutionReportPendingReplace.decode bytes).map fun (message, rest) => (.executionReportPendingReplace message, rest)
   else none
 
 @[simp] theorem decode_encode (message : ServerPayload) (rest : List UInt8) :

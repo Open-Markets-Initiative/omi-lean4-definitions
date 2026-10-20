@@ -3063,6 +3063,27 @@ theorem encode_length_pos (message : TradingSessionStatus) : (encode message).le
 
 end TradingSessionStatus
 
+/-- Heartbeat: 0 bytes -/
+structure Heartbeat where
+  deriving DecidableEq, Repr
+
+namespace Heartbeat
+
+def encode (_ : Heartbeat) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (Heartbeat × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : Heartbeat) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : Heartbeat) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end Heartbeat
+
 /-- Test Event: 201 bytes -/
 structure TestEvent where
   scenarioName : Alpha 200
@@ -3203,6 +3224,27 @@ theorem encode_length_pos (message : LoginResponse) : (encode message).length > 
 
 end LoginResponse
 
+/-- Logout: 0 bytes -/
+structure Logout where
+  deriving DecidableEq, Repr
+
+namespace Logout
+
+def encode (_ : Logout) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (Logout × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : Logout) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : Logout) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end Logout
+
 /-- End Of Snapshot: 4 bytes -/
 structure EndOfSnapshot where
   lastSeqNum : BitVec 32
@@ -3264,10 +3306,12 @@ inductive Payload where
   | realTimeIndex (message : RealTimeIndex) -- 500
   | indexSummary (message : IndexSummary) -- 501
   | tradingSessionStatus (message : TradingSessionStatus) -- 23
+  | heartbeat (message : Heartbeat) -- 1
   | testEvent (message : TestEvent) -- 8192
   | encryptionKey (message : EncryptionKey) -- 24
   | login (message : Login) -- 667
   | loginResponse (message : LoginResponse) -- 668
+  | logout (message : Logout) -- 669
   | endOfSnapshot (message : EndOfSnapshot) -- 670
   deriving DecidableEq, Repr
 
@@ -3304,10 +3348,12 @@ def tag : Payload → BitVec 16
   | .realTimeIndex _ => 500
   | .indexSummary _ => 501
   | .tradingSessionStatus _ => 23
+  | .heartbeat _ => 1
   | .testEvent _ => 8192
   | .encryptionKey _ => 24
   | .login _ => 667
   | .loginResponse _ => 668
+  | .logout _ => 669
   | .endOfSnapshot _ => 670
 
 def encode : Payload → List UInt8
@@ -3340,10 +3386,12 @@ def encode : Payload → List UInt8
   | .realTimeIndex message => RealTimeIndex.encode message
   | .indexSummary message => IndexSummary.encode message
   | .tradingSessionStatus message => TradingSessionStatus.encode message
+  | .heartbeat message => Heartbeat.encode message
   | .testEvent message => TestEvent.encode message
   | .encryptionKey message => EncryptionKey.encode message
   | .login message => Login.encode message
   | .loginResponse message => LoginResponse.encode message
+  | .logout message => Logout.encode message
   | .endOfSnapshot message => EndOfSnapshot.encode message
 
 /-- The most bytes any message's encoding can take -/
@@ -3436,6 +3484,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 890 :
   | tradingSessionStatus inner =>
     simp only [encode, TradingSessionStatus.encode_length]
     omega
+  | heartbeat inner =>
+    simp only [encode, Heartbeat.encode_length]
+    omega
   | testEvent inner =>
     simp only [encode, TestEvent.encode_length]
     omega
@@ -3447,6 +3498,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 890 :
     omega
   | loginResponse inner =>
     simp only [encode, LoginResponse.encode_length]
+    omega
+  | logout inner =>
+    simp only [encode, Logout.encode_length]
     omega
   | endOfSnapshot inner =>
     simp only [encode, EndOfSnapshot.encode_length]
@@ -3482,10 +3536,12 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt
   else if tag = 500 then (RealTimeIndex.decode bytes).map fun (message, rest) => (.realTimeIndex message, rest)
   else if tag = 501 then (IndexSummary.decode bytes).map fun (message, rest) => (.indexSummary message, rest)
   else if tag = 23 then (TradingSessionStatus.decode bytes).map fun (message, rest) => (.tradingSessionStatus message, rest)
+  else if tag = 1 then (Heartbeat.decode bytes).map fun (message, rest) => (.heartbeat message, rest)
   else if tag = 8192 then (TestEvent.decode bytes).map fun (message, rest) => (.testEvent message, rest)
   else if tag = 24 then (EncryptionKey.decode bytes).map fun (message, rest) => (.encryptionKey message, rest)
   else if tag = 667 then (Login.decode bytes).map fun (message, rest) => (.login message, rest)
   else if tag = 668 then (LoginResponse.decode bytes).map fun (message, rest) => (.loginResponse message, rest)
+  else if tag = 669 then (Logout.decode bytes).map fun (message, rest) => (.logout message, rest)
   else if tag = 670 then (EndOfSnapshot.decode bytes).map fun (message, rest) => (.endOfSnapshot message, rest)
   else none
 
@@ -3637,6 +3693,9 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 932 :
   | tradingSessionStatus inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, TradingSessionStatus.encode_length]
     omega
+  | heartbeat inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Heartbeat.encode_length]
+    omega
   | testEvent inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, TestEvent.encode_length]
     omega
@@ -3648,6 +3707,9 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 932 :
     omega
   | loginResponse inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, LoginResponse.encode_length]
+    omega
+  | logout inner =>
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Logout.encode_length]
     omega
   | endOfSnapshot inner =>
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, EndOfSnapshot.encode_length]

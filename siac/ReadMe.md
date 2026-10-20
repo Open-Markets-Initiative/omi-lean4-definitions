@@ -5,6 +5,7 @@
 
 | Division | [Protocol][Omi.Siac.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Siac.Specifications] |
 | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [Cqs][Cqs.Consolidator] | [Input][Siac.Cqs.Input] | [Cta][Omi.Encoding.Cta] | [2.9.b][Siac.Cqs.Input.Cta.v2.9.b.Definition] | 1/29/2026 | 3464 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Siac.Cqs.Input.Cta.v2.9.b.Url] - [pdf][Siac.Cqs.Input.Cta.v2.9.b.Pdf] |
 | [Cqs][Cqs.Consolidator] | [Output][Siac.Cqs.Output] | [Cta][Omi.Encoding.Cta] | [1.91][Siac.Cqs.Output.Cta.v1.91.Definition] | 1/2/2020 | 3987 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Verified][Omi.Glossary.Testing.Verified] | [url][Siac.Cqs.Output.Cta.v1.91.Url] - [pdf][Siac.Cqs.Output.Cta.v1.91.Pdf] |
 | [Cqs][Cqs.Consolidator] | [Output][Siac.Cqs.Output] | [Cta][Omi.Encoding.Cta] | [2.10.a][Siac.Cqs.Output.Cta.v2.10.a.Definition] | 6/6/2025 | 3999 | [Active][Omi.Glossary.Deployment.Active] | [Verified][Omi.Glossary.Testing.Verified] | [pdf][Siac.Cqs.Output.Cta.v2.10.a.Pdf] - [url][Siac.Cqs.Output.Cta.v2.10.a.Url] |
 | [Cqs][Cqs.Consolidator] | [Output][Siac.Cqs.Output] | [Cta][Omi.Encoding.Cta] | [2.9][Siac.Cqs.Output.Cta.v2.9.Definition] | 12/16/2022 | 4365 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][Siac.Cqs.Output.Cta.v2.9.Url] - [pdf][Siac.Cqs.Output.Cta.v2.9.Pdf] |
@@ -48,6 +49,7 @@
 [Cqs.Consolidator]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Siac/Protocols/Cqs "Siac Cqs"
 [Cts.Consolidator]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Siac/Protocols/Cts "Siac Cts"
 [Opra.Consolidator]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Siac/Protocols/Opra "Siac Opra"
+[Siac.Cqs.Input]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Cqs/Input.md ""
 [Siac.Cqs.Output]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Cqs/Output.md "Output"
 [Siac.Cqs.Snapshot]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Cqs/Snapshot.md "Snapshot"
 [Siac.Cts.Input]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Cts/Input.md ""
@@ -56,6 +58,9 @@
 [Siac.Opra.Input]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Opra/Input.md "Input"
 [Siac.Opra.Output]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Protocols/Opra/Output.md "Output"
 
+[Siac.Cqs.Input.Cta.v2.9.b.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/siac/cqs/input/Siac_Cqs_Input_v2_9_b.lean "Siac Cqs Input Cta v2.9.b Lean Definition"
+[Siac.Cqs.Input.Cta.v2.9.b.Url]: https://www.ctaplan.com/tech-specs "The Securities Industry Automation Corporation 2.9.b Url"
+[Siac.Cqs.Input.Cta.v2.9.b.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Specifications/Cqs/Input/Siac.Cqs.Input.Cta.v2.9.b.pdf "The Securities Industry Automation Corporation 2.9.b Pdf"
 [Siac.Cqs.Output.Cta.v1.91.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/siac/cqs/output/Siac_Cqs_Output_v1_91.lean "Siac Cqs Output Cta v1.91 Lean Definition"
 [Siac.Cqs.Output.Cta.v1.91.Url]: https://www.ctaplan.com/tech-specs "The Securities Industry Automation Corporation 1.91 Url"
 [Siac.Cqs.Output.Cta.v1.91.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Siac/Specifications/Cqs/Output/Siac.Cqs.Output.Cta.v1.91.pdf "The Securities Industry Automation Corporation 1.91 Pdf"

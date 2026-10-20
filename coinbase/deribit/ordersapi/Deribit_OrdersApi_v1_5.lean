@@ -3594,7 +3594,7 @@ structure OrderPlacedMessage where
   visibleQty : VisibleQty
   status : BitVec 8
   cancelReason : BitVec 8
-  padding3 : BitVec 24
+  padding3 : Alpha 3
   correlationId : BitVec 64
   orderPlacedMessageFillsGroups : OrderPlacedMessageFillsGroups
   orderPlacedMessageLegsGroups : OrderPlacedMessageLegsGroups
@@ -3614,7 +3614,7 @@ def encode (message : OrderPlacedMessage) : List UInt8 :=
     ++ (VisibleQty.encode message.visibleQty
     ++ (encodeUInt 1 message.status
     ++ (encodeUInt 1 message.cancelReason
-    ++ (encodeUIntLE 3 message.padding3
+    ++ (Alpha.encode message.padding3
     ++ (encodeUIntLE 8 message.correlationId
     ++ (OrderPlacedMessageFillsGroups.encode message.orderPlacedMessageFillsGroups
     ++ (OrderPlacedMessageLegsGroups.encode message.orderPlacedMessageLegsGroups))))))))))))))
@@ -3631,7 +3631,7 @@ def decode (bytes : List UInt8) : Option (OrderPlacedMessage × List UInt8) := d
   let (visibleQty, bytes) ← VisibleQty.decode bytes
   let (status, bytes) ← decodeUInt 1 bytes
   let (cancelReason, bytes) ← decodeUInt 1 bytes
-  let (padding3, bytes) ← decodeUIntLE 3 bytes
+  let (padding3, bytes) ← Alpha.decode 3 bytes
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (orderPlacedMessageFillsGroups, bytes) ← OrderPlacedMessageFillsGroups.decode bytes
   let (orderPlacedMessageLegsGroups, bytes) ← OrderPlacedMessageLegsGroups.decode bytes
@@ -3647,7 +3647,7 @@ theorem encode_length_le (message : OrderPlacedMessage) : (encode message).lengt
   have bound_orderPlacedMessageFillsGroups := OrderPlacedMessageFillsGroups.encode_length_le message.orderPlacedMessageFillsGroups
   have bound_orderPlacedMessageLegsGroups := OrderPlacedMessageLegsGroups.encode_length_le message.orderPlacedMessageLegsGroups
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Quantity.encode_length, TotalFilled.encode_length, VisibleQty.encode_length, encodeUInt_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Quantity.encode_length, TotalFilled.encode_length, VisibleQty.encode_length, encodeUInt_length, Alpha.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : OrderPlacedMessage) (rest : List UInt8) :
@@ -3675,7 +3675,7 @@ theorem encode_length_le (message : OrderPlacedMessage) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
