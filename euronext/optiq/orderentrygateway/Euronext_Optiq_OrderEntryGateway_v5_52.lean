@@ -16,7 +16,7 @@ namespace Omi.EuronextOptiqOrderentrygatewaySbeV552
 
 /-- Strategy Code: one byte code -/
 def StrategyCode.codes : List UInt8 :=
-  [0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6D, 0x6E, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A]
+  [0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6D, 0x6E, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x54, 0x55]
 
 inductive StrategyCode where
   | jellyRoll -- Jelly Roll
@@ -67,6 +67,8 @@ inductive StrategyCode where
   | callSpreadversusSellaPut -- Call Spreadversus Sella Put
   | putSpreadversusSellaCall -- Put Spreadversus Sella Call
   | putStraddleversusSellaCalloraPut -- Put Straddleversus Sella Callora Put
+  | icSonesidedcombinationsameexpiry -- Ic Sonesidedcombinationsameexpiry
+  | icStwosidedcombinationsameexpiry -- Ic Stwosidedcombinationsameexpiry
   | unlisted (byte : { byte : UInt8 // byte ∉ StrategyCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -121,6 +123,8 @@ def toByte : StrategyCode → UInt8
   | .callSpreadversusSellaPut => 0x78
   | .putSpreadversusSellaCall => 0x79
   | .putStraddleversusSellaCalloraPut => 0x7A
+  | .icSonesidedcombinationsameexpiry => 0x54
+  | .icStwosidedcombinationsameexpiry => 0x55
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -172,7 +176,9 @@ def listed (byte : UInt8) : StrategyCode :=
   else if byte = 0x77 then .ironCondor
   else if byte = 0x78 then .callSpreadversusSellaPut
   else if byte = 0x79 then .putSpreadversusSellaCall
-  else .putStraddleversusSellaCalloraPut
+  else if byte = 0x7A then .putStraddleversusSellaCalloraPut
+  else if byte = 0x54 then .icSonesidedcombinationsameexpiry
+  else .icStwosidedcombinationsameexpiry
 
 def ofByte (byte : UInt8) : StrategyCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -227,6 +233,8 @@ theorem ofByte_toByte (value : StrategyCode) : ofByte value.toByte = value := by
   | callSpreadversusSellaPut => decide
   | putSpreadversusSellaCall => decide
   | putStraddleversusSellaCalloraPut => decide
+  | icSonesidedcombinationsameexpiry => decide
+  | icStwosidedcombinationsameexpiry => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : StrategyCode) : List UInt8 :=
@@ -251,7 +259,7 @@ end StrategyCode
 
 /-- Strategy Code Optional: one byte code -/
 def StrategyCodeOptional.codes : List UInt8 :=
-  [0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6D, 0x6E, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A]
+  [0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6D, 0x6E, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x54, 0x55]
 
 inductive StrategyCodeOptional where
   | jellyRoll -- Jelly Roll
@@ -302,6 +310,8 @@ inductive StrategyCodeOptional where
   | callSpreadversusSellaPut -- Call Spreadversus Sella Put
   | putSpreadversusSellaCall -- Put Spreadversus Sella Call
   | putStraddleversusSellaCalloraPut -- Put Straddleversus Sella Callora Put
+  | icSonesidedcombinationsameexpiry -- Ic Sonesidedcombinationsameexpiry
+  | icStwosidedcombinationsameexpiry -- Ic Stwosidedcombinationsameexpiry
   | unlisted (byte : { byte : UInt8 // byte ∉ StrategyCodeOptional.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -356,6 +366,8 @@ def toByte : StrategyCodeOptional → UInt8
   | .callSpreadversusSellaPut => 0x78
   | .putSpreadversusSellaCall => 0x79
   | .putStraddleversusSellaCalloraPut => 0x7A
+  | .icSonesidedcombinationsameexpiry => 0x54
+  | .icStwosidedcombinationsameexpiry => 0x55
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -407,7 +419,9 @@ def listed (byte : UInt8) : StrategyCodeOptional :=
   else if byte = 0x77 then .ironCondor
   else if byte = 0x78 then .callSpreadversusSellaPut
   else if byte = 0x79 then .putSpreadversusSellaCall
-  else .putStraddleversusSellaCalloraPut
+  else if byte = 0x7A then .putStraddleversusSellaCalloraPut
+  else if byte = 0x54 then .icSonesidedcombinationsameexpiry
+  else .icStwosidedcombinationsameexpiry
 
 def ofByte (byte : UInt8) : StrategyCodeOptional :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -462,6 +476,8 @@ theorem ofByte_toByte (value : StrategyCodeOptional) : ofByte value.toByte = val
   | callSpreadversusSellaPut => decide
   | putSpreadversusSellaCall => decide
   | putStraddleversusSellaCalloraPut => decide
+  | icSonesidedcombinationsameexpiry => decide
+  | icStwosidedcombinationsameexpiry => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : StrategyCodeOptional) : List UInt8 :=

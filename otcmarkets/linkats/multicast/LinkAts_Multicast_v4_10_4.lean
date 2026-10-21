@@ -1364,7 +1364,7 @@ structure ExtendedTradeMessage where
   tradeStatus : BitVec 8
   venue : Alpha 3
   deprecatedUtf85 : Alpha 5
-  tradePrice : BitVec 64
+  extendedTradePrice : BitVec 64
   tradeSizeUnsignedInteger8 : BitVec 64
   tradeTimeMilli : BitVec 64
   deriving DecidableEq, Repr
@@ -1380,7 +1380,7 @@ def encode (message : ExtendedTradeMessage) : List UInt8 :=
     ++ (encodeUIntLE 1 message.tradeStatus
     ++ (Alpha.encode message.venue
     ++ (Alpha.encode message.deprecatedUtf85
-    ++ (encodeUInt 8 message.tradePrice
+    ++ (encodeUInt 8 message.extendedTradePrice
     ++ (encodeUInt 8 message.tradeSizeUnsignedInteger8
     ++ (encodeUInt 8 message.tradeTimeMilli))))))))))
 
@@ -1393,10 +1393,10 @@ def decode (bytes : List UInt8) : Option (ExtendedTradeMessage × List UInt8) :=
   let (tradeStatus, bytes) ← decodeUIntLE 1 bytes
   let (venue, bytes) ← Alpha.decode 3 bytes
   let (deprecatedUtf85, bytes) ← Alpha.decode 5 bytes
-  let (tradePrice, bytes) ← decodeUInt 8 bytes
+  let (extendedTradePrice, bytes) ← decodeUInt 8 bytes
   let (tradeSizeUnsignedInteger8, bytes) ← decodeUInt 8 bytes
   let (tradeTimeMilli, bytes) ← decodeUInt 8 bytes
-  pure ({ channelSeqNum, tradeIdUnsignedInteger8, tradeAction, tradeFlags, securityId, tradeStatus, venue, deprecatedUtf85, tradePrice, tradeSizeUnsignedInteger8, tradeTimeMilli }, bytes)
+  pure ({ channelSeqNum, tradeIdUnsignedInteger8, tradeAction, tradeFlags, securityId, tradeStatus, venue, deprecatedUtf85, extendedTradePrice, tradeSizeUnsignedInteger8, tradeTimeMilli }, bytes)
 
 @[simp] theorem encode_length (message : ExtendedTradeMessage) : (encode message).length = 51 := by
   unfold encode

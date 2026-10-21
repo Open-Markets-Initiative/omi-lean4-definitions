@@ -1103,6 +1103,8 @@ inductive UdpPayload where
   | bestBidOrAskUpdateLongFormMessage (message : BestBidOrAskUpdateLongFormMessage) -- "B" 0x42
   | tradeReportMessage (message : TradeReportMessage) -- "T" 0x54
   | brokenTradeReportMessage (message : BrokenTradeReportMessage) -- "X" 0x58
+  | bestBidOrAskUpdateShortFormMessage97 (message : BestBidOrAskUpdateShortFormMessage) -- "a" 0x61
+  | bestBidOrAskUpdateLongFormMessage65 (message : BestBidOrAskUpdateLongFormMessage) -- "A" 0x41
   deriving DecidableEq, Repr
 
 namespace UdpPayload
@@ -1118,6 +1120,8 @@ def tag : UdpPayload → BitVec 8
   | .bestBidOrAskUpdateLongFormMessage _ => 66
   | .tradeReportMessage _ => 84
   | .brokenTradeReportMessage _ => 88
+  | .bestBidOrAskUpdateShortFormMessage97 _ => 97
+  | .bestBidOrAskUpdateLongFormMessage65 _ => 65
 
 def encode : UdpPayload → List UInt8
   | .systemEventMessage message => SystemEventMessage.encode message
@@ -1129,6 +1133,8 @@ def encode : UdpPayload → List UInt8
   | .bestBidOrAskUpdateLongFormMessage message => BestBidOrAskUpdateLongFormMessage.encode message
   | .tradeReportMessage message => TradeReportMessage.encode message
   | .brokenTradeReportMessage message => BrokenTradeReportMessage.encode message
+  | .bestBidOrAskUpdateShortFormMessage97 message => BestBidOrAskUpdateShortFormMessage.encode message
+  | .bestBidOrAskUpdateLongFormMessage65 message => BestBidOrAskUpdateLongFormMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : UdpPayload) : (encode message).length ≤ 86 := by
@@ -1160,6 +1166,12 @@ theorem encode_length_le (message : UdpPayload) : (encode message).length ≤ 86
   | brokenTradeReportMessage inner =>
     simp only [encode, BrokenTradeReportMessage.encode_length]
     omega
+  | bestBidOrAskUpdateShortFormMessage97 inner =>
+    simp only [encode, BestBidOrAskUpdateShortFormMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateLongFormMessage65 inner =>
+    simp only [encode, BestBidOrAskUpdateLongFormMessage.encode_length]
+    omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (UdpPayload × List UInt8) :=
   if tag = 83 then (SystemEventMessage.decode bytes).map fun (message, rest) => (.systemEventMessage message, rest)
@@ -1171,6 +1183,8 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (UdpPayload × List UI
   else if tag = 66 then (BestBidOrAskUpdateLongFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateLongFormMessage message, rest)
   else if tag = 84 then (TradeReportMessage.decode bytes).map fun (message, rest) => (.tradeReportMessage message, rest)
   else if tag = 88 then (BrokenTradeReportMessage.decode bytes).map fun (message, rest) => (.brokenTradeReportMessage message, rest)
+  else if tag = 97 then (BestBidOrAskUpdateShortFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateShortFormMessage97 message, rest)
+  else if tag = 65 then (BestBidOrAskUpdateLongFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateLongFormMessage65 message, rest)
   else none
 
 @[simp] theorem decode_encode (message : UdpPayload) (rest : List UInt8) :
@@ -1233,6 +1247,12 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
   | brokenTradeReportMessage inner =>
     simp only [UdpPayload.encode, List.length_append, encodeUInt_length, BrokenTradeReportMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateShortFormMessage97 inner =>
+    simp only [UdpPayload.encode, List.length_append, encodeUInt_length, BestBidOrAskUpdateShortFormMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateLongFormMessage65 inner =>
+    simp only [UdpPayload.encode, List.length_append, encodeUInt_length, BestBidOrAskUpdateLongFormMessage.encode_length]
     omega
 
 /-- Size rule: Message Length counts the bytes after it, so it is written from the body and checked on decode -/

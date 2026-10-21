@@ -1615,24 +1615,30 @@ theorem encode_length_le (message : FillStrategyFieldGroups) : (encode message).
 
 end FillStrategyFieldGroups
 
-/-- Fill Derivatives Field Group: 9 bytes -/
+/-- Fill Derivatives Field Group: 17 bytes -/
 structure FillDerivativesFieldGroup where
   evaluatedPrice : BitVec 64
   messagePriceNotation : BitVec 8
+  finalSymbolIndex : BitVec 32
+  finalExecutionId : BitVec 32
   deriving DecidableEq, Repr
 
 namespace FillDerivativesFieldGroup
 
 def encode (message : FillDerivativesFieldGroup) : List UInt8 :=
   encodeUIntLE 8 message.evaluatedPrice
-    ++ (encodeUInt 1 message.messagePriceNotation)
+    ++ (encodeUInt 1 message.messagePriceNotation
+    ++ (encodeUIntLE 4 message.finalSymbolIndex
+    ++ (encodeUIntLE 4 message.finalExecutionId)))
 
 def decode (bytes : List UInt8) : Option (FillDerivativesFieldGroup × List UInt8) := do
   let (evaluatedPrice, bytes) ← decodeUIntLE 8 bytes
   let (messagePriceNotation, bytes) ← decodeUInt 1 bytes
-  pure ({ evaluatedPrice, messagePriceNotation }, bytes)
+  let (finalSymbolIndex, bytes) ← decodeUIntLE 4 bytes
+  let (finalExecutionId, bytes) ← decodeUIntLE 4 bytes
+  pure ({ evaluatedPrice, messagePriceNotation, finalSymbolIndex, finalExecutionId }, bytes)
 
-@[simp] theorem encode_length (message : FillDerivativesFieldGroup) : (encode message).length = 9 := by
+@[simp] theorem encode_length (message : FillDerivativesFieldGroup) : (encode message).length = 17 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
@@ -1645,7 +1651,11 @@ theorem encode_length_pos (message : FillDerivativesFieldGroup) : (encode messag
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
 end FillDerivativesFieldGroup
@@ -1677,10 +1687,10 @@ theorem encode_length_pos (message : FillDerivativesFieldGroups) : (encode messa
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : FillDerivativesFieldGroups) : (encode message).length ≤ 2297 := by
+theorem encode_length_le (message : FillDerivativesFieldGroups) : (encode message).length ≤ 4337 := by
   have bound_fillDerivativesFieldGroup := message.fillDerivativesFieldGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const FillDerivativesFieldGroup.encode 9 FillDerivativesFieldGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const FillDerivativesFieldGroup.encode 17 FillDerivativesFieldGroup.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : FillDerivativesFieldGroups) (rest : List UInt8) :
@@ -1786,7 +1796,7 @@ theorem encode_length_pos (message : FillMessage) : (encode message).length > 0 
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : FillMessage) : (encode message).length ≤ 19235 := by
+theorem encode_length_le (message : FillMessage) : (encode message).length ≤ 21275 := by
   have bound_fillOptionalFieldGroups := FillOptionalFieldGroups.encode_length_le message.fillOptionalFieldGroups
   have bound_fillStrategyFieldGroups := FillStrategyFieldGroups.encode_length_le message.fillStrategyFieldGroups
   have bound_mifidFieldsGroups := MifidFieldsGroups.encode_length_le message.mifidFieldsGroups
@@ -3085,7 +3095,7 @@ theorem encode_length_le (message : QuoteAckMessage) : (encode message).length �
 
 end QuoteAckMessage
 
-/-- Quote Request Message: 71 bytes -/
+/-- Quote Request Message: 72 bytes -/
 structure QuoteRequestMessage where
   clMsgSeqNum : BitVec 32
   firmId : Alpha 8
@@ -3101,6 +3111,7 @@ structure QuoteRequestMessage where
   endClient : Alpha 11
   darkExecutionInstruction : BitVec 8
   minOrderQty : BitVec 64
+  accountTypeOptional : BitVec 8
   deriving DecidableEq, Repr
 
 namespace QuoteRequestMessage
@@ -3119,7 +3130,8 @@ def encode (message : QuoteRequestMessage) : List UInt8 :=
     ++ (encodeUInt 1 message.firmIdPublication
     ++ (Alpha.encode message.endClient
     ++ (encodeUIntLE 1 message.darkExecutionInstruction
-    ++ (encodeUIntLE 8 message.minOrderQty)))))))))))))
+    ++ (encodeUIntLE 8 message.minOrderQty
+    ++ (encodeUInt 1 message.accountTypeOptional))))))))))))))
 
 def decode (bytes : List UInt8) : Option (QuoteRequestMessage × List UInt8) := do
   let (clMsgSeqNum, bytes) ← decodeUIntLE 4 bytes
@@ -3136,9 +3148,10 @@ def decode (bytes : List UInt8) : Option (QuoteRequestMessage × List UInt8) := 
   let (endClient, bytes) ← Alpha.decode 11 bytes
   let (darkExecutionInstruction, bytes) ← decodeUIntLE 1 bytes
   let (minOrderQty, bytes) ← decodeUIntLE 8 bytes
-  pure ({ clMsgSeqNum, firmId, sendingTime, executionWithinFirmShortCode, clientIdentificationShortcode, clientOrderId, orderQty, symbolIndex, emm, sideOptional, firmIdPublication, endClient, darkExecutionInstruction, minOrderQty }, bytes)
+  let (accountTypeOptional, bytes) ← decodeUInt 1 bytes
+  pure ({ clMsgSeqNum, firmId, sendingTime, executionWithinFirmShortCode, clientIdentificationShortcode, clientOrderId, orderQty, symbolIndex, emm, sideOptional, firmIdPublication, endClient, darkExecutionInstruction, minOrderQty, accountTypeOptional }, bytes)
 
-@[simp] theorem encode_length (message : QuoteRequestMessage) : (encode message).length = 71 := by
+@[simp] theorem encode_length (message : QuoteRequestMessage) : (encode message).length = 72 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
@@ -3175,7 +3188,9 @@ theorem encode_length_pos (message : QuoteRequestMessage) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end QuoteRequestMessage
@@ -4212,7 +4227,7 @@ theorem encode_length_pos (message : RequestForExecutionMessage) : (encode messa
 
 end RequestForExecutionMessage
 
-/-- Rfq Notification Message: 95 bytes -/
+/-- Rfq Notification Message: 96 bytes -/
 structure RfqNotificationMessage where
   msgSeqNum : BitVec 32
   firmId : Alpha 8
@@ -4230,6 +4245,7 @@ structure RfqNotificationMessage where
   endClient : Alpha 11
   darkExecutionInstruction : BitVec 8
   minOrderQty : BitVec 64
+  accountTypeOptional : BitVec 8
   deriving DecidableEq, Repr
 
 namespace RfqNotificationMessage
@@ -4250,7 +4266,8 @@ def encode (message : RfqNotificationMessage) : List UInt8 :=
     ++ (encodeUInt 1 message.sideOptional
     ++ (Alpha.encode message.endClient
     ++ (encodeUIntLE 1 message.darkExecutionInstruction
-    ++ (encodeUIntLE 8 message.minOrderQty)))))))))))))))
+    ++ (encodeUIntLE 8 message.minOrderQty
+    ++ (encodeUInt 1 message.accountTypeOptional))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (RfqNotificationMessage × List UInt8) := do
   let (msgSeqNum, bytes) ← decodeUIntLE 4 bytes
@@ -4269,9 +4286,10 @@ def decode (bytes : List UInt8) : Option (RfqNotificationMessage × List UInt8) 
   let (endClient, bytes) ← Alpha.decode 11 bytes
   let (darkExecutionInstruction, bytes) ← decodeUIntLE 1 bytes
   let (minOrderQty, bytes) ← decodeUIntLE 8 bytes
-  pure ({ msgSeqNum, firmId, bookIn, bookOutTimeOptional, oegInFromMeOptional, oegOutToMemberOptional, quoteReqId, orderQty, counterpartFirmId, symbolIndex, emm, rfqUpdateType, sideOptional, endClient, darkExecutionInstruction, minOrderQty }, bytes)
+  let (accountTypeOptional, bytes) ← decodeUInt 1 bytes
+  pure ({ msgSeqNum, firmId, bookIn, bookOutTimeOptional, oegInFromMeOptional, oegOutToMemberOptional, quoteReqId, orderQty, counterpartFirmId, symbolIndex, emm, rfqUpdateType, sideOptional, endClient, darkExecutionInstruction, minOrderQty, accountTypeOptional }, bytes)
 
-@[simp] theorem encode_length (message : RfqNotificationMessage) : (encode message).length = 95 := by
+@[simp] theorem encode_length (message : RfqNotificationMessage) : (encode message).length = 96 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
@@ -4312,7 +4330,9 @@ theorem encode_length_pos (message : RfqNotificationMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end RfqNotificationMessage
@@ -6743,6 +6763,182 @@ theorem encode_length_le (message : CrossOrderMessage) : (encode message).length
 
 end CrossOrderMessage
 
+/-- Rfq Counterparts Group: 26 bytes -/
+structure RfqCounterpartsGroup where
+  orderOrigin : BitVec 8
+  orderPrice : BitVec 64
+  lastTradedQuantity : BitVec 64
+  darkExecutionInstructionOptional : BitVec 8
+  minimumOrderQuantity : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace RfqCounterpartsGroup
+
+def encode (message : RfqCounterpartsGroup) : List UInt8 :=
+  encodeUInt 1 message.orderOrigin
+    ++ (encodeUIntLE 8 message.orderPrice
+    ++ (encodeUIntLE 8 message.lastTradedQuantity
+    ++ (encodeUIntLE 1 message.darkExecutionInstructionOptional
+    ++ (encodeUIntLE 8 message.minimumOrderQuantity))))
+
+def decode (bytes : List UInt8) : Option (RfqCounterpartsGroup × List UInt8) := do
+  let (orderOrigin, bytes) ← decodeUInt 1 bytes
+  let (orderPrice, bytes) ← decodeUIntLE 8 bytes
+  let (lastTradedQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (darkExecutionInstructionOptional, bytes) ← decodeUIntLE 1 bytes
+  let (minimumOrderQuantity, bytes) ← decodeUIntLE 8 bytes
+  pure ({ orderOrigin, orderPrice, lastTradedQuantity, darkExecutionInstructionOptional, minimumOrderQuantity }, bytes)
+
+@[simp] theorem encode_length (message : RfqCounterpartsGroup) : (encode message).length = 26 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : RfqCounterpartsGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : RfqCounterpartsGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end RfqCounterpartsGroup
+
+/-- Rfq Counterparts Groups -/
+structure RfqCounterpartsGroups where
+  blockLengthShort : BitVec 8
+  rfqCounterpartsGroup : Bounded 1 RfqCounterpartsGroup
+  deriving DecidableEq, Repr
+
+namespace RfqCounterpartsGroups
+
+def encode (message : RfqCounterpartsGroups) : List UInt8 :=
+  encodeUInt 1 message.blockLengthShort
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.rfqCounterpartsGroup.val.length)
+    ++ (encodeMany RfqCounterpartsGroup.encode message.rfqCounterpartsGroup.val))
+
+def decode (bytes : List UInt8) : Option (RfqCounterpartsGroups × List UInt8) := do
+  let (blockLengthShort, bytes) ← decodeUInt 1 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (rfqCounterpartsGroup_, bytes) ← decodeMany RfqCounterpartsGroup.decode numInGroup.toNat bytes
+  if fits_rfqCounterpartsGroup : rfqCounterpartsGroup_.length < 256 ^ 1 then
+    pure ({ blockLengthShort, rfqCounterpartsGroup := ⟨rfqCounterpartsGroup_, fits_rfqCounterpartsGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : RfqCounterpartsGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : RfqCounterpartsGroups) : (encode message).length ≤ 6632 := by
+  have bound_rfqCounterpartsGroup := message.rfqCounterpartsGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const RfqCounterpartsGroup.encode 26 RfqCounterpartsGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : RfqCounterpartsGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 RfqCounterpartsGroup.encode RfqCounterpartsGroup.decode RfqCounterpartsGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.rfqCounterpartsGroup.length_lt]
+  rfl
+
+end RfqCounterpartsGroups
+
+/-- Rfq Audit Message -/
+structure RfqAuditMessage where
+  msgSeqNum : BitVec 32
+  firmId : Alpha 8
+  bookIn : BitVec 64
+  bookOutTime : BitVec 64
+  oegInFromMe : BitVec 64
+  oegOutToMember : BitVec 64
+  quoteReqId : BitVec 64
+  symbolIndex : BitVec 32
+  emm : BitVec 8
+  rfqCounterpartsGroups : RfqCounterpartsGroups
+  deriving DecidableEq, Repr
+
+namespace RfqAuditMessage
+
+def encode (message : RfqAuditMessage) : List UInt8 :=
+  encodeUIntLE 4 message.msgSeqNum
+    ++ (Alpha.encode message.firmId
+    ++ (encodeUIntLE 8 message.bookIn
+    ++ (encodeUIntLE 8 message.bookOutTime
+    ++ (encodeUIntLE 8 message.oegInFromMe
+    ++ (encodeUIntLE 8 message.oegOutToMember
+    ++ (encodeUIntLE 8 message.quoteReqId
+    ++ (encodeUIntLE 4 message.symbolIndex
+    ++ (encodeUInt 1 message.emm
+    ++ (RfqCounterpartsGroups.encode message.rfqCounterpartsGroups)))))))))
+
+def decode (bytes : List UInt8) : Option (RfqAuditMessage × List UInt8) := do
+  let (msgSeqNum, bytes) ← decodeUIntLE 4 bytes
+  let (firmId, bytes) ← Alpha.decode 8 bytes
+  let (bookIn, bytes) ← decodeUIntLE 8 bytes
+  let (bookOutTime, bytes) ← decodeUIntLE 8 bytes
+  let (oegInFromMe, bytes) ← decodeUIntLE 8 bytes
+  let (oegOutToMember, bytes) ← decodeUIntLE 8 bytes
+  let (quoteReqId, bytes) ← decodeUIntLE 8 bytes
+  let (symbolIndex, bytes) ← decodeUIntLE 4 bytes
+  let (emm, bytes) ← decodeUInt 1 bytes
+  let (rfqCounterpartsGroups, bytes) ← RfqCounterpartsGroups.decode bytes
+  pure ({ msgSeqNum, firmId, bookIn, bookOutTime, oegInFromMe, oegOutToMember, quoteReqId, symbolIndex, emm, rfqCounterpartsGroups }, bytes)
+
+theorem encode_length_pos (message : RfqAuditMessage) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : RfqAuditMessage) : (encode message).length ≤ 6689 := by
+  have bound_rfqCounterpartsGroups := RfqCounterpartsGroups.encode_length_le message.rfqCounterpartsGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
+  omega
+
+@[simp] theorem decode_encode (message : RfqAuditMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [RfqCounterpartsGroups.decode_encode, some_bind]
+  rfl
+
+end RfqAuditMessage
+
 /-- Logon Message: 19 bytes -/
 structure LogonMessage where
   logicalAccessId : BitVec 32
@@ -7825,6 +8021,7 @@ inductive Payload where
   | wholesaleOrderAckMessage (message : WholesaleOrderAckMessage) -- 65
   | requestForImpliedExecutionMessage (message : RequestForImpliedExecutionMessage) -- 66
   | crossOrderMessage (message : CrossOrderMessage) -- 67
+  | rfqAuditMessage (message : RfqAuditMessage) -- 72
   | logonMessage (message : LogonMessage) -- 100
   | logonAckMessage (message : LogonAckMessage) -- 101
   | logonRejectMessage (message : LogonRejectMessage) -- 102
@@ -7882,6 +8079,7 @@ def tag : Payload → BitVec 16
   | .wholesaleOrderAckMessage _ => 65
   | .requestForImpliedExecutionMessage _ => 66
   | .crossOrderMessage _ => 67
+  | .rfqAuditMessage _ => 72
   | .logonMessage _ => 100
   | .logonAckMessage _ => 101
   | .logonRejectMessage _ => 102
@@ -7935,6 +8133,7 @@ def encode : Payload → List UInt8
   | .wholesaleOrderAckMessage message => WholesaleOrderAckMessage.encode message
   | .requestForImpliedExecutionMessage message => RequestForImpliedExecutionMessage.encode message
   | .crossOrderMessage message => CrossOrderMessage.encode message
+  | .rfqAuditMessage message => RfqAuditMessage.encode message
   | .logonMessage message => LogonMessage.encode message
   | .logonAckMessage message => LogonAckMessage.encode message
   | .logonRejectMessage message => LogonRejectMessage.encode message
@@ -8080,6 +8279,10 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 33471
     have bound_inner := CrossOrderMessage.encode_length_le inner
     simp only [encode]
     omega
+  | rfqAuditMessage inner =>
+    have bound_inner := RfqAuditMessage.encode_length_le inner
+    simp only [encode]
+    omega
   | logonMessage inner =>
     simp only [encode, LogonMessage.encode_length]
     omega
@@ -8161,6 +8364,7 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt
   else if tag = 65 then (WholesaleOrderAckMessage.decode bytes).map fun (message, rest) => (.wholesaleOrderAckMessage message, rest)
   else if tag = 66 then (RequestForImpliedExecutionMessage.decode bytes).map fun (message, rest) => (.requestForImpliedExecutionMessage message, rest)
   else if tag = 67 then (CrossOrderMessage.decode bytes).map fun (message, rest) => (.crossOrderMessage message, rest)
+  else if tag = 72 then (RfqAuditMessage.decode bytes).map fun (message, rest) => (.rfqAuditMessage message, rest)
   else if tag = 100 then (LogonMessage.decode bytes).map fun (message, rest) => (.logonMessage message, rest)
   else if tag = 101 then (LogonAckMessage.decode bytes).map fun (message, rest) => (.logonAckMessage message, rest)
   else if tag = 102 then (LogonRejectMessage.decode bytes).map fun (message, rest) => (.logonRejectMessage message, rest)
@@ -8351,6 +8555,10 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
   | crossOrderMessage inner =>
     have bound_inner := CrossOrderMessage.encode_length_le inner
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
+    omega
+  | rfqAuditMessage inner =>
+    have bound_inner := RfqAuditMessage.encode_length_le inner
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
     omega
   | logonMessage inner =>

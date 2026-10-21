@@ -17,7 +17,7 @@ namespace Omi.EuronextOptiqMarketdatagatewaySbeV551
 
 /-- Mmt Trading Mode: one byte code -/
 def MmtTradingMode.codes : List UInt8 :=
-  [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x49, 0x4B, 0x4F, 0x55]
+  [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x49, 0x4B, 0x4F, 0x55, 0x50]
 
 inductive MmtTradingMode where
   | undefinedAuctionequalUncrossing -- Undefined Auctionequal Uncrossing
@@ -31,6 +31,7 @@ inductive MmtTradingMode where
   | scheduledClosingAuctionequalUncrossing -- Scheduled Closing Auctionequal Uncrossing
   | scheduledOpeningAuctionequalUncrossing -- Scheduled Opening Auctionequal Uncrossing
   | unscheduledAuctionequalUncrossing -- Unscheduled Auctionequal Uncrossing
+  | onDemandAuctionequalFrequentBatchedAuction -- On Demand Auctionequal Frequent Batched Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ MmtTradingMode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -48,6 +49,7 @@ def toByte : MmtTradingMode → UInt8
   | .scheduledClosingAuctionequalUncrossing => 0x4B
   | .scheduledOpeningAuctionequalUncrossing => 0x4F
   | .unscheduledAuctionequalUncrossing => 0x55
+  | .onDemandAuctionequalFrequentBatchedAuction => 0x50
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -62,7 +64,8 @@ def listed (byte : UInt8) : MmtTradingMode :=
   else if byte = 0x49 then .scheduledIntradayAuctionequalUncrossing
   else if byte = 0x4B then .scheduledClosingAuctionequalUncrossing
   else if byte = 0x4F then .scheduledOpeningAuctionequalUncrossing
-  else .unscheduledAuctionequalUncrossing
+  else if byte = 0x55 then .unscheduledAuctionequalUncrossing
+  else .onDemandAuctionequalFrequentBatchedAuction
 
 def ofByte (byte : UInt8) : MmtTradingMode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -80,6 +83,7 @@ theorem ofByte_toByte (value : MmtTradingMode) : ofByte value.toByte = value := 
   | scheduledClosingAuctionequalUncrossing => decide
   | scheduledOpeningAuctionequalUncrossing => decide
   | unscheduledAuctionequalUncrossing => decide
+  | onDemandAuctionequalFrequentBatchedAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : MmtTradingMode) : List UInt8 :=
@@ -321,7 +325,7 @@ end TypeOfMarketAdmission
 
 /-- Exchange Code: one byte code -/
 def ExchangeCode.codes : List UInt8 :=
-  [0x41, 0x42, 0x43, 0x44, 0x46, 0x47, 0x48, 0x4A, 0x4B, 0x4D, 0x50, 0x52, 0x53, 0x59, 0x5A, 0x4E, 0x4F, 0x4C, 0x55, 0x49, 0x45]
+  [0x41, 0x42, 0x43, 0x44, 0x46, 0x47, 0x48, 0x4A, 0x4B, 0x4D, 0x50, 0x52, 0x53, 0x59, 0x5A, 0x4E, 0x4F, 0x4C, 0x55, 0x49, 0x45, 0x54]
 
 inductive ExchangeCode where
   | amsterdamEquityDerivatives -- Amsterdam Equity Derivatives
@@ -345,6 +349,7 @@ inductive ExchangeCode where
   | milanCashUnderlying -- Milan Cash Underlying
   | milanIndexDerivatives -- Milan Index Derivatives
   | milanEquityDerivatives -- Milan Equity Derivatives
+  | milanInterestRateDerivatives -- Milan Interest Rate Derivatives
   | unlisted (byte : { byte : UInt8 // byte ∉ ExchangeCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -372,6 +377,7 @@ def toByte : ExchangeCode → UInt8
   | .milanCashUnderlying => 0x55
   | .milanIndexDerivatives => 0x49
   | .milanEquityDerivatives => 0x45
+  | .milanInterestRateDerivatives => 0x54
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -396,7 +402,8 @@ def listed (byte : UInt8) : ExchangeCode :=
   else if byte = 0x4C then .osloCashUnderlying
   else if byte = 0x55 then .milanCashUnderlying
   else if byte = 0x49 then .milanIndexDerivatives
-  else .milanEquityDerivatives
+  else if byte = 0x45 then .milanEquityDerivatives
+  else .milanInterestRateDerivatives
 
 def ofByte (byte : UInt8) : ExchangeCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -424,6 +431,7 @@ theorem ofByte_toByte (value : ExchangeCode) : ofByte value.toByte = value := by
   | milanCashUnderlying => decide
   | milanIndexDerivatives => decide
   | milanEquityDerivatives => decide
+  | milanInterestRateDerivatives => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ExchangeCode) : List UInt8 :=
@@ -924,7 +932,7 @@ end UnderlyingType
 
 /-- Efficient Mmt Trading Mode: one byte code -/
 def EfficientMmtTradingMode.codes : List UInt8 :=
-  [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x49, 0x4B, 0x4F, 0x55]
+  [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x49, 0x4B, 0x4F, 0x55, 0x50]
 
 inductive EfficientMmtTradingMode where
   | undefinedAuctionequalUncrossing -- Undefined Auctionequal Uncrossing
@@ -938,6 +946,7 @@ inductive EfficientMmtTradingMode where
   | scheduledClosingAuctionequalUncrossing -- Scheduled Closing Auctionequal Uncrossing
   | scheduledOpeningAuctionequalUncrossing -- Scheduled Opening Auctionequal Uncrossing
   | unscheduledAuctionequalUncrossing -- Unscheduled Auctionequal Uncrossing
+  | onDemandAuctionequalFrequentBatchedAuction -- On Demand Auctionequal Frequent Batched Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ EfficientMmtTradingMode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -955,6 +964,7 @@ def toByte : EfficientMmtTradingMode → UInt8
   | .scheduledClosingAuctionequalUncrossing => 0x4B
   | .scheduledOpeningAuctionequalUncrossing => 0x4F
   | .unscheduledAuctionequalUncrossing => 0x55
+  | .onDemandAuctionequalFrequentBatchedAuction => 0x50
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -969,7 +979,8 @@ def listed (byte : UInt8) : EfficientMmtTradingMode :=
   else if byte = 0x49 then .scheduledIntradayAuctionequalUncrossing
   else if byte = 0x4B then .scheduledClosingAuctionequalUncrossing
   else if byte = 0x4F then .scheduledOpeningAuctionequalUncrossing
-  else .unscheduledAuctionequalUncrossing
+  else if byte = 0x55 then .unscheduledAuctionequalUncrossing
+  else .onDemandAuctionequalFrequentBatchedAuction
 
 def ofByte (byte : UInt8) : EfficientMmtTradingMode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -987,6 +998,7 @@ theorem ofByte_toByte (value : EfficientMmtTradingMode) : ofByte value.toByte = 
   | scheduledClosingAuctionequalUncrossing => decide
   | scheduledOpeningAuctionequalUncrossing => decide
   | unscheduledAuctionequalUncrossing => decide
+  | onDemandAuctionequalFrequentBatchedAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : EfficientMmtTradingMode) : List UInt8 :=
@@ -2635,7 +2647,7 @@ theorem encode_length_pos (message : NotUsedGroups) : (encode message).length > 
 
 end NotUsedGroups
 
-/-- Full Trade Information Message: 422 bytes -/
+/-- Full Trade Information Message: 446 bytes -/
 structure FullTradeInformationMessage where
   mdSeqNum : BitVec 64
   rebroadcastIndicator : BitVec 8
@@ -2691,6 +2703,12 @@ structure FullTradeInformationMessage where
   settlementDate : BitVec 16
   repoSettlementDate : BitVec 16
   tradeUniqueIdentifier : Alpha 16
+  missingPrice : Alpha 4
+  mmtPreTradeTransparencyWaiverRelatedtoSizeandScale : Alpha 4
+  mmtPortfolioTransactionIndicator : Alpha 4
+  mmtContingentTransactionIndicator : Alpha 4
+  mmtPublicationModeIlliquid : Alpha 4
+  mmtPublicationModeSizeSpecific : Alpha 4
   notUsedGroups : NotUsedGroups
   deriving DecidableEq, Repr
 
@@ -2751,7 +2769,13 @@ def encode (message : FullTradeInformationMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.settlementDate
     ++ (encodeUIntLE 2 message.repoSettlementDate
     ++ (Alpha.encode message.tradeUniqueIdentifier
-    ++ (NotUsedGroups.encode message.notUsedGroups))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    ++ (Alpha.encode message.missingPrice
+    ++ (Alpha.encode message.mmtPreTradeTransparencyWaiverRelatedtoSizeandScale
+    ++ (Alpha.encode message.mmtPortfolioTransactionIndicator
+    ++ (Alpha.encode message.mmtContingentTransactionIndicator
+    ++ (Alpha.encode message.mmtPublicationModeIlliquid
+    ++ (Alpha.encode message.mmtPublicationModeSizeSpecific
+    ++ (NotUsedGroups.encode message.notUsedGroups))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 -- a long run of fields nests deeper than the elaborator's default limit
 set_option maxRecDepth 4096 in
@@ -2810,10 +2834,16 @@ def decode (bytes : List UInt8) : Option (FullTradeInformationMessage × List UI
   let (settlementDate, bytes) ← decodeUIntLE 2 bytes
   let (repoSettlementDate, bytes) ← decodeUIntLE 2 bytes
   let (tradeUniqueIdentifier, bytes) ← Alpha.decode 16 bytes
+  let (missingPrice, bytes) ← Alpha.decode 4 bytes
+  let (mmtPreTradeTransparencyWaiverRelatedtoSizeandScale, bytes) ← Alpha.decode 4 bytes
+  let (mmtPortfolioTransactionIndicator, bytes) ← Alpha.decode 4 bytes
+  let (mmtContingentTransactionIndicator, bytes) ← Alpha.decode 4 bytes
+  let (mmtPublicationModeIlliquid, bytes) ← Alpha.decode 4 bytes
+  let (mmtPublicationModeSizeSpecific, bytes) ← Alpha.decode 4 bytes
   let (notUsedGroups, bytes) ← NotUsedGroups.decode bytes
-  pure ({ mdSeqNum, rebroadcastIndicator, emm, eventTime, symbolIndexOptional, tradingDateTime, publicationDateTime, tradeType, mifidInstrumentIdTypeOptional, mifidInstrumentIdOptional, mifidExecutionId, mifidPriceOptional, mifidQuantity, mifidPriceNotation, mifidCurrency, mifidQtyInMsrmtUnitNotation, mifidQuantityMeasurementUnit, mifidNotionalAmount, notionalCurrency, mifidClearingFlag, mmtMarketMechanism, mmtTradingMode, mmtTransactionCategory, mmtNegotiationIndicator, mmtAgencyCrossTradeIndicator, mmtModificationIndicatorOptional, mmtBenchmarkIndicator, mmtSpecialDividendIndicator, mmtOffBookAutomatedIndicator, mmtContributiontoPrice, mmtAlgorithmicIndicator, mmtPublicationMode, mmtPostTradeDeferral, mmtDuplicativeIndicator, tradeQualifier, transactionType, effectiveDateIndicator, blockTradeCode, tradeReference, originalReportTimestamp, transparencyIndicator, currencyCoefficient, priceMultiplier, priceMultiplierDecimals, venue, startTimeVwap, endTimeVwap, mifidEmissionAllowanceType, marketOfReferenceMic, evaluatedPrice, messagePriceNotation, settlementDate, repoSettlementDate, tradeUniqueIdentifier, notUsedGroups }, bytes)
+  pure ({ mdSeqNum, rebroadcastIndicator, emm, eventTime, symbolIndexOptional, tradingDateTime, publicationDateTime, tradeType, mifidInstrumentIdTypeOptional, mifidInstrumentIdOptional, mifidExecutionId, mifidPriceOptional, mifidQuantity, mifidPriceNotation, mifidCurrency, mifidQtyInMsrmtUnitNotation, mifidQuantityMeasurementUnit, mifidNotionalAmount, notionalCurrency, mifidClearingFlag, mmtMarketMechanism, mmtTradingMode, mmtTransactionCategory, mmtNegotiationIndicator, mmtAgencyCrossTradeIndicator, mmtModificationIndicatorOptional, mmtBenchmarkIndicator, mmtSpecialDividendIndicator, mmtOffBookAutomatedIndicator, mmtContributiontoPrice, mmtAlgorithmicIndicator, mmtPublicationMode, mmtPostTradeDeferral, mmtDuplicativeIndicator, tradeQualifier, transactionType, effectiveDateIndicator, blockTradeCode, tradeReference, originalReportTimestamp, transparencyIndicator, currencyCoefficient, priceMultiplier, priceMultiplierDecimals, venue, startTimeVwap, endTimeVwap, mifidEmissionAllowanceType, marketOfReferenceMic, evaluatedPrice, messagePriceNotation, settlementDate, repoSettlementDate, tradeUniqueIdentifier, missingPrice, mmtPreTradeTransparencyWaiverRelatedtoSizeandScale, mmtPortfolioTransactionIndicator, mmtContingentTransactionIndicator, mmtPublicationModeIlliquid, mmtPublicationModeSizeSpecific, notUsedGroups }, bytes)
 
-@[simp] theorem encode_length (message : FullTradeInformationMessage) : (encode message).length = 422 := by
+@[simp] theorem encode_length (message : FullTradeInformationMessage) : (encode message).length = 446 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, MmtTradingMode.encode_length, MmtOffBookAutomatedIndicator.encode_length, BlockTradeCode.encode_length, NotUsedGroups.encode_length]
 
@@ -2930,6 +2960,18 @@ set_option maxRecDepth 4096 in
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

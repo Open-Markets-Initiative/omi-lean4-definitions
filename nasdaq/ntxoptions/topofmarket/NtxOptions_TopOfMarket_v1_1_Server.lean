@@ -1170,6 +1170,8 @@ inductive SequencedMessage where
   | bestBidOrAskUpdateShortFormMessage (message : BestBidOrAskUpdateShortFormMessage) -- "b" 0x62
   | bestBidOrAskUpdateLongFormMessage (message : BestBidOrAskUpdateLongFormMessage) -- "B" 0x42
   | snapshotMessage (message : SnapshotMessage) -- "M" 0x4D
+  | bestBidOrAskUpdateShortFormMessage97 (message : BestBidOrAskUpdateShortFormMessage) -- "a" 0x61
+  | bestBidOrAskUpdateLongFormMessage65 (message : BestBidOrAskUpdateLongFormMessage) -- "A" 0x41
   deriving DecidableEq, Repr
 
 namespace SequencedMessage
@@ -1184,6 +1186,8 @@ def tag : SequencedMessage → BitVec 8
   | .bestBidOrAskUpdateShortFormMessage _ => 98
   | .bestBidOrAskUpdateLongFormMessage _ => 66
   | .snapshotMessage _ => 77
+  | .bestBidOrAskUpdateShortFormMessage97 _ => 97
+  | .bestBidOrAskUpdateLongFormMessage65 _ => 65
 
 def encode : SequencedMessage → List UInt8
   | .systemEventMessage message => SystemEventMessage.encode message
@@ -1194,6 +1198,8 @@ def encode : SequencedMessage → List UInt8
   | .bestBidOrAskUpdateShortFormMessage message => BestBidOrAskUpdateShortFormMessage.encode message
   | .bestBidOrAskUpdateLongFormMessage message => BestBidOrAskUpdateLongFormMessage.encode message
   | .snapshotMessage message => SnapshotMessage.encode message
+  | .bestBidOrAskUpdateShortFormMessage97 message => BestBidOrAskUpdateShortFormMessage.encode message
+  | .bestBidOrAskUpdateLongFormMessage65 message => BestBidOrAskUpdateLongFormMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : SequencedMessage) : (encode message).length ≤ 86 := by
@@ -1222,6 +1228,12 @@ theorem encode_length_le (message : SequencedMessage) : (encode message).length 
   | snapshotMessage inner =>
     simp only [encode, SnapshotMessage.encode_length]
     omega
+  | bestBidOrAskUpdateShortFormMessage97 inner =>
+    simp only [encode, BestBidOrAskUpdateShortFormMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateLongFormMessage65 inner =>
+    simp only [encode, BestBidOrAskUpdateLongFormMessage.encode_length]
+    omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (SequencedMessage × List UInt8) :=
   if tag = 83 then (SystemEventMessage.decode bytes).map fun (message, rest) => (.systemEventMessage message, rest)
@@ -1232,6 +1244,8 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (SequencedMessage × L
   else if tag = 98 then (BestBidOrAskUpdateShortFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateShortFormMessage message, rest)
   else if tag = 66 then (BestBidOrAskUpdateLongFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateLongFormMessage message, rest)
   else if tag = 77 then (SnapshotMessage.decode bytes).map fun (message, rest) => (.snapshotMessage message, rest)
+  else if tag = 97 then (BestBidOrAskUpdateShortFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateShortFormMessage97 message, rest)
+  else if tag = 65 then (BestBidOrAskUpdateLongFormMessage.decode bytes).map fun (message, rest) => (.bestBidOrAskUpdateLongFormMessage65 message, rest)
   else none
 
 @[simp] theorem decode_encode (message : SequencedMessage) (rest : List UInt8) :
@@ -1288,6 +1302,12 @@ theorem encode_length_le (message : SequencedDataPacket) : (encode message).leng
     omega
   | snapshotMessage inner =>
     simp only [SequencedMessage.encode, List.length_append, encodeUInt_length, SnapshotMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateShortFormMessage97 inner =>
+    simp only [SequencedMessage.encode, List.length_append, encodeUInt_length, BestBidOrAskUpdateShortFormMessage.encode_length]
+    omega
+  | bestBidOrAskUpdateLongFormMessage65 inner =>
+    simp only [SequencedMessage.encode, List.length_append, encodeUInt_length, BestBidOrAskUpdateLongFormMessage.encode_length]
     omega
 
 @[simp] theorem decode_encode (message : SequencedDataPacket) (rest : List UInt8) :

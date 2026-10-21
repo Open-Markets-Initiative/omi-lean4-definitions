@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# National Association of Securities Dealers Automated Quotations (Nasdaq) Orders v4.2
+# National Association of Securities Dealers Automated Quotations (Nasdaq) Orders v4.2.2025
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;
@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NasdaqNsmequitiesOrdersOuchV42Client
+namespace Omi.NasdaqNsmequitiesOrdersOuchV422025Client
 
 /-- Buy Sell Indicator: one byte code -/
 def BuySellIndicator.codes : List UInt8 :=
@@ -75,7 +75,7 @@ end BuySellIndicator
 
 /-- Display: one byte code -/
 def Display.codes : List UInt8 :=
-  [0x41, 0x59, 0x4E, 0x50, 0x49, 0x4D, 0x57, 0x4C, 0x4F, 0x54, 0x51, 0x6D, 0x6E]
+  [0x41, 0x59, 0x4E, 0x50, 0x49, 0x4D, 0x57, 0x4C, 0x4F, 0x54, 0x51, 0x6D, 0x6E, 0x42]
 
 inductive Display where
   | attributablePrice -- Attributable Price
@@ -83,14 +83,15 @@ inductive Display where
   | nonDisplay -- Non Display
   | postOnly -- Post Only
   | imbalanceOnly -- Imbalance Only
-  | midPoint -- Mid Point
-  | midPoint_57 -- Mid Point
+  | midPointPeg -- Mid Point Peg
+  | midPointPegPostOnly -- Mid Point Peg Post Only
   | postOnlyAndAttributable -- Post Only And Attributable
-  | retailOrder -- Retail Order
-  | retailOrder_54 -- Retail Order
+  | retailOrderType1 -- Retail Order Type 1
+  | retailOrderType2 -- Retail Order Type 2
   | retailPrice -- Retail Price
-  | midPoint_6d -- Mid Point
+  | midPointPegAndMidPointTradeNow -- Mid Point Peg And Mid Point Trade Now
   | nonDisplayAndMidPoint -- Non Display And Mid Point
+  | meloAndContinuousBookMidpoint -- Melo And Continuous Book Midpoint
   | unlisted (byte : { byte : UInt8 // byte ∉ Display.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -102,14 +103,15 @@ def toByte : Display → UInt8
   | .nonDisplay => 0x4E
   | .postOnly => 0x50
   | .imbalanceOnly => 0x49
-  | .midPoint => 0x4D
-  | .midPoint_57 => 0x57
+  | .midPointPeg => 0x4D
+  | .midPointPegPostOnly => 0x57
   | .postOnlyAndAttributable => 0x4C
-  | .retailOrder => 0x4F
-  | .retailOrder_54 => 0x54
+  | .retailOrderType1 => 0x4F
+  | .retailOrderType2 => 0x54
   | .retailPrice => 0x51
-  | .midPoint_6d => 0x6D
+  | .midPointPegAndMidPointTradeNow => 0x6D
   | .nonDisplayAndMidPoint => 0x6E
+  | .meloAndContinuousBookMidpoint => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -119,14 +121,15 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x4E then .nonDisplay
   else if byte = 0x50 then .postOnly
   else if byte = 0x49 then .imbalanceOnly
-  else if byte = 0x4D then .midPoint
-  else if byte = 0x57 then .midPoint_57
+  else if byte = 0x4D then .midPointPeg
+  else if byte = 0x57 then .midPointPegPostOnly
   else if byte = 0x4C then .postOnlyAndAttributable
-  else if byte = 0x4F then .retailOrder
-  else if byte = 0x54 then .retailOrder_54
+  else if byte = 0x4F then .retailOrderType1
+  else if byte = 0x54 then .retailOrderType2
   else if byte = 0x51 then .retailPrice
-  else if byte = 0x6D then .midPoint_6d
-  else .nonDisplayAndMidPoint
+  else if byte = 0x6D then .midPointPegAndMidPointTradeNow
+  else if byte = 0x6E then .nonDisplayAndMidPoint
+  else .meloAndContinuousBookMidpoint
 
 def ofByte (byte : UInt8) : Display :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -138,14 +141,15 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | nonDisplay => decide
   | postOnly => decide
   | imbalanceOnly => decide
-  | midPoint => decide
-  | midPoint_57 => decide
+  | midPointPeg => decide
+  | midPointPegPostOnly => decide
   | postOnlyAndAttributable => decide
-  | retailOrder => decide
-  | retailOrder_54 => decide
+  | retailOrderType1 => decide
+  | retailOrderType2 => decide
   | retailPrice => decide
-  | midPoint_6d => decide
+  | midPointPegAndMidPointTradeNow => decide
   | nonDisplayAndMidPoint => decide
+  | meloAndContinuousBookMidpoint => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Display) : List UInt8 :=
@@ -284,7 +288,7 @@ end IntermarketSweepEligibility
 
 /-- Cross Type: one byte code -/
 def CrossType.codes : List UInt8 :=
-  [0x4E, 0x4F, 0x43, 0x48, 0x53, 0x52, 0x45]
+  [0x4E, 0x4F, 0x43, 0x48, 0x53, 0x45, 0x41]
 
 inductive CrossType where
   | noCross -- No Cross
@@ -292,8 +296,8 @@ inductive CrossType where
   | closing -- Closing
   | haltIpoCross -- Halt Ipo Cross
   | supplemental -- Supplemental
-  | retail -- Retail
   | extended -- Extended
+  | extendedTradingClose -- Extended Trading Close
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -305,8 +309,8 @@ def toByte : CrossType → UInt8
   | .closing => 0x43
   | .haltIpoCross => 0x48
   | .supplemental => 0x53
-  | .retail => 0x52
   | .extended => 0x45
+  | .extendedTradingClose => 0x41
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -316,8 +320,8 @@ def listed (byte : UInt8) : CrossType :=
   else if byte = 0x43 then .closing
   else if byte = 0x48 then .haltIpoCross
   else if byte = 0x53 then .supplemental
-  else if byte = 0x52 then .retail
-  else .extended
+  else if byte = 0x45 then .extended
+  else .extendedTradingClose
 
 def ofByte (byte : UInt8) : CrossType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -329,8 +333,8 @@ theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   | closing => decide
   | haltIpoCross => decide
   | supplemental => decide
-  | retail => decide
   | extended => decide
+  | extendedTradingClose => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CrossType) : List UInt8 :=
@@ -579,7 +583,7 @@ end EnterOrderMessage
 /-- Replace Order Message: 46 bytes -/
 structure ReplaceOrderMessage where
   existingOrderToken : Alpha 14
-  replacementOrderTokenToken14 : Alpha 14
+  replacementOrderToken : Alpha 14
   shares : BitVec 32
   price : BitVec 32
   timeInForce : BitVec 32
@@ -592,7 +596,7 @@ namespace ReplaceOrderMessage
 
 def encode (message : ReplaceOrderMessage) : List UInt8 :=
   Alpha.encode message.existingOrderToken
-    ++ (Alpha.encode message.replacementOrderTokenToken14
+    ++ (Alpha.encode message.replacementOrderToken
     ++ (encodeUInt 4 message.shares
     ++ (encodeUInt 4 message.price
     ++ (encodeUInt 4 message.timeInForce
@@ -602,14 +606,14 @@ def encode (message : ReplaceOrderMessage) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (ReplaceOrderMessage × List UInt8) := do
   let (existingOrderToken, bytes) ← Alpha.decode 14 bytes
-  let (replacementOrderTokenToken14, bytes) ← Alpha.decode 14 bytes
+  let (replacementOrderToken, bytes) ← Alpha.decode 14 bytes
   let (shares, bytes) ← decodeUInt 4 bytes
   let (price, bytes) ← decodeUInt 4 bytes
   let (timeInForce, bytes) ← decodeUInt 4 bytes
   let (display, bytes) ← Display.decode bytes
   let (intermarketSweepEligibility, bytes) ← IntermarketSweepEligibility.decode bytes
   let (minimumQuantity, bytes) ← decodeUInt 4 bytes
-  pure ({ existingOrderToken, replacementOrderTokenToken14, shares, price, timeInForce, display, intermarketSweepEligibility, minimumQuantity }, bytes)
+  pure ({ existingOrderToken, replacementOrderToken, shares, price, timeInForce, display, intermarketSweepEligibility, minimumQuantity }, bytes)
 
 @[simp] theorem encode_length (message : ReplaceOrderMessage) : (encode message).length = 46 := by
   unfold encode
@@ -716,43 +720,12 @@ theorem encode_length_pos (message : ModifyOrderMessage) : (encode message).leng
 
 end ModifyOrderMessage
 
-/-- Trade Now Message: 14 bytes -/
-structure TradeNowMessage where
-  orderToken : Alpha 14
-  deriving DecidableEq, Repr
-
-namespace TradeNowMessage
-
-def encode (message : TradeNowMessage) : List UInt8 :=
-  Alpha.encode message.orderToken
-
-def decode (bytes : List UInt8) : Option (TradeNowMessage × List UInt8) := do
-  let (orderToken, bytes) ← Alpha.decode 14 bytes
-  pure ({ orderToken }, bytes)
-
-@[simp] theorem encode_length (message : TradeNowMessage) : (encode message).length = 14 := by
-  unfold encode
-  simp only [Alpha.encode_length]
-
-theorem encode_length_pos (message : TradeNowMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-@[simp] theorem decode_encode (message : TradeNowMessage) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [Alpha.decode_encode, some_bind]
-  rfl
-
-end TradeNowMessage
-
 /-- Any Unsequenced Message, selected by Unsequenced Message Type -/
 inductive UnsequencedMessage where
   | enterOrderMessage (message : EnterOrderMessage) -- "O" 0x4F
   | replaceOrderMessage (message : ReplaceOrderMessage) -- "U" 0x55
   | cancelOrderMessage (message : CancelOrderMessage) -- "X" 0x58
   | modifyOrderMessage (message : ModifyOrderMessage) -- "M" 0x4D
-  | tradeNowMessage (message : TradeNowMessage) -- "N" 0x4E
   deriving DecidableEq, Repr
 
 namespace UnsequencedMessage
@@ -763,14 +736,12 @@ def tag : UnsequencedMessage → BitVec 8
   | .replaceOrderMessage _ => 85
   | .cancelOrderMessage _ => 88
   | .modifyOrderMessage _ => 77
-  | .tradeNowMessage _ => 78
 
 def encode : UnsequencedMessage → List UInt8
   | .enterOrderMessage message => EnterOrderMessage.encode message
   | .replaceOrderMessage message => ReplaceOrderMessage.encode message
   | .cancelOrderMessage message => CancelOrderMessage.encode message
   | .modifyOrderMessage message => ModifyOrderMessage.encode message
-  | .tradeNowMessage message => TradeNowMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : UnsequencedMessage) : (encode message).length ≤ 48 := by
@@ -787,16 +758,12 @@ theorem encode_length_le (message : UnsequencedMessage) : (encode message).lengt
   | modifyOrderMessage inner =>
     simp only [encode, ModifyOrderMessage.encode_length]
     omega
-  | tradeNowMessage inner =>
-    simp only [encode, TradeNowMessage.encode_length]
-    omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (UnsequencedMessage × List UInt8) :=
   if tag = 79 then (EnterOrderMessage.decode bytes).map fun (message, rest) => (.enterOrderMessage message, rest)
   else if tag = 85 then (ReplaceOrderMessage.decode bytes).map fun (message, rest) => (.replaceOrderMessage message, rest)
   else if tag = 88 then (CancelOrderMessage.decode bytes).map fun (message, rest) => (.cancelOrderMessage message, rest)
   else if tag = 77 then (ModifyOrderMessage.decode bytes).map fun (message, rest) => (.modifyOrderMessage message, rest)
-  else if tag = 78 then (TradeNowMessage.decode bytes).map fun (message, rest) => (.tradeNowMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : UnsequencedMessage) (rest : List UInt8) :
@@ -841,9 +808,6 @@ theorem encode_length_le (message : UnsequencedDataPacket) : (encode message).le
     omega
   | modifyOrderMessage inner =>
     simp only [UnsequencedMessage.encode, List.length_append, encodeUInt_length, ModifyOrderMessage.encode_length]
-    omega
-  | tradeNowMessage inner =>
-    simp only [UnsequencedMessage.encode, List.length_append, encodeUInt_length, TradeNowMessage.encode_length]
     omega
 
 @[simp] theorem decode_encode (message : UnsequencedDataPacket) (rest : List UInt8) :
@@ -1061,4 +1025,4 @@ theorem decode_encode (message : ClientPacket) : decode (encode message) = some 
 
 end ClientPacket
 
-end Omi.NasdaqNsmequitiesOrdersOuchV42Client
+end Omi.NasdaqNsmequitiesOrdersOuchV422025Client

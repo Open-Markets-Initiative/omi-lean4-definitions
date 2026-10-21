@@ -547,7 +547,7 @@ structure StockDirectory where
   symbol : Alpha 8
   marketCategory : MarketCategory
   rfu : Alpha 1
-  roundLotSize : BitVec 48
+  roundLotSize : Alpha 6
   roundLotsOnly : RoundLotsOnly
   issueClassification : IssueClassification
   issueSubType : Alpha 2
@@ -559,7 +559,7 @@ def encode (message : StockDirectory) : List UInt8 :=
   Alpha.encode message.symbol
     ++ (MarketCategory.encode message.marketCategory
     ++ (Alpha.encode message.rfu
-    ++ (encodeUInt 6 message.roundLotSize
+    ++ (Alpha.encode message.roundLotSize
     ++ (RoundLotsOnly.encode message.roundLotsOnly
     ++ (IssueClassification.encode message.issueClassification
     ++ (Alpha.encode message.issueSubType))))))
@@ -568,7 +568,7 @@ def decode (bytes : List UInt8) : Option (StockDirectory × List UInt8) := do
   let (symbol, bytes) ← Alpha.decode 8 bytes
   let (marketCategory, bytes) ← MarketCategory.decode bytes
   let (rfu, bytes) ← Alpha.decode 1 bytes
-  let (roundLotSize, bytes) ← decodeUInt 6 bytes
+  let (roundLotSize, bytes) ← Alpha.decode 6 bytes
   let (roundLotsOnly_, bytes) ← RoundLotsOnly.decode bytes
   let (issueClassification, bytes) ← IssueClassification.decode bytes
   let (issueSubType, bytes) ← Alpha.decode 2 bytes
@@ -576,7 +576,7 @@ def decode (bytes : List UInt8) : Option (StockDirectory × List UInt8) := do
 
 @[simp] theorem encode_length (message : StockDirectory) : (encode message).length = 20 := by
   unfold encode
-  simp only [List.length_append, Alpha.encode_length, MarketCategory.encode_length, encodeUInt_length, RoundLotsOnly.encode_length, IssueClassification.encode_length]
+  simp only [List.length_append, Alpha.encode_length, MarketCategory.encode_length, RoundLotsOnly.encode_length, IssueClassification.encode_length]
 
 theorem encode_length_pos (message : StockDirectory) : (encode message).length > 0 := by
   rw [encode_length]
@@ -591,7 +591,7 @@ theorem encode_length_pos (message : StockDirectory) : (encode message).length >
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, RoundLotsOnly.decode_encode, some_bind]
   dsimp only
@@ -644,36 +644,36 @@ end StockTradingAction
 
 /-- Nois Message: 39 bytes -/
 structure NoisMessage where
-  imbalanceShares : BitVec 72
+  imbalanceShares : Alpha 9
   imbalanceDirection : ImbalanceDirection
   symbol : Alpha 8
-  nearPrice : BitVec 80
-  currentReferencePrice : BitVec 80
+  nearPrice : Alpha 10
+  currentReferencePrice : Alpha 10
   crossType : CrossType
   deriving DecidableEq, Repr
 
 namespace NoisMessage
 
 def encode (message : NoisMessage) : List UInt8 :=
-  encodeUInt 9 message.imbalanceShares
+  Alpha.encode message.imbalanceShares
     ++ (ImbalanceDirection.encode message.imbalanceDirection
     ++ (Alpha.encode message.symbol
-    ++ (encodeUInt 10 message.nearPrice
-    ++ (encodeUInt 10 message.currentReferencePrice
+    ++ (Alpha.encode message.nearPrice
+    ++ (Alpha.encode message.currentReferencePrice
     ++ (CrossType.encode message.crossType)))))
 
 def decode (bytes : List UInt8) : Option (NoisMessage × List UInt8) := do
-  let (imbalanceShares, bytes) ← decodeUInt 9 bytes
+  let (imbalanceShares, bytes) ← Alpha.decode 9 bytes
   let (imbalanceDirection, bytes) ← ImbalanceDirection.decode bytes
   let (symbol, bytes) ← Alpha.decode 8 bytes
-  let (nearPrice, bytes) ← decodeUInt 10 bytes
-  let (currentReferencePrice, bytes) ← decodeUInt 10 bytes
+  let (nearPrice, bytes) ← Alpha.decode 10 bytes
+  let (currentReferencePrice, bytes) ← Alpha.decode 10 bytes
   let (crossType, bytes) ← CrossType.decode bytes
   pure ({ imbalanceShares, imbalanceDirection, symbol, nearPrice, currentReferencePrice, crossType }, bytes)
 
 @[simp] theorem encode_length (message : NoisMessage) : (encode message).length = 39 := by
   unfold encode
-  simp only [List.length_append, encodeUInt_length, ImbalanceDirection.encode_length, Alpha.encode_length, CrossType.encode_length]
+  simp only [List.length_append, Alpha.encode_length, ImbalanceDirection.encode_length, CrossType.encode_length]
 
 theorem encode_length_pos (message : NoisMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -682,15 +682,15 @@ theorem encode_length_pos (message : NoisMessage) : (encode message).length > 0 
 @[simp] theorem decode_encode (message : NoisMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, ImbalanceDirection.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [CrossType.decode_encode, some_bind]
   rfl

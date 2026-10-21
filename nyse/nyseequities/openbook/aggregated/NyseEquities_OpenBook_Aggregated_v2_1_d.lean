@@ -1586,10 +1586,8 @@ theorem encode_length_le (message : RefreshHeaderMessage) : (encode message).len
 
 end RefreshHeaderMessage
 
-/-- Request Response Message: 21 bytes -/
+/-- Request Response Message: 17 bytes -/
 structure RequestResponseMessage where
-  msgSize : BitVec 16
-  msgType : BitVec 16
   requestSeqNum : BitVec 32
   sourceId : Alpha 10
   productId : BitVec 8
@@ -1600,25 +1598,21 @@ structure RequestResponseMessage where
 namespace RequestResponseMessage
 
 def encode (message : RequestResponseMessage) : List UInt8 :=
-  encodeUIntLE 2 message.msgSize
-    ++ (encodeUIntLE 2 message.msgType
-    ++ (encodeUIntLE 4 message.requestSeqNum
+  encodeUIntLE 4 message.requestSeqNum
     ++ (Alpha.encode message.sourceId
     ++ (encodeUIntLE 1 message.productId
     ++ (encodeUIntLE 1 message.channelId
-    ++ (Status.encode message.status))))))
+    ++ (Status.encode message.status))))
 
 def decode (bytes : List UInt8) : Option (RequestResponseMessage × List UInt8) := do
-  let (msgSize, bytes) ← decodeUIntLE 2 bytes
-  let (msgType, bytes) ← decodeUIntLE 2 bytes
   let (requestSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (sourceId, bytes) ← Alpha.decode 10 bytes
   let (productId, bytes) ← decodeUIntLE 1 bytes
   let (channelId, bytes) ← decodeUIntLE 1 bytes
   let (status, bytes) ← Status.decode bytes
-  pure ({ msgSize, msgType, requestSeqNum, sourceId, productId, channelId, status }, bytes)
+  pure ({ requestSeqNum, sourceId, productId, channelId, status }, bytes)
 
-@[simp] theorem encode_length (message : RequestResponseMessage) : (encode message).length = 21 := by
+@[simp] theorem encode_length (message : RequestResponseMessage) : (encode message).length = 17 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, Status.encode_length]
 
@@ -1629,10 +1623,6 @@ theorem encode_length_pos (message : RequestResponseMessage) : (encode message).
 @[simp] theorem decode_encode (message : RequestResponseMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -1721,10 +1711,8 @@ theorem encode_length_pos (message : SnapshotPricePoint) : (encode message).leng
 
 end SnapshotPricePoint
 
-/-- Orderbook Snapshot Message: 49 bytes -/
+/-- Orderbook Snapshot Message -/
 structure OrderbookSnapshotMessage where
-  msgSize : BitVec 16
-  msgType : BitVec 16
   sourceTime : BitVec 32
   sourceTimeNs : BitVec 32
   symbolIndex : BitVec 32
@@ -1734,16 +1722,13 @@ structure OrderbookSnapshotMessage where
   tradingStatus : TradingStatus
   remainingCount : BitVec 16
   mpv : BitVec 16
-  updateCount : BitVec 8
-  snapshotPricePoint : SnapshotPricePoint
+  snapshotPricePoint : Bounded 1 SnapshotPricePoint
   deriving DecidableEq, Repr
 
 namespace OrderbookSnapshotMessage
 
 def encode (message : OrderbookSnapshotMessage) : List UInt8 :=
-  encodeUIntLE 2 message.msgSize
-    ++ (encodeUIntLE 2 message.msgType
-    ++ (encodeUIntLE 4 message.sourceTime
+  encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
     ++ (encodeUIntLE 4 message.symbolIndex
     ++ (encodeUIntLE 4 message.ultraLastSeqNum
@@ -1752,12 +1737,10 @@ def encode (message : OrderbookSnapshotMessage) : List UInt8 :=
     ++ (TradingStatus.encode message.tradingStatus
     ++ (encodeUIntLE 2 message.remainingCount
     ++ (encodeUIntLE 2 message.mpv
-    ++ (encodeUIntLE 1 message.updateCount
-    ++ (SnapshotPricePoint.encode message.snapshotPricePoint))))))))))))
+    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.snapshotPricePoint.val.length)
+    ++ (encodeMany SnapshotPricePoint.encode message.snapshotPricePoint.val))))))))))
 
 def decode (bytes : List UInt8) : Option (OrderbookSnapshotMessage × List UInt8) := do
-  let (msgSize, bytes) ← decodeUIntLE 2 bytes
-  let (msgType, bytes) ← decodeUIntLE 2 bytes
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
   let (symbolIndex, bytes) ← decodeUIntLE 4 bytes
@@ -1768,24 +1751,26 @@ def decode (bytes : List UInt8) : Option (OrderbookSnapshotMessage × List UInt8
   let (remainingCount, bytes) ← decodeUIntLE 2 bytes
   let (mpv, bytes) ← decodeUIntLE 2 bytes
   let (updateCount, bytes) ← decodeUIntLE 1 bytes
-  let (snapshotPricePoint, bytes) ← SnapshotPricePoint.decode bytes
-  pure ({ msgSize, msgType, sourceTime, sourceTimeNs, symbolIndex, ultraLastSeqNum, symbol, priceScaleCode, tradingStatus, remainingCount, mpv, updateCount, snapshotPricePoint }, bytes)
-
-@[simp] theorem encode_length (message : OrderbookSnapshotMessage) : (encode message).length = 49 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradingStatus.encode_length, SnapshotPricePoint.encode_length]
+  let (snapshotPricePoint_, bytes) ← decodeMany SnapshotPricePoint.decode updateCount.toNat bytes
+  if fits_snapshotPricePoint : snapshotPricePoint_.length < 256 ^ 1 then
+    pure ({ sourceTime, sourceTimeNs, symbolIndex, ultraLastSeqNum, symbol, priceScaleCode, tradingStatus, remainingCount, mpv, snapshotPricePoint := ⟨snapshotPricePoint_, fits_snapshotPricePoint⟩ }, bytes)
+  else none
 
 theorem encode_length_pos (message : OrderbookSnapshotMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : OrderbookSnapshotMessage) : (encode message).length ≤ 2839 := by
+  have bound_snapshotPricePoint := message.snapshotPricePoint.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, TradingStatus.encode_length, encodeMany_length_const SnapshotPricePoint.encode 11 SnapshotPricePoint.encode_length]
+  omega
 
 @[simp] theorem decode_encode (message : OrderbookSnapshotMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -1806,7 +1791,9 @@ theorem encode_length_pos (message : OrderbookSnapshotMessage) : (encode message
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [SnapshotPricePoint.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 SnapshotPricePoint.encode SnapshotPricePoint.decode SnapshotPricePoint.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.snapshotPricePoint.length_lt]
   rfl
 
 end OrderbookSnapshotMessage
@@ -1856,37 +1843,30 @@ theorem encode_length_pos (message : DeltaPricePoint) : (encode message).length 
 
 end DeltaPricePoint
 
-/-- Orderbook Delta Update Message: 35 bytes -/
+/-- Orderbook Delta Update Message -/
 structure OrderbookDeltaUpdateMessage where
-  msgSize : BitVec 16
-  msgType : BitVec 16
   sourceTime : BitVec 32
   sourceTimeNs : BitVec 32
   symbolIndex : BitVec 32
   ultraLastSeqNum : BitVec 32
   tradingStatus : TradingStatus
   remainingCount : BitVec 16
-  updateCount : BitVec 8
-  deltaPricePoint : DeltaPricePoint
+  deltaPricePoint : Bounded 1 DeltaPricePoint
   deriving DecidableEq, Repr
 
 namespace OrderbookDeltaUpdateMessage
 
 def encode (message : OrderbookDeltaUpdateMessage) : List UInt8 :=
-  encodeUIntLE 2 message.msgSize
-    ++ (encodeUIntLE 2 message.msgType
-    ++ (encodeUIntLE 4 message.sourceTime
+  encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
     ++ (encodeUIntLE 4 message.symbolIndex
     ++ (encodeUIntLE 4 message.ultraLastSeqNum
     ++ (TradingStatus.encode message.tradingStatus
     ++ (encodeUIntLE 2 message.remainingCount
-    ++ (encodeUIntLE 1 message.updateCount
-    ++ (DeltaPricePoint.encode message.deltaPricePoint)))))))))
+    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.deltaPricePoint.val.length)
+    ++ (encodeMany DeltaPricePoint.encode message.deltaPricePoint.val)))))))
 
 def decode (bytes : List UInt8) : Option (OrderbookDeltaUpdateMessage × List UInt8) := do
-  let (msgSize, bytes) ← decodeUIntLE 2 bytes
-  let (msgType, bytes) ← decodeUIntLE 2 bytes
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
   let (symbolIndex, bytes) ← decodeUIntLE 4 bytes
@@ -1894,24 +1874,26 @@ def decode (bytes : List UInt8) : Option (OrderbookDeltaUpdateMessage × List UI
   let (tradingStatus, bytes) ← TradingStatus.decode bytes
   let (remainingCount, bytes) ← decodeUIntLE 2 bytes
   let (updateCount, bytes) ← decodeUIntLE 1 bytes
-  let (deltaPricePoint, bytes) ← DeltaPricePoint.decode bytes
-  pure ({ msgSize, msgType, sourceTime, sourceTimeNs, symbolIndex, ultraLastSeqNum, tradingStatus, remainingCount, updateCount, deltaPricePoint }, bytes)
-
-@[simp] theorem encode_length (message : OrderbookDeltaUpdateMessage) : (encode message).length = 35 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, TradingStatus.encode_length, DeltaPricePoint.encode_length]
+  let (deltaPricePoint_, bytes) ← decodeMany DeltaPricePoint.decode updateCount.toNat bytes
+  if fits_deltaPricePoint : deltaPricePoint_.length < 256 ^ 1 then
+    pure ({ sourceTime, sourceTimeNs, symbolIndex, ultraLastSeqNum, tradingStatus, remainingCount, deltaPricePoint := ⟨deltaPricePoint_, fits_deltaPricePoint⟩ }, bytes)
+  else none
 
 theorem encode_length_pos (message : OrderbookDeltaUpdateMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : OrderbookDeltaUpdateMessage) : (encode message).length ≤ 2825 := by
+  have bound_deltaPricePoint := message.deltaPricePoint.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, TradingStatus.encode_length, encodeMany_length_const DeltaPricePoint.encode 11 DeltaPricePoint.encode_length]
+  omega
 
 @[simp] theorem decode_encode (message : OrderbookDeltaUpdateMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -1926,7 +1908,9 @@ theorem encode_length_pos (message : OrderbookDeltaUpdateMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [DeltaPricePoint.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 DeltaPricePoint.encode DeltaPricePoint.decode DeltaPricePoint.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.deltaPricePoint.length_lt]
   rfl
 
 end OrderbookDeltaUpdateMessage
@@ -1985,7 +1969,7 @@ def encode : Payload → List UInt8
   | .orderbookDeltaUpdateMessage message => OrderbookDeltaUpdateMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : Payload) : (encode message).length ≤ 49 := by
+theorem encode_length_le (message : Payload) : (encode message).length ≤ 2839 := by
   cases message with
   | sequenceNumberResetMessage inner =>
     simp only [encode, SequenceNumberResetMessage.encode_length]
@@ -2025,10 +2009,12 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 49 :=
     simp only [encode, HeartbeatResponseMessage.encode_length]
     omega
   | orderbookSnapshotMessage inner =>
-    simp only [encode, OrderbookSnapshotMessage.encode_length]
+    have bound_inner := OrderbookSnapshotMessage.encode_length_le inner
+    simp only [encode]
     omega
   | orderbookDeltaUpdateMessage inner =>
-    simp only [encode, OrderbookDeltaUpdateMessage.encode_length]
+    have bound_inner := OrderbookDeltaUpdateMessage.encode_length_le inner
+    simp only [encode]
     omega
 
 def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt8) :=
@@ -2120,10 +2106,12 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     simp only [Payload.encode, List.length_append, encodeUIntLE_length, HeartbeatResponseMessage.encode_length]
     omega
   | orderbookSnapshotMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderbookSnapshotMessage.encode_length]
+    have bound_inner := OrderbookSnapshotMessage.encode_length_le inner
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length]
     omega
   | orderbookDeltaUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderbookDeltaUpdateMessage.encode_length]
+    have bound_inner := OrderbookDeltaUpdateMessage.encode_length_le inner
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length]
     omega
 
 /-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body and checked on decode -/
