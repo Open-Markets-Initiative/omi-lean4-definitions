@@ -22,7 +22,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 1070 | 4089154 |
+| 1068 | 4084148 |
 
 ## Testing
 
@@ -152,9 +152,7 @@ Enjoy.
 [Asx.AsxDerivatives.Ntp]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/Ntp.md "New Trading Platform"
 [Asx.AsxDerivatives.T24]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/T24.md "24 Itch"
 [Asx.AsxSecurities.Trade]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxSecurities/Trade.md "Asx Trade"
-[Athex.AthexDerivatives.RealTime]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexDerivatives/RealTime.md "Athens Exchange Derivatives Market Real Time Channel"
 [Athex.AthexDerivatives.Relaxed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexDerivatives/Relaxed.md "Athens Exchange Derivatives Market Relaxed Channel"
-[Athex.AthexSecurities.RealTime]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexSecurities/RealTime.md "Athens Exchange Securities Market Real Time Channel"
 [Athex.AthexSecurities.Relaxed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexSecurities/Relaxed.md "Athens Exchange Securities Market Relaxed Channel"
 [B3.B3Derivatives.BinaryEntryPoint]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/B3/Protocols/B3Derivatives/BinaryEntryPoint.md "Binary Entry Point"
 [B3.B3Derivatives.BinaryUmdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/B3/Protocols/B3Derivatives/BinaryUmdf.md "Binary Unified Market Data Feed"

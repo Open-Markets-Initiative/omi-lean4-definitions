@@ -447,7 +447,7 @@ def CrossType.codes : List UInt8 :=
 inductive CrossType where
   | openCross -- Open Cross
   | closeCross -- Close Cross
-  | ipoHaltCross -- Ipo Halt Cross
+  | intradayOpeningCrossForIpo -- Intraday Opening Cross For Ipo
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -456,14 +456,14 @@ namespace CrossType
 def toByte : CrossType → UInt8
   | .openCross => 0x4F
   | .closeCross => 0x43
-  | .ipoHaltCross => 0x48
+  | .intradayOpeningCrossForIpo => 0x48
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
   if byte = 0x4F then .openCross
   else if byte = 0x43 then .closeCross
-  else .ipoHaltCross
+  else .intradayOpeningCrossForIpo
 
 def ofByte (byte : UInt8) : CrossType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -472,7 +472,7 @@ theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
   | openCross => decide
   | closeCross => decide
-  | ipoHaltCross => decide
+  | intradayOpeningCrossForIpo => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CrossType) : List UInt8 :=

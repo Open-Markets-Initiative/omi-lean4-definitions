@@ -5,9 +5,7 @@
 
 | Division | [Protocol][Omi.Athex.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Athex.Specifications] |
 | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [AthexDerivatives][AthexDerivatives.Exchange] | [RealTime][Athex.AthexDerivatives.RealTime] | [Ids][Omi.Encoding.Ids] | [5.2][Athex.AthexDerivatives.RealTime.Ids.v5.2.Definition] | 11/1/2019 | 2534 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Athex.AthexDerivatives.RealTime.Ids.v5.2.Url] - [pdf][Athex.AthexDerivatives.RealTime.Ids.v5.2.Pdf] |
 | [AthexDerivatives][AthexDerivatives.Exchange] | [Relaxed][Athex.AthexDerivatives.Relaxed] | [Ids][Omi.Encoding.Ids] | [5.2][Athex.AthexDerivatives.Relaxed.Ids.v5.2.Definition] | 11/1/2019 | 1481 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Athex.AthexDerivatives.Relaxed.Ids.v5.2.Url] - [pdf][Athex.AthexDerivatives.Relaxed.Ids.v5.2.Pdf] |
-| [AthexSecurities][AthexSecurities.Exchange] | [RealTime][Athex.AthexSecurities.RealTime] | [Ids][Omi.Encoding.Ids] | [5.2][Athex.AthexSecurities.RealTime.Ids.v5.2.Definition] | 11/1/2019 | 2534 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Athex.AthexSecurities.RealTime.Ids.v5.2.Url] - [pdf][Athex.AthexSecurities.RealTime.Ids.v5.2.Pdf] |
 | [AthexSecurities][AthexSecurities.Exchange] | [Relaxed][Athex.AthexSecurities.Relaxed] | [Ids][Omi.Encoding.Ids] | [5.2][Athex.AthexSecurities.Relaxed.Ids.v5.2.Definition] | 11/1/2019 | 1481 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Athex.AthexSecurities.Relaxed.Ids.v5.2.Url] - [pdf][Athex.AthexSecurities.Relaxed.Ids.v5.2.Pdf] |
 
 
@@ -33,20 +31,12 @@
 [Omi.Encoding.Ids]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Ids.md "Ids Encoding"
 [AthexDerivatives.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Athex/Protocols/AthexDerivatives "Athex AthexDerivatives"
 [AthexSecurities.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Athex/Protocols/AthexSecurities "Athex AthexSecurities"
-[Athex.AthexDerivatives.RealTime]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexDerivatives/RealTime.md "Athens Exchange Derivatives Market Real Time Channel"
 [Athex.AthexDerivatives.Relaxed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexDerivatives/Relaxed.md "Athens Exchange Derivatives Market Relaxed Channel"
-[Athex.AthexSecurities.RealTime]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexSecurities/RealTime.md "Athens Exchange Securities Market Real Time Channel"
 [Athex.AthexSecurities.Relaxed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Protocols/AthexSecurities/Relaxed.md "Athens Exchange Securities Market Relaxed Channel"
 
-[Athex.AthexDerivatives.RealTime.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexderivatives/realtime/AthexDerivatives_RealTime_v5_2.lean "Athex AthexDerivatives RealTime Ids v5.2 Lean Definition"
-[Athex.AthexDerivatives.RealTime.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
-[Athex.AthexDerivatives.RealTime.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"
 [Athex.AthexDerivatives.Relaxed.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexderivatives/relaxed/AthexDerivatives_Relaxed_v5_2.lean "Athex AthexDerivatives Relaxed Ids v5.2 Lean Definition"
 [Athex.AthexDerivatives.Relaxed.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
 [Athex.AthexDerivatives.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"
-[Athex.AthexSecurities.RealTime.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexsecurities/realtime/AthexSecurities_RealTime_v5_2.lean "Athex AthexSecurities RealTime Ids v5.2 Lean Definition"
-[Athex.AthexSecurities.RealTime.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
-[Athex.AthexSecurities.RealTime.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"
 [Athex.AthexSecurities.Relaxed.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexsecurities/relaxed/AthexSecurities_Relaxed_v5_2.lean "Athex AthexSecurities Relaxed Ids v5.2 Lean Definition"
 [Athex.AthexSecurities.Relaxed.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
 [Athex.AthexSecurities.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"

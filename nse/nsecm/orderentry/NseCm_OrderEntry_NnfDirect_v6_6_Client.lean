@@ -1197,6 +1197,27 @@ theorem encode_length_pos (message : UserOrderValueLimitUpdateInMessage) : (enco
 
 end UserOrderValueLimitUpdateInMessage
 
+/-- System Information Request Message: 0 bytes -/
+structure SystemInformationRequestMessage where
+  deriving DecidableEq, Repr
+
+namespace SystemInformationRequestMessage
+
+def encode (_ : SystemInformationRequestMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (SystemInformationRequestMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : SystemInformationRequestMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : SystemInformationRequestMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end SystemInformationRequestMessage
+
 /-- Any Client Message Payload, selected by Transaction Code -/
 inductive ClientMessagePayload where
   | branchOrderValueLimitUpdateInMessage (message : BranchOrderValueLimitUpdateInMessage) -- 5716
@@ -1220,6 +1241,7 @@ inductive ClientMessagePayload where
   | tradeModificationCancellationStatusRequestMessage (message : TradeModificationCancellationStatusRequestMessage) -- 5792
   | userUnlockRequestMessage (message : UserUnlockRequestMessage) -- 5424
   | userOrderValueLimitUpdateInMessage (message : UserOrderValueLimitUpdateInMessage) -- 5719
+  | systemInformationRequestMessage (message : SystemInformationRequestMessage) -- 1600
   deriving DecidableEq, Repr
 
 namespace ClientMessagePayload
@@ -1247,6 +1269,7 @@ def tag : ClientMessagePayload → BitVec 16
   | .tradeModificationCancellationStatusRequestMessage _ => 5792
   | .userUnlockRequestMessage _ => 5424
   | .userOrderValueLimitUpdateInMessage _ => 5719
+  | .systemInformationRequestMessage _ => 1600
 
 def encode : ClientMessagePayload → List UInt8
   | .branchOrderValueLimitUpdateInMessage message => BranchOrderValueLimitUpdateInMessage.encode message
@@ -1270,6 +1293,7 @@ def encode : ClientMessagePayload → List UInt8
   | .tradeModificationCancellationStatusRequestMessage message => TradeModificationCancellationStatusRequestMessage.encode message
   | .userUnlockRequestMessage message => UserUnlockRequestMessage.encode message
   | .userOrderValueLimitUpdateInMessage message => UserOrderValueLimitUpdateInMessage.encode message
+  | .systemInformationRequestMessage message => SystemInformationRequestMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : ClientMessagePayload) : (encode message).length ≤ 250 := by
@@ -1337,6 +1361,9 @@ theorem encode_length_le (message : ClientMessagePayload) : (encode message).len
   | userOrderValueLimitUpdateInMessage inner =>
     simp only [encode, UserOrderValueLimitUpdateInMessage.encode_length]
     omega
+  | systemInformationRequestMessage inner =>
+    simp only [encode, SystemInformationRequestMessage.encode_length]
+    omega
 
 def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ClientMessagePayload × List UInt8) :=
   if tag = 5716 then (BranchOrderValueLimitUpdateInMessage.decode bytes).map fun (message, rest) => (.branchOrderValueLimitUpdateInMessage message, rest)
@@ -1360,6 +1387,7 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ClientMessagePayload
   else if tag = 5792 then (TradeModificationCancellationStatusRequestMessage.decode bytes).map fun (message, rest) => (.tradeModificationCancellationStatusRequestMessage message, rest)
   else if tag = 5424 then (UserUnlockRequestMessage.decode bytes).map fun (message, rest) => (.userUnlockRequestMessage message, rest)
   else if tag = 5719 then (UserOrderValueLimitUpdateInMessage.decode bytes).map fun (message, rest) => (.userOrderValueLimitUpdateInMessage message, rest)
+  else if tag = 1600 then (SystemInformationRequestMessage.decode bytes).map fun (message, rest) => (.systemInformationRequestMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : ClientMessagePayload) (rest : List UInt8) :
@@ -1508,6 +1536,9 @@ theorem encodeBody_length_lt (message : ClientDirectPacket) : (encodeBody messag
     omega
   | userOrderValueLimitUpdateInMessage inner =>
     simp only [ClientMessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, UserOrderValueLimitUpdateInMessage.encode_length]
+    omega
+  | systemInformationRequestMessage inner =>
+    simp only [ClientMessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, SystemInformationRequestMessage.encode_length]
     omega
 
 /-- Size rule: Packet Length counts the bytes after it plus 2, so it is written from the body and checked on decode -/

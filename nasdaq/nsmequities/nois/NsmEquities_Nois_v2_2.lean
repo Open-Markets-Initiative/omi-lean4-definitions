@@ -83,7 +83,7 @@ end EventCode
 
 /-- Market Category: one byte code -/
 def MarketCategory.codes : List UInt8 :=
-  [0x51, 0x47, 0x53, 0x4E, 0x41, 0x50, 0x5A, 0x4D, 0x56]
+  [0x51, 0x47, 0x53, 0x4E, 0x41, 0x50, 0x5A, 0x56]
 
 inductive MarketCategory where
   | nasdaqGlobalSelectMarket -- Nasdaq Global Select Market
@@ -93,7 +93,6 @@ inductive MarketCategory where
   | nyseAmex -- Nyse Amex
   | nyseArca -- Nyse Arca
   | batsZExchange -- Bats Z Exchange
-  | nyseTexas -- Nyse Texas
   | investorsExchange -- Investors Exchange
   | unlisted (byte : { byte : UInt8 // byte ∉ MarketCategory.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -108,7 +107,6 @@ def toByte : MarketCategory → UInt8
   | .nyseAmex => 0x41
   | .nyseArca => 0x50
   | .batsZExchange => 0x5A
-  | .nyseTexas => 0x4D
   | .investorsExchange => 0x56
   | .unlisted byte => byte.val
 
@@ -121,7 +119,6 @@ def listed (byte : UInt8) : MarketCategory :=
   else if byte = 0x41 then .nyseAmex
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .batsZExchange
-  else if byte = 0x4D then .nyseTexas
   else .investorsExchange
 
 def ofByte (byte : UInt8) : MarketCategory :=
@@ -136,7 +133,6 @@ theorem ofByte_toByte (value : MarketCategory) : ofByte value.toByte = value := 
   | nyseAmex => decide
   | nyseArca => decide
   | batsZExchange => decide
-  | nyseTexas => decide
   | investorsExchange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -443,7 +439,7 @@ def CrossType.codes : List UInt8 :=
 inductive CrossType where
   | openCross -- Open Cross
   | closeCross -- Close Cross
-  | ipoHaltCross -- Ipo Halt Cross
+  | intradayOpeningCrossForIpo -- Intraday Opening Cross For Ipo
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -452,14 +448,14 @@ namespace CrossType
 def toByte : CrossType → UInt8
   | .openCross => 0x4F
   | .closeCross => 0x43
-  | .ipoHaltCross => 0x48
+  | .intradayOpeningCrossForIpo => 0x48
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
   if byte = 0x4F then .openCross
   else if byte = 0x43 then .closeCross
-  else .ipoHaltCross
+  else .intradayOpeningCrossForIpo
 
 def ofByte (byte : UInt8) : CrossType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -468,7 +464,7 @@ theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
   | openCross => decide
   | closeCross => decide
-  | ipoHaltCross => decide
+  | intradayOpeningCrossForIpo => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CrossType) : List UInt8 :=
