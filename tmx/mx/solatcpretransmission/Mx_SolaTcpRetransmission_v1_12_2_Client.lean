@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# TMX Group Sola Tcp Retransmission v1.12
+# TMX Group Sola Tcp Retransmission v1.12.2
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;
@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.TmxMxSolatcpretransmissionHsvfV112Client
+namespace Omi.TmxMxSolatcpretransmissionHsvfV1122Client
 
 /-- Login Message: 40 bytes -/
 structure LoginMessage where
@@ -246,4 +246,4 @@ theorem decode_encode (message : ClientPacket) : decode (encode message) = some 
 
 end ClientPacket
 
-end Omi.TmxMxSolatcpretransmissionHsvfV112Client
+end Omi.TmxMxSolatcpretransmissionHsvfV1122Client
