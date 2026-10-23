@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# New York Stock Exchange Stream Protocol v1.6
+# New York Stock Exchange Stream Protocol v1.1.6
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;
@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NyseOptionsStreamprotocolPillarstreamV16ClientPillarMessage
+namespace Omi.NyseOptionsStreamprotocolPillarstreamV116ClientPillarMessage
 
 /-- Login Message -/
 structure LoginMessage where
@@ -431,4 +431,4 @@ theorem encode_length_pos (message : ClientPillarMessage) : (encode message).len
 
 end ClientPillarMessage
 
-end Omi.NyseOptionsStreamprotocolPillarstreamV16ClientPillarMessage
+end Omi.NyseOptionsStreamprotocolPillarstreamV116ClientPillarMessage

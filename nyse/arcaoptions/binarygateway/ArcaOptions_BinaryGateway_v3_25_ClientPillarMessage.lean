@@ -171,19 +171,19 @@ end Heartbeat
 /-- Stream Id: 8 bytes -/
 structure StreamId where
   sess : BitVec 32
-  user : BitVec 32
+  value : BitVec 32
   deriving DecidableEq, Repr
 
 namespace StreamId
 
 def encode (message : StreamId) : List UInt8 :=
   encodeUIntLE 4 message.sess
-    ++ (encodeUIntLE 4 message.user)
+    ++ (encodeUIntLE 4 message.value)
 
 def decode (bytes : List UInt8) : Option (StreamId × List UInt8) := do
   let (sess, bytes) ← decodeUIntLE 4 bytes
-  let (user, bytes) ← decodeUIntLE 4 bytes
-  pure ({ sess, user }, bytes)
+  let (value, bytes) ← decodeUIntLE 4 bytes
+  pure ({ sess, value }, bytes)
 
 @[simp] theorem encode_length (message : StreamId) : (encode message).length = 8 := by
   unfold encode

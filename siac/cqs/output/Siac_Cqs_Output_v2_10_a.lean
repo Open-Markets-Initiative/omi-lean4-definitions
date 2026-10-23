@@ -23,7 +23,7 @@ inductive ParticipantId where
   | nasdaqOmxBx -- Nasdaq Omx Bx
   | nyseNational -- Nyse National
   | finraAdf -- Finra Adf
-  | n24X -- N 24 X
+  | n24x -- N24X
   | miax -- Miax
   | ise -- Ise
   | cboeEdga -- Cboe Edga
@@ -50,7 +50,7 @@ def toByte : ParticipantId → UInt8
   | .nasdaqOmxBx => 0x42
   | .nyseNational => 0x43
   | .finraAdf => 0x44
-  | .n24X => 0x47
+  | .n24x => 0x47
   | .miax => 0x48
   | .ise => 0x49
   | .cboeEdga => 0x4A
@@ -75,7 +75,7 @@ def listed (byte : UInt8) : ParticipantId :=
   else if byte = 0x42 then .nasdaqOmxBx
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finraAdf
-  else if byte = 0x47 then .n24X
+  else if byte = 0x47 then .n24x
   else if byte = 0x48 then .miax
   else if byte = 0x49 then .ise
   else if byte = 0x4A then .cboeEdga
@@ -102,7 +102,7 @@ theorem ofByte_toByte (value : ParticipantId) : ofByte value.toByte = value := b
   | nasdaqOmxBx => decide
   | nyseNational => decide
   | finraAdf => decide
-  | n24X => decide
+  | n24x => decide
   | miax => decide
   | ise => decide
   | cboeEdga => decide
@@ -151,7 +151,7 @@ inductive PrimaryListingMarketParticipantId where
   | nasdaqOmxBx -- Nasdaq Omx Bx
   | nyseNational -- Nyse National
   | finraAdf -- Finra Adf
-  | n24X -- N 24 X
+  | n24x -- N24X
   | miaxPearl -- Miax Pearl
   | ise -- Ise
   | cboeEdga -- Cboe Edga
@@ -178,7 +178,7 @@ def toByte : PrimaryListingMarketParticipantId → UInt8
   | .nasdaqOmxBx => 0x42
   | .nyseNational => 0x43
   | .finraAdf => 0x44
-  | .n24X => 0x47
+  | .n24x => 0x47
   | .miaxPearl => 0x48
   | .ise => 0x49
   | .cboeEdga => 0x4A
@@ -203,7 +203,7 @@ def listed (byte : UInt8) : PrimaryListingMarketParticipantId :=
   else if byte = 0x42 then .nasdaqOmxBx
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finraAdf
-  else if byte = 0x47 then .n24X
+  else if byte = 0x47 then .n24x
   else if byte = 0x48 then .miaxPearl
   else if byte = 0x49 then .ise
   else if byte = 0x4A then .cboeEdga
@@ -230,7 +230,7 @@ theorem ofByte_toByte (value : PrimaryListingMarketParticipantId) : ofByte value
   | nasdaqOmxBx => decide
   | nyseNational => decide
   | finraAdf => decide
-  | n24X => decide
+  | n24x => decide
   | miaxPearl => decide
   | ise => decide
   | cboeEdga => decide

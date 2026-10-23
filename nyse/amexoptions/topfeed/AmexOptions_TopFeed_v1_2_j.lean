@@ -470,7 +470,7 @@ inductive SsrTriggeringExchangeId where
   | nasdaqOmxBx -- Nasdaq Omx Bx
   | nyseNational -- Nyse National
   | finra -- Finra
-  | n24X -- N 24 X
+  | n24x -- N24X
   | ise -- Ise
   | cboeEdga -- Cboe Edga
   | cboeEdgx -- Cboe Edgx
@@ -499,7 +499,7 @@ def toByte : SsrTriggeringExchangeId → UInt8
   | .nasdaqOmxBx => 0x42
   | .nyseNational => 0x43
   | .finra => 0x44
-  | .n24X => 0x47
+  | .n24x => 0x47
   | .ise => 0x49
   | .cboeEdga => 0x4A
   | .cboeEdgx => 0x4B
@@ -526,7 +526,7 @@ def listed (byte : UInt8) : SsrTriggeringExchangeId :=
   else if byte = 0x42 then .nasdaqOmxBx
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finra
-  else if byte = 0x47 then .n24X
+  else if byte = 0x47 then .n24x
   else if byte = 0x49 then .ise
   else if byte = 0x4A then .cboeEdga
   else if byte = 0x4B then .cboeEdgx
@@ -555,7 +555,7 @@ theorem ofByte_toByte (value : SsrTriggeringExchangeId) : ofByte value.toByte = 
   | nasdaqOmxBx => decide
   | nyseNational => decide
   | finra => decide
-  | n24X => decide
+  | n24x => decide
   | ise => decide
   | cboeEdga => decide
   | cboeEdgx => decide
@@ -999,10 +999,10 @@ inductive Status where
   | rejectedDueToMaximumSequenceRange -- Rejected Due To Maximum Sequence Range
   | rejectedDueToMaximumRequestInADay -- Rejected Due To Maximum Request In A Day
   | rejectedDueToMaximumNumberOfRefreshRequestsInADay -- Rejected Due To Maximum Number Of Refresh Requests In A Day
-  | rejectedRequestMessageSeqNumTtlIsTooOld -- Rejected Request Message Seq Num Ttl Is Too Old
+  | rejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary -- Rejected Request Message Seq Num Ttl Time To Live Is Too Old Use Refresh To Recover Current State If Necessary
   | rejectedDueToAnInvalidChannelId -- Rejected Due To An Invalid Channel Id
   | rejectedDueToAnInvalidProductId -- Rejected Due To An Invalid Product Id
-  | rejectedDueToInvalidMsgTypeOrMismatchBetweenMsgTypeAndMsgSize -- Rejected Due To Invalid Msg Type Or Mismatch Between Msg Type And Msg Size
+  | rejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize -- Rejected Due To 1 Invalid Msg Type Or 2 Mismatch Between Msg Type And Msg Size
   | unlisted (byte : { byte : UInt8 // byte ∉ Status.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1014,10 +1014,10 @@ def toByte : Status → UInt8
   | .rejectedDueToMaximumSequenceRange => 0x33
   | .rejectedDueToMaximumRequestInADay => 0x34
   | .rejectedDueToMaximumNumberOfRefreshRequestsInADay => 0x35
-  | .rejectedRequestMessageSeqNumTtlIsTooOld => 0x36
+  | .rejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary => 0x36
   | .rejectedDueToAnInvalidChannelId => 0x37
   | .rejectedDueToAnInvalidProductId => 0x38
-  | .rejectedDueToInvalidMsgTypeOrMismatchBetweenMsgTypeAndMsgSize => 0x39
+  | .rejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize => 0x39
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -1027,10 +1027,10 @@ def listed (byte : UInt8) : Status :=
   else if byte = 0x33 then .rejectedDueToMaximumSequenceRange
   else if byte = 0x34 then .rejectedDueToMaximumRequestInADay
   else if byte = 0x35 then .rejectedDueToMaximumNumberOfRefreshRequestsInADay
-  else if byte = 0x36 then .rejectedRequestMessageSeqNumTtlIsTooOld
+  else if byte = 0x36 then .rejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary
   else if byte = 0x37 then .rejectedDueToAnInvalidChannelId
   else if byte = 0x38 then .rejectedDueToAnInvalidProductId
-  else .rejectedDueToInvalidMsgTypeOrMismatchBetweenMsgTypeAndMsgSize
+  else .rejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize
 
 def ofByte (byte : UInt8) : Status :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1042,10 +1042,10 @@ theorem ofByte_toByte (value : Status) : ofByte value.toByte = value := by
   | rejectedDueToMaximumSequenceRange => decide
   | rejectedDueToMaximumRequestInADay => decide
   | rejectedDueToMaximumNumberOfRefreshRequestsInADay => decide
-  | rejectedRequestMessageSeqNumTtlIsTooOld => decide
+  | rejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary => decide
   | rejectedDueToAnInvalidChannelId => decide
   | rejectedDueToAnInvalidProductId => decide
-  | rejectedDueToInvalidMsgTypeOrMismatchBetweenMsgTypeAndMsgSize => decide
+  | rejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Status) : List UInt8 :=

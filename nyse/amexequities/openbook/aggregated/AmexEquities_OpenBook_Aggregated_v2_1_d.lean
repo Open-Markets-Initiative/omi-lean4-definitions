@@ -467,7 +467,7 @@ inductive SsrTriggeringExchangeId where
   | cboeEdga -- Cboe Edga
   | cboeEdgx -- Cboe Edgx
   | ltse -- Ltse
-  | nyseTexas -- Nyse Texas
+  | nyseChicago -- Nyse Chicago
   | nyse -- Nyse
   | nyseArca -- Nyse Arca
   | nasdaq -- Nasdaq
@@ -494,7 +494,7 @@ def toByte : SsrTriggeringExchangeId → UInt8
   | .cboeEdga => 0x4A
   | .cboeEdgx => 0x4B
   | .ltse => 0x4C
-  | .nyseTexas => 0x4D
+  | .nyseChicago => 0x4D
   | .nyse => 0x4E
   | .nyseArca => 0x50
   | .nasdaq => 0x51
@@ -519,7 +519,7 @@ def listed (byte : UInt8) : SsrTriggeringExchangeId :=
   else if byte = 0x4A then .cboeEdga
   else if byte = 0x4B then .cboeEdgx
   else if byte = 0x4C then .ltse
-  else if byte = 0x4D then .nyseTexas
+  else if byte = 0x4D then .nyseChicago
   else if byte = 0x4E then .nyse
   else if byte = 0x50 then .nyseArca
   else if byte = 0x51 then .nasdaq
@@ -546,7 +546,7 @@ theorem ofByte_toByte (value : SsrTriggeringExchangeId) : ofByte value.toByte = 
   | cboeEdga => decide
   | cboeEdgx => decide
   | ltse => decide
-  | nyseTexas => decide
+  | nyseChicago => decide
   | nyse => decide
   | nyseArca => decide
   | nasdaq => decide

@@ -16,11 +16,11 @@ namespace Omi.NyseNyseequitiesDepthfeedretransmissionPillarV17
 
 /-- Exchange Code: one byte code -/
 def ExchangeCode.codes : List UInt8 :=
-  [0x46, 0x41, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x56, 0x5A]
+  [0x41, 0x46, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x56, 0x5A]
 
 inductive ExchangeCode where
-  | txse -- Txse
   | nyseAmerican -- Nyse American
+  | txse -- Txse
   | ltse -- Ltse
   | nyseTexas -- Nyse Texas
   | nyse -- Nyse
@@ -34,8 +34,8 @@ inductive ExchangeCode where
 namespace ExchangeCode
 
 def toByte : ExchangeCode → UInt8
-  | .txse => 0x46
   | .nyseAmerican => 0x41
+  | .txse => 0x46
   | .ltse => 0x4C
   | .nyseTexas => 0x4D
   | .nyse => 0x4E
@@ -47,8 +47,8 @@ def toByte : ExchangeCode → UInt8
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ExchangeCode :=
-  if byte = 0x46 then .txse
-  else if byte = 0x41 then .nyseAmerican
+  if byte = 0x41 then .nyseAmerican
+  else if byte = 0x46 then .txse
   else if byte = 0x4C then .ltse
   else if byte = 0x4D then .nyseTexas
   else if byte = 0x4E then .nyse
@@ -62,8 +62,8 @@ def ofByte (byte : UInt8) : ExchangeCode :=
 
 theorem ofByte_toByte (value : ExchangeCode) : ofByte value.toByte = value := by
   cases value with
-  | txse => decide
   | nyseAmerican => decide
+  | txse => decide
   | ltse => decide
   | nyseTexas => decide
   | nyse => decide
@@ -463,15 +463,16 @@ end HaltCondition
 
 /-- Ssr Triggering Exchange Id: one byte code -/
 def SsrTriggeringExchangeId.codes : List UInt8 :=
-  [0x41, 0x42, 0x43, 0x44, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x20]
+  [0x41, 0x42, 0x43, 0x44, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x20]
 
 inductive SsrTriggeringExchangeId where
   | nyseAmerican -- Nyse American
-  | nasdaqOmsTx -- Nasdaq Oms Tx
+  | nasdaqOmxTx -- Nasdaq Omx Tx
   | nyseNational -- Nyse National
   | finra -- Finra
-  | n24X -- N 24 X
-  | miamiPearl -- Miami Pearl
+  | txse -- Txse
+  | n24x -- N24X
+  | miaxPearl -- Miax Pearl
   | nasdaqIse -- Nasdaq Ise
   | cboeEdga -- Cboe Edga
   | cboeEdgx -- Cboe Edgx
@@ -495,11 +496,12 @@ namespace SsrTriggeringExchangeId
 
 def toByte : SsrTriggeringExchangeId → UInt8
   | .nyseAmerican => 0x41
-  | .nasdaqOmsTx => 0x42
+  | .nasdaqOmxTx => 0x42
   | .nyseNational => 0x43
   | .finra => 0x44
-  | .n24X => 0x47
-  | .miamiPearl => 0x48
+  | .txse => 0x46
+  | .n24x => 0x47
+  | .miaxPearl => 0x48
   | .nasdaqIse => 0x49
   | .cboeEdga => 0x4A
   | .cboeEdgx => 0x4B
@@ -521,11 +523,12 @@ def toByte : SsrTriggeringExchangeId → UInt8
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SsrTriggeringExchangeId :=
   if byte = 0x41 then .nyseAmerican
-  else if byte = 0x42 then .nasdaqOmsTx
+  else if byte = 0x42 then .nasdaqOmxTx
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finra
-  else if byte = 0x47 then .n24X
-  else if byte = 0x48 then .miamiPearl
+  else if byte = 0x46 then .txse
+  else if byte = 0x47 then .n24x
+  else if byte = 0x48 then .miaxPearl
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .cboeEdga
   else if byte = 0x4B then .cboeEdgx
@@ -549,11 +552,12 @@ def ofByte (byte : UInt8) : SsrTriggeringExchangeId :=
 theorem ofByte_toByte (value : SsrTriggeringExchangeId) : ofByte value.toByte = value := by
   cases value with
   | nyseAmerican => decide
-  | nasdaqOmsTx => decide
+  | nasdaqOmxTx => decide
   | nyseNational => decide
   | finra => decide
-  | n24X => decide
-  | miamiPearl => decide
+  | txse => decide
+  | n24x => decide
+  | miaxPearl => decide
   | nasdaqIse => decide
   | cboeEdga => decide
   | cboeEdgx => decide

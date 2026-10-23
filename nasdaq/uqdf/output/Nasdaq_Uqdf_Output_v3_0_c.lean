@@ -34,7 +34,7 @@ inductive MarketCenterOriginator where
   | nyseNationalInc -- Nyse National Inc
   | nyseTexas -- Nyse Texas
   | texasStockExchangeLlc -- Texas Stock Exchange Llc
-  | n24XNationalExchangeLlc -- N 24 X National Exchange Llc
+  | n24xNationalExchangeLlc -- N24X National Exchange LLC
   | financialIndustryRegulatoryAuthority -- Financial Industry Regulatory Authority
   | investorsExchangeLlc -- Investors Exchange Llc
   | longTermStockExchange -- Long Term Stock Exchange
@@ -62,7 +62,7 @@ def toByte : MarketCenterOriginator → UInt8
   | .nyseNationalInc => 0x43
   | .nyseTexas => 0x4D
   | .texasStockExchangeLlc => 0x46
-  | .n24XNationalExchangeLlc => 0x47
+  | .n24xNationalExchangeLlc => 0x47
   | .financialIndustryRegulatoryAuthority => 0x44
   | .investorsExchangeLlc => 0x56
   | .longTermStockExchange => 0x4C
@@ -88,7 +88,7 @@ def listed (byte : UInt8) : MarketCenterOriginator :=
   else if byte = 0x43 then .nyseNationalInc
   else if byte = 0x4D then .nyseTexas
   else if byte = 0x46 then .texasStockExchangeLlc
-  else if byte = 0x47 then .n24XNationalExchangeLlc
+  else if byte = 0x47 then .n24xNationalExchangeLlc
   else if byte = 0x44 then .financialIndustryRegulatoryAuthority
   else if byte = 0x56 then .investorsExchangeLlc
   else if byte = 0x4C then .longTermStockExchange
@@ -116,7 +116,7 @@ theorem ofByte_toByte (value : MarketCenterOriginator) : ofByte value.toByte = v
   | nyseNationalInc => decide
   | nyseTexas => decide
   | texasStockExchangeLlc => decide
-  | n24XNationalExchangeLlc => decide
+  | n24xNationalExchangeLlc => decide
   | financialIndustryRegulatoryAuthority => decide
   | investorsExchangeLlc => decide
   | longTermStockExchange => decide

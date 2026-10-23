@@ -74,7 +74,7 @@ inductive PrimaryMarketCode where
   | nasdaqTexas -- Nasdaq Texas
   | nyseNational -- Nyse National
   | texasStockExchange -- Texas Stock Exchange
-  | n24XExchange -- N 24 X Exchange
+  | n24xExchange -- N24X Exchange
   | miaxPearlEquities -- Miax Pearl Equities
   | nasdaqIse -- Nasdaq Ise
   | cboeEdgaExchange -- Cboe Edga Exchange
@@ -100,7 +100,7 @@ def toByte : PrimaryMarketCode → UInt8
   | .nasdaqTexas => 0x42
   | .nyseNational => 0x43
   | .texasStockExchange => 0x46
-  | .n24XExchange => 0x47
+  | .n24xExchange => 0x47
   | .miaxPearlEquities => 0x48
   | .nasdaqIse => 0x49
   | .cboeEdgaExchange => 0x4A
@@ -124,7 +124,7 @@ def listed (byte : UInt8) : PrimaryMarketCode :=
   else if byte = 0x42 then .nasdaqTexas
   else if byte = 0x43 then .nyseNational
   else if byte = 0x46 then .texasStockExchange
-  else if byte = 0x47 then .n24XExchange
+  else if byte = 0x47 then .n24xExchange
   else if byte = 0x48 then .miaxPearlEquities
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .cboeEdgaExchange
@@ -150,7 +150,7 @@ theorem ofByte_toByte (value : PrimaryMarketCode) : ofByte value.toByte = value 
   | nasdaqTexas => decide
   | nyseNational => decide
   | texasStockExchange => decide
-  | n24XExchange => decide
+  | n24xExchange => decide
   | miaxPearlEquities => decide
   | nasdaqIse => decide
   | cboeEdgaExchange => decide

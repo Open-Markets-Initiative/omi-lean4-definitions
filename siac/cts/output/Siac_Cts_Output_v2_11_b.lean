@@ -24,7 +24,7 @@ inductive ParticipantId where
   | nyseNationalIncNyseNational -- Nyse National Inc Nyse National
   | finraAlternativeDisplayFacilityAdf -- Finra Alternative Display Facility Adf
   | texasStockExchangeLlcTxse -- Texas Stock Exchange Llc Txse
-  | n24XNationalExchangeLlcN24X -- N 24 X National Exchange Llc N 24 X
+  | n24xNationalExchangeLlc24x -- N24X National Exchange LLC 24X
   | miaxPearlExchangeLlcMiax -- Miax Pearl Exchange Llc Miax
   | internationalSecuritiesExchangeLlcIse -- International Securities Exchange Llc Ise
   | cboeEdgaExchangeIncCboeEdga -- Cboe Edga Exchange Inc Cboe Edga
@@ -52,7 +52,7 @@ def toByte : ParticipantId → UInt8
   | .nyseNationalIncNyseNational => 0x43
   | .finraAlternativeDisplayFacilityAdf => 0x44
   | .texasStockExchangeLlcTxse => 0x46
-  | .n24XNationalExchangeLlcN24X => 0x47
+  | .n24xNationalExchangeLlc24x => 0x47
   | .miaxPearlExchangeLlcMiax => 0x48
   | .internationalSecuritiesExchangeLlcIse => 0x49
   | .cboeEdgaExchangeIncCboeEdga => 0x4A
@@ -78,7 +78,7 @@ def listed (byte : UInt8) : ParticipantId :=
   else if byte = 0x43 then .nyseNationalIncNyseNational
   else if byte = 0x44 then .finraAlternativeDisplayFacilityAdf
   else if byte = 0x46 then .texasStockExchangeLlcTxse
-  else if byte = 0x47 then .n24XNationalExchangeLlcN24X
+  else if byte = 0x47 then .n24xNationalExchangeLlc24x
   else if byte = 0x48 then .miaxPearlExchangeLlcMiax
   else if byte = 0x49 then .internationalSecuritiesExchangeLlcIse
   else if byte = 0x4A then .cboeEdgaExchangeIncCboeEdga
@@ -106,7 +106,7 @@ theorem ofByte_toByte (value : ParticipantId) : ofByte value.toByte = value := b
   | nyseNationalIncNyseNational => decide
   | finraAlternativeDisplayFacilityAdf => decide
   | texasStockExchangeLlcTxse => decide
-  | n24XNationalExchangeLlcN24X => decide
+  | n24xNationalExchangeLlc24x => decide
   | miaxPearlExchangeLlcMiax => decide
   | internationalSecuritiesExchangeLlcIse => decide
   | cboeEdgaExchangeIncCboeEdga => decide
@@ -156,7 +156,7 @@ inductive PrimaryListingMarketParticipantId where
   | nyseNational -- Nyse National
   | finraAdf -- Finra Adf
   | texasStockExchange -- Texas Stock Exchange
-  | n24X -- N 24 X
+  | n24x -- N24X
   | miaxPearl -- Miax Pearl
   | ise -- Ise
   | cboeEdga -- Cboe Edga
@@ -184,7 +184,7 @@ def toByte : PrimaryListingMarketParticipantId → UInt8
   | .nyseNational => 0x43
   | .finraAdf => 0x44
   | .texasStockExchange => 0x46
-  | .n24X => 0x47
+  | .n24x => 0x47
   | .miaxPearl => 0x48
   | .ise => 0x49
   | .cboeEdga => 0x4A
@@ -210,7 +210,7 @@ def listed (byte : UInt8) : PrimaryListingMarketParticipantId :=
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finraAdf
   else if byte = 0x46 then .texasStockExchange
-  else if byte = 0x47 then .n24X
+  else if byte = 0x47 then .n24x
   else if byte = 0x48 then .miaxPearl
   else if byte = 0x49 then .ise
   else if byte = 0x4A then .cboeEdga
@@ -238,7 +238,7 @@ theorem ofByte_toByte (value : PrimaryListingMarketParticipantId) : ofByte value
   | nyseNational => decide
   | finraAdf => decide
   | texasStockExchange => decide
-  | n24X => decide
+  | n24x => decide
   | miaxPearl => decide
   | ise => decide
   | cboeEdga => decide

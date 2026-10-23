@@ -368,7 +368,7 @@ inductive HaltCondition where
   | sipOutageMaterialSipLatencyOrExtraordinaryMarketActivity -- Sip Outage Material Sip Latency Or Extraordinary Market Activity
   | regulatoryConcern -- Regulatory Concern
   | mergerEffective -- Merger Effective
-  | etfIivEtfComponentsPricesNotAvailable -- Etf Iiv Etf Components Prices Not Available
+  | etfIivEtfComponentsPricesNotAvailable -- ETF IIV / ETF Components Prices Not Available
   | corporateAction -- Corporate Action
   | newSecurityOffering -- New Security Offering
   | primaryListingExchangeDiscretionaryHalt -- Primary Listing Exchange Discretionary Halt
@@ -467,14 +467,15 @@ end HaltCondition
 
 /-- Ssr Triggering Exchange Id: one byte code -/
 def SsrTriggeringExchangeId.codes : List UInt8 :=
-  [0x41, 0x42, 0x43, 0x44, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x20]
+  [0x41, 0x42, 0x43, 0x44, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x50, 0x51, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x20]
 
 inductive SsrTriggeringExchangeId where
   | nyseAmerican -- Nyse American
   | nasdaqOmxTx -- Nasdaq Omx Tx
   | nyseNational -- Nyse National
   | finra -- Finra
-  | n24X -- N 24 X
+  | txse -- Txse
+  | n24x -- N24X
   | miaxPearl -- Miax Pearl
   | nasdaqIse -- Nasdaq Ise
   | cboeEdga -- Cboe Edga
@@ -502,7 +503,8 @@ def toByte : SsrTriggeringExchangeId → UInt8
   | .nasdaqOmxTx => 0x42
   | .nyseNational => 0x43
   | .finra => 0x44
-  | .n24X => 0x47
+  | .txse => 0x46
+  | .n24x => 0x47
   | .miaxPearl => 0x48
   | .nasdaqIse => 0x49
   | .cboeEdga => 0x4A
@@ -528,7 +530,8 @@ def listed (byte : UInt8) : SsrTriggeringExchangeId :=
   else if byte = 0x42 then .nasdaqOmxTx
   else if byte = 0x43 then .nyseNational
   else if byte = 0x44 then .finra
-  else if byte = 0x47 then .n24X
+  else if byte = 0x46 then .txse
+  else if byte = 0x47 then .n24x
   else if byte = 0x48 then .miaxPearl
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .cboeEdga
@@ -556,7 +559,8 @@ theorem ofByte_toByte (value : SsrTriggeringExchangeId) : ofByte value.toByte = 
   | nasdaqOmxTx => decide
   | nyseNational => decide
   | finra => decide
-  | n24X => decide
+  | txse => decide
+  | n24x => decide
   | miaxPearl => decide
   | nasdaqIse => decide
   | cboeEdga => decide
