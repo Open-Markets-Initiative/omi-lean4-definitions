@@ -5,9 +5,6 @@
 
 | Division | [Protocol][Omi.Box.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Transport | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Box.Specifications] |
 | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [BoxOptions][BoxOptions.Exchange] | [SolaMulticast][Box.BoxOptions.SolaMulticast] | [Hsvf][Omi.Encoding.Hsvf] | [1.5][Box.BoxOptions.SolaMulticast.Hsvf.v1.5.Definition] |  | 3/15/2021 | 6487 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Verified][Omi.Glossary.Testing.Verified] | [pdf][Box.BoxOptions.SolaMulticast.Hsvf.v1.5.Pdf] |
-| [BoxOptions][BoxOptions.Exchange] | [SolaMulticast][Box.BoxOptions.SolaMulticast] | [Hsvf][Omi.Encoding.Hsvf] | [1.8][Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Definition] |  | 10/17/2023 | 6487 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Verified][Omi.Glossary.Testing.Verified] | [url][Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Url] - [pdf][Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Pdf] |
-| [BoxOptions][BoxOptions.Exchange] | [SolaMulticast][Box.BoxOptions.SolaMulticast] | [Hsvf][Omi.Encoding.Hsvf] | [1.9][Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Definition] |  | 2/15/2024 | 6497 | [Active][Omi.Glossary.Deployment.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Url] - [pdf][Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Pdf] |
 | [BoxOptions][BoxOptions.Exchange] | [SolaOrderEntry][Box.BoxOptions.SolaOrderEntry] | [Sail][Omi.Encoding.Sail] | 2.25 | [Firm][Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Firm.Definition] [Exchange][Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Exchange.Definition] | 1/20/2025 | 7604 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Pdf] |
 | [BoxOptions][BoxOptions.Exchange] | [SolaTradeReporting][Box.BoxOptions.SolaTradeReporting] | [Atr][Omi.Encoding.Atr] | 4.5 | [Client][Box.BoxOptions.SolaTradeReporting.Atr.v4.5.Client.Definition] [Server][Box.BoxOptions.SolaTradeReporting.Atr.v4.5.Server.Definition] | 11/5/2024 | 2968 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Box.BoxOptions.SolaTradeReporting.Atr.v4.5.Pdf] |
 
@@ -31,22 +28,12 @@
 [Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
 [Omi.Box.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Box/Protocols "Box Protocol Directory"
 [Omi.Box.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Box/Specifications "Box Specifications Directory"
-[Omi.Encoding.Hsvf]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Hsvf.md "Hsvf Encoding"
 [Omi.Encoding.Sail]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Sail.md "Sail Encoding"
 [Omi.Encoding.Atr]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Atr.md "Atr Encoding"
 [BoxOptions.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Box/Protocols/BoxOptions "Box BoxOptions"
-[Box.BoxOptions.SolaMulticast]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaMulticast.md "Sola Multicast"
 [Box.BoxOptions.SolaOrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaOrderEntry.md "Sola Order Entry"
 [Box.BoxOptions.SolaTradeReporting]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaTradeReporting.md "Sola Trade Reporting"
 
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.5.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/box/boxoptions/solamulticast/BoxOptions_SolaMulticast_v1_5.lean "Box BoxOptions SolaMulticast Hsvf v1.5 Lean Definition"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.5.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Specifications/Hsvf/Box.BoxOptions.Sola.Multicast.Hsvf.v1.5.pdf "Box Options Market 1.5 Pdf"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/box/boxoptions/solamulticast/BoxOptions_SolaMulticast_v1_8.lean "Box BoxOptions SolaMulticast Hsvf v1.8 Lean Definition"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Url]: https://boxoptions.com/technology/trading-interface-specifications "Box Options Market 1.8 Url"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.8.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Specifications/Hsvf/Box.BoxOptions.Sola.Multicast.Hsvf.v1.8.pdf "Box Options Market 1.8 Pdf"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/box/boxoptions/solamulticast/BoxOptions_SolaMulticast_v1_9.lean "Box BoxOptions SolaMulticast Hsvf v1.9 Lean Definition"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Url]: https://boxoptions.com/technology/trading-interface-specifications "Box Options Market 1.9 Url"
-[Box.BoxOptions.SolaMulticast.Hsvf.v1.9.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Specifications/Hsvf/Box.BoxOptions.Sola.Multicast.Hsvf.v1.9.pdf "Box Options Market 1.9 Pdf"
 [Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Firm.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/box/boxoptions/solaorderentry/BoxOptions_SolaOrderEntry_v2_25_Firm.lean "Box BoxOptions SolaOrderEntry Sail v2.25 Lean Definition"
 [Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Specifications/Sail/Box.BoxOptions.SolaOrderEntry.Sail.v2.25.pdf "Box Options Market 2.25 Pdf"
 [Box.BoxOptions.SolaOrderEntry.Sail.v2.25.Exchange.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/box/boxoptions/solaorderentry/BoxOptions_SolaOrderEntry_v2_25_Exchange.lean "Box BoxOptions SolaOrderEntry Sail v2.25 Lean Definition"

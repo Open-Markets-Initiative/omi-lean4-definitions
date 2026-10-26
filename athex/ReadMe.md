@@ -36,7 +36,7 @@
 
 [Athex.AthexDerivatives.Relaxed.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexderivatives/relaxed/AthexDerivatives_Relaxed_v5_2.lean "Athex AthexDerivatives Relaxed Ids v5.2 Lean Definition"
 [Athex.AthexDerivatives.Relaxed.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
-[Athex.AthexDerivatives.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"
+[Athex.AthexDerivatives.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/Documentation/Athex.Oasis.MarketData.Ids.v5.2.pdf "Athens Exchange Group 5.2 Pdf"
 [Athex.AthexSecurities.Relaxed.Ids.v5.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/athex/athexsecurities/relaxed/AthexSecurities_Relaxed_v5_2.lean "Athex AthexSecurities Relaxed Ids v5.2 Lean Definition"
 [Athex.AthexSecurities.Relaxed.Ids.v5.2.Url]: https://www.athexgroup.gr/en/trade/trading-system "Athens Exchange Group 5.2 Url"
-[Athex.AthexSecurities.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/ "Athens Exchange Group 5.2 Pdf"
+[Athex.AthexSecurities.Relaxed.Ids.v5.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Athex/Specifications/Documentation/Athex.Oasis.MarketData.Ids.v5.2.pdf "Athens Exchange Group 5.2 Pdf"

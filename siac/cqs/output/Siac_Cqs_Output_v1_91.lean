@@ -2339,7 +2339,7 @@ end MarketWideCircuitBreakerStatusMessage
 
 /-- Any Market Status Message Payload, selected by Market Status Message Type -/
 inductive MarketStatusMessagePayload where
-  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "M" 0x4D
+  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "K" 0x4B
   | marketWideCircuitBreakerStatusMessage (message : MarketWideCircuitBreakerStatusMessage) -- "L" 0x4C
   deriving DecidableEq, Repr
 
@@ -2347,7 +2347,7 @@ namespace MarketStatusMessagePayload
 
 /-- The Market Status Message Type each message is sent under -/
 def tag : MarketStatusMessagePayload → BitVec 8
-  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 77
+  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 75
   | .marketWideCircuitBreakerStatusMessage _ => 76
 
 def encode : MarketStatusMessagePayload → List UInt8
@@ -2365,7 +2365,7 @@ theorem encode_length_le (message : MarketStatusMessagePayload) : (encode messag
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (MarketStatusMessagePayload × List UInt8) :=
-  if tag = 77 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
+  if tag = 75 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
   else if tag = 76 then (MarketWideCircuitBreakerStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerStatusMessage message, rest)
   else none
 

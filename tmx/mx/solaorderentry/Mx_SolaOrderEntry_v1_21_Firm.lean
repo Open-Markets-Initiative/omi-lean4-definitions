@@ -2758,8 +2758,8 @@ end GlobalCancellation
 /-- User Global Cancellation: 37 bytes -/
 structure UserGlobalCancellation where
   incomingMessagesHeader : IncomingMessagesHeader
-  group : Alpha 2
-  instrument : Alpha 4
+  groupFilter : Alpha 2
+  instrumentFilter : Alpha 4
   typeOfCancellation : TypeOfCancellation
   accountTypeFilter : Alpha 8
   deriving DecidableEq, Repr
@@ -2768,18 +2768,18 @@ namespace UserGlobalCancellation
 
 def encode (message : UserGlobalCancellation) : List UInt8 :=
   IncomingMessagesHeader.encode message.incomingMessagesHeader
-    ++ (Alpha.encode message.group
-    ++ (Alpha.encode message.instrument
+    ++ (Alpha.encode message.groupFilter
+    ++ (Alpha.encode message.instrumentFilter
     ++ (TypeOfCancellation.encode message.typeOfCancellation
     ++ (Alpha.encode message.accountTypeFilter))))
 
 def decode (bytes : List UInt8) : Option (UserGlobalCancellation × List UInt8) := do
   let (incomingMessagesHeader, bytes) ← IncomingMessagesHeader.decode bytes
-  let (group, bytes) ← Alpha.decode 2 bytes
-  let (instrument, bytes) ← Alpha.decode 4 bytes
+  let (groupFilter, bytes) ← Alpha.decode 2 bytes
+  let (instrumentFilter, bytes) ← Alpha.decode 4 bytes
   let (typeOfCancellation, bytes) ← TypeOfCancellation.decode bytes
   let (accountTypeFilter, bytes) ← Alpha.decode 8 bytes
-  pure ({ incomingMessagesHeader, group, instrument, typeOfCancellation, accountTypeFilter }, bytes)
+  pure ({ incomingMessagesHeader, groupFilter, instrumentFilter, typeOfCancellation, accountTypeFilter }, bytes)
 
 @[simp] theorem encode_length (message : UserGlobalCancellation) : (encode message).length = 37 := by
   unfold encode

@@ -3346,9 +3346,9 @@ structure CrossingSessionSummaryMessage where
   messageId : BitVec 8
   transactionId : BitVec 32
   participantReferenceNumber : BitVec 64
-  crossingSession1TotalTradesVolume : BitVec 64
-  crossingSession2DollarValue : BitVec 64
-  crossingSession2TotalTradesVolume : BitVec 64
+  crossingSessionITotalTradesVolume : BitVec 64
+  crossingSessionIiDollarValue : BitVec 64
+  crossingSessionIiTotalTradesVolume : BitVec 64
   deriving DecidableEq, Repr
 
 namespace CrossingSessionSummaryMessage
@@ -3359,9 +3359,9 @@ def encode (message : CrossingSessionSummaryMessage) : List UInt8 :=
     ++ (encodeUInt 1 message.messageId
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber
-    ++ (encodeUInt 8 message.crossingSession1TotalTradesVolume
-    ++ (encodeUInt 8 message.crossingSession2DollarValue
-    ++ (encodeUInt 8 message.crossingSession2TotalTradesVolume)))))))
+    ++ (encodeUInt 8 message.crossingSessionITotalTradesVolume
+    ++ (encodeUInt 8 message.crossingSessionIiDollarValue
+    ++ (encodeUInt 8 message.crossingSessionIiTotalTradesVolume)))))))
 
 def decode (bytes : List UInt8) : Option (CrossingSessionSummaryMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
@@ -3369,10 +3369,10 @@ def decode (bytes : List UInt8) : Option (CrossingSessionSummaryMessage × List 
   let (messageId, bytes) ← decodeUInt 1 bytes
   let (transactionId, bytes) ← decodeUInt 4 bytes
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
-  let (crossingSession1TotalTradesVolume, bytes) ← decodeUInt 8 bytes
-  let (crossingSession2DollarValue, bytes) ← decodeUInt 8 bytes
-  let (crossingSession2TotalTradesVolume, bytes) ← decodeUInt 8 bytes
-  pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber, crossingSession1TotalTradesVolume, crossingSession2DollarValue, crossingSession2TotalTradesVolume }, bytes)
+  let (crossingSessionITotalTradesVolume, bytes) ← decodeUInt 8 bytes
+  let (crossingSessionIiDollarValue, bytes) ← decodeUInt 8 bytes
+  let (crossingSessionIiTotalTradesVolume, bytes) ← decodeUInt 8 bytes
+  pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber, crossingSessionITotalTradesVolume, crossingSessionIiDollarValue, crossingSessionIiTotalTradesVolume }, bytes)
 
 @[simp] theorem encode_length (message : CrossingSessionSummaryMessage) : (encode message).length = 46 := by
   unfold encode
@@ -3406,7 +3406,7 @@ end CrossingSessionSummaryMessage
 
 /-- Any Market Status Message Payload, selected by Market Status Message Type -/
 inductive MarketStatusMessagePayload where
-  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "M" 0x4D
+  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "K" 0x4B
   | marketWideCircuitBreakerStatusMessage (message : MarketWideCircuitBreakerStatusMessage) -- "L" 0x4C
   | approximateAdjustedVolumeMarketCenterMessage (message : ApproximateAdjustedVolumeMarketCenterMessage) -- "N" 0x4E
   | approximateTradesAndTotalDollarValueMessage (message : ApproximateTradesAndTotalDollarValueMessage) -- "O" 0x4F
@@ -3417,7 +3417,7 @@ namespace MarketStatusMessagePayload
 
 /-- The Market Status Message Type each message is sent under -/
 def tag : MarketStatusMessagePayload → BitVec 8
-  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 77
+  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 75
   | .marketWideCircuitBreakerStatusMessage _ => 76
   | .approximateAdjustedVolumeMarketCenterMessage _ => 78
   | .approximateTradesAndTotalDollarValueMessage _ => 79
@@ -3451,7 +3451,7 @@ theorem encode_length_le (message : MarketStatusMessagePayload) : (encode messag
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (MarketStatusMessagePayload × List UInt8) :=
-  if tag = 77 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
+  if tag = 75 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
   else if tag = 76 then (MarketWideCircuitBreakerStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerStatusMessage message, rest)
   else if tag = 78 then (ApproximateAdjustedVolumeMarketCenterMessage.decode bytes).map fun (message, rest) => (.approximateAdjustedVolumeMarketCenterMessage message, rest)
   else if tag = 79 then (ApproximateTradesAndTotalDollarValueMessage.decode bytes).map fun (message, rest) => (.approximateTradesAndTotalDollarValueMessage message, rest)

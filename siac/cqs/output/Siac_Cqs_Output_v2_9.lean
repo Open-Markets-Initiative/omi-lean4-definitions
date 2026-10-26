@@ -2147,106 +2147,6 @@ theorem encode_length_pos (message : ResetBlockSequenceNumberMessage) : (encode 
 
 end ResetBlockSequenceNumberMessage
 
-/-- Start Of Test Cycle Message: 22 bytes -/
-structure StartOfTestCycleMessage where
-  participantId : ParticipantId
-  participantTimestamp : ParticipantTimestamp
-  messageId : BitVec 8
-  transactionId : BitVec 32
-  participantReferenceNumber : BitVec 64
-  deriving DecidableEq, Repr
-
-namespace StartOfTestCycleMessage
-
-def encode (message : StartOfTestCycleMessage) : List UInt8 :=
-  ParticipantId.encode message.participantId
-    ++ (ParticipantTimestamp.encode message.participantTimestamp
-    ++ (encodeUInt 1 message.messageId
-    ++ (encodeUInt 4 message.transactionId
-    ++ (encodeUInt 8 message.participantReferenceNumber))))
-
-def decode (bytes : List UInt8) : Option (StartOfTestCycleMessage × List UInt8) := do
-  let (participantId, bytes) ← ParticipantId.decode bytes
-  let (participantTimestamp, bytes) ← ParticipantTimestamp.decode bytes
-  let (messageId, bytes) ← decodeUInt 1 bytes
-  let (transactionId, bytes) ← decodeUInt 4 bytes
-  let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
-  pure ({ participantId, participantTimestamp, messageId, transactionId, participantReferenceNumber }, bytes)
-
-@[simp] theorem encode_length (message : StartOfTestCycleMessage) : (encode message).length = 22 := by
-  unfold encode
-  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length]
-
-theorem encode_length_pos (message : StartOfTestCycleMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-@[simp] theorem decode_encode (message : StartOfTestCycleMessage) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, ParticipantTimestamp.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
-  rfl
-
-end StartOfTestCycleMessage
-
-/-- End Of Test Cycle Message: 22 bytes -/
-structure EndOfTestCycleMessage where
-  participantId : ParticipantId
-  participantTimestamp : ParticipantTimestamp
-  messageId : BitVec 8
-  transactionId : BitVec 32
-  participantReferenceNumber : BitVec 64
-  deriving DecidableEq, Repr
-
-namespace EndOfTestCycleMessage
-
-def encode (message : EndOfTestCycleMessage) : List UInt8 :=
-  ParticipantId.encode message.participantId
-    ++ (ParticipantTimestamp.encode message.participantTimestamp
-    ++ (encodeUInt 1 message.messageId
-    ++ (encodeUInt 4 message.transactionId
-    ++ (encodeUInt 8 message.participantReferenceNumber))))
-
-def decode (bytes : List UInt8) : Option (EndOfTestCycleMessage × List UInt8) := do
-  let (participantId, bytes) ← ParticipantId.decode bytes
-  let (participantTimestamp, bytes) ← ParticipantTimestamp.decode bytes
-  let (messageId, bytes) ← decodeUInt 1 bytes
-  let (transactionId, bytes) ← decodeUInt 4 bytes
-  let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
-  pure ({ participantId, participantTimestamp, messageId, transactionId, participantReferenceNumber }, bytes)
-
-@[simp] theorem encode_length (message : EndOfTestCycleMessage) : (encode message).length = 22 := by
-  unfold encode
-  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length]
-
-theorem encode_length_pos (message : EndOfTestCycleMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-@[simp] theorem decode_encode (message : EndOfTestCycleMessage) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, ParticipantTimestamp.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
-  rfl
-
-end EndOfTestCycleMessage
-
 /-- Finra Open Message: 22 bytes -/
 structure FinraOpenMessage where
   participantId : ParticipantId
@@ -2452,8 +2352,6 @@ inductive ControlMessagePayload where
   | startOfDayMessage (message : StartOfDayMessage) -- "A" 0x41
   | finraCloseMessage (message : FinraCloseMessage) -- "C" 0x43
   | resetBlockSequenceNumberMessage (message : ResetBlockSequenceNumberMessage) -- "L" 0x4C
-  | startOfTestCycleMessage (message : StartOfTestCycleMessage) -- "M" 0x4D
-  | endOfTestCycleMessage (message : EndOfTestCycleMessage) -- "N" 0x4E
   | finraOpenMessage (message : FinraOpenMessage) -- "O" 0x4F
   | disasterRecoveryDataCenterActivationMessage (message : DisasterRecoveryDataCenterActivationMessage) -- "P" 0x50
   | lineIntegrityMessage (message : LineIntegrityMessage) -- "T" 0x54
@@ -2467,8 +2365,6 @@ def tag : ControlMessagePayload → BitVec 8
   | .startOfDayMessage _ => 65
   | .finraCloseMessage _ => 67
   | .resetBlockSequenceNumberMessage _ => 76
-  | .startOfTestCycleMessage _ => 77
-  | .endOfTestCycleMessage _ => 78
   | .finraOpenMessage _ => 79
   | .disasterRecoveryDataCenterActivationMessage _ => 80
   | .lineIntegrityMessage _ => 84
@@ -2478,8 +2374,6 @@ def encode : ControlMessagePayload → List UInt8
   | .startOfDayMessage message => StartOfDayMessage.encode message
   | .finraCloseMessage message => FinraCloseMessage.encode message
   | .resetBlockSequenceNumberMessage message => ResetBlockSequenceNumberMessage.encode message
-  | .startOfTestCycleMessage message => StartOfTestCycleMessage.encode message
-  | .endOfTestCycleMessage message => EndOfTestCycleMessage.encode message
   | .finraOpenMessage message => FinraOpenMessage.encode message
   | .disasterRecoveryDataCenterActivationMessage message => DisasterRecoveryDataCenterActivationMessage.encode message
   | .lineIntegrityMessage message => LineIntegrityMessage.encode message
@@ -2496,12 +2390,6 @@ theorem encode_length_le (message : ControlMessagePayload) : (encode message).le
     omega
   | resetBlockSequenceNumberMessage inner =>
     simp only [encode, ResetBlockSequenceNumberMessage.encode_length]
-    omega
-  | startOfTestCycleMessage inner =>
-    simp only [encode, StartOfTestCycleMessage.encode_length]
-    omega
-  | endOfTestCycleMessage inner =>
-    simp only [encode, EndOfTestCycleMessage.encode_length]
     omega
   | finraOpenMessage inner =>
     simp only [encode, FinraOpenMessage.encode_length]
@@ -2520,8 +2408,6 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (ControlMessagePayload
   if tag = 65 then (StartOfDayMessage.decode bytes).map fun (message, rest) => (.startOfDayMessage message, rest)
   else if tag = 67 then (FinraCloseMessage.decode bytes).map fun (message, rest) => (.finraCloseMessage message, rest)
   else if tag = 76 then (ResetBlockSequenceNumberMessage.decode bytes).map fun (message, rest) => (.resetBlockSequenceNumberMessage message, rest)
-  else if tag = 77 then (StartOfTestCycleMessage.decode bytes).map fun (message, rest) => (.startOfTestCycleMessage message, rest)
-  else if tag = 78 then (EndOfTestCycleMessage.decode bytes).map fun (message, rest) => (.endOfTestCycleMessage message, rest)
   else if tag = 79 then (FinraOpenMessage.decode bytes).map fun (message, rest) => (.finraOpenMessage message, rest)
   else if tag = 80 then (DisasterRecoveryDataCenterActivationMessage.decode bytes).map fun (message, rest) => (.disasterRecoveryDataCenterActivationMessage message, rest)
   else if tag = 84 then (LineIntegrityMessage.decode bytes).map fun (message, rest) => (.lineIntegrityMessage message, rest)
@@ -2567,12 +2453,6 @@ theorem encode_length_le (message : ControlMessage) : (encode message).length �
     omega
   | resetBlockSequenceNumberMessage inner =>
     simp only [ControlMessagePayload.encode, List.length_append, encodeUInt_length, ResetBlockSequenceNumberMessage.encode_length]
-    omega
-  | startOfTestCycleMessage inner =>
-    simp only [ControlMessagePayload.encode, List.length_append, encodeUInt_length, StartOfTestCycleMessage.encode_length]
-    omega
-  | endOfTestCycleMessage inner =>
-    simp only [ControlMessagePayload.encode, List.length_append, encodeUInt_length, EndOfTestCycleMessage.encode_length]
     omega
   | finraOpenMessage inner =>
     simp only [ControlMessagePayload.encode, List.length_append, encodeUInt_length, FinraOpenMessage.encode_length]
@@ -2729,7 +2609,7 @@ end MarketWideCircuitBreakerStatusMessage
 
 /-- Any Market Status Message Payload, selected by Market Status Message Type -/
 inductive MarketStatusMessagePayload where
-  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "M" 0x4D
+  | marketWideCircuitBreakerDeclineLevelStatusMessage (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) -- "K" 0x4B
   | marketWideCircuitBreakerStatusMessage (message : MarketWideCircuitBreakerStatusMessage) -- "L" 0x4C
   deriving DecidableEq, Repr
 
@@ -2737,7 +2617,7 @@ namespace MarketStatusMessagePayload
 
 /-- The Market Status Message Type each message is sent under -/
 def tag : MarketStatusMessagePayload → BitVec 8
-  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 77
+  | .marketWideCircuitBreakerDeclineLevelStatusMessage _ => 75
   | .marketWideCircuitBreakerStatusMessage _ => 76
 
 def encode : MarketStatusMessagePayload → List UInt8
@@ -2755,7 +2635,7 @@ theorem encode_length_le (message : MarketStatusMessagePayload) : (encode messag
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (MarketStatusMessagePayload × List UInt8) :=
-  if tag = 77 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
+  if tag = 75 then (MarketWideCircuitBreakerDeclineLevelStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerDeclineLevelStatusMessage message, rest)
   else if tag = 76 then (MarketWideCircuitBreakerStatusMessage.decode bytes).map fun (message, rest) => (.marketWideCircuitBreakerStatusMessage message, rest)
   else none
 

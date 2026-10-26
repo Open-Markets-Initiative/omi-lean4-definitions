@@ -2580,8 +2580,8 @@ end BulkCommandAcknowledgement
 
 /-- Risk Limits Usage Occurrence: 28 bytes -/
 structure RiskLimitsUsageOccurrence where
-  trader : Alpha 4
-  group : Alpha 2
+  usageTrader : Alpha 4
+  usageGroup : Alpha 2
   usageStatus : UsageStatus
   limitType : LimitType
   currentUsage : Alpha 10
@@ -2591,21 +2591,21 @@ structure RiskLimitsUsageOccurrence where
 namespace RiskLimitsUsageOccurrence
 
 def encode (message : RiskLimitsUsageOccurrence) : List UInt8 :=
-  Alpha.encode message.trader
-    ++ (Alpha.encode message.group
+  Alpha.encode message.usageTrader
+    ++ (Alpha.encode message.usageGroup
     ++ (UsageStatus.encode message.usageStatus
     ++ (LimitType.encode message.limitType
     ++ (Alpha.encode message.currentUsage
     ++ (Alpha.encode message.limitValue)))))
 
 def decode (bytes : List UInt8) : Option (RiskLimitsUsageOccurrence × List UInt8) := do
-  let (trader, bytes) ← Alpha.decode 4 bytes
-  let (group, bytes) ← Alpha.decode 2 bytes
+  let (usageTrader, bytes) ← Alpha.decode 4 bytes
+  let (usageGroup, bytes) ← Alpha.decode 2 bytes
   let (usageStatus, bytes) ← UsageStatus.decode bytes
   let (limitType, bytes) ← LimitType.decode bytes
   let (currentUsage, bytes) ← Alpha.decode 10 bytes
   let (limitValue, bytes) ← Alpha.decode 10 bytes
-  pure ({ trader, group, usageStatus, limitType, currentUsage, limitValue }, bytes)
+  pure ({ usageTrader, usageGroup, usageStatus, limitType, currentUsage, limitValue }, bytes)
 
 @[simp] theorem encode_length (message : RiskLimitsUsageOccurrence) : (encode message).length = 28 := by
   unfold encode

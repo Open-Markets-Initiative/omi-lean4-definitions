@@ -365,6 +365,46 @@ theorem encode_length_pos (value : MdEntryType) : (encode value).length > 0 := b
 
 end MdEntryType
 
+/-- Server Technical Header: 14 bytes -/
+structure ServerTechnicalHeader where
+  encodingType : BitVec 16
+  messageSequenceNumber : BitVec 32
+  tcpSendingTime : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace ServerTechnicalHeader
+
+def encode (message : ServerTechnicalHeader) : List UInt8 :=
+  encodeUIntLE 2 message.encodingType
+    ++ (encodeUIntLE 4 message.messageSequenceNumber
+    ++ (encodeUIntLE 8 message.tcpSendingTime))
+
+def decode (bytes : List UInt8) : Option (ServerTechnicalHeader × List UInt8) := do
+  let (encodingType, bytes) ← decodeUIntLE 2 bytes
+  let (messageSequenceNumber, bytes) ← decodeUIntLE 4 bytes
+  let (tcpSendingTime, bytes) ← decodeUIntLE 8 bytes
+  pure ({ encodingType, messageSequenceNumber, tcpSendingTime }, bytes)
+
+@[simp] theorem encode_length (message : ServerTechnicalHeader) : (encode message).length = 14 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length]
+
+theorem encode_length_pos (message : ServerTechnicalHeader) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : ServerTechnicalHeader) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end ServerTechnicalHeader
+
 /-- Channel Reset Group: 2 bytes -/
 structure ChannelResetGroup where
   applId : BitVec 16
@@ -4678,39 +4718,49 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ServerPayload × Lis
 
 end ServerPayload
 
-/-- Server Tcp Message -/
-structure ServerTcpMessage where
+/-- Server Tcp Frame -/
+structure ServerTcpFrame where
+  serverTechnicalHeader : ServerTechnicalHeader
   blockLength : BitVec 16
   schemaId : BitVec 16
   version : BitVec 16
   serverPayload : ServerPayload
   deriving DecidableEq, Repr
 
-namespace ServerTcpMessage
+namespace ServerTcpFrame
 
-def encode (message : ServerTcpMessage) : List UInt8 :=
+def encodeBody (message : ServerTcpFrame) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
     ++ (encodeUIntLE 2 (ServerPayload.tag message.serverPayload)
     ++ (encodeUIntLE 2 message.schemaId
     ++ (encodeUIntLE 2 message.version
     ++ (ServerPayload.encode message.serverPayload))))
 
-def decode (bytes : List UInt8) : Option (ServerTcpMessage × List UInt8) := do
+def decodeBody (serverTechnicalHeader : ServerTechnicalHeader) (bytes : List UInt8) : Option (ServerTcpFrame × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (templateId, bytes) ← decodeUIntLE 2 bytes
   let (schemaId, bytes) ← decodeUIntLE 2 bytes
   let (version, bytes) ← decodeUIntLE 2 bytes
   let (serverPayload, bytes) ← ServerPayload.decode templateId bytes
-  pure ({ blockLength, schemaId, version, serverPayload }, bytes)
+  pure ({ serverTechnicalHeader, blockLength, schemaId, version, serverPayload }, bytes)
 
-theorem encode_length_pos (message : ServerTcpMessage) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
+theorem decodeBody_encodeBody (message : ServerTcpFrame) (rest : List UInt8) :
+    decodeBody message.serverTechnicalHeader (encodeBody message ++ rest) = some (message, rest) := by
+  unfold decodeBody encodeBody
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [ServerPayload.decode_encode, some_bind]
+  rfl
 
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : ServerTcpMessage) : (encode message).length ≤ 18089 := by
-  unfold encode
+/-- Every body fits the length prefix -/
+theorem encodeBody_length_lt (message : ServerTcpFrame) : (encodeBody message).length + 2 < 256 ^ 2 := by
+  unfold encodeBody
   cases message.serverPayload with
   | channelReset inner =>
     have bound_inner := ChannelReset.encode_length_le inner
@@ -4801,74 +4851,25 @@ theorem encode_length_le (message : ServerTcpMessage) : (encode message).length 
     simp only [ServerPayload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, RequestReject.encode_length]
     omega
 
-@[simp] theorem decode_encode (message : ServerTcpMessage) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [ServerPayload.decode_encode, some_bind]
-  rfl
-
-end ServerTcpMessage
-
-/-- Server Tcp Frame -/
-structure ServerTcpFrame where
-  encodingType : BitVec 16
-  messageSequenceNumber : BitVec 32
-  tcpSendingTime : BitVec 64
-  serverTcpMessage : ServerTcpMessage
-  deriving DecidableEq, Repr
-
-namespace ServerTcpFrame
-
-def encodeBody (message : ServerTcpFrame) : List UInt8 :=
-  ServerTcpMessage.encode message.serverTcpMessage
-
-def decodeBody (encodingType : BitVec 16) (messageSequenceNumber : BitVec 32) (tcpSendingTime : BitVec 64) (bytes : List UInt8) : Option (ServerTcpFrame × List UInt8) := do
-  let (serverTcpMessage, bytes) ← ServerTcpMessage.decode bytes
-  pure ({ encodingType, messageSequenceNumber, tcpSendingTime, serverTcpMessage }, bytes)
-
-theorem decodeBody_encodeBody (message : ServerTcpFrame) (rest : List UInt8) :
-    decodeBody message.encodingType message.messageSequenceNumber message.tcpSendingTime (encodeBody message ++ rest) = some (message, rest) := by
-  unfold decodeBody encodeBody
-  rw [ServerTcpMessage.decode_encode, some_bind]
-  rfl
-
-/-- Size rule: Tcp Message Size counts the bytes after it plus 2, so it is written from the body; the body has no bound the prefix must fit, so it is read by its content and the prefix is not checked; Encoding Type, Message Sequence Number, Tcp Sending Time are read ahead of it -/
+/-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body and checked on decode; Server Technical Header is read ahead of it -/
 def encode (message : ServerTcpFrame) : List UInt8 :=
-  encodeUIntLE 2 message.encodingType
-    ++ (encodeUIntLE 4 message.messageSequenceNumber
-    ++ (encodeUIntLE 8 message.tcpSendingTime
-    ++ (encodeUIntLE 2 (BitVec.ofNat (8 * 2) ((encodeBody message).length + 2)) ++ encodeBody message)))
+  ServerTechnicalHeader.encode message.serverTechnicalHeader
+    ++ (encodeFramedLE 2 2 encodeBody message)
 
 def decode (bytes : List UInt8) : Option (ServerTcpFrame × List UInt8) := do
-  let (encodingType, bytes) ← decodeUIntLE 2 bytes
-  let (messageSequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (tcpSendingTime, bytes) ← decodeUIntLE 8 bytes
-  let (_, bytes) ← decodeUIntLE 2 bytes
-  (decodeBody encodingType messageSequenceNumber tcpSendingTime) bytes
+  let (serverTechnicalHeader, bytes) ← ServerTechnicalHeader.decode bytes
+  decodeFramedLE 2 2 (decodeBody serverTechnicalHeader) bytes
 
 @[simp] theorem decode_encode (message : ServerTcpFrame) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, ServerTechnicalHeader.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  exact decodeBody_encodeBody message rest
+  exact decodeFramedLE_encodeFramedLE 2 2 encodeBody (decodeBody message.serverTechnicalHeader) message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
 theorem encode_length_pos (message : ServerTcpFrame) : (encode message).length > 0 := by
   unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  simp only [ServerTechnicalHeader.encode_length, List.length_append, encodeFramedLE_length]
   omega
 
 end ServerTcpFrame

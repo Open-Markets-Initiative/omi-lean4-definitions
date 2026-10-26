@@ -2261,14 +2261,14 @@ end SnapshotMessage
 
 /-- Any Category Payload, selected by Message Category -/
 inductive CategoryPayload where
-  | snapshotMessage (message : SnapshotMessage) -- "K" 0x4B
+  | snapshotMessage (message : SnapshotMessage) -- "R" 0x52
   deriving DecidableEq, Repr
 
 namespace CategoryPayload
 
 /-- The Message Category each message is sent under -/
 def tag : CategoryPayload → BitVec 8
-  | .snapshotMessage _ => 75
+  | .snapshotMessage _ => 82
 
 def encode : CategoryPayload → List UInt8
   | .snapshotMessage message => SnapshotMessage.encode message
@@ -2282,7 +2282,7 @@ theorem encode_length_le (message : CategoryPayload) : (encode message).length �
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (CategoryPayload × List UInt8) :=
-  if tag = 75 then (SnapshotMessage.decode bytes).map fun (message, rest) => (.snapshotMessage message, rest)
+  if tag = 82 then (SnapshotMessage.decode bytes).map fun (message, rest) => (.snapshotMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : CategoryPayload) (rest : List UInt8) :
