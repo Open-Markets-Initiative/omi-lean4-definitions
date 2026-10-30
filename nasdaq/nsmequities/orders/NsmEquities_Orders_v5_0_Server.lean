@@ -1241,7 +1241,7 @@ inductive LiquidityFlag where
   | retailDesignated -- Retail Designated
   | haltIpo -- Halt Ipo
   | afterHoursClosing -- After Hours Closing
-  | nondisplayedAddingLiquidity -- Nondisplayed Adding Liquidity
+  | nonDisplayedAddingLiquidity -- Non Displayed Adding Liquidity
   | rpiOrderProvidesLiquidity -- Rpi Order Provides Liquidity
   | addedLiquidityViaAMidpointOrder -- Added Liquidity Via A Midpoint Order
   | haltCross -- Halt Cross
@@ -1251,20 +1251,20 @@ inductive LiquidityFlag where
   | passiveMidpointExecution -- Passive Midpoint Execution
   | midpointExtendedLifeOrderExecution -- Midpoint Extended Life Order Execution
   | opening -- Opening
-  | removedPriceImprovingNondisplayedLiquidity -- Removed Price Improving Nondisplayed Liquidity
+  | removedPriceImprovingNonDisplayedLiquidity -- Removed Price Improving Non Displayed Liquidity
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity -- Rmo Retail Order Removes Non Rpi Midpoint Liquidity
   | removed -- Removed
   | retailOrderRemovesRpiLiquidity -- Retail Order Removes Rpi Liquidity
-  | retailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity -- Retail Order Removes Price Improving Nondisplayed Liquidity Other Than Rpi Liquidity
-  | addedNondisplayedLiquidityViaAReserveOrder -- Added Nondisplayed Liquidity Via A Reserve Order
+  | retailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity -- Retail Order Removes Price Improving Non Displayed Liquidity Other Than Rpi Liquidity
+  | addedNonDisplayedLiquidityViaAReserveOrder -- Added Non Displayed Liquidity Via A Reserve Order
   | supplemental -- Supplemental
-  | displayedLiquidityaddingOrderImprovesTheNbbo -- Displayed Liquidityadding Order Improves The Nbbo
-  | displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo -- Displayed Liquidityadding Order Sets The Qbbo While Joining The Nbbo
+  | displayedLiquidityAddingOrderImprovesTheNbbo -- Displayed Liquidity Adding Order Improves The Nbbo
+  | displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo -- Displayed Liquidity Adding Order Sets The Qbbo While Joining The Nbbo
   | rpiOrderProvidesLiquidityNoRpii -- Rpi Order Provides Liquidity No Rpii
-  | addedInThePremarket -- Added In The Premarket
-  | removedInThePremarket -- Removed In The Premarket
-  | displayedLiquidityaddingOrderImprovesTheNbboInThePremarket -- Displayed Liquidityadding Order Improves The Nbbo In The Premarket
-  | nondisplayedAddingLiquidityInThePremarket -- Nondisplayed Adding Liquidity In The Premarket
+  | addedInThePreMarket -- Added In The Pre Market
+  | removedInThePreMarket -- Removed In The Pre Market
+  | displayedLiquidityAddingOrderImprovesTheNbboInThePreMarket -- Displayed Liquidity Adding Order Improves The Nbbo In The Pre Market
+  | nonDisplayedAddingLiquidityInThePreMarket -- Non Displayed Adding Liquidity In The Pre Market
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1276,7 +1276,7 @@ def toByte : LiquidityFlag → UInt8
   | .retailDesignated => 0x65
   | .haltIpo => 0x48
   | .afterHoursClosing => 0x69
-  | .nondisplayedAddingLiquidity => 0x4A
+  | .nonDisplayedAddingLiquidity => 0x4A
   | .rpiOrderProvidesLiquidity => 0x6A
   | .addedLiquidityViaAMidpointOrder => 0x6B
   | .haltCross => 0x4B
@@ -1286,20 +1286,20 @@ def toByte : LiquidityFlag → UInt8
   | .passiveMidpointExecution => 0x4E
   | .midpointExtendedLifeOrderExecution => 0x6E
   | .opening => 0x4F
-  | .removedPriceImprovingNondisplayedLiquidity => 0x70
+  | .removedPriceImprovingNonDisplayedLiquidity => 0x70
   | .rmoRetailOrderRemovesNonRpiMidpointLiquidity => 0x71
   | .removed => 0x52
   | .retailOrderRemovesRpiLiquidity => 0x72
-  | .retailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => 0x74
-  | .addedNondisplayedLiquidityViaAReserveOrder => 0x75
+  | .retailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => 0x74
+  | .addedNonDisplayedLiquidityViaAReserveOrder => 0x75
   | .supplemental => 0x30
-  | .displayedLiquidityaddingOrderImprovesTheNbbo => 0x37
-  | .displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo => 0x38
+  | .displayedLiquidityAddingOrderImprovesTheNbbo => 0x37
+  | .displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo => 0x38
   | .rpiOrderProvidesLiquidityNoRpii => 0x31
-  | .addedInThePremarket => 0x32
-  | .removedInThePremarket => 0x33
-  | .displayedLiquidityaddingOrderImprovesTheNbboInThePremarket => 0x35
-  | .nondisplayedAddingLiquidityInThePremarket => 0x39
+  | .addedInThePreMarket => 0x32
+  | .removedInThePreMarket => 0x33
+  | .displayedLiquidityAddingOrderImprovesTheNbboInThePreMarket => 0x35
+  | .nonDisplayedAddingLiquidityInThePreMarket => 0x39
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -1309,7 +1309,7 @@ def listed (byte : UInt8) : LiquidityFlag :=
   else if byte = 0x65 then .retailDesignated
   else if byte = 0x48 then .haltIpo
   else if byte = 0x69 then .afterHoursClosing
-  else if byte = 0x4A then .nondisplayedAddingLiquidity
+  else if byte = 0x4A then .nonDisplayedAddingLiquidity
   else if byte = 0x6A then .rpiOrderProvidesLiquidity
   else if byte = 0x6B then .addedLiquidityViaAMidpointOrder
   else if byte = 0x4B then .haltCross
@@ -1319,20 +1319,20 @@ def listed (byte : UInt8) : LiquidityFlag :=
   else if byte = 0x4E then .passiveMidpointExecution
   else if byte = 0x6E then .midpointExtendedLifeOrderExecution
   else if byte = 0x4F then .opening
-  else if byte = 0x70 then .removedPriceImprovingNondisplayedLiquidity
+  else if byte = 0x70 then .removedPriceImprovingNonDisplayedLiquidity
   else if byte = 0x71 then .rmoRetailOrderRemovesNonRpiMidpointLiquidity
   else if byte = 0x52 then .removed
   else if byte = 0x72 then .retailOrderRemovesRpiLiquidity
-  else if byte = 0x74 then .retailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity
-  else if byte = 0x75 then .addedNondisplayedLiquidityViaAReserveOrder
+  else if byte = 0x74 then .retailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity
+  else if byte = 0x75 then .addedNonDisplayedLiquidityViaAReserveOrder
   else if byte = 0x30 then .supplemental
-  else if byte = 0x37 then .displayedLiquidityaddingOrderImprovesTheNbbo
-  else if byte = 0x38 then .displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo
+  else if byte = 0x37 then .displayedLiquidityAddingOrderImprovesTheNbbo
+  else if byte = 0x38 then .displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo
   else if byte = 0x31 then .rpiOrderProvidesLiquidityNoRpii
-  else if byte = 0x32 then .addedInThePremarket
-  else if byte = 0x33 then .removedInThePremarket
-  else if byte = 0x35 then .displayedLiquidityaddingOrderImprovesTheNbboInThePremarket
-  else .nondisplayedAddingLiquidityInThePremarket
+  else if byte = 0x32 then .addedInThePreMarket
+  else if byte = 0x33 then .removedInThePreMarket
+  else if byte = 0x35 then .displayedLiquidityAddingOrderImprovesTheNbboInThePreMarket
+  else .nonDisplayedAddingLiquidityInThePreMarket
 
 def ofByte (byte : UInt8) : LiquidityFlag :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1344,7 +1344,7 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   | retailDesignated => decide
   | haltIpo => decide
   | afterHoursClosing => decide
-  | nondisplayedAddingLiquidity => decide
+  | nonDisplayedAddingLiquidity => decide
   | rpiOrderProvidesLiquidity => decide
   | addedLiquidityViaAMidpointOrder => decide
   | haltCross => decide
@@ -1354,20 +1354,20 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   | passiveMidpointExecution => decide
   | midpointExtendedLifeOrderExecution => decide
   | opening => decide
-  | removedPriceImprovingNondisplayedLiquidity => decide
+  | removedPriceImprovingNonDisplayedLiquidity => decide
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity => decide
   | removed => decide
   | retailOrderRemovesRpiLiquidity => decide
-  | retailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => decide
-  | addedNondisplayedLiquidityViaAReserveOrder => decide
+  | retailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => decide
+  | addedNonDisplayedLiquidityViaAReserveOrder => decide
   | supplemental => decide
-  | displayedLiquidityaddingOrderImprovesTheNbbo => decide
-  | displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo => decide
+  | displayedLiquidityAddingOrderImprovesTheNbbo => decide
+  | displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo => decide
   | rpiOrderProvidesLiquidityNoRpii => decide
-  | addedInThePremarket => decide
-  | removedInThePremarket => decide
-  | displayedLiquidityaddingOrderImprovesTheNbboInThePremarket => decide
-  | nondisplayedAddingLiquidityInThePremarket => decide
+  | addedInThePreMarket => decide
+  | removedInThePreMarket => decide
+  | displayedLiquidityAddingOrderImprovesTheNbboInThePreMarket => decide
+  | nonDisplayedAddingLiquidityInThePreMarket => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : LiquidityFlag) : List UInt8 :=

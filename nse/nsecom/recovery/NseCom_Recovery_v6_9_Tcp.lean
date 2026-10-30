@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NseNsecomRecoveryBinaryV69Tcp
+namespace Omi.NseNsecomRecoveryTbtV69Tcp
 
 /-- Order Type: one byte code -/
 def OrderType.codes : List UInt8 :=
@@ -883,4 +883,4 @@ theorem decode_encode (message : Packet) : decode (encode message) = some messag
 
 end Packet
 
-end Omi.NseNsecomRecoveryBinaryV69Tcp
+end Omi.NseNsecomRecoveryTbtV69Tcp

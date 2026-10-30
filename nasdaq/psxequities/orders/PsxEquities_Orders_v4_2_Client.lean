@@ -82,7 +82,7 @@ inductive Display where
   | anonymousPrice -- Anonymous Price
   | nonDisplay -- Non Display
   | postOnly -- Post Only
-  | changedToNondisplayed -- Changed To Nondisplayed
+  | changedToNonDisplayed -- Changed To Non Displayed
   | imbalanceOnly -- Imbalance Only
   | midPoint -- Mid Point
   | midPoint_57 -- Mid Point
@@ -96,7 +96,7 @@ def toByte : Display → UInt8
   | .anonymousPrice => 0x59
   | .nonDisplay => 0x4E
   | .postOnly => 0x50
-  | .changedToNondisplayed => 0x5A
+  | .changedToNonDisplayed => 0x5A
   | .imbalanceOnly => 0x49
   | .midPoint => 0x4D
   | .midPoint_57 => 0x57
@@ -108,7 +108,7 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x59 then .anonymousPrice
   else if byte = 0x4E then .nonDisplay
   else if byte = 0x50 then .postOnly
-  else if byte = 0x5A then .changedToNondisplayed
+  else if byte = 0x5A then .changedToNonDisplayed
   else if byte = 0x49 then .imbalanceOnly
   else if byte = 0x4D then .midPoint
   else .midPoint_57
@@ -122,7 +122,7 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | anonymousPrice => decide
   | nonDisplay => decide
   | postOnly => decide
-  | changedToNondisplayed => decide
+  | changedToNonDisplayed => decide
   | imbalanceOnly => decide
   | midPoint => decide
   | midPoint_57 => decide
@@ -214,7 +214,7 @@ def IntermarketSweepEligibility.codes : List UInt8 :=
 inductive IntermarketSweepEligibility where
   | eligible -- Eligible
   | notEligible -- Not Eligible
-  | tradeat -- Tradeat
+  | tradeAt -- Trade At
   | unlisted (byte : { byte : UInt8 // byte ∉ IntermarketSweepEligibility.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -223,14 +223,14 @@ namespace IntermarketSweepEligibility
 def toByte : IntermarketSweepEligibility → UInt8
   | .eligible => 0x59
   | .notEligible => 0x4E
-  | .tradeat => 0x79
+  | .tradeAt => 0x79
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IntermarketSweepEligibility :=
   if byte = 0x59 then .eligible
   else if byte = 0x4E then .notEligible
-  else .tradeat
+  else .tradeAt
 
 def ofByte (byte : UInt8) : IntermarketSweepEligibility :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -239,7 +239,7 @@ theorem ofByte_toByte (value : IntermarketSweepEligibility) : ofByte value.toByt
   cases value with
   | eligible => decide
   | notEligible => decide
-  | tradeat => decide
+  | tradeAt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : IntermarketSweepEligibility) : List UInt8 :=

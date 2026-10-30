@@ -1696,7 +1696,7 @@ inductive DurationType where
   | fillAndKill -- Fill And Kill
   | goodTillCancel -- Good Till Cancel
   | day -- Day
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | whileConnected -- While Connected
   | unlisted (byte : { byte : UInt8 // byte ∉ DurationType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -1708,7 +1708,7 @@ def toByte : DurationType → UInt8
   | .fillAndKill => 0x45
   | .goodTillCancel => 0x46
   | .day => 0x4A
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .whileConnected => 0x57
   | .unlisted byte => byte.val
 
@@ -1718,7 +1718,7 @@ def listed (byte : UInt8) : DurationType :=
   else if byte = 0x45 then .fillAndKill
   else if byte = 0x46 then .goodTillCancel
   else if byte = 0x4A then .day
-  else if byte = 0x50 then .preopening
+  else if byte = 0x50 then .preOpening
   else .whileConnected
 
 def ofByte (byte : UInt8) : DurationType :=
@@ -1730,7 +1730,7 @@ theorem ofByte_toByte (value : DurationType) : ofByte value.toByte = value := by
   | fillAndKill => decide
   | goodTillCancel => decide
   | day => decide
-  | preopening => decide
+  | preOpening => decide
   | whileConnected => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

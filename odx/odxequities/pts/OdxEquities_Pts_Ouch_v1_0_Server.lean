@@ -180,26 +180,26 @@ def Display.codes : List UInt8 :=
   [0x50]
 
 inductive Display where
-  | postonly -- Postonly
+  | postOnly -- Post Only
   | unlisted (byte : { byte : UInt8 // byte ∉ Display.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace Display
 
 def toByte : Display → UInt8
-  | .postonly => 0x50
+  | .postOnly => 0x50
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (_ : UInt8) : Display :=
-  .postonly
+  .postOnly
 
 def ofByte (byte : UInt8) : Display :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   cases value with
-  | postonly => decide
+  | postOnly => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Display) : List UInt8 :=

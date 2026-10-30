@@ -503,7 +503,7 @@ def CrossType.codes : List UInt8 :=
   [0x4F, 0x49]
 
 inductive CrossType where
-  | preopeningSession -- Preopening Session
+  | preOpeningSession -- Pre Opening Session
   | intradayAuction -- Intraday Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -511,13 +511,13 @@ inductive CrossType where
 namespace CrossType
 
 def toByte : CrossType → UInt8
-  | .preopeningSession => 0x4F
+  | .preOpeningSession => 0x4F
   | .intradayAuction => 0x49
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
-  if byte = 0x4F then .preopeningSession
+  if byte = 0x4F then .preOpeningSession
   else .intradayAuction
 
 def ofByte (byte : UInt8) : CrossType :=
@@ -525,7 +525,7 @@ def ofByte (byte : UInt8) : CrossType :=
 
 theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
-  | preopeningSession => decide
+  | preOpeningSession => decide
   | intradayAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

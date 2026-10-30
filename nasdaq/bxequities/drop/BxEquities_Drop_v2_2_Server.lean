@@ -135,7 +135,7 @@ def LiquidityCode.codes : List UInt8 :=
 inductive LiquidityCode where
   | addedLiquidity -- Added Liquidity
   | reducedLiquidity -- Reduced Liquidity
-  | nondisplayedAndAddedLiquidity -- Nondisplayed And Added Liquidity
+  | nonDisplayedAndAddedLiquidity -- Non Displayed And Added Liquidity
   | routed -- Routed
   | dotRouted -- Dot Routed
   | openingTradeOnNyse -- Opening Trade On Nyse
@@ -152,11 +152,11 @@ inductive LiquidityCode where
   | addedLiquidityViaAMidpointOrder -- Added Liquidity Via A Midpoint Order
   | rpiRetailPriceImprovingOrderProvidesLiquidity -- Rpi Retail Price Improving Order Provides Liquidity
   | rmoRetailOrderRemovesRpiLiquidity -- Rmo Retail Order Removes Rpi Liquidity
-  | rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity -- Rmo Retail Order Removes Price Improving Nondisplayed Liquidity Other Than Rpi Liquidity
+  | rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity -- Rmo Retail Order Removes Price Improving Non Displayed Liquidity Other Than Rpi Liquidity
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity -- Rmo Retail Order Removes Non Rpi Midpoint Liquidity
-  | displayedLiquidityaddingOrderImprovesTheNbbo -- Displayed Liquidityadding Order Improves The Nbbo
-  | displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo -- Displayed Liquidityadding Order Sets The Bxbbo While Joining The Nbbo
-  | removedPriceImprovingNondisplayedLiquidity -- Removed Price Improving Nondisplayed Liquidity
+  | displayedLiquidityAddingOrderImprovesTheNbbo -- Displayed Liquidity Adding Order Improves The Nbbo
+  | displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo -- Displayed Liquidity Adding Order Sets The Bxbbo While Joining The Nbbo
+  | removedPriceImprovingNonDisplayedLiquidity -- Removed Price Improving Non Displayed Liquidity
   | passiveMidpointExecution -- Passive Midpoint Execution
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -166,7 +166,7 @@ namespace LiquidityCode
 def toByte : LiquidityCode → UInt8
   | .addedLiquidity => 0x41
   | .reducedLiquidity => 0x52
-  | .nondisplayedAndAddedLiquidity => 0x4A
+  | .nonDisplayedAndAddedLiquidity => 0x4A
   | .routed => 0x58
   | .dotRouted => 0x44
   | .openingTradeOnNyse => 0x46
@@ -183,11 +183,11 @@ def toByte : LiquidityCode → UInt8
   | .addedLiquidityViaAMidpointOrder => 0x6B
   | .rpiRetailPriceImprovingOrderProvidesLiquidity => 0x6A
   | .rmoRetailOrderRemovesRpiLiquidity => 0x72
-  | .rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => 0x74
+  | .rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => 0x74
   | .rmoRetailOrderRemovesNonRpiMidpointLiquidity => 0x71
-  | .displayedLiquidityaddingOrderImprovesTheNbbo => 0x37
-  | .displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo => 0x38
-  | .removedPriceImprovingNondisplayedLiquidity => 0x70
+  | .displayedLiquidityAddingOrderImprovesTheNbbo => 0x37
+  | .displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo => 0x38
+  | .removedPriceImprovingNonDisplayedLiquidity => 0x70
   | .passiveMidpointExecution => 0x4E
   | .unlisted byte => byte.val
 
@@ -195,7 +195,7 @@ def toByte : LiquidityCode → UInt8
 def listed (byte : UInt8) : LiquidityCode :=
   if byte = 0x41 then .addedLiquidity
   else if byte = 0x52 then .reducedLiquidity
-  else if byte = 0x4A then .nondisplayedAndAddedLiquidity
+  else if byte = 0x4A then .nonDisplayedAndAddedLiquidity
   else if byte = 0x58 then .routed
   else if byte = 0x44 then .dotRouted
   else if byte = 0x46 then .openingTradeOnNyse
@@ -212,11 +212,11 @@ def listed (byte : UInt8) : LiquidityCode :=
   else if byte = 0x6B then .addedLiquidityViaAMidpointOrder
   else if byte = 0x6A then .rpiRetailPriceImprovingOrderProvidesLiquidity
   else if byte = 0x72 then .rmoRetailOrderRemovesRpiLiquidity
-  else if byte = 0x74 then .rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity
+  else if byte = 0x74 then .rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity
   else if byte = 0x71 then .rmoRetailOrderRemovesNonRpiMidpointLiquidity
-  else if byte = 0x37 then .displayedLiquidityaddingOrderImprovesTheNbbo
-  else if byte = 0x38 then .displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo
-  else if byte = 0x70 then .removedPriceImprovingNondisplayedLiquidity
+  else if byte = 0x37 then .displayedLiquidityAddingOrderImprovesTheNbbo
+  else if byte = 0x38 then .displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo
+  else if byte = 0x70 then .removedPriceImprovingNonDisplayedLiquidity
   else .passiveMidpointExecution
 
 def ofByte (byte : UInt8) : LiquidityCode :=
@@ -226,7 +226,7 @@ theorem ofByte_toByte (value : LiquidityCode) : ofByte value.toByte = value := b
   cases value with
   | addedLiquidity => decide
   | reducedLiquidity => decide
-  | nondisplayedAndAddedLiquidity => decide
+  | nonDisplayedAndAddedLiquidity => decide
   | routed => decide
   | dotRouted => decide
   | openingTradeOnNyse => decide
@@ -243,11 +243,11 @@ theorem ofByte_toByte (value : LiquidityCode) : ofByte value.toByte = value := b
   | addedLiquidityViaAMidpointOrder => decide
   | rpiRetailPriceImprovingOrderProvidesLiquidity => decide
   | rmoRetailOrderRemovesRpiLiquidity => decide
-  | rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => decide
+  | rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => decide
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity => decide
-  | displayedLiquidityaddingOrderImprovesTheNbbo => decide
-  | displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo => decide
-  | removedPriceImprovingNondisplayedLiquidity => decide
+  | displayedLiquidityAddingOrderImprovesTheNbbo => decide
+  | displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo => decide
+  | removedPriceImprovingNonDisplayedLiquidity => decide
   | passiveMidpointExecution => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

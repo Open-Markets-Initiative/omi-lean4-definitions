@@ -353,7 +353,7 @@ inductive PegType where
   | primaryPeg -- Primary Peg
   | minimumPriceImprovement -- Minimum Price Improvement
   | seekPriceImprovement -- Seek Price Improvement
-  | melo -- Melo
+  | mElo -- M Elo
   | oddLotLiquidityProviding -- Odd Lot Liquidity Providing
   | unlisted (byte : { byte : UInt8 // byte ∉ PegType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -365,7 +365,7 @@ def toByte : PegType → UInt8
   | .primaryPeg => 0x52
   | .minimumPriceImprovement => 0x78
   | .seekPriceImprovement => 0x53
-  | .melo => 0x4C
+  | .mElo => 0x4C
   | .oddLotLiquidityProviding => 0x6F
   | .unlisted byte => byte.val
 
@@ -375,7 +375,7 @@ def listed (byte : UInt8) : PegType :=
   else if byte = 0x52 then .primaryPeg
   else if byte = 0x78 then .minimumPriceImprovement
   else if byte = 0x53 then .seekPriceImprovement
-  else if byte = 0x4C then .melo
+  else if byte = 0x4C then .mElo
   else .oddLotLiquidityProviding
 
 def ofByte (byte : UInt8) : PegType :=
@@ -387,7 +387,7 @@ theorem ofByte_toByte (value : PegType) : ofByte value.toByte = value := by
   | primaryPeg => decide
   | minimumPriceImprovement => decide
   | seekPriceImprovement => decide
-  | melo => decide
+  | mElo => decide
   | oddLotLiquidityProviding => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -477,7 +477,7 @@ def OrderOrigination.codes : List UInt8 :=
 inductive OrderOrigination where
   | directAccessCustomer -- Direct Access Customer
   | foreignDealerEquivalent -- Foreign Dealer Equivalent
-  | executiononlyService -- Executiononly Service
+  | executionOnlyService -- Execution Only Service
   | unlisted (byte : { byte : UInt8 // byte ∉ OrderOrigination.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -486,14 +486,14 @@ namespace OrderOrigination
 def toByte : OrderOrigination → UInt8
   | .directAccessCustomer => 0x35
   | .foreignDealerEquivalent => 0x36
-  | .executiononlyService => 0x37
+  | .executionOnlyService => 0x37
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OrderOrigination :=
   if byte = 0x35 then .directAccessCustomer
   else if byte = 0x36 then .foreignDealerEquivalent
-  else .executiononlyService
+  else .executionOnlyService
 
 def ofByte (byte : UInt8) : OrderOrigination :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -502,7 +502,7 @@ theorem ofByte_toByte (value : OrderOrigination) : ofByte value.toByte = value :
   cases value with
   | directAccessCustomer => decide
   | foreignDealerEquivalent => decide
-  | executiononlyService => decide
+  | executionOnlyService => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OrderOrigination) : List UInt8 :=
@@ -994,7 +994,7 @@ def ConditionalOrder.codes : List UInt8 :=
 
 inductive ConditionalOrder where
   | conditionalOrder -- Conditional Order
-  | extendedFirmupTimeConditionalOrder -- Extended Firmup Time Conditional Order
+  | extendedFirmUpTimeConditionalOrder -- Extended Firm Up Time Conditional Order
   | unlisted (byte : { byte : UInt8 // byte ∉ ConditionalOrder.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1002,13 +1002,13 @@ namespace ConditionalOrder
 
 def toByte : ConditionalOrder → UInt8
   | .conditionalOrder => 0x43
-  | .extendedFirmupTimeConditionalOrder => 0x58
+  | .extendedFirmUpTimeConditionalOrder => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ConditionalOrder :=
   if byte = 0x43 then .conditionalOrder
-  else .extendedFirmupTimeConditionalOrder
+  else .extendedFirmUpTimeConditionalOrder
 
 def ofByte (byte : UInt8) : ConditionalOrder :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1016,7 +1016,7 @@ def ofByte (byte : UInt8) : ConditionalOrder :=
 theorem ofByte_toByte (value : ConditionalOrder) : ofByte value.toByte = value := by
   cases value with
   | conditionalOrder => decide
-  | extendedFirmupTimeConditionalOrder => decide
+  | extendedFirmUpTimeConditionalOrder => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ConditionalOrder) : List UInt8 :=
@@ -1303,16 +1303,16 @@ inductive LiquidityFlag where
   | orderRemovedLiquidity -- Order Removed Liquidity
   | orderAddedHiddenLiquidity -- Order Added Hidden Liquidity
   | orderRemovedHiddenLiquidity -- Order Removed Hidden Liquidity
-  | orderAddedHiddenLiquidityAtthetouch -- Order Added Hidden Liquidity Atthetouch
-  | orderRemovedHiddenLiquidityAtthetouch -- Order Removed Hidden Liquidity Atthetouch
+  | orderAddedHiddenLiquidityAtTheTouch -- Order Added Hidden Liquidity At The Touch
+  | orderRemovedHiddenLiquidityAtTheTouch -- Order Removed Hidden Liquidity At The Touch
   | orderAddedGefLiquidity -- Order Added Gef Liquidity
   | orderRemovedGefLiquidity -- Order Removed Gef Liquidity
   | marketOnClose -- Market On Close
-  | displayedLiquidityaddingOrderImprovesTheNbbo -- Displayed Liquidityadding Order Improves The Nbbo
+  | displayedLiquidityAddingOrderImprovesTheNbbo -- Displayed Liquidity Adding Order Improves The Nbbo
   | openingClosingAuction -- Opening Closing Auction
   | lastSaleTradingSession -- Last Sale Trading Session
-  | melo -- Melo
-  | cxdPureStreamRatebasedExecution -- Cxd Pure Stream Ratebased Execution
+  | mElo -- M Elo
+  | cxdPureStreamRateBasedExecution -- Cxd Pure Stream Rate Based Execution
   | cxdPureStreamLsMidpointBlockRemovedLiquidity -- Cxd Pure Stream Ls Midpoint Block Removed Liquidity
   | xft -- Xft
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityFlag.codes }) -- any other code, kept as it is
@@ -1325,16 +1325,16 @@ def toByte : LiquidityFlag → UInt8
   | .orderRemovedLiquidity => 0x52
   | .orderAddedHiddenLiquidity => 0x61
   | .orderRemovedHiddenLiquidity => 0x72
-  | .orderAddedHiddenLiquidityAtthetouch => 0x64
-  | .orderRemovedHiddenLiquidityAtthetouch => 0x44
+  | .orderAddedHiddenLiquidityAtTheTouch => 0x64
+  | .orderRemovedHiddenLiquidityAtTheTouch => 0x44
   | .orderAddedGefLiquidity => 0x67
   | .orderRemovedGefLiquidity => 0x47
   | .marketOnClose => 0x43
-  | .displayedLiquidityaddingOrderImprovesTheNbbo => 0x53
+  | .displayedLiquidityAddingOrderImprovesTheNbbo => 0x53
   | .openingClosingAuction => 0x4F
   | .lastSaleTradingSession => 0x45
-  | .melo => 0x4C
-  | .cxdPureStreamRatebasedExecution => 0x50
+  | .mElo => 0x4C
+  | .cxdPureStreamRateBasedExecution => 0x50
   | .cxdPureStreamLsMidpointBlockRemovedLiquidity => 0x4D
   | .xft => 0x46
   | .unlisted byte => byte.val
@@ -1345,16 +1345,16 @@ def listed (byte : UInt8) : LiquidityFlag :=
   else if byte = 0x52 then .orderRemovedLiquidity
   else if byte = 0x61 then .orderAddedHiddenLiquidity
   else if byte = 0x72 then .orderRemovedHiddenLiquidity
-  else if byte = 0x64 then .orderAddedHiddenLiquidityAtthetouch
-  else if byte = 0x44 then .orderRemovedHiddenLiquidityAtthetouch
+  else if byte = 0x64 then .orderAddedHiddenLiquidityAtTheTouch
+  else if byte = 0x44 then .orderRemovedHiddenLiquidityAtTheTouch
   else if byte = 0x67 then .orderAddedGefLiquidity
   else if byte = 0x47 then .orderRemovedGefLiquidity
   else if byte = 0x43 then .marketOnClose
-  else if byte = 0x53 then .displayedLiquidityaddingOrderImprovesTheNbbo
+  else if byte = 0x53 then .displayedLiquidityAddingOrderImprovesTheNbbo
   else if byte = 0x4F then .openingClosingAuction
   else if byte = 0x45 then .lastSaleTradingSession
-  else if byte = 0x4C then .melo
-  else if byte = 0x50 then .cxdPureStreamRatebasedExecution
+  else if byte = 0x4C then .mElo
+  else if byte = 0x50 then .cxdPureStreamRateBasedExecution
   else if byte = 0x4D then .cxdPureStreamLsMidpointBlockRemovedLiquidity
   else .xft
 
@@ -1367,16 +1367,16 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   | orderRemovedLiquidity => decide
   | orderAddedHiddenLiquidity => decide
   | orderRemovedHiddenLiquidity => decide
-  | orderAddedHiddenLiquidityAtthetouch => decide
-  | orderRemovedHiddenLiquidityAtthetouch => decide
+  | orderAddedHiddenLiquidityAtTheTouch => decide
+  | orderRemovedHiddenLiquidityAtTheTouch => decide
   | orderAddedGefLiquidity => decide
   | orderRemovedGefLiquidity => decide
   | marketOnClose => decide
-  | displayedLiquidityaddingOrderImprovesTheNbbo => decide
+  | displayedLiquidityAddingOrderImprovesTheNbbo => decide
   | openingClosingAuction => decide
   | lastSaleTradingSession => decide
-  | melo => decide
-  | cxdPureStreamRatebasedExecution => decide
+  | mElo => decide
+  | cxdPureStreamRateBasedExecution => decide
   | cxdPureStreamLsMidpointBlockRemovedLiquidity => decide
   | xft => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -1719,7 +1719,7 @@ def RestateReason.codes : List UInt8 :=
 inductive RestateReason where
   | streamOn -- Stream On
   | streamOff -- Stream Off
-  | conditionalOrderFirmupRequest -- Conditional Order Firmup Request
+  | conditionalOrderFirmUpRequest -- Conditional Order Firm Up Request
   | unlisted (byte : { byte : UInt8 // byte ∉ RestateReason.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1728,14 +1728,14 @@ namespace RestateReason
 def toByte : RestateReason → UInt8
   | .streamOn => 0x4F
   | .streamOff => 0x58
-  | .conditionalOrderFirmupRequest => 0x52
+  | .conditionalOrderFirmUpRequest => 0x52
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : RestateReason :=
   if byte = 0x4F then .streamOn
   else if byte = 0x58 then .streamOff
-  else .conditionalOrderFirmupRequest
+  else .conditionalOrderFirmUpRequest
 
 def ofByte (byte : UInt8) : RestateReason :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1744,7 +1744,7 @@ theorem ofByte_toByte (value : RestateReason) : ofByte value.toByte = value := b
   cases value with
   | streamOn => decide
   | streamOff => decide
-  | conditionalOrderFirmupRequest => decide
+  | conditionalOrderFirmUpRequest => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : RestateReason) : List UInt8 :=

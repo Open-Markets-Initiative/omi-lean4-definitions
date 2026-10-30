@@ -123,7 +123,7 @@ inductive QuoteCondition where
   | slowOnTheBidDueToAnLrpOrGapQuote -- Slow On The Bid Due To An Lrp Or Gap Quote
   | slowOnTheAskDueToAnLrpOrGapQuote -- Slow On The Ask Due To An Lrp Or Gap Quote
   | slowOnBothAskAndBid -- Slow On Both Ask And Bid
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | openingQuote -- Opening Quote
   | regularQuote -- Regular Quote
   | slowOnTheBidAndAskDueToAnLrpOrGapQuote -- Slow On The Bid And Ask Due To An Lrp Or Gap Quote
@@ -140,7 +140,7 @@ def toByte : QuoteCondition → UInt8
   | .slowOnTheBidDueToAnLrpOrGapQuote => 0x45
   | .slowOnTheAskDueToAnLrpOrGapQuote => 0x46
   | .slowOnBothAskAndBid => 0x48
-  | .nonfirmQuote => 0x4E
+  | .nonFirmQuote => 0x4E
   | .openingQuote => 0x4F
   | .regularQuote => 0x52
   | .slowOnTheBidAndAskDueToAnLrpOrGapQuote => 0x55
@@ -155,7 +155,7 @@ def listed (byte : UInt8) : QuoteCondition :=
   else if byte = 0x45 then .slowOnTheBidDueToAnLrpOrGapQuote
   else if byte = 0x46 then .slowOnTheAskDueToAnLrpOrGapQuote
   else if byte = 0x48 then .slowOnBothAskAndBid
-  else if byte = 0x4E then .nonfirmQuote
+  else if byte = 0x4E then .nonFirmQuote
   else if byte = 0x4F then .openingQuote
   else if byte = 0x52 then .regularQuote
   else if byte = 0x55 then .slowOnTheBidAndAskDueToAnLrpOrGapQuote
@@ -172,7 +172,7 @@ theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := 
   | slowOnTheBidDueToAnLrpOrGapQuote => decide
   | slowOnTheAskDueToAnLrpOrGapQuote => decide
   | slowOnBothAskAndBid => decide
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | openingQuote => decide
   | regularQuote => decide
   | slowOnTheBidAndAskDueToAnLrpOrGapQuote => decide

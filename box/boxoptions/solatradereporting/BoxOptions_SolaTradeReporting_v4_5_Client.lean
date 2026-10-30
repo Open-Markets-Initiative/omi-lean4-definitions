@@ -331,7 +331,7 @@ structure NewAllocation where
   accountType : AccountType
   openClose : OpenClose
   clientAccountNumber : Alpha 12
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   cmtaBroker : Alpha 4
   clientMemo : Alpha 16
   additionalFirm : Alpha 4
@@ -348,7 +348,7 @@ def encode (message : NewAllocation) : List UInt8 :=
     ++ (AccountType.encode message.accountType
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.clientAccountNumber
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (Alpha.encode message.cmtaBroker
     ++ (Alpha.encode message.clientMemo
     ++ (Alpha.encode message.additionalFirm
@@ -362,12 +362,12 @@ def decode (bytes : List UInt8) : Option (NewAllocation × List UInt8) := do
   let (accountType, bytes) ← AccountType.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (clientMemo, bytes) ← Alpha.decode 16 bytes
   let (additionalFirm, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subtraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
+  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subTraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : NewAllocation) : (encode message).length = 94 := by
   unfold encode
@@ -416,7 +416,7 @@ structure ModifyAllocation where
   accountType : AccountType
   openClose : OpenClose
   clientAccountNumber : Alpha 12
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   cmtaBroker : Alpha 4
   clientMemo : Alpha 16
   additionalFirm : Alpha 4
@@ -433,7 +433,7 @@ def encode (message : ModifyAllocation) : List UInt8 :=
     ++ (AccountType.encode message.accountType
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.clientAccountNumber
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (Alpha.encode message.cmtaBroker
     ++ (Alpha.encode message.clientMemo
     ++ (Alpha.encode message.additionalFirm
@@ -447,12 +447,12 @@ def decode (bytes : List UInt8) : Option (ModifyAllocation × List UInt8) := do
   let (accountType, bytes) ← AccountType.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (clientMemo, bytes) ← Alpha.decode 16 bytes
   let (additionalFirm, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subtraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
+  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subTraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : ModifyAllocation) : (encode message).length = 94 := by
   unfold encode
@@ -536,7 +536,7 @@ structure NewGiveUp where
   accountType : AccountType
   openClose : OpenClose
   clientAccountNumber : Alpha 12
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   cmtaBroker : Alpha 4
   clientMemo : Alpha 16
   additionalFirm : Alpha 4
@@ -553,7 +553,7 @@ def encode (message : NewGiveUp) : List UInt8 :=
     ++ (AccountType.encode message.accountType
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.clientAccountNumber
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (Alpha.encode message.cmtaBroker
     ++ (Alpha.encode message.clientMemo
     ++ (Alpha.encode message.additionalFirm
@@ -567,12 +567,12 @@ def decode (bytes : List UInt8) : Option (NewGiveUp × List UInt8) := do
   let (accountType, bytes) ← AccountType.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (clientMemo, bytes) ← Alpha.decode 16 bytes
   let (additionalFirm, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subtraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
+  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subTraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : NewGiveUp) : (encode message).length = 94 := by
   unfold encode
@@ -621,7 +621,7 @@ structure ModifyGiveUp where
   accountType : AccountType
   openClose : OpenClose
   clientAccountNumber : Alpha 12
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   cmtaBroker : Alpha 4
   clientMemo : Alpha 16
   additionalFirm : Alpha 4
@@ -638,7 +638,7 @@ def encode (message : ModifyGiveUp) : List UInt8 :=
     ++ (AccountType.encode message.accountType
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.clientAccountNumber
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (Alpha.encode message.cmtaBroker
     ++ (Alpha.encode message.clientMemo
     ++ (Alpha.encode message.additionalFirm
@@ -652,12 +652,12 @@ def decode (bytes : List UInt8) : Option (ModifyGiveUp × List UInt8) := do
   let (accountType, bytes) ← AccountType.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (clientMemo, bytes) ← Alpha.decode 16 bytes
   let (additionalFirm, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subtraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
+  pure ({ referenceTransactionId, referenceTradeNumber, giveUpFirm, volume, accountType, openClose, clientAccountNumber, subTraderId, cmtaBroker, clientMemo, additionalFirm, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : ModifyGiveUp) : (encode message).length = 94 := by
   unfold encode

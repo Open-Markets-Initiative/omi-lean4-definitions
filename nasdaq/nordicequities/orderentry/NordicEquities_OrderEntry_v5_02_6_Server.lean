@@ -874,8 +874,8 @@ def OrderConditionValue.codes : List UInt8 :=
 inductive OrderConditionValue where
   | marketMakerOrder -- Market Maker Order
   | marketMakerOrderRefresh -- Market Maker Order Refresh
-  | topofBook -- Topof Book
-  | darklitSweep -- Darklit Sweep
+  | topOfBook -- Top Of Book
+  | darkLitSweep -- Dark Lit Sweep
   | tradeNow -- Trade Now
   | unlisted (byte : { byte : UInt8 // byte ∉ OrderConditionValue.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -885,8 +885,8 @@ namespace OrderConditionValue
 def toByte : OrderConditionValue → UInt8
   | .marketMakerOrder => 0x57
   | .marketMakerOrderRefresh => 0x55
-  | .topofBook => 0x50
-  | .darklitSweep => 0x51
+  | .topOfBook => 0x50
+  | .darkLitSweep => 0x51
   | .tradeNow => 0x54
   | .unlisted byte => byte.val
 
@@ -894,8 +894,8 @@ def toByte : OrderConditionValue → UInt8
 def listed (byte : UInt8) : OrderConditionValue :=
   if byte = 0x57 then .marketMakerOrder
   else if byte = 0x55 then .marketMakerOrderRefresh
-  else if byte = 0x50 then .topofBook
-  else if byte = 0x51 then .darklitSweep
+  else if byte = 0x50 then .topOfBook
+  else if byte = 0x51 then .darkLitSweep
   else .tradeNow
 
 def ofByte (byte : UInt8) : OrderConditionValue :=
@@ -905,8 +905,8 @@ theorem ofByte_toByte (value : OrderConditionValue) : ofByte value.toByte = valu
   cases value with
   | marketMakerOrder => decide
   | marketMakerOrderRefresh => decide
-  | topofBook => decide
-  | darklitSweep => decide
+  | topOfBook => decide
+  | darkLitSweep => decide
   | tradeNow => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

@@ -857,10 +857,10 @@ inductive QuoteCondition where
   | manualBidAndAsk -- Manual Bid And Ask
   | orderImbalance -- Order Imbalance
   | closedQuote -- Closed Quote
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | openingQuoteAutomated -- Opening Quote Automated
-  | regularTwosidedOpenQuoteAutomated -- Regular Twosided Open Quote Automated
-  | manualBidAndAskNonfirm -- Manual Bid And Ask Nonfirm
+  | regularTwoSidedOpenQuoteAutomated -- Regular Two Sided Open Quote Automated
+  | manualBidAndAskNonFirm -- Manual Bid And Ask Non Firm
   | orderInflux -- Order Influx
   | automatedBidNoOfferOrAutomatedOfferNoBid -- Automated Bid No Offer Or Automated Offer No Bid
   | noOpenNoResume -- No Open No Resume
@@ -877,10 +877,10 @@ def toByte : QuoteCondition → UInt8
   | .manualBidAndAsk => 0x48
   | .orderImbalance => 0x49
   | .closedQuote => 0x4C
-  | .nonfirmQuote => 0x4E
+  | .nonFirmQuote => 0x4E
   | .openingQuoteAutomated => 0x4F
-  | .regularTwosidedOpenQuoteAutomated => 0x52
-  | .manualBidAndAskNonfirm => 0x55
+  | .regularTwoSidedOpenQuoteAutomated => 0x52
+  | .manualBidAndAskNonFirm => 0x55
   | .orderInflux => 0x58
   | .automatedBidNoOfferOrAutomatedOfferNoBid => 0x59
   | .noOpenNoResume => 0x5A
@@ -895,10 +895,10 @@ def listed (byte : UInt8) : QuoteCondition :=
   else if byte = 0x48 then .manualBidAndAsk
   else if byte = 0x49 then .orderImbalance
   else if byte = 0x4C then .closedQuote
-  else if byte = 0x4E then .nonfirmQuote
+  else if byte = 0x4E then .nonFirmQuote
   else if byte = 0x4F then .openingQuoteAutomated
-  else if byte = 0x52 then .regularTwosidedOpenQuoteAutomated
-  else if byte = 0x55 then .manualBidAndAskNonfirm
+  else if byte = 0x52 then .regularTwoSidedOpenQuoteAutomated
+  else if byte = 0x55 then .manualBidAndAskNonFirm
   else if byte = 0x58 then .orderInflux
   else if byte = 0x59 then .automatedBidNoOfferOrAutomatedOfferNoBid
   else if byte = 0x5A then .noOpenNoResume
@@ -915,10 +915,10 @@ theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := 
   | manualBidAndAsk => decide
   | orderImbalance => decide
   | closedQuote => decide
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | openingQuoteAutomated => decide
-  | regularTwosidedOpenQuoteAutomated => decide
-  | manualBidAndAskNonfirm => decide
+  | regularTwoSidedOpenQuoteAutomated => decide
+  | manualBidAndAskNonFirm => decide
   | orderInflux => decide
   | automatedBidNoOfferOrAutomatedOfferNoBid => decide
   | noOpenNoResume => decide
@@ -951,7 +951,7 @@ def SipGeneratedUpdateFlag.codes : List UInt8 :=
 
 inductive SipGeneratedUpdateFlag where
   | transactionOriginatedFromMarketParticipant -- Transaction Originated From Market Participant
-  | siPgeneratedTransactionEgPriceBandChange -- Si Pgenerated Transaction Eg Price Band Change
+  | sipGeneratedTransactionEgPriceBandChange -- Sip Generated Transaction Eg Price Band Change
   | unlisted (byte : { byte : UInt8 // byte ∉ SipGeneratedUpdateFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -959,13 +959,13 @@ namespace SipGeneratedUpdateFlag
 
 def toByte : SipGeneratedUpdateFlag → UInt8
   | .transactionOriginatedFromMarketParticipant => 0x20
-  | .siPgeneratedTransactionEgPriceBandChange => 0x45
+  | .sipGeneratedTransactionEgPriceBandChange => 0x45
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SipGeneratedUpdateFlag :=
   if byte = 0x20 then .transactionOriginatedFromMarketParticipant
-  else .siPgeneratedTransactionEgPriceBandChange
+  else .sipGeneratedTransactionEgPriceBandChange
 
 def ofByte (byte : UInt8) : SipGeneratedUpdateFlag :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -973,7 +973,7 @@ def ofByte (byte : UInt8) : SipGeneratedUpdateFlag :=
 theorem ofByte_toByte (value : SipGeneratedUpdateFlag) : ofByte value.toByte = value := by
   cases value with
   | transactionOriginatedFromMarketParticipant => decide
-  | siPgeneratedTransactionEgPriceBandChange => decide
+  | sipGeneratedTransactionEgPriceBandChange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SipGeneratedUpdateFlag) : List UInt8 :=
@@ -2478,8 +2478,8 @@ theorem encode_length_le (message : ControlMessage) : (encode message).length �
 
 end ControlMessage
 
-/-- National Bbo Appendage Longform: 27 bytes -/
-structure NationalBboAppendageLongform where
+/-- National Bbo Appendage Long Form: 27 bytes -/
+structure NationalBboAppendageLongForm where
   nbboQuoteCondition : Alpha 1
   nationalBestBidMarketCenter : Alpha 1
   nationalBestBidPrice : BitVec 64
@@ -2489,9 +2489,9 @@ structure NationalBboAppendageLongform where
   nationalBestAskSize : BitVec 32
   deriving DecidableEq, Repr
 
-namespace NationalBboAppendageLongform
+namespace NationalBboAppendageLongForm
 
-def encode (message : NationalBboAppendageLongform) : List UInt8 :=
+def encode (message : NationalBboAppendageLongForm) : List UInt8 :=
   Alpha.encode message.nbboQuoteCondition
     ++ (Alpha.encode message.nationalBestBidMarketCenter
     ++ (encodeUInt 8 message.nationalBestBidPrice
@@ -2500,7 +2500,7 @@ def encode (message : NationalBboAppendageLongform) : List UInt8 :=
     ++ (encodeUInt 8 message.nationalBestAskPrice
     ++ (encodeUInt 4 message.nationalBestAskSize))))))
 
-def decode (bytes : List UInt8) : Option (NationalBboAppendageLongform × List UInt8) := do
+def decode (bytes : List UInt8) : Option (NationalBboAppendageLongForm × List UInt8) := do
   let (nbboQuoteCondition, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidMarketCenter, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidPrice, bytes) ← decodeUInt 8 bytes
@@ -2510,15 +2510,15 @@ def decode (bytes : List UInt8) : Option (NationalBboAppendageLongform × List U
   let (nationalBestAskSize, bytes) ← decodeUInt 4 bytes
   pure ({ nbboQuoteCondition, nationalBestBidMarketCenter, nationalBestBidPrice, nationalBestBidSize, nationalBestAskMarketCenter, nationalBestAskPrice, nationalBestAskSize }, bytes)
 
-@[simp] theorem encode_length (message : NationalBboAppendageLongform) : (encode message).length = 27 := by
+@[simp] theorem encode_length (message : NationalBboAppendageLongForm) : (encode message).length = 27 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : NationalBboAppendageLongform) : (encode message).length > 0 := by
+theorem encode_length_pos (message : NationalBboAppendageLongForm) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : NationalBboAppendageLongform) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : NationalBboAppendageLongForm) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -2536,7 +2536,7 @@ theorem encode_length_pos (message : NationalBboAppendageLongform) : (encode mes
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end NationalBboAppendageLongform
+end NationalBboAppendageLongForm
 
 /-- Nbbo Appendage Indicator: 0 bytes -/
 structure NbboAppendageAbsent where
@@ -2559,9 +2559,9 @@ def decode (bytes : List UInt8) : Option (NbboAppendageAbsent × List UInt8) :=
 
 end NbboAppendageAbsent
 
-/-- The National Bbo Appendage Longform the Nbbo Appendage Indicator says is attached, or none -/
+/-- The National Bbo Appendage Long Form the Nbbo Appendage Indicator says is attached, or none -/
 inductive NbboAppendageChoice where
-  | nationalBboAppendageLongform (message : NationalBboAppendageLongform) -- "3" 0x33
+  | nationalBboAppendageLongForm (message : NationalBboAppendageLongForm) -- "3" 0x33
   | noNationalBboChange (message : NbboAppendageAbsent) -- "0" 0x30
   | noNationalBboCanBeCalculated (message : NbboAppendageAbsent) -- "1" 0x31
   | shortFormNationalBboAppendageAttached (message : NbboAppendageAbsent) -- "2" 0x32
@@ -2572,14 +2572,14 @@ namespace NbboAppendageChoice
 
 /-- The Nbbo Appendage Indicator each message is sent under -/
 def tag : NbboAppendageChoice → BitVec 8
-  | .nationalBboAppendageLongform _ => 51
+  | .nationalBboAppendageLongForm _ => 51
   | .noNationalBboChange _ => 48
   | .noNationalBboCanBeCalculated _ => 49
   | .shortFormNationalBboAppendageAttached _ => 50
   | .quoteContainsAllNationalBboInformation _ => 52
 
 def encode : NbboAppendageChoice → List UInt8
-  | .nationalBboAppendageLongform message => NationalBboAppendageLongform.encode message
+  | .nationalBboAppendageLongForm message => NationalBboAppendageLongForm.encode message
   | .noNationalBboChange message => NbboAppendageAbsent.encode message
   | .noNationalBboCanBeCalculated message => NbboAppendageAbsent.encode message
   | .shortFormNationalBboAppendageAttached message => NbboAppendageAbsent.encode message
@@ -2588,8 +2588,8 @@ def encode : NbboAppendageChoice → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : NbboAppendageChoice) : (encode message).length ≤ 27 := by
   cases message with
-  | nationalBboAppendageLongform inner =>
-    simp only [encode, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [encode, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [encode, NbboAppendageAbsent.encode_length]
@@ -2605,7 +2605,7 @@ theorem encode_length_le (message : NbboAppendageChoice) : (encode message).leng
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (NbboAppendageChoice × List UInt8) :=
-  if tag = 51 then (NationalBboAppendageLongform.decode bytes).map fun (message, rest) => (.nationalBboAppendageLongform message, rest)
+  if tag = 51 then (NationalBboAppendageLongForm.decode bytes).map fun (message, rest) => (.nationalBboAppendageLongForm message, rest)
   else if tag = 48 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.noNationalBboChange message, rest)
   else if tag = 49 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.noNationalBboCanBeCalculated message, rest)
   else if tag = 50 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.shortFormNationalBboAppendageAttached message, rest)
@@ -3090,8 +3090,8 @@ theorem encode_length_le (message : UtpCombinedQuoteMessageLongForm) : (encode m
   have bound_oddLotAttachmentTypeChoice := OddLotAttachmentTypeChoice.encode_length_le message.oddLotAttachmentTypeChoice
   unfold encode
   cases message.nbboAppendageChoice with
-  | nationalBboAppendageLongform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NbboAppendageAbsent.encode_length]

@@ -483,7 +483,7 @@ def Printable.codes : List UInt8 :=
   [0x4E, 0x59]
 
 inductive Printable where
-  | nonprintable -- Nonprintable
+  | nonPrintable -- Non Printable
   | printable -- Printable
   | unlisted (byte : { byte : UInt8 // byte ∉ Printable.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -491,13 +491,13 @@ inductive Printable where
 namespace Printable
 
 def toByte : Printable → UInt8
-  | .nonprintable => 0x4E
+  | .nonPrintable => 0x4E
   | .printable => 0x59
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : Printable :=
-  if byte = 0x4E then .nonprintable
+  if byte = 0x4E then .nonPrintable
   else .printable
 
 def ofByte (byte : UInt8) : Printable :=
@@ -505,7 +505,7 @@ def ofByte (byte : UInt8) : Printable :=
 
 theorem ofByte_toByte (value : Printable) : ofByte value.toByte = value := by
   cases value with
-  | nonprintable => decide
+  | nonPrintable => decide
   | printable => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -799,7 +799,7 @@ def CustomerIndicator.codes : List UInt8 :=
 inductive CustomerIndicator where
   | customer -- Customer
   | firm -- Firm
-  | onfloor -- Onfloor
+  | onFloor -- On Floor
   | professional -- Professional
   | nonPhlx -- Non Phlx
   | unlisted (byte : { byte : UInt8 // byte ∉ CustomerIndicator.codes }) -- any other code, kept as it is
@@ -810,7 +810,7 @@ namespace CustomerIndicator
 def toByte : CustomerIndicator → UInt8
   | .customer => 0x43
   | .firm => 0x46
-  | .onfloor => 0x4D
+  | .onFloor => 0x4D
   | .professional => 0x50
   | .nonPhlx => 0x42
   | .unlisted byte => byte.val
@@ -819,7 +819,7 @@ def toByte : CustomerIndicator → UInt8
 def listed (byte : UInt8) : CustomerIndicator :=
   if byte = 0x43 then .customer
   else if byte = 0x46 then .firm
-  else if byte = 0x4D then .onfloor
+  else if byte = 0x4D then .onFloor
   else if byte = 0x50 then .professional
   else .nonPhlx
 
@@ -830,7 +830,7 @@ theorem ofByte_toByte (value : CustomerIndicator) : ofByte value.toByte = value 
   cases value with
   | customer => decide
   | firm => decide
-  | onfloor => decide
+  | onFloor => decide
   | professional => decide
   | nonPhlx => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]

@@ -753,7 +753,7 @@ structure Trade where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -784,7 +784,7 @@ def encode (message : Trade) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -814,7 +814,7 @@ def decode (bytes : List UInt8) : Option (Trade × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -828,7 +828,7 @@ def decode (bytes : List UInt8) : Option (Trade × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : Trade) : (encode message).length = 200 := by
   unfold encode
@@ -911,7 +911,7 @@ structure TradeCancel where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -942,7 +942,7 @@ def encode (message : TradeCancel) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -972,7 +972,7 @@ def decode (bytes : List UInt8) : Option (TradeCancel × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -986,7 +986,7 @@ def decode (bytes : List UInt8) : Option (TradeCancel × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancel) : (encode message).length = 200 := by
   unfold encode
@@ -1069,7 +1069,7 @@ structure Allocation where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -1100,7 +1100,7 @@ def encode (message : Allocation) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -1130,7 +1130,7 @@ def decode (bytes : List UInt8) : Option (Allocation × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -1144,7 +1144,7 @@ def decode (bytes : List UInt8) : Option (Allocation × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : Allocation) : (encode message).length = 200 := by
   unfold encode
@@ -1227,7 +1227,7 @@ structure AllocationCancel where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -1258,7 +1258,7 @@ def encode (message : AllocationCancel) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -1288,7 +1288,7 @@ def decode (bytes : List UInt8) : Option (AllocationCancel × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -1302,7 +1302,7 @@ def decode (bytes : List UInt8) : Option (AllocationCancel × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : AllocationCancel) : (encode message).length = 200 := by
   unfold encode
@@ -1385,7 +1385,7 @@ structure GiveUp where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -1418,7 +1418,7 @@ def encode (message : GiveUp) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -1450,7 +1450,7 @@ def decode (bytes : List UInt8) : Option (GiveUp × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -1466,7 +1466,7 @@ def decode (bytes : List UInt8) : Option (GiveUp × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, giveUpSource, giveUpDestination, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, giveUpSource, giveUpDestination, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : GiveUp) : (encode message).length = 208 := by
   unfold encode
@@ -1553,7 +1553,7 @@ structure GiveUpCancel where
   price : Alpha 8
   cmtaBroker : Alpha 4
   accountType : AccountType
-  subtraderId : Alpha 3
+  subTraderId : Alpha 3
   openClose : OpenClose
   executingBroker : Alpha 4
   clientAccountNumber : Alpha 12
@@ -1586,7 +1586,7 @@ def encode (message : GiveUpCancel) : List UInt8 :=
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.cmtaBroker
     ++ (AccountType.encode message.accountType
-    ++ (Alpha.encode message.subtraderId
+    ++ (Alpha.encode message.subTraderId
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.executingBroker
     ++ (Alpha.encode message.clientAccountNumber
@@ -1618,7 +1618,7 @@ def decode (bytes : List UInt8) : Option (GiveUpCancel × List UInt8) := do
   let (price, bytes) ← Alpha.decode 8 bytes
   let (cmtaBroker, bytes) ← Alpha.decode 4 bytes
   let (accountType, bytes) ← AccountType.decode bytes
-  let (subtraderId, bytes) ← Alpha.decode 3 bytes
+  let (subTraderId, bytes) ← Alpha.decode 3 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (executingBroker, bytes) ← Alpha.decode 4 bytes
   let (clientAccountNumber, bytes) ← Alpha.decode 12 bytes
@@ -1634,7 +1634,7 @@ def decode (bytes : List UInt8) : Option (GiveUpCancel × List UInt8) := do
   let (parentTransactionId, bytes) ← Alpha.decode 10 bytes
   let (oppositeExecutingBroker, bytes) ← Alpha.decode 4 bytes
   let (additionalClientMemo, bytes) ← Alpha.decode 16 bytes
-  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subtraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, giveUpSource, giveUpDestination, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
+  pure ({ tradeNumber, transactionType, timestamp, symbol, expirationDate, strikePrice, strikePriceFractionIndicator, optionType, volume, price, cmtaBroker, accountType, subTraderId, openClose, executingBroker, clientAccountNumber, clientOrderId, clientMemo, liquidityStatus, tradeType, oppositeAccountType, giveUpSource, giveUpDestination, participantSessionName, uniqueTransactionId, parentTransactionId, oppositeExecutingBroker, additionalClientMemo }, bytes)
 
 @[simp] theorem encode_length (message : GiveUpCancel) : (encode message).length = 208 := by
   unfold encode

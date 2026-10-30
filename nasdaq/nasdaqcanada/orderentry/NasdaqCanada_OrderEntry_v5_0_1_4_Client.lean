@@ -200,7 +200,7 @@ inductive PegType where
   | primaryPeg -- Primary Peg
   | minimumPriceImprovement -- Minimum Price Improvement
   | seekPriceImprovement -- Seek Price Improvement
-  | melo -- Melo
+  | mElo -- M Elo
   | oddLotLiquidityProviding -- Odd Lot Liquidity Providing
   | unlisted (byte : { byte : UInt8 // byte ∉ PegType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -212,7 +212,7 @@ def toByte : PegType → UInt8
   | .primaryPeg => 0x52
   | .minimumPriceImprovement => 0x78
   | .seekPriceImprovement => 0x53
-  | .melo => 0x4C
+  | .mElo => 0x4C
   | .oddLotLiquidityProviding => 0x6F
   | .unlisted byte => byte.val
 
@@ -222,7 +222,7 @@ def listed (byte : UInt8) : PegType :=
   else if byte = 0x52 then .primaryPeg
   else if byte = 0x78 then .minimumPriceImprovement
   else if byte = 0x53 then .seekPriceImprovement
-  else if byte = 0x4C then .melo
+  else if byte = 0x4C then .mElo
   else .oddLotLiquidityProviding
 
 def ofByte (byte : UInt8) : PegType :=
@@ -234,7 +234,7 @@ theorem ofByte_toByte (value : PegType) : ofByte value.toByte = value := by
   | primaryPeg => decide
   | minimumPriceImprovement => decide
   | seekPriceImprovement => decide
-  | melo => decide
+  | mElo => decide
   | oddLotLiquidityProviding => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -324,7 +324,7 @@ def OrderOrigination.codes : List UInt8 :=
 inductive OrderOrigination where
   | directAccessCustomer -- Direct Access Customer
   | foreignDealerEquivalent -- Foreign Dealer Equivalent
-  | executiononlyService -- Executiononly Service
+  | executionOnlyService -- Execution Only Service
   | unlisted (byte : { byte : UInt8 // byte ∉ OrderOrigination.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -333,14 +333,14 @@ namespace OrderOrigination
 def toByte : OrderOrigination → UInt8
   | .directAccessCustomer => 0x35
   | .foreignDealerEquivalent => 0x36
-  | .executiononlyService => 0x37
+  | .executionOnlyService => 0x37
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OrderOrigination :=
   if byte = 0x35 then .directAccessCustomer
   else if byte = 0x36 then .foreignDealerEquivalent
-  else .executiononlyService
+  else .executionOnlyService
 
 def ofByte (byte : UInt8) : OrderOrigination :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -349,7 +349,7 @@ theorem ofByte_toByte (value : OrderOrigination) : ofByte value.toByte = value :
   cases value with
   | directAccessCustomer => decide
   | foreignDealerEquivalent => decide
-  | executiononlyService => decide
+  | executionOnlyService => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OrderOrigination) : List UInt8 :=
@@ -841,7 +841,7 @@ def ConditionalOrder.codes : List UInt8 :=
 
 inductive ConditionalOrder where
   | conditionalOrder -- Conditional Order
-  | extendedFirmupTimeConditionalOrder -- Extended Firmup Time Conditional Order
+  | extendedFirmUpTimeConditionalOrder -- Extended Firm Up Time Conditional Order
   | unlisted (byte : { byte : UInt8 // byte ∉ ConditionalOrder.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -849,13 +849,13 @@ namespace ConditionalOrder
 
 def toByte : ConditionalOrder → UInt8
   | .conditionalOrder => 0x43
-  | .extendedFirmupTimeConditionalOrder => 0x58
+  | .extendedFirmUpTimeConditionalOrder => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ConditionalOrder :=
   if byte = 0x43 then .conditionalOrder
-  else .extendedFirmupTimeConditionalOrder
+  else .extendedFirmUpTimeConditionalOrder
 
 def ofByte (byte : UInt8) : ConditionalOrder :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -863,7 +863,7 @@ def ofByte (byte : UInt8) : ConditionalOrder :=
 theorem ofByte_toByte (value : ConditionalOrder) : ofByte value.toByte = value := by
   cases value with
   | conditionalOrder => decide
-  | extendedFirmupTimeConditionalOrder => decide
+  | extendedFirmUpTimeConditionalOrder => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ConditionalOrder) : List UInt8 :=

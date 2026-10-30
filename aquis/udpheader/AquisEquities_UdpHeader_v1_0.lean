@@ -24,11 +24,11 @@ structure Message where
 namespace Message
 
 def encodeBody (message : Message) : List UInt8 :=
-  encodeUInt 4 message.seqNo
+  encodeUIntLE 4 message.seqNo
     ++ (message.payload.val)
 
 def decodeBody (msgType : BitVec 8) (bytes : List UInt8) : Option Message := do
-  let (seqNo, bytes) ← decodeUInt 4 bytes
+  let (seqNo, bytes) ← decodeUIntLE 4 bytes
   let payload_ := bytes
   if fits_payload : payload_.length ≤ 249 then
     pure { msgType, seqNo, payload := ⟨payload_, fits_payload⟩ }
@@ -36,7 +36,7 @@ def decodeBody (msgType : BitVec 8) (bytes : List UInt8) : Option Message := do
 
 theorem decodeBody_encodeBody (message : Message) : decodeBody message.msgType (encodeBody message) = some message := by
   unfold decodeBody encodeBody
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [dite_eq_left message.payload.length_le]
   rfl
@@ -45,7 +45,7 @@ theorem decodeBody_encodeBody (message : Message) : decodeBody message.msgType (
 theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 2 < 256 ^ 1 := by
   have bound_payload := message.payload.length_le
   unfold encodeBody
-  simp only [List.length_append, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length]
   omega
 
 /-- Size rule: Msg Length counts the bytes after it plus 2, so it is written from the body and checked on decode; Msg Type is read ahead of it -/

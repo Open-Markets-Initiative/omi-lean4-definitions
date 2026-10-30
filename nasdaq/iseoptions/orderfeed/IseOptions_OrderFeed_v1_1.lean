@@ -859,7 +859,7 @@ structure SystemEventMessage where
   currentMonth : BitVec 8
   currentDay : BitVec 8
   version : BitVec 8
-  subversion : BitVec 8
+  subVersion : BitVec 8
   deriving DecidableEq, Repr
 
 namespace SystemEventMessage
@@ -871,7 +871,7 @@ def encode (message : SystemEventMessage) : List UInt8 :=
     ++ (encodeUInt 1 message.currentMonth
     ++ (encodeUInt 1 message.currentDay
     ++ (encodeUInt 1 message.version
-    ++ (encodeUInt 1 message.subversion))))))
+    ++ (encodeUInt 1 message.subVersion))))))
 
 def decode (bytes : List UInt8) : Option (SystemEventMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUInt 6 bytes
@@ -880,8 +880,8 @@ def decode (bytes : List UInt8) : Option (SystemEventMessage × List UInt8) := d
   let (currentMonth, bytes) ← decodeUInt 1 bytes
   let (currentDay, bytes) ← decodeUInt 1 bytes
   let (version, bytes) ← decodeUInt 1 bytes
-  let (subversion, bytes) ← decodeUInt 1 bytes
-  pure ({ timestamp, eventCode, currentYear, currentMonth, currentDay, version, subversion }, bytes)
+  let (subVersion, bytes) ← decodeUInt 1 bytes
+  pure ({ timestamp, eventCode, currentYear, currentMonth, currentDay, version, subVersion }, bytes)
 
 @[simp] theorem encode_length (message : SystemEventMessage) : (encode message).length = 13 := by
   unfold encode

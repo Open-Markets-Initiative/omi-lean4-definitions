@@ -25,10 +25,10 @@ inductive Cond where
   | manualBidAndAsk -- Manual Bid And Ask
   | orderImbalance -- Order Imbalance
   | closedQuote -- Closed Quote
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | openingQuoteAutomated -- Opening Quote Automated
-  | regularTwosidedOpenQuoteAutomated -- Regular Twosided Open Quote Automated
-  | manualBidAndAskNonfirm -- Manual Bid And Ask Nonfirm
+  | regularTwoSidedOpenQuoteAutomated -- Regular Two Sided Open Quote Automated
+  | manualBidAndAskNonFirm -- Manual Bid And Ask Non Firm
   | orderInflux -- Order Influx
   | automatedBidNoOfferOrAutomatedOfferNoBid -- Automated Bid No Offer Or Automated Offer No Bid
   | noOpennoResume -- No Openno Resume
@@ -45,10 +45,10 @@ def toByte : Cond → UInt8
   | .manualBidAndAsk => 0x48
   | .orderImbalance => 0x49
   | .closedQuote => 0x4C
-  | .nonfirmQuote => 0x4E
+  | .nonFirmQuote => 0x4E
   | .openingQuoteAutomated => 0x4F
-  | .regularTwosidedOpenQuoteAutomated => 0x52
-  | .manualBidAndAskNonfirm => 0x55
+  | .regularTwoSidedOpenQuoteAutomated => 0x52
+  | .manualBidAndAskNonFirm => 0x55
   | .orderInflux => 0x58
   | .automatedBidNoOfferOrAutomatedOfferNoBid => 0x59
   | .noOpennoResume => 0x5A
@@ -63,10 +63,10 @@ def listed (byte : UInt8) : Cond :=
   else if byte = 0x48 then .manualBidAndAsk
   else if byte = 0x49 then .orderImbalance
   else if byte = 0x4C then .closedQuote
-  else if byte = 0x4E then .nonfirmQuote
+  else if byte = 0x4E then .nonFirmQuote
   else if byte = 0x4F then .openingQuoteAutomated
-  else if byte = 0x52 then .regularTwosidedOpenQuoteAutomated
-  else if byte = 0x55 then .manualBidAndAskNonfirm
+  else if byte = 0x52 then .regularTwoSidedOpenQuoteAutomated
+  else if byte = 0x55 then .manualBidAndAskNonFirm
   else if byte = 0x58 then .orderInflux
   else if byte = 0x59 then .automatedBidNoOfferOrAutomatedOfferNoBid
   else if byte = 0x5A then .noOpennoResume
@@ -83,10 +83,10 @@ theorem ofByte_toByte (value : Cond) : ofByte value.toByte = value := by
   | manualBidAndAsk => decide
   | orderImbalance => decide
   | closedQuote => decide
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | openingQuoteAutomated => decide
-  | regularTwosidedOpenQuoteAutomated => decide
-  | manualBidAndAskNonfirm => decide
+  | regularTwoSidedOpenQuoteAutomated => decide
+  | manualBidAndAskNonFirm => decide
   | orderInflux => decide
   | automatedBidNoOfferOrAutomatedOfferNoBid => decide
   | noOpennoResume => decide
@@ -183,9 +183,9 @@ inductive BboCond where
   | manualBidAndAsk -- Manual Bid And Ask
   | orderImbalance -- Order Imbalance
   | closedQuote -- Closed Quote
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | openingQuoteAutomated -- Opening Quote Automated
-  | regularTwosidedOpenQuoteAutomated -- Regular Twosided Open Quote Automated
+  | regularTwoSidedOpenQuoteAutomated -- Regular Two Sided Open Quote Automated
   | unlisted (byte : { byte : UInt8 // byte ∉ BboCond.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -198,9 +198,9 @@ def toByte : BboCond → UInt8
   | .manualBidAndAsk => 0x48
   | .orderImbalance => 0x49
   | .closedQuote => 0x4C
-  | .nonfirmQuote => 0x4E
+  | .nonFirmQuote => 0x4E
   | .openingQuoteAutomated => 0x4F
-  | .regularTwosidedOpenQuoteAutomated => 0x52
+  | .regularTwoSidedOpenQuoteAutomated => 0x52
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -211,9 +211,9 @@ def listed (byte : UInt8) : BboCond :=
   else if byte = 0x48 then .manualBidAndAsk
   else if byte = 0x49 then .orderImbalance
   else if byte = 0x4C then .closedQuote
-  else if byte = 0x4E then .nonfirmQuote
+  else if byte = 0x4E then .nonFirmQuote
   else if byte = 0x4F then .openingQuoteAutomated
-  else .regularTwosidedOpenQuoteAutomated
+  else .regularTwoSidedOpenQuoteAutomated
 
 def ofByte (byte : UInt8) : BboCond :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -226,9 +226,9 @@ theorem ofByte_toByte (value : BboCond) : ofByte value.toByte = value := by
   | manualBidAndAsk => decide
   | orderImbalance => decide
   | closedQuote => decide
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | openingQuoteAutomated => decide
-  | regularTwosidedOpenQuoteAutomated => decide
+  | regularTwoSidedOpenQuoteAutomated => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : BboCond) : List UInt8 :=
@@ -750,8 +750,8 @@ theorem encode_length_pos (value : SymbolState) : (encode value).length > 0 := b
 
 end SymbolState
 
-/-- Protected Exchange Quote Message Shortform Message: 41 bytes -/
-structure ProtectedExchangeQuoteMessageShortformMessage where
+/-- Protected Exchange Quote Message Short Form Message: 41 bytes -/
+structure ProtectedExchangeQuoteMessageShortFormMessage where
   orig : Alpha 2
   timestamp1 : BitVec 64
   feedSequence : BitVec 64
@@ -765,9 +765,9 @@ structure ProtectedExchangeQuoteMessageShortformMessage where
   rii : Rii
   deriving DecidableEq, Repr
 
-namespace ProtectedExchangeQuoteMessageShortformMessage
+namespace ProtectedExchangeQuoteMessageShortFormMessage
 
-def encode (message : ProtectedExchangeQuoteMessageShortformMessage) : List UInt8 :=
+def encode (message : ProtectedExchangeQuoteMessageShortFormMessage) : List UInt8 :=
   Alpha.encode message.orig
     ++ (encodeUInt 8 message.timestamp1
     ++ (encodeUInt 8 message.feedSequence
@@ -780,7 +780,7 @@ def encode (message : ProtectedExchangeQuoteMessageShortformMessage) : List UInt
     ++ (Cond.encode message.cond
     ++ (Rii.encode message.rii))))))))))
 
-def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageShortformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageShortFormMessage × List UInt8) := do
   let (orig, bytes) ← Alpha.decode 2 bytes
   let (timestamp1, bytes) ← decodeUInt 8 bytes
   let (feedSequence, bytes) ← decodeUInt 8 bytes
@@ -794,15 +794,15 @@ def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageShortform
   let (rii, bytes) ← Rii.decode bytes
   pure ({ orig, timestamp1, feedSequence, partToken, symbolShort, bidShort, bidSizeShort, askShort, askSizeShort, cond, rii }, bytes)
 
-@[simp] theorem encode_length (message : ProtectedExchangeQuoteMessageShortformMessage) : (encode message).length = 41 := by
+@[simp] theorem encode_length (message : ProtectedExchangeQuoteMessageShortFormMessage) : (encode message).length = 41 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length, Cond.encode_length, Rii.encode_length]
 
-theorem encode_length_pos (message : ProtectedExchangeQuoteMessageShortformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ProtectedExchangeQuoteMessageShortFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : ProtectedExchangeQuoteMessageShortformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ProtectedExchangeQuoteMessageShortFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -828,10 +828,10 @@ theorem encode_length_pos (message : ProtectedExchangeQuoteMessageShortformMessa
   rw [Rii.decode_encode, some_bind]
   rfl
 
-end ProtectedExchangeQuoteMessageShortformMessage
+end ProtectedExchangeQuoteMessageShortFormMessage
 
-/-- Protected Exchange Quote Message Longform Message: 63 bytes -/
-structure ProtectedExchangeQuoteMessageLongformMessage where
+/-- Protected Exchange Quote Message Long Form Message: 63 bytes -/
+structure ProtectedExchangeQuoteMessageLongFormMessage where
   orig : Alpha 2
   timestamp1 : BitVec 64
   feedSequence : BitVec 64
@@ -845,9 +845,9 @@ structure ProtectedExchangeQuoteMessageLongformMessage where
   rii : Rii
   deriving DecidableEq, Repr
 
-namespace ProtectedExchangeQuoteMessageLongformMessage
+namespace ProtectedExchangeQuoteMessageLongFormMessage
 
-def encode (message : ProtectedExchangeQuoteMessageLongformMessage) : List UInt8 :=
+def encode (message : ProtectedExchangeQuoteMessageLongFormMessage) : List UInt8 :=
   Alpha.encode message.orig
     ++ (encodeUInt 8 message.timestamp1
     ++ (encodeUInt 8 message.feedSequence
@@ -860,7 +860,7 @@ def encode (message : ProtectedExchangeQuoteMessageLongformMessage) : List UInt8
     ++ (Cond.encode message.cond
     ++ (Rii.encode message.rii))))))))))
 
-def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageLongformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageLongFormMessage × List UInt8) := do
   let (orig, bytes) ← Alpha.decode 2 bytes
   let (timestamp1, bytes) ← decodeUInt 8 bytes
   let (feedSequence, bytes) ← decodeUInt 8 bytes
@@ -874,15 +874,15 @@ def decode (bytes : List UInt8) : Option (ProtectedExchangeQuoteMessageLongformM
   let (rii, bytes) ← Rii.decode bytes
   pure ({ orig, timestamp1, feedSequence, partToken, symbolLong, bidLong, bidSizeLong, askLong, askSizeLong, cond, rii }, bytes)
 
-@[simp] theorem encode_length (message : ProtectedExchangeQuoteMessageLongformMessage) : (encode message).length = 63 := by
+@[simp] theorem encode_length (message : ProtectedExchangeQuoteMessageLongFormMessage) : (encode message).length = 63 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length, Cond.encode_length, Rii.encode_length]
 
-theorem encode_length_pos (message : ProtectedExchangeQuoteMessageLongformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ProtectedExchangeQuoteMessageLongFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : ProtectedExchangeQuoteMessageLongformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ProtectedExchangeQuoteMessageLongFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -908,7 +908,7 @@ theorem encode_length_pos (message : ProtectedExchangeQuoteMessageLongformMessag
   rw [Rii.decode_encode, some_bind]
   rfl
 
-end ProtectedExchangeQuoteMessageLongformMessage
+end ProtectedExchangeQuoteMessageLongFormMessage
 
 /-- Odd Lot Bid Short Form Attachment: 4 bytes -/
 structure OddLotBidShortFormAttachment where
@@ -1956,8 +1956,8 @@ end FinraAdfCombinedQuoteMessageWithBbo
 
 /-- Any Inbound Quote Messages Message Payload, selected by Inbound Quote Messages Message Type -/
 inductive InboundQuoteMessagesMessagePayload where
-  | protectedExchangeQuoteMessageShortformMessage (message : ProtectedExchangeQuoteMessageShortformMessage) -- "Q" 0x51
-  | protectedExchangeQuoteMessageLongformMessage (message : ProtectedExchangeQuoteMessageLongformMessage) -- "L" 0x4C
+  | protectedExchangeQuoteMessageShortFormMessage (message : ProtectedExchangeQuoteMessageShortFormMessage) -- "Q" 0x51
+  | protectedExchangeQuoteMessageLongFormMessage (message : ProtectedExchangeQuoteMessageLongFormMessage) -- "L" 0x4C
   | exchangeOddLotQuoteMessageShortFormMessage (message : ExchangeOddLotQuoteMessageShortFormMessage) -- "O" 0x4F
   | exchangeOddLotQuoteMessageLongFormMessage (message : ExchangeOddLotQuoteMessageLongFormMessage) -- "J" 0x4A
   | exchangeCombinedQuoteMessageShortFormMessage (message : ExchangeCombinedQuoteMessageShortFormMessage) -- "P" 0x50
@@ -1972,8 +1972,8 @@ namespace InboundQuoteMessagesMessagePayload
 
 /-- The Inbound Quote Messages Message Type each message is sent under -/
 def tag : InboundQuoteMessagesMessagePayload → BitVec 8
-  | .protectedExchangeQuoteMessageShortformMessage _ => 81
-  | .protectedExchangeQuoteMessageLongformMessage _ => 76
+  | .protectedExchangeQuoteMessageShortFormMessage _ => 81
+  | .protectedExchangeQuoteMessageLongFormMessage _ => 76
   | .exchangeOddLotQuoteMessageShortFormMessage _ => 79
   | .exchangeOddLotQuoteMessageLongFormMessage _ => 74
   | .exchangeCombinedQuoteMessageShortFormMessage _ => 80
@@ -1984,8 +1984,8 @@ def tag : InboundQuoteMessagesMessagePayload → BitVec 8
   | .finraAdfCombinedQuoteMessageWithBbo _ => 82
 
 def encode : InboundQuoteMessagesMessagePayload → List UInt8
-  | .protectedExchangeQuoteMessageShortformMessage message => ProtectedExchangeQuoteMessageShortformMessage.encode message
-  | .protectedExchangeQuoteMessageLongformMessage message => ProtectedExchangeQuoteMessageLongformMessage.encode message
+  | .protectedExchangeQuoteMessageShortFormMessage message => ProtectedExchangeQuoteMessageShortFormMessage.encode message
+  | .protectedExchangeQuoteMessageLongFormMessage message => ProtectedExchangeQuoteMessageLongFormMessage.encode message
   | .exchangeOddLotQuoteMessageShortFormMessage message => ExchangeOddLotQuoteMessageShortFormMessage.encode message
   | .exchangeOddLotQuoteMessageLongFormMessage message => ExchangeOddLotQuoteMessageLongFormMessage.encode message
   | .exchangeCombinedQuoteMessageShortFormMessage message => ExchangeCombinedQuoteMessageShortFormMessage.encode message
@@ -1998,11 +1998,11 @@ def encode : InboundQuoteMessagesMessagePayload → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : InboundQuoteMessagesMessagePayload) : (encode message).length ≤ 1835092 := by
   cases message with
-  | protectedExchangeQuoteMessageShortformMessage inner =>
-    simp only [encode, ProtectedExchangeQuoteMessageShortformMessage.encode_length]
+  | protectedExchangeQuoteMessageShortFormMessage inner =>
+    simp only [encode, ProtectedExchangeQuoteMessageShortFormMessage.encode_length]
     omega
-  | protectedExchangeQuoteMessageLongformMessage inner =>
-    simp only [encode, ProtectedExchangeQuoteMessageLongformMessage.encode_length]
+  | protectedExchangeQuoteMessageLongFormMessage inner =>
+    simp only [encode, ProtectedExchangeQuoteMessageLongFormMessage.encode_length]
     omega
   | exchangeOddLotQuoteMessageShortFormMessage inner =>
     have bound_inner := ExchangeOddLotQuoteMessageShortFormMessage.encode_length_le inner
@@ -2036,8 +2036,8 @@ theorem encode_length_le (message : InboundQuoteMessagesMessagePayload) : (encod
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (InboundQuoteMessagesMessagePayload × List UInt8) :=
-  if tag = 81 then (ProtectedExchangeQuoteMessageShortformMessage.decode bytes).map fun (message, rest) => (.protectedExchangeQuoteMessageShortformMessage message, rest)
-  else if tag = 76 then (ProtectedExchangeQuoteMessageLongformMessage.decode bytes).map fun (message, rest) => (.protectedExchangeQuoteMessageLongformMessage message, rest)
+  if tag = 81 then (ProtectedExchangeQuoteMessageShortFormMessage.decode bytes).map fun (message, rest) => (.protectedExchangeQuoteMessageShortFormMessage message, rest)
+  else if tag = 76 then (ProtectedExchangeQuoteMessageLongFormMessage.decode bytes).map fun (message, rest) => (.protectedExchangeQuoteMessageLongFormMessage message, rest)
   else if tag = 79 then (ExchangeOddLotQuoteMessageShortFormMessage.decode bytes).map fun (message, rest) => (.exchangeOddLotQuoteMessageShortFormMessage message, rest)
   else if tag = 74 then (ExchangeOddLotQuoteMessageLongFormMessage.decode bytes).map fun (message, rest) => (.exchangeOddLotQuoteMessageLongFormMessage message, rest)
   else if tag = 80 then (ExchangeCombinedQuoteMessageShortFormMessage.decode bytes).map fun (message, rest) => (.exchangeCombinedQuoteMessageShortFormMessage message, rest)
@@ -2079,11 +2079,11 @@ theorem encode_length_pos (message : InboundQuoteMessagesMessage) : (encode mess
 theorem encode_length_le (message : InboundQuoteMessagesMessage) : (encode message).length ≤ 1835093 := by
   unfold encode
   cases message.inboundQuoteMessagesMessagePayload with
-  | protectedExchangeQuoteMessageShortformMessage inner =>
-    simp only [InboundQuoteMessagesMessagePayload.encode, List.length_append, encodeUInt_length, ProtectedExchangeQuoteMessageShortformMessage.encode_length]
+  | protectedExchangeQuoteMessageShortFormMessage inner =>
+    simp only [InboundQuoteMessagesMessagePayload.encode, List.length_append, encodeUInt_length, ProtectedExchangeQuoteMessageShortFormMessage.encode_length]
     omega
-  | protectedExchangeQuoteMessageLongformMessage inner =>
-    simp only [InboundQuoteMessagesMessagePayload.encode, List.length_append, encodeUInt_length, ProtectedExchangeQuoteMessageLongformMessage.encode_length]
+  | protectedExchangeQuoteMessageLongFormMessage inner =>
+    simp only [InboundQuoteMessagesMessagePayload.encode, List.length_append, encodeUInt_length, ProtectedExchangeQuoteMessageLongFormMessage.encode_length]
     omega
   | exchangeOddLotQuoteMessageShortFormMessage inner =>
     have bound_inner := ExchangeOddLotQuoteMessageShortFormMessage.encode_length_le inner

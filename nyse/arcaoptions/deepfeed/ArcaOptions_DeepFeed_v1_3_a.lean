@@ -22,7 +22,7 @@ inductive QuoteCondition where
   | regularTrading -- Regular Trading
   | rotation -- Rotation
   | tradingHalted -- Trading Halted
-  | preopen -- Preopen
+  | preOpen -- Pre Open
   | rotationLegalWidthQuotePending -- Rotation Legal Width Quote Pending
   | unlisted (byte : { byte : UInt8 // byte ∉ QuoteCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -33,7 +33,7 @@ def toByte : QuoteCondition → UInt8
   | .regularTrading => 0x31
   | .rotation => 0x32
   | .tradingHalted => 0x33
-  | .preopen => 0x34
+  | .preOpen => 0x34
   | .rotationLegalWidthQuotePending => 0x35
   | .unlisted byte => byte.val
 
@@ -42,7 +42,7 @@ def listed (byte : UInt8) : QuoteCondition :=
   if byte = 0x31 then .regularTrading
   else if byte = 0x32 then .rotation
   else if byte = 0x33 then .tradingHalted
-  else if byte = 0x34 then .preopen
+  else if byte = 0x34 then .preOpen
   else .rotationLegalWidthQuotePending
 
 def ofByte (byte : UInt8) : QuoteCondition :=
@@ -53,7 +53,7 @@ theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := 
   | regularTrading => decide
   | rotation => decide
   | tradingHalted => decide
-  | preopen => decide
+  | preOpen => decide
   | rotationLegalWidthQuotePending => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -162,7 +162,7 @@ inductive ExchangeCode where
   | nasdaq -- Nasdaq
   | nyseMkt -- Nyse Mkt
   | globalOtc -- Global Otc
-  | arcaLocalNontapebIndex -- Arca Local Nontapeb Index
+  | arcaLocalNonTapeBIndex -- Arca Local Non Tape B Index
   | unlisted (byte : { byte : UInt8 // byte ∉ ExchangeCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -174,7 +174,7 @@ def toByte : ExchangeCode → UInt8
   | .nasdaq => 0x51
   | .nyseMkt => 0x41
   | .globalOtc => 0x31
-  | .arcaLocalNontapebIndex => 0x32
+  | .arcaLocalNonTapeBIndex => 0x32
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -184,7 +184,7 @@ def listed (byte : UInt8) : ExchangeCode :=
   else if byte = 0x51 then .nasdaq
   else if byte = 0x41 then .nyseMkt
   else if byte = 0x31 then .globalOtc
-  else .arcaLocalNontapebIndex
+  else .arcaLocalNonTapeBIndex
 
 def ofByte (byte : UInt8) : ExchangeCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -196,7 +196,7 @@ theorem ofByte_toByte (value : ExchangeCode) : ofByte value.toByte = value := by
   | nasdaq => decide
   | nyseMkt => decide
   | globalOtc => decide
-  | arcaLocalNontapebIndex => decide
+  | arcaLocalNonTapeBIndex => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ExchangeCode) : List UInt8 :=

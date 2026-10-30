@@ -275,18 +275,18 @@ structure Message where
 namespace Message
 
 def encodeBody (message : Message) : List UInt8 :=
-  encodeUInt 4 message.seqNo
+  encodeUIntLE 4 message.seqNo
     ++ (Payload.encode message.payload)
 
 def decodeBody (msgType : BitVec 8) (bytes : List UInt8) : Option (Message × List UInt8) := do
-  let (seqNo, bytes) ← decodeUInt 4 bytes
+  let (seqNo, bytes) ← decodeUIntLE 4 bytes
   let (payload, bytes) ← Payload.decode msgType bytes
   pure ({ seqNo, payload }, bytes)
 
 theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
     decodeBody (Payload.tag message.payload) (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [Payload.decode_encode, some_bind]
   rfl
@@ -296,16 +296,16 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
   unfold encodeBody
   cases message.payload with
   | snapshotStartMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SnapshotStartMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, SnapshotStartMessage.encode_length]
     omega
   | bookStatusMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BookStatusMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, BookStatusMessage.encode_length]
     omega
   | bookEntryMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BookEntryMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, BookEntryMessage.encode_length]
     omega
   | maCBookEntryMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, MaCBookEntryMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, MaCBookEntryMessage.encode_length]
     omega
 
 /-- Size rule: Msg Length counts the bytes after it plus 2, so it is written from the body and checked on decode; Msg Type is read ahead of it -/

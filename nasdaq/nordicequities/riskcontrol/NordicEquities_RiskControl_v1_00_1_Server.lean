@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NasdaqNordicequitiesRiskcontrolBinaryV1001Server
+namespace Omi.NasdaqNordicequitiesRiskcontrolPrmV1001Server
 
 /-- Reject Reason Code: one byte code -/
 def RejectReasonCode.codes : List UInt8 :=
@@ -1584,4 +1584,4 @@ theorem decode_encode (message : ServerPacket) : decode (encode message) = some 
 
 end ServerPacket
 
-end Omi.NasdaqNordicequitiesRiskcontrolBinaryV1001Server
+end Omi.NasdaqNordicequitiesRiskcontrolPrmV1001Server

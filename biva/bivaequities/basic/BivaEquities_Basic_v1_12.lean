@@ -350,7 +350,7 @@ inductive TradeIndicator where
   | exceptionalCrossTradeAtVwap -- Exceptional Cross Trade At Vwap
   | ipoCross -- Ipo Cross
   | regularTrade -- Regular Trade
-  | unintentionalSelfcross -- Unintentional Selfcross
+  | unintentionalSelfCross -- Unintentional Self Cross
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -361,7 +361,7 @@ def toByte : TradeIndicator → UInt8
   | .exceptionalCrossTradeAtVwap => 0x45
   | .ipoCross => 0x49
   | .regularTrade => 0x52
-  | .unintentionalSelfcross => 0x55
+  | .unintentionalSelfCross => 0x55
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -370,7 +370,7 @@ def listed (byte : UInt8) : TradeIndicator :=
   else if byte = 0x45 then .exceptionalCrossTradeAtVwap
   else if byte = 0x49 then .ipoCross
   else if byte = 0x52 then .regularTrade
-  else .unintentionalSelfcross
+  else .unintentionalSelfCross
 
 def ofByte (byte : UInt8) : TradeIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -381,7 +381,7 @@ theorem ofByte_toByte (value : TradeIndicator) : ofByte value.toByte = value := 
   | exceptionalCrossTradeAtVwap => decide
   | ipoCross => decide
   | regularTrade => decide
-  | unintentionalSelfcross => decide
+  | unintentionalSelfCross => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeIndicator) : List UInt8 :=

@@ -592,6 +592,33 @@ theorem decodeRemaining_encodeOptional {α : Type} (encode : α → List UInt8)
     rw [List.append_nil, spelled] at step
     simp [encodeOptional, spelled, decodeRemaining, step]
 
+/-- A body present only while bytes remain, where the body reads the whole of what it is given:
+    a dispatch whose messages close the frame is read that way, so there is no remainder to ask
+    about — the bytes are the body or there are none. Written with encodeOptional, as any closing
+    optional is. -/
+def decodeRemainingAll {α : Type} (decode : List UInt8 → Option α) : List UInt8 → Option (Option α)
+  | [] => some none
+  | bytes => (decode bytes).map some
+
+/-- A closing optional read whole, written back, reads back as it was -/
+theorem decodeRemainingAll_encodeOptional {α : Type} (encode : α → List UInt8)
+    (decode : List UInt8 → Option α)
+    (roundtrip : ∀ value, decode (encode value) = some value)
+    (nonempty : ∀ value, (encode value).length > 0)
+    (value : Option α) :
+    decodeRemainingAll decode (encodeOptional encode value) = some value := by
+  cases value with
+  | none => rfl
+  | some item =>
+    have long := nonempty item
+    obtain ⟨byte, rest, spelled⟩ : ∃ byte rest, encode item = byte :: rest := by
+      cases h : encode item with
+      | nil => rw [h] at long; simp at long
+      | cons byte rest => exact ⟨byte, rest, rfl⟩
+    have step := roundtrip item
+    rw [spelled] at step
+    simp [encodeOptional, spelled, decodeRemainingAll, step]
+
 /-! ## Framing -/
 
 /-- A length prefix of `n` big endian bytes holding the body's length plus `offset`, then the body.

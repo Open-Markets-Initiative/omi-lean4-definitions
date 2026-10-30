@@ -188,7 +188,7 @@ inductive OuchOrderType where
   | centrePointOrder -- Centre Point Order
   | centrePointOrder_44 -- Centre Point Order
   | sweepOrder -- Sweep Order
-  | dualpostedSweepOrder -- Dualposted Sweep Order
+  | dualPostedSweepOrder -- Dual Posted Sweep Order
   | centrePointBlockOrderWithSingleFillMaq -- Centre Point Block Order With Single Fill Maq
   | centrePointOrderWithSingleFillMaq -- Centre Point Order With Single Fill Maq
   | limitSweepOrderWithSingleFillMaq -- Limit Sweep Order With Single Fill Maq
@@ -204,7 +204,7 @@ def toByte : OuchOrderType → UInt8
   | .centrePointOrder => 0x4E
   | .centrePointOrder_44 => 0x44
   | .sweepOrder => 0x53
-  | .dualpostedSweepOrder => 0x50
+  | .dualPostedSweepOrder => 0x50
   | .centrePointBlockOrderWithSingleFillMaq => 0x42
   | .centrePointOrderWithSingleFillMaq => 0x46
   | .limitSweepOrderWithSingleFillMaq => 0x54
@@ -218,7 +218,7 @@ def listed (byte : UInt8) : OuchOrderType :=
   else if byte = 0x4E then .centrePointOrder
   else if byte = 0x44 then .centrePointOrder_44
   else if byte = 0x53 then .sweepOrder
-  else if byte = 0x50 then .dualpostedSweepOrder
+  else if byte = 0x50 then .dualPostedSweepOrder
   else if byte = 0x42 then .centrePointBlockOrderWithSingleFillMaq
   else if byte = 0x46 then .centrePointOrderWithSingleFillMaq
   else if byte = 0x54 then .limitSweepOrderWithSingleFillMaq
@@ -234,7 +234,7 @@ theorem ofByte_toByte (value : OuchOrderType) : ofByte value.toByte = value := b
   | centrePointOrder => decide
   | centrePointOrder_44 => decide
   | sweepOrder => decide
-  | dualpostedSweepOrder => decide
+  | dualPostedSweepOrder => decide
   | centrePointBlockOrderWithSingleFillMaq => decide
   | centrePointOrderWithSingleFillMaq => decide
   | limitSweepOrderWithSingleFillMaq => decide

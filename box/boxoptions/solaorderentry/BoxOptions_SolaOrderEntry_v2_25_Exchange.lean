@@ -709,10 +709,10 @@ inductive GroupState where
   | consultationStart -- Consultation Start
   | consultationEnd -- Consultation End
   | prohibited -- Prohibited
-  | minibatch -- Minibatch
+  | miniBatch -- Mini Batch
   | marketOperationCenterIntervention -- Market Operation Center Intervention
   | opening -- Opening
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | continuousTradingSession -- Continuous Trading Session
   | interrupted -- Interrupted
   | unlisted (byte : { byte : UInt8 // byte ∉ GroupState.codes }) -- any other code, kept as it is
@@ -725,10 +725,10 @@ def toByte : GroupState → UInt8
   | .consultationStart => 0x43
   | .consultationEnd => 0x46
   | .prohibited => 0x49
-  | .minibatch => 0x4D
+  | .miniBatch => 0x4D
   | .marketOperationCenterIntervention => 0x4E
   | .opening => 0x4F
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .continuousTradingSession => 0x53
   | .interrupted => 0x5A
   | .unlisted byte => byte.val
@@ -739,10 +739,10 @@ def listed (byte : UInt8) : GroupState :=
   else if byte = 0x43 then .consultationStart
   else if byte = 0x46 then .consultationEnd
   else if byte = 0x49 then .prohibited
-  else if byte = 0x4D then .minibatch
+  else if byte = 0x4D then .miniBatch
   else if byte = 0x4E then .marketOperationCenterIntervention
   else if byte = 0x4F then .opening
-  else if byte = 0x50 then .preopening
+  else if byte = 0x50 then .preOpening
   else if byte = 0x53 then .continuousTradingSession
   else .interrupted
 
@@ -755,10 +755,10 @@ theorem ofByte_toByte (value : GroupState) : ofByte value.toByte = value := by
   | consultationStart => decide
   | consultationEnd => decide
   | prohibited => decide
-  | minibatch => decide
+  | miniBatch => decide
   | marketOperationCenterIntervention => decide
   | opening => decide
-  | preopening => decide
+  | preOpening => decide
   | continuousTradingSession => decide
   | interrupted => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]

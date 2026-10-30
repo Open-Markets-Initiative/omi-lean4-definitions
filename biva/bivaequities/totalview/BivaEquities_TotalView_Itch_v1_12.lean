@@ -456,7 +456,7 @@ inductive TradeIndicator where
   | exceptionalCrossTradeAtVwap -- Exceptional Cross Trade At Vwap
   | ipoCross -- Ipo Cross
   | regularTrade -- Regular Trade
-  | unintentionalSelfcross -- Unintentional Selfcross
+  | unintentionalSelfCross -- Unintentional Self Cross
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -467,7 +467,7 @@ def toByte : TradeIndicator → UInt8
   | .exceptionalCrossTradeAtVwap => 0x45
   | .ipoCross => 0x49
   | .regularTrade => 0x52
-  | .unintentionalSelfcross => 0x55
+  | .unintentionalSelfCross => 0x55
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -476,7 +476,7 @@ def listed (byte : UInt8) : TradeIndicator :=
   else if byte = 0x45 then .exceptionalCrossTradeAtVwap
   else if byte = 0x49 then .ipoCross
   else if byte = 0x52 then .regularTrade
-  else .unintentionalSelfcross
+  else .unintentionalSelfCross
 
 def ofByte (byte : UInt8) : TradeIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -487,7 +487,7 @@ theorem ofByte_toByte (value : TradeIndicator) : ofByte value.toByte = value := 
   | exceptionalCrossTradeAtVwap => decide
   | ipoCross => decide
   | regularTrade => decide
-  | unintentionalSelfcross => decide
+  | unintentionalSelfCross => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeIndicator) : List UInt8 :=
@@ -676,7 +676,7 @@ def CrossType.codes : List UInt8 :=
   [0x4F, 0x49]
 
 inductive CrossType where
-  | preopeningSession -- Preopening Session
+  | preOpeningSession -- Pre Opening Session
   | intradayAuction -- Intraday Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -684,13 +684,13 @@ inductive CrossType where
 namespace CrossType
 
 def toByte : CrossType → UInt8
-  | .preopeningSession => 0x4F
+  | .preOpeningSession => 0x4F
   | .intradayAuction => 0x49
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
-  if byte = 0x4F then .preopeningSession
+  if byte = 0x4F then .preOpeningSession
   else .intradayAuction
 
 def ofByte (byte : UInt8) : CrossType :=
@@ -698,7 +698,7 @@ def ofByte (byte : UInt8) : CrossType :=
 
 theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
-  | preopeningSession => decide
+  | preOpeningSession => decide
   | intradayAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

@@ -22,7 +22,7 @@ inductive EventCode where
   | startOfMessagesTheFirstMessageIsSent -- Start Of Messages The First Message Is Sent
   | startOfSystemHours -- Start Of System Hours
   | tradingHaltedOrdersCanBeCancelledButNoNewOrdersCanBeEntered -- Trading Halted Orders Can Be Cancelled But No New Orders Can Be Entered
-  | startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins -- Start Of Market Hours The Preopen Auction Is Concluded And Continuous Trading Begins
+  | startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins -- Start Of Market Hours The Pre Open Auction Is Concluded And Continuous Trading Begins
   | endOfMarketHoursIndicatesTheEndOfContinuousTrading -- End Of Market Hours Indicates The End Of Continuous Trading
   | endOfSystemHoursIndicatesTheExchangeIsClosed -- End Of System Hours Indicates The Exchange Is Closed
   | endOfMessagesTheLastMessageSent -- End Of Messages The Last Message Sent
@@ -36,7 +36,7 @@ def toByte : EventCode → UInt8
   | .startOfMessagesTheFirstMessageIsSent => 0x4F
   | .startOfSystemHours => 0x53
   | .tradingHaltedOrdersCanBeCancelledButNoNewOrdersCanBeEntered => 0x48
-  | .startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins => 0x51
+  | .startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins => 0x51
   | .endOfMarketHoursIndicatesTheEndOfContinuousTrading => 0x4D
   | .endOfSystemHoursIndicatesTheExchangeIsClosed => 0x45
   | .endOfMessagesTheLastMessageSent => 0x43
@@ -48,7 +48,7 @@ def listed (byte : UInt8) : EventCode :=
   if byte = 0x4F then .startOfMessagesTheFirstMessageIsSent
   else if byte = 0x53 then .startOfSystemHours
   else if byte = 0x48 then .tradingHaltedOrdersCanBeCancelledButNoNewOrdersCanBeEntered
-  else if byte = 0x51 then .startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins
+  else if byte = 0x51 then .startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins
   else if byte = 0x4D then .endOfMarketHoursIndicatesTheEndOfContinuousTrading
   else if byte = 0x45 then .endOfSystemHoursIndicatesTheExchangeIsClosed
   else if byte = 0x43 then .endOfMessagesTheLastMessageSent
@@ -62,7 +62,7 @@ theorem ofByte_toByte (value : EventCode) : ofByte value.toByte = value := by
   | startOfMessagesTheFirstMessageIsSent => decide
   | startOfSystemHours => decide
   | tradingHaltedOrdersCanBeCancelledButNoNewOrdersCanBeEntered => decide
-  | startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins => decide
+  | startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins => decide
   | endOfMarketHoursIndicatesTheEndOfContinuousTrading => decide
   | endOfSystemHoursIndicatesTheExchangeIsClosed => decide
   | endOfMessagesTheLastMessageSent => decide
@@ -519,7 +519,7 @@ inductive CrossType where
   | contingent -- Contingent
   | basis -- Basis
   | vwap -- Vwap
-  | derivativerelated -- Derivativerelated
+  | derivativeRelated -- Derivative Related
   | otherwiseEmptyStringNotSpecified -- Otherwise Empty String Not Specified
   | ccpClosingPrice -- Ccp Closing Price
   | netAssetValueNav -- Net Asset Value Nav
@@ -534,7 +534,7 @@ def toByte : CrossType → UInt8
   | .contingent => 0x43
   | .basis => 0x42
   | .vwap => 0x56
-  | .derivativerelated => 0x44
+  | .derivativeRelated => 0x44
   | .otherwiseEmptyStringNotSpecified => 0x20
   | .ccpClosingPrice => 0x53
   | .netAssetValueNav => 0x4E
@@ -547,7 +547,7 @@ def listed (byte : UInt8) : CrossType :=
   else if byte = 0x43 then .contingent
   else if byte = 0x42 then .basis
   else if byte = 0x56 then .vwap
-  else if byte = 0x44 then .derivativerelated
+  else if byte = 0x44 then .derivativeRelated
   else if byte = 0x20 then .otherwiseEmptyStringNotSpecified
   else if byte = 0x53 then .ccpClosingPrice
   else .netAssetValueNav
@@ -562,7 +562,7 @@ theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   | contingent => decide
   | basis => decide
   | vwap => decide
-  | derivativerelated => decide
+  | derivativeRelated => decide
   | otherwiseEmptyStringNotSpecified => decide
   | ccpClosingPrice => decide
   | netAssetValueNav => decide

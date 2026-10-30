@@ -141,12 +141,12 @@ inductive LiquidityFlag where
   | addedOrOpeningTradeOnNyse -- Added Or Opening Trade On Nyse
   | oddLotOrOnCloseOrderOnNyse -- Odd Lot Or On Close Order On Nyse
   | openingCross -- Opening Cross
-  | openingCrossImbalanceonly -- Opening Cross Imbalanceonly
+  | openingCrossImbalanceOnly -- Opening Cross Imbalance Only
   | closingCross -- Closing Cross
-  | closingCrossImbalanceonly -- Closing Cross Imbalanceonly
+  | closingCrossImbalanceOnly -- Closing Cross Imbalance Only
   | haltIpoCross -- Halt Ipo Cross
   | haltCross -- Halt Cross
-  | nondisplayedAndAddedLiquidity -- Nondisplayed And Added Liquidity
+  | nonDisplayedAndAddedLiquidity -- Non Displayed And Added Liquidity
   | reRoutedByNyse -- Re Routed By Nyse
   | oddLotExecutionOnNyse -- Odd Lot Execution On Nyse
   | addedLiquidityOnNyse -- Added Liquidity On Nyse
@@ -171,12 +171,12 @@ def toByte : LiquidityFlag → UInt8
   | .addedOrOpeningTradeOnNyse => 0x46
   | .oddLotOrOnCloseOrderOnNyse => 0x47
   | .openingCross => 0x4F
-  | .openingCrossImbalanceonly => 0x4D
+  | .openingCrossImbalanceOnly => 0x4D
   | .closingCross => 0x43
-  | .closingCrossImbalanceonly => 0x4C
+  | .closingCrossImbalanceOnly => 0x4C
   | .haltIpoCross => 0x48
   | .haltCross => 0x4B
-  | .nondisplayedAndAddedLiquidity => 0x4A
+  | .nonDisplayedAndAddedLiquidity => 0x4A
   | .reRoutedByNyse => 0x59
   | .oddLotExecutionOnNyse => 0x53
   | .addedLiquidityOnNyse => 0x55
@@ -199,12 +199,12 @@ def listed (byte : UInt8) : LiquidityFlag :=
   else if byte = 0x46 then .addedOrOpeningTradeOnNyse
   else if byte = 0x47 then .oddLotOrOnCloseOrderOnNyse
   else if byte = 0x4F then .openingCross
-  else if byte = 0x4D then .openingCrossImbalanceonly
+  else if byte = 0x4D then .openingCrossImbalanceOnly
   else if byte = 0x43 then .closingCross
-  else if byte = 0x4C then .closingCrossImbalanceonly
+  else if byte = 0x4C then .closingCrossImbalanceOnly
   else if byte = 0x48 then .haltIpoCross
   else if byte = 0x4B then .haltCross
-  else if byte = 0x4A then .nondisplayedAndAddedLiquidity
+  else if byte = 0x4A then .nonDisplayedAndAddedLiquidity
   else if byte = 0x59 then .reRoutedByNyse
   else if byte = 0x53 then .oddLotExecutionOnNyse
   else if byte = 0x55 then .addedLiquidityOnNyse
@@ -229,12 +229,12 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   | addedOrOpeningTradeOnNyse => decide
   | oddLotOrOnCloseOrderOnNyse => decide
   | openingCross => decide
-  | openingCrossImbalanceonly => decide
+  | openingCrossImbalanceOnly => decide
   | closingCross => decide
-  | closingCrossImbalanceonly => decide
+  | closingCrossImbalanceOnly => decide
   | haltIpoCross => decide
   | haltCross => decide
-  | nondisplayedAndAddedLiquidity => decide
+  | nonDisplayedAndAddedLiquidity => decide
   | reRoutedByNyse => decide
   | oddLotExecutionOnNyse => decide
   | addedLiquidityOnNyse => decide

@@ -432,7 +432,7 @@ def NegotiationIndicator.codes : List UInt8 :=
   [0x38, 0x2D]
 
 inductive NegotiationIndicator where
-  | negotiatedTradeWithPretradeTransparencyWaiver -- Negotiated Trade With Pretrade Transparency Waiver
+  | negotiatedTradeWithPreTradeTransparencyWaiver -- Negotiated Trade With Pre Trade Transparency Waiver
   | notANegotiatedTrade -- Not A Negotiated Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ NegotiationIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -440,13 +440,13 @@ inductive NegotiationIndicator where
 namespace NegotiationIndicator
 
 def toByte : NegotiationIndicator → UInt8
-  | .negotiatedTradeWithPretradeTransparencyWaiver => 0x38
+  | .negotiatedTradeWithPreTradeTransparencyWaiver => 0x38
   | .notANegotiatedTrade => 0x2D
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : NegotiationIndicator :=
-  if byte = 0x38 then .negotiatedTradeWithPretradeTransparencyWaiver
+  if byte = 0x38 then .negotiatedTradeWithPreTradeTransparencyWaiver
   else .notANegotiatedTrade
 
 def ofByte (byte : UInt8) : NegotiationIndicator :=
@@ -454,7 +454,7 @@ def ofByte (byte : UInt8) : NegotiationIndicator :=
 
 theorem ofByte_toByte (value : NegotiationIndicator) : ofByte value.toByte = value := by
   cases value with
-  | negotiatedTradeWithPretradeTransparencyWaiver => decide
+  | negotiatedTradeWithPreTradeTransparencyWaiver => decide
   | notANegotiatedTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

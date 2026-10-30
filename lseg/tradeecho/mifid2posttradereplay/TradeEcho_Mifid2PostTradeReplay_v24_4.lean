@@ -491,7 +491,7 @@ inductive NegotiationIndicator where
   | negotiatedTradeInIlliquidFinancialInstruments -- Negotiated Trade In Illiquid Financial Instruments
   | negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPrice -- Negotiated Trade Subject To Conditions Other Than The Current Market Price
   | negotiatedTradeLargerThanLisBroughtOntoAVenue -- Negotiated Trade Larger Than Lis Brought Onto A Venue
-  | negotiatedTradeWithPretradeTransparencyWaiver -- Negotiated Trade With Pretrade Transparency Waiver
+  | negotiatedTradeWithPreTradeTransparencyWaiver -- Negotiated Trade With Pre Trade Transparency Waiver
   | notANegotiatedTrade -- Not A Negotiated Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ NegotiationIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -503,7 +503,7 @@ def toByte : NegotiationIndicator → UInt8
   | .negotiatedTradeInIlliquidFinancialInstruments => 0x32
   | .negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPrice => 0x33
   | .negotiatedTradeLargerThanLisBroughtOntoAVenue => 0x37
-  | .negotiatedTradeWithPretradeTransparencyWaiver => 0x38
+  | .negotiatedTradeWithPreTradeTransparencyWaiver => 0x38
   | .notANegotiatedTrade => 0x2D
   | .unlisted byte => byte.val
 
@@ -513,7 +513,7 @@ def listed (byte : UInt8) : NegotiationIndicator :=
   else if byte = 0x32 then .negotiatedTradeInIlliquidFinancialInstruments
   else if byte = 0x33 then .negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPrice
   else if byte = 0x37 then .negotiatedTradeLargerThanLisBroughtOntoAVenue
-  else if byte = 0x38 then .negotiatedTradeWithPretradeTransparencyWaiver
+  else if byte = 0x38 then .negotiatedTradeWithPreTradeTransparencyWaiver
   else .notANegotiatedTrade
 
 def ofByte (byte : UInt8) : NegotiationIndicator :=
@@ -525,7 +525,7 @@ theorem ofByte_toByte (value : NegotiationIndicator) : ofByte value.toByte = val
   | negotiatedTradeInIlliquidFinancialInstruments => decide
   | negotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPrice => decide
   | negotiatedTradeLargerThanLisBroughtOntoAVenue => decide
-  | negotiatedTradeWithPretradeTransparencyWaiver => decide
+  | negotiatedTradeWithPreTradeTransparencyWaiver => decide
   | notANegotiatedTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -1071,13 +1071,13 @@ structure StatisticsMessage where
   instrument : BitVec 64
   sourceVenue : BitVec 16
   volume : BitVec 64
-  volumeOnbookOnly : BitVec 64
+  volumeOnBookOnly : BitVec 64
   vwap : BitVec 64
-  vwapOnbookOnly : BitVec 64
+  vwapOnBookOnly : BitVec 64
   numberOfTrades : BitVec 32
-  numberOfTradesOnbookOnly : BitVec 32
+  numberOfTradesOnBookOnly : BitVec 32
   turnover : BitVec 64
-  turnoverOnbookOnly : BitVec 64
+  turnoverOnBookOnly : BitVec 64
   deriving DecidableEq, Repr
 
 namespace StatisticsMessage
@@ -1087,27 +1087,27 @@ def encode (message : StatisticsMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.instrument
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (encodeUIntLE 8 message.volume
-    ++ (encodeUIntLE 8 message.volumeOnbookOnly
+    ++ (encodeUIntLE 8 message.volumeOnBookOnly
     ++ (encodeUIntLE 8 message.vwap
-    ++ (encodeUIntLE 8 message.vwapOnbookOnly
+    ++ (encodeUIntLE 8 message.vwapOnBookOnly
     ++ (encodeUIntLE 4 message.numberOfTrades
-    ++ (encodeUIntLE 4 message.numberOfTradesOnbookOnly
+    ++ (encodeUIntLE 4 message.numberOfTradesOnBookOnly
     ++ (encodeUIntLE 8 message.turnover
-    ++ (encodeUIntLE 8 message.turnoverOnbookOnly))))))))))
+    ++ (encodeUIntLE 8 message.turnoverOnBookOnly))))))))))
 
 def decode (bytes : List UInt8) : Option (StatisticsMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (volume, bytes) ← decodeUIntLE 8 bytes
-  let (volumeOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (volumeOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (vwap, bytes) ← decodeUIntLE 8 bytes
-  let (vwapOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (vwapOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (numberOfTrades, bytes) ← decodeUIntLE 4 bytes
-  let (numberOfTradesOnbookOnly, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfTradesOnBookOnly, bytes) ← decodeUIntLE 4 bytes
   let (turnover, bytes) ← decodeUIntLE 8 bytes
-  let (turnoverOnbookOnly, bytes) ← decodeUIntLE 8 bytes
-  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnbookOnly, vwap, vwapOnbookOnly, numberOfTrades, numberOfTradesOnbookOnly, turnover, turnoverOnbookOnly }, bytes)
+  let (turnoverOnBookOnly, bytes) ← decodeUIntLE 8 bytes
+  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnBookOnly, vwap, vwapOnBookOnly, numberOfTrades, numberOfTradesOnBookOnly, turnover, turnoverOnBookOnly }, bytes)
 
 @[simp] theorem encode_length (message : StatisticsMessage) : (encode message).length = 74 := by
   unfold encode
@@ -1213,7 +1213,7 @@ structure MifidIiTradeReportMessage where
   postTradeDeferralReason : Alpha 1
   deferralEnrichmentType : Alpha 1
   duplicativeIndicator : Alpha 1
-  thirdcountryTradingVenueOfExecution : Alpha 4
+  thirdCountryTradingVenueOfExecution : Alpha 4
   portfolioTransactionFlag : Alpha 4
   contingentTransactionFlag : Alpha 4
   priceConditions : Alpha 4
@@ -1291,7 +1291,7 @@ def encode (message : MifidIiTradeReportMessage) : List UInt8 :=
     ++ (Alpha.encode message.postTradeDeferralReason
     ++ (Alpha.encode message.deferralEnrichmentType
     ++ (Alpha.encode message.duplicativeIndicator
-    ++ (Alpha.encode message.thirdcountryTradingVenueOfExecution
+    ++ (Alpha.encode message.thirdCountryTradingVenueOfExecution
     ++ (Alpha.encode message.portfolioTransactionFlag
     ++ (Alpha.encode message.contingentTransactionFlag
     ++ (Alpha.encode message.priceConditions
@@ -1368,14 +1368,14 @@ def decode (bytes : List UInt8) : Option (MifidIiTradeReportMessage × List UInt
   let (postTradeDeferralReason, bytes) ← Alpha.decode 1 bytes
   let (deferralEnrichmentType, bytes) ← Alpha.decode 1 bytes
   let (duplicativeIndicator, bytes) ← Alpha.decode 1 bytes
-  let (thirdcountryTradingVenueOfExecution, bytes) ← Alpha.decode 4 bytes
+  let (thirdCountryTradingVenueOfExecution, bytes) ← Alpha.decode 4 bytes
   let (portfolioTransactionFlag, bytes) ← Alpha.decode 4 bytes
   let (contingentTransactionFlag, bytes) ← Alpha.decode 4 bytes
   let (priceConditions, bytes) ← Alpha.decode 4 bytes
   let (marketClosingPriceFlag, bytes) ← Alpha.decode 4 bytes
   let (ntLargeInScaleFlag, bytes) ← Alpha.decode 4 bytes
   let (ntPreTradeTransparencyFlag, bytes) ← Alpha.decode 4 bytes
-  pure ({ timestamp, instrument, transactionIdentificationCode, totalNumberOfTransactions, reserved8, sourceVenue, miFidPrice, miFidQuantity, miFidTradingDateAndTime, instrumentIdentificationCodeType, instrumentIdentificationCode, priceNotation, priceCurrency, notionalAmount, notionalCurrency, venueOfExecution, publicationDateAndTime, benchmarkTransactionFlag, agencyCrossTradeFlag, nonPriceFormingTransactionsFlag, nonPriceContributionToDiscovery, specialDividendFlag, ptDeferralReasonFlag, referencePriceTransactionFlag, ntLiquidityFlag, ntPriceConditionsFlag, algoTransactionFlag, ptIlliquidFlag, priceImprovementFlag, cancellationFlag, amendmentFlag, duplicateFlag, exchangeForPhysicalsFlag, limitedDetailsFlag, ldFullDetailsFlag, dailyAggregatedTransactionFlag, daFullDetailsFlag, volumeOmissionFlag, voFullDetailsFlag, fourWeeksAggregationFlag, faFullDetailsFlag, indefiniteAggregationFlag, volumeOmissionForSovereignDebtFlag, consecutiveAggregationFlag, reserved1, venueType, venueBookDefinitionId, venueMeasurementUnitNotation, quantityInMeasurementUnit, transactionToBeCleared, emissionAllowanceType, venueOfPublication, marketMechanism, tradingMode, transactionCategory, negotiationIndicator, agencyCrossIndicator, modificationIndicator, referencePriceIndicator, specialDividendIndicator, offBookAutomatedIndicator, priceFormationIndicator, algorithmicIndicator, postTradeDeferralReason, deferralEnrichmentType, duplicativeIndicator, thirdcountryTradingVenueOfExecution, portfolioTransactionFlag, contingentTransactionFlag, priceConditions, marketClosingPriceFlag, ntLargeInScaleFlag, ntPreTradeTransparencyFlag }, bytes)
+  pure ({ timestamp, instrument, transactionIdentificationCode, totalNumberOfTransactions, reserved8, sourceVenue, miFidPrice, miFidQuantity, miFidTradingDateAndTime, instrumentIdentificationCodeType, instrumentIdentificationCode, priceNotation, priceCurrency, notionalAmount, notionalCurrency, venueOfExecution, publicationDateAndTime, benchmarkTransactionFlag, agencyCrossTradeFlag, nonPriceFormingTransactionsFlag, nonPriceContributionToDiscovery, specialDividendFlag, ptDeferralReasonFlag, referencePriceTransactionFlag, ntLiquidityFlag, ntPriceConditionsFlag, algoTransactionFlag, ptIlliquidFlag, priceImprovementFlag, cancellationFlag, amendmentFlag, duplicateFlag, exchangeForPhysicalsFlag, limitedDetailsFlag, ldFullDetailsFlag, dailyAggregatedTransactionFlag, daFullDetailsFlag, volumeOmissionFlag, voFullDetailsFlag, fourWeeksAggregationFlag, faFullDetailsFlag, indefiniteAggregationFlag, volumeOmissionForSovereignDebtFlag, consecutiveAggregationFlag, reserved1, venueType, venueBookDefinitionId, venueMeasurementUnitNotation, quantityInMeasurementUnit, transactionToBeCleared, emissionAllowanceType, venueOfPublication, marketMechanism, tradingMode, transactionCategory, negotiationIndicator, agencyCrossIndicator, modificationIndicator, referencePriceIndicator, specialDividendIndicator, offBookAutomatedIndicator, priceFormationIndicator, algorithmicIndicator, postTradeDeferralReason, deferralEnrichmentType, duplicativeIndicator, thirdCountryTradingVenueOfExecution, portfolioTransactionFlag, contingentTransactionFlag, priceConditions, marketClosingPriceFlag, ntLargeInScaleFlag, ntPreTradeTransparencyFlag }, bytes)
 
 @[simp] theorem encode_length (message : MifidIiTradeReportMessage) : (encode message).length = 433 := by
   unfold encode

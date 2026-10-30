@@ -21,8 +21,8 @@ def EventCode.codes : List UInt8 :=
 inductive EventCode where
   | startOfMessagesTheFirstMessageIsSent -- Start Of Messages The First Message Is Sent
   | startOfSystemHours -- Start Of System Hours
-  | preopenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders -- Preopen Auction Period Begins The Exchange Is Open And Ready To Start Accepting Orders
-  | startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins -- Start Of Market Hours The Preopen Auction Is Concluded And Continuous Trading Begins
+  | preOpenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders -- Pre Open Auction Period Begins The Exchange Is Open And Ready To Start Accepting Orders
+  | startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins -- Start Of Market Hours The Pre Open Auction Is Concluded And Continuous Trading Begins
   | endOfMarketHoursIndicatesTheEndOfContinuousTrading -- End Of Market Hours Indicates The End Of Continuous Trading
   | endOfSystemHoursIndicatesTheExchangeIsClosed -- End Of System Hours Indicates The Exchange Is Closed
   | endOfMessagesTheLastMessageSent -- End Of Messages The Last Message Sent
@@ -42,8 +42,8 @@ namespace EventCode
 def toByte : EventCode → UInt8
   | .startOfMessagesTheFirstMessageIsSent => 0x4F
   | .startOfSystemHours => 0x53
-  | .preopenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders => 0x56
-  | .startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins => 0x51
+  | .preOpenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders => 0x56
+  | .startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins => 0x51
   | .endOfMarketHoursIndicatesTheEndOfContinuousTrading => 0x4D
   | .endOfSystemHoursIndicatesTheExchangeIsClosed => 0x45
   | .endOfMessagesTheLastMessageSent => 0x43
@@ -61,8 +61,8 @@ def toByte : EventCode → UInt8
 def listed (byte : UInt8) : EventCode :=
   if byte = 0x4F then .startOfMessagesTheFirstMessageIsSent
   else if byte = 0x53 then .startOfSystemHours
-  else if byte = 0x56 then .preopenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders
-  else if byte = 0x51 then .startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins
+  else if byte = 0x56 then .preOpenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders
+  else if byte = 0x51 then .startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins
   else if byte = 0x4D then .endOfMarketHoursIndicatesTheEndOfContinuousTrading
   else if byte = 0x45 then .endOfSystemHoursIndicatesTheExchangeIsClosed
   else if byte = 0x43 then .endOfMessagesTheLastMessageSent
@@ -82,8 +82,8 @@ theorem ofByte_toByte (value : EventCode) : ofByte value.toByte = value := by
   cases value with
   | startOfMessagesTheFirstMessageIsSent => decide
   | startOfSystemHours => decide
-  | preopenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders => decide
-  | startOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins => decide
+  | preOpenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders => decide
+  | startOfMarketHoursThePreOpenAuctionIsConcludedAndContinuousTradingBegins => decide
   | endOfMarketHoursIndicatesTheEndOfContinuousTrading => decide
   | endOfSystemHoursIndicatesTheExchangeIsClosed => decide
   | endOfMessagesTheLastMessageSent => decide
@@ -559,7 +559,7 @@ inductive CrossType where
   | contingent -- Contingent
   | basis -- Basis
   | vwap -- Vwap
-  | derivativerelated -- Derivativerelated
+  | derivativeRelated -- Derivative Related
   | otherwiseEmptyStringNotSpecified -- Otherwise Empty String Not Specified
   | ccpClosingPrice -- Ccp Closing Price
   | netAssetValueNav -- Net Asset Value Nav
@@ -574,7 +574,7 @@ def toByte : CrossType → UInt8
   | .contingent => 0x43
   | .basis => 0x42
   | .vwap => 0x56
-  | .derivativerelated => 0x44
+  | .derivativeRelated => 0x44
   | .otherwiseEmptyStringNotSpecified => 0x20
   | .ccpClosingPrice => 0x53
   | .netAssetValueNav => 0x4E
@@ -587,7 +587,7 @@ def listed (byte : UInt8) : CrossType :=
   else if byte = 0x43 then .contingent
   else if byte = 0x42 then .basis
   else if byte = 0x56 then .vwap
-  else if byte = 0x44 then .derivativerelated
+  else if byte = 0x44 then .derivativeRelated
   else if byte = 0x20 then .otherwiseEmptyStringNotSpecified
   else if byte = 0x53 then .ccpClosingPrice
   else .netAssetValueNav
@@ -602,7 +602,7 @@ theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   | contingent => decide
   | basis => decide
   | vwap => decide
-  | derivativerelated => decide
+  | derivativeRelated => decide
   | otherwiseEmptyStringNotSpecified => decide
   | ccpClosingPrice => decide
   | netAssetValueNav => decide

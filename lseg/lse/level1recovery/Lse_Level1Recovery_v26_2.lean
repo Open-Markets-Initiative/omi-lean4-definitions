@@ -1446,17 +1446,17 @@ structure StatisticsSnapshotMessage where
   instrument : BitVec 64
   sourceVenue : BitVec 16
   volume : BitVec 64
-  volumeOnbookOnly : BitVec 64
+  volumeOnBookOnly : BitVec 64
   vwap : BitVec 64
-  vwapOnbookOnly : BitVec 64
+  vwapOnBookOnly : BitVec 64
   numberOfTrades : BitVec 32
-  numberOfTradesOnbookOnly : BitVec 32
+  numberOfTradesOnBookOnly : BitVec 32
   turnover : BitVec 64
-  turnoverOnbookOnly : BitVec 64
+  turnoverOnBookOnly : BitVec 64
   officialOpeningPrice : BitVec 64
   officialClosingPrice : BitVec 64
-  tradeHighOnbookOnly : BitVec 64
-  tradeLowOnbookOnly : BitVec 64
+  tradeHighOnBookOnly : BitVec 64
+  tradeLowOnBookOnly : BitVec 64
   tradeHigh : BitVec 64
   tradeLow : BitVec 64
   fiftyTwoWeekTradeHigh : BitVec 64
@@ -1490,17 +1490,17 @@ def encode (message : StatisticsSnapshotMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.instrument
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (encodeUIntLE 8 message.volume
-    ++ (encodeUIntLE 8 message.volumeOnbookOnly
+    ++ (encodeUIntLE 8 message.volumeOnBookOnly
     ++ (encodeUIntLE 8 message.vwap
-    ++ (encodeUIntLE 8 message.vwapOnbookOnly
+    ++ (encodeUIntLE 8 message.vwapOnBookOnly
     ++ (encodeUIntLE 4 message.numberOfTrades
-    ++ (encodeUIntLE 4 message.numberOfTradesOnbookOnly
+    ++ (encodeUIntLE 4 message.numberOfTradesOnBookOnly
     ++ (encodeUIntLE 8 message.turnover
-    ++ (encodeUIntLE 8 message.turnoverOnbookOnly
+    ++ (encodeUIntLE 8 message.turnoverOnBookOnly
     ++ (encodeUIntLE 8 message.officialOpeningPrice
     ++ (encodeUIntLE 8 message.officialClosingPrice
-    ++ (encodeUIntLE 8 message.tradeHighOnbookOnly
-    ++ (encodeUIntLE 8 message.tradeLowOnbookOnly
+    ++ (encodeUIntLE 8 message.tradeHighOnBookOnly
+    ++ (encodeUIntLE 8 message.tradeLowOnBookOnly
     ++ (encodeUIntLE 8 message.tradeHigh
     ++ (encodeUIntLE 8 message.tradeLow
     ++ (encodeUIntLE 8 message.fiftyTwoWeekTradeHigh
@@ -1533,17 +1533,17 @@ def decode (bytes : List UInt8) : Option (StatisticsSnapshotMessage × List UInt
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (volume, bytes) ← decodeUIntLE 8 bytes
-  let (volumeOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (volumeOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (vwap, bytes) ← decodeUIntLE 8 bytes
-  let (vwapOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (vwapOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (numberOfTrades, bytes) ← decodeUIntLE 4 bytes
-  let (numberOfTradesOnbookOnly, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfTradesOnBookOnly, bytes) ← decodeUIntLE 4 bytes
   let (turnover, bytes) ← decodeUIntLE 8 bytes
-  let (turnoverOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (turnoverOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (officialOpeningPrice, bytes) ← decodeUIntLE 8 bytes
   let (officialClosingPrice, bytes) ← decodeUIntLE 8 bytes
-  let (tradeHighOnbookOnly, bytes) ← decodeUIntLE 8 bytes
-  let (tradeLowOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (tradeHighOnBookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (tradeLowOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (tradeHigh, bytes) ← decodeUIntLE 8 bytes
   let (tradeLow, bytes) ← decodeUIntLE 8 bytes
   let (fiftyTwoWeekTradeHigh, bytes) ← decodeUIntLE 8 bytes
@@ -1568,7 +1568,7 @@ def decode (bytes : List UInt8) : Option (StatisticsSnapshotMessage × List UInt
   let (lastTradeTime, bytes) ← decodeUIntLE 8 bytes
   let (staticReferencePrice, bytes) ← decodeUIntLE 8 bytes
   let (dynamicReferencePrice, bytes) ← decodeUIntLE 8 bytes
-  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnbookOnly, vwap, vwapOnbookOnly, numberOfTrades, numberOfTradesOnbookOnly, turnover, turnoverOnbookOnly, officialOpeningPrice, officialClosingPrice, tradeHighOnbookOnly, tradeLowOnbookOnly, tradeHigh, tradeLow, fiftyTwoWeekTradeHigh, fiftyTwoWeekTradeLow, openingPriceIndicator, closingPriceIndicator, iauPrice, iauPairedSize, imbalanceQuantity, imbalanceDirection, bestClosingBidPrice, bestClosingAskPrice, bestClosingBidSize, bestClosingAskSize, reserved8, secondReserved8, thirdReserved8, fourthReserved8, auctionType, lastTradePrice, lastTradeQuantity, lastTradeTime, staticReferencePrice, dynamicReferencePrice }, bytes)
+  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnBookOnly, vwap, vwapOnBookOnly, numberOfTrades, numberOfTradesOnBookOnly, turnover, turnoverOnBookOnly, officialOpeningPrice, officialClosingPrice, tradeHighOnBookOnly, tradeLowOnBookOnly, tradeHigh, tradeLow, fiftyTwoWeekTradeHigh, fiftyTwoWeekTradeLow, openingPriceIndicator, closingPriceIndicator, iauPrice, iauPairedSize, imbalanceQuantity, imbalanceDirection, bestClosingBidPrice, bestClosingAskPrice, bestClosingBidSize, bestClosingAskSize, reserved8, secondReserved8, thirdReserved8, fourthReserved8, auctionType, lastTradePrice, lastTradeQuantity, lastTradeTime, staticReferencePrice, dynamicReferencePrice }, bytes)
 
 @[simp] theorem encode_length (message : StatisticsSnapshotMessage) : (encode message).length = 270 := by
   unfold encode

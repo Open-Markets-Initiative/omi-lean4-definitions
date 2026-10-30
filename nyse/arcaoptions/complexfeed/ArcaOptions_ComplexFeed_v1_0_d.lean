@@ -341,7 +341,7 @@ inductive SecurityStatus where
   | shortSaleRestrictionActivatedDay1 -- Short Sale Restriction Activated Day 1
   | shortSaleRestrictionContinuedDay2 -- Short Sale Restriction Continued Day 2
   | shortSaleRestrictionDeactivated -- Short Sale Restriction Deactivated
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | beginAcceptingOrders -- Begin Accepting Orders
   | earlySession -- Early Session
   | coreSession -- Core Session
@@ -361,7 +361,7 @@ def toByte : SecurityStatus → UInt8
   | .shortSaleRestrictionActivatedDay1 => 0x41
   | .shortSaleRestrictionContinuedDay2 => 0x43
   | .shortSaleRestrictionDeactivated => 0x44
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .beginAcceptingOrders => 0x42
   | .earlySession => 0x45
   | .coreSession => 0x4F
@@ -379,7 +379,7 @@ def listed (byte : UInt8) : SecurityStatus :=
   else if byte = 0x41 then .shortSaleRestrictionActivatedDay1
   else if byte = 0x43 then .shortSaleRestrictionContinuedDay2
   else if byte = 0x44 then .shortSaleRestrictionDeactivated
-  else if byte = 0x50 then .preopening
+  else if byte = 0x50 then .preOpening
   else if byte = 0x42 then .beginAcceptingOrders
   else if byte = 0x45 then .earlySession
   else if byte = 0x4F then .coreSession
@@ -399,7 +399,7 @@ theorem ofByte_toByte (value : SecurityStatus) : ofByte value.toByte = value := 
   | shortSaleRestrictionActivatedDay1 => decide
   | shortSaleRestrictionContinuedDay2 => decide
   | shortSaleRestrictionDeactivated => decide
-  | preopening => decide
+  | preOpening => decide
   | beginAcceptingOrders => decide
   | earlySession => decide
   | coreSession => decide
@@ -723,7 +723,7 @@ def MarketState.codes : List UInt8 :=
   [0x50, 0x45, 0x4F, 0x4C, 0x58]
 
 inductive MarketState where
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | earlySession -- Early Session
   | coreSession -- Core Session
   | lateSession -- Late Session
@@ -734,7 +734,7 @@ inductive MarketState where
 namespace MarketState
 
 def toByte : MarketState → UInt8
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .earlySession => 0x45
   | .coreSession => 0x4F
   | .lateSession => 0x4C
@@ -743,7 +743,7 @@ def toByte : MarketState → UInt8
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : MarketState :=
-  if byte = 0x50 then .preopening
+  if byte = 0x50 then .preOpening
   else if byte = 0x45 then .earlySession
   else if byte = 0x4F then .coreSession
   else if byte = 0x4C then .lateSession
@@ -754,7 +754,7 @@ def ofByte (byte : UInt8) : MarketState :=
 
 theorem ofByte_toByte (value : MarketState) : ofByte value.toByte = value := by
   cases value with
-  | preopening => decide
+  | preOpening => decide
   | earlySession => decide
   | coreSession => decide
   | lateSession => decide
@@ -840,7 +840,7 @@ inductive SeriesStatus where
   | tradingHalt -- Trading Halt
   | resume -- Resume
   | suspend -- Suspend
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | beginAcceptingOrders -- Begin Accepting Orders
   | coreSession -- Core Session
   | closed -- Closed
@@ -853,7 +853,7 @@ def toByte : SeriesStatus → UInt8
   | .tradingHalt => 0x34
   | .resume => 0x35
   | .suspend => 0x36
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .beginAcceptingOrders => 0x42
   | .coreSession => 0x4F
   | .closed => 0x58
@@ -864,7 +864,7 @@ def listed (byte : UInt8) : SeriesStatus :=
   if byte = 0x34 then .tradingHalt
   else if byte = 0x35 then .resume
   else if byte = 0x36 then .suspend
-  else if byte = 0x50 then .preopening
+  else if byte = 0x50 then .preOpening
   else if byte = 0x42 then .beginAcceptingOrders
   else if byte = 0x4F then .coreSession
   else .closed
@@ -877,7 +877,7 @@ theorem ofByte_toByte (value : SeriesStatus) : ofByte value.toByte = value := by
   | tradingHalt => decide
   | resume => decide
   | suspend => decide
-  | preopening => decide
+  | preOpening => decide
   | beginAcceptingOrders => decide
   | coreSession => decide
   | closed => decide

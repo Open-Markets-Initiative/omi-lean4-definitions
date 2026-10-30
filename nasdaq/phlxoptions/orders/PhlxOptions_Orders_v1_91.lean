@@ -740,7 +740,7 @@ def CustomerFirmIndicator.codes : List UInt8 :=
 inductive CustomerFirmIndicator where
   | customerOrder -- Customer Order
   | firmOrder -- Firm Order
-  | onfloorMarketMaker -- Onfloor Market Maker
+  | onFloorMarketMaker -- On Floor Market Maker
   | brokerDealerOrder -- Broker Dealer Order
   | professionalOrder -- Professional Order
   | naForImpliedOrder -- Na For Implied Order
@@ -752,7 +752,7 @@ namespace CustomerFirmIndicator
 def toByte : CustomerFirmIndicator → UInt8
   | .customerOrder => 0x43
   | .firmOrder => 0x46
-  | .onfloorMarketMaker => 0x4D
+  | .onFloorMarketMaker => 0x4D
   | .brokerDealerOrder => 0x42
   | .professionalOrder => 0x50
   | .naForImpliedOrder => 0x20
@@ -762,7 +762,7 @@ def toByte : CustomerFirmIndicator → UInt8
 def listed (byte : UInt8) : CustomerFirmIndicator :=
   if byte = 0x43 then .customerOrder
   else if byte = 0x46 then .firmOrder
-  else if byte = 0x4D then .onfloorMarketMaker
+  else if byte = 0x4D then .onFloorMarketMaker
   else if byte = 0x42 then .brokerDealerOrder
   else if byte = 0x50 then .professionalOrder
   else .naForImpliedOrder
@@ -774,7 +774,7 @@ theorem ofByte_toByte (value : CustomerFirmIndicator) : ofByte value.toByte = va
   cases value with
   | customerOrder => decide
   | firmOrder => decide
-  | onfloorMarketMaker => decide
+  | onFloorMarketMaker => decide
   | brokerDealerOrder => decide
   | professionalOrder => decide
   | naForImpliedOrder => decide

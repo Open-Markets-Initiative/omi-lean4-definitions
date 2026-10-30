@@ -412,7 +412,7 @@ def Printable.codes : List UInt8 :=
   [0x4E, 0x59]
 
 inductive Printable where
-  | nonprintable -- Nonprintable
+  | nonPrintable -- Non Printable
   | printable -- Printable
   | unlisted (byte : { byte : UInt8 // byte ∉ Printable.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -420,13 +420,13 @@ inductive Printable where
 namespace Printable
 
 def toByte : Printable → UInt8
-  | .nonprintable => 0x4E
+  | .nonPrintable => 0x4E
   | .printable => 0x59
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : Printable :=
-  if byte = 0x4E then .nonprintable
+  if byte = 0x4E then .nonPrintable
   else .printable
 
 def ofByte (byte : UInt8) : Printable :=
@@ -434,7 +434,7 @@ def ofByte (byte : UInt8) : Printable :=
 
 theorem ofByte_toByte (value : Printable) : ofByte value.toByte = value := by
   cases value with
-  | nonprintable => decide
+  | nonPrintable => decide
   | printable => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -732,7 +732,7 @@ def CustomerFirmIndicator.codes : List UInt8 :=
 inductive CustomerFirmIndicator where
   | customer -- Customer
   | firmJoint -- Firm Joint
-  | onfloor -- Onfloor
+  | onFloor -- On Floor
   | professional -- Professional
   | brokerDealerNonRegistered -- Broker Dealer Non Registered
   | unlisted (byte : { byte : UInt8 // byte ∉ CustomerFirmIndicator.codes }) -- any other code, kept as it is
@@ -743,7 +743,7 @@ namespace CustomerFirmIndicator
 def toByte : CustomerFirmIndicator → UInt8
   | .customer => 0x43
   | .firmJoint => 0x46
-  | .onfloor => 0x4D
+  | .onFloor => 0x4D
   | .professional => 0x50
   | .brokerDealerNonRegistered => 0x42
   | .unlisted byte => byte.val
@@ -752,7 +752,7 @@ def toByte : CustomerFirmIndicator → UInt8
 def listed (byte : UInt8) : CustomerFirmIndicator :=
   if byte = 0x43 then .customer
   else if byte = 0x46 then .firmJoint
-  else if byte = 0x4D then .onfloor
+  else if byte = 0x4D then .onFloor
   else if byte = 0x50 then .professional
   else .brokerDealerNonRegistered
 
@@ -763,7 +763,7 @@ theorem ofByte_toByte (value : CustomerFirmIndicator) : ofByte value.toByte = va
   cases value with
   | customer => decide
   | firmJoint => decide
-  | onfloor => decide
+  | onFloor => decide
   | professional => decide
   | brokerDealerNonRegistered => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]

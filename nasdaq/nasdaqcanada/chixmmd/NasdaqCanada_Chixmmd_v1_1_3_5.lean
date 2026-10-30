@@ -72,7 +72,7 @@ def TradeAttribute.codes : List UInt8 :=
 inductive TradeAttribute where
   | bypass -- Bypass
   | marketOnCloseOrCxdConditional -- Market On Close Or Cxd Conditional
-  | melo -- Melo
+  | mElo -- M Elo
   | cxdPureStream -- Cxd Pure Stream
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeAttribute.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -82,7 +82,7 @@ namespace TradeAttribute
 def toByte : TradeAttribute → UInt8
   | .bypass => 0x42
   | .marketOnCloseOrCxdConditional => 0x43
-  | .melo => 0x4C
+  | .mElo => 0x4C
   | .cxdPureStream => 0x50
   | .unlisted byte => byte.val
 
@@ -90,7 +90,7 @@ def toByte : TradeAttribute → UInt8
 def listed (byte : UInt8) : TradeAttribute :=
   if byte = 0x42 then .bypass
   else if byte = 0x43 then .marketOnCloseOrCxdConditional
-  else if byte = 0x4C then .melo
+  else if byte = 0x4C then .mElo
   else .cxdPureStream
 
 def ofByte (byte : UInt8) : TradeAttribute :=
@@ -100,7 +100,7 @@ theorem ofByte_toByte (value : TradeAttribute) : ofByte value.toByte = value := 
   cases value with
   | bypass => decide
   | marketOnCloseOrCxdConditional => decide
-  | melo => decide
+  | mElo => decide
   | cxdPureStream => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

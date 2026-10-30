@@ -909,13 +909,13 @@ structure StatisticsMessage where
   instrument : BitVec 64
   sourceVenue : BitVec 16
   volume : BitVec 64
-  volumeOnbookOnly : BitVec 64
+  volumeOnBookOnly : BitVec 64
   vwap : BitVec 64
-  vwapOnbookOnly : BitVec 64
+  vwapOnBookOnly : BitVec 64
   numberOfTrades : BitVec 32
-  numberOfTradesOnbookOnly : BitVec 32
+  numberOfTradesOnBookOnly : BitVec 32
   turnover : BitVec 64
-  turnoverOnbookOnly : BitVec 64
+  turnoverOnBookOnly : BitVec 64
   deriving DecidableEq, Repr
 
 namespace StatisticsMessage
@@ -925,27 +925,27 @@ def encode (message : StatisticsMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.instrument
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (encodeUIntLE 8 message.volume
-    ++ (encodeUIntLE 8 message.volumeOnbookOnly
+    ++ (encodeUIntLE 8 message.volumeOnBookOnly
     ++ (encodeUIntLE 8 message.vwap
-    ++ (encodeUIntLE 8 message.vwapOnbookOnly
+    ++ (encodeUIntLE 8 message.vwapOnBookOnly
     ++ (encodeUIntLE 4 message.numberOfTrades
-    ++ (encodeUIntLE 4 message.numberOfTradesOnbookOnly
+    ++ (encodeUIntLE 4 message.numberOfTradesOnBookOnly
     ++ (encodeUIntLE 8 message.turnover
-    ++ (encodeUIntLE 8 message.turnoverOnbookOnly))))))))))
+    ++ (encodeUIntLE 8 message.turnoverOnBookOnly))))))))))
 
 def decode (bytes : List UInt8) : Option (StatisticsMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (volume, bytes) ← decodeUIntLE 8 bytes
-  let (volumeOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (volumeOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (vwap, bytes) ← decodeUIntLE 8 bytes
-  let (vwapOnbookOnly, bytes) ← decodeUIntLE 8 bytes
+  let (vwapOnBookOnly, bytes) ← decodeUIntLE 8 bytes
   let (numberOfTrades, bytes) ← decodeUIntLE 4 bytes
-  let (numberOfTradesOnbookOnly, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfTradesOnBookOnly, bytes) ← decodeUIntLE 4 bytes
   let (turnover, bytes) ← decodeUIntLE 8 bytes
-  let (turnoverOnbookOnly, bytes) ← decodeUIntLE 8 bytes
-  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnbookOnly, vwap, vwapOnbookOnly, numberOfTrades, numberOfTradesOnbookOnly, turnover, turnoverOnbookOnly }, bytes)
+  let (turnoverOnBookOnly, bytes) ← decodeUIntLE 8 bytes
+  pure ({ timestamp, instrument, sourceVenue, volume, volumeOnBookOnly, vwap, vwapOnBookOnly, numberOfTrades, numberOfTradesOnBookOnly, turnover, turnoverOnBookOnly }, bytes)
 
 @[simp] theorem encode_length (message : StatisticsMessage) : (encode message).length = 74 := by
   unfold encode

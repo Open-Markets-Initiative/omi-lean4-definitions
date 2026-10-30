@@ -344,6 +344,41 @@ theorem encode_length_pos (message : TickTableDataMessage) : (encode message).le
 
 end TickTableDataMessage
 
+/-- Lot Size Composite: 9 bytes -/
+structure LotSizeComposite where
+  lotSize : BitVec 64
+  lotSizeDecimal : BitVec 8
+  deriving DecidableEq, Repr
+
+namespace LotSizeComposite
+
+def encode (message : LotSizeComposite) : List UInt8 :=
+  encodeUIntLE 8 message.lotSize
+    ++ (encodeUIntLE 1 message.lotSizeDecimal)
+
+def decode (bytes : List UInt8) : Option (LotSizeComposite × List UInt8) := do
+  let (lotSize, bytes) ← decodeUIntLE 8 bytes
+  let (lotSizeDecimal, bytes) ← decodeUIntLE 1 bytes
+  pure ({ lotSize, lotSizeDecimal }, bytes)
+
+@[simp] theorem encode_length (message : LotSizeComposite) : (encode message).length = 9 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length]
+
+theorem encode_length_pos (message : LotSizeComposite) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LotSizeComposite) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end LotSizeComposite
+
 /-- Security Definition Message: 59 bytes -/
 structure SecurityDefinitionMessage where
   securityId : BitVec 16
@@ -354,8 +389,7 @@ structure SecurityDefinitionMessage where
   tickTableId : BitVec 8
   securityDefinitionFlags : BitVec 16
   reserved20 : Alpha 20
-  lotSize : BitVec 64
-  lotSizeDecimal : BitVec 8
+  lotSizeComposite : LotSizeComposite
   deriving DecidableEq, Repr
 
 namespace SecurityDefinitionMessage
@@ -369,8 +403,7 @@ def encode (message : SecurityDefinitionMessage) : List UInt8 :=
     ++ (encodeUIntLE 1 message.tickTableId
     ++ (encodeUIntLE 2 message.securityDefinitionFlags
     ++ (Alpha.encode message.reserved20
-    ++ (encodeUIntLE 8 message.lotSize
-    ++ (encodeUIntLE 1 message.lotSizeDecimal)))))))))
+    ++ (LotSizeComposite.encode message.lotSizeComposite))))))))
 
 def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
@@ -381,13 +414,12 @@ def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt
   let (tickTableId, bytes) ← decodeUIntLE 1 bytes
   let (securityDefinitionFlags, bytes) ← decodeUIntLE 2 bytes
   let (reserved20, bytes) ← Alpha.decode 20 bytes
-  let (lotSize, bytes) ← decodeUIntLE 8 bytes
-  let (lotSizeDecimal, bytes) ← decodeUIntLE 1 bytes
-  pure ({ securityId, umtf, isin, currency, mic, tickTableId, securityDefinitionFlags, reserved20, lotSize, lotSizeDecimal }, bytes)
+  let (lotSizeComposite, bytes) ← LotSizeComposite.decode bytes
+  pure ({ securityId, umtf, isin, currency, mic, tickTableId, securityDefinitionFlags, reserved20, lotSizeComposite }, bytes)
 
 @[simp] theorem encode_length (message : SecurityDefinitionMessage) : (encode message).length = 59 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, LotSizeComposite.encode_length]
 
 theorem encode_length_pos (message : SecurityDefinitionMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -412,9 +444,7 @@ theorem encode_length_pos (message : SecurityDefinitionMessage) : (encode messag
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [LotSizeComposite.decode_encode, some_bind]
   rfl
 
 end SecurityDefinitionMessage
@@ -667,18 +697,18 @@ structure Message where
 namespace Message
 
 def encodeBody (message : Message) : List UInt8 :=
-  encodeUInt 4 message.seqNo
+  encodeUIntLE 4 message.seqNo
     ++ (Payload.encode message.payload)
 
 def decodeBody (msgType : BitVec 8) (bytes : List UInt8) : Option (Message × List UInt8) := do
-  let (seqNo, bytes) ← decodeUInt 4 bytes
+  let (seqNo, bytes) ← decodeUIntLE 4 bytes
   let (payload, bytes) ← Payload.decode msgType bytes
   pure ({ seqNo, payload }, bytes)
 
 theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
     decodeBody (Payload.tag message.payload) (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [Payload.decode_encode, some_bind]
   rfl
@@ -688,34 +718,34 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
   unfold encodeBody
   cases message.payload with
   | orderAdd inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OrderAdd.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderAdd.encode_length]
     omega
   | orderCancel inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OrderCancel.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderCancel.encode_length]
     omega
   | orderModify inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OrderModify.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderModify.encode_length]
     omega
   | trade inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, Trade.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, Trade.encode_length]
     omega
   | tradeBustMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, TradeBustMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, TradeBustMessage.encode_length]
     omega
   | tickTableDataMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, TickTableDataMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, TickTableDataMessage.encode_length]
     omega
   | securityDefinitionMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityDefinitionMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, SecurityDefinitionMessage.encode_length]
     omega
   | securityStatusMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityStatusMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, SecurityStatusMessage.encode_length]
     omega
   | aoDUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AoDUpdateMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, AoDUpdateMessage.encode_length]
     omega
   | maCUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, MaCUpdateMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, MaCUpdateMessage.encode_length]
     omega
 
 /-- Size rule: Msg Length counts the bytes after it plus 2, so it is written from the body and checked on decode; Msg Type is read ahead of it -/

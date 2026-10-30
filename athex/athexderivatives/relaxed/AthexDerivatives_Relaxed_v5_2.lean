@@ -951,7 +951,7 @@ structure ApaPostTradeMessage where
   expiryDate : Alpha 8
   deliveryType : Alpha 4
   typeEmissionAllowance : Alpha 4
-  otcPosttradeIndicator : Alpha 4
+  otcPostTradeIndicator : Alpha 4
   deferralIndicator : DeferralIndicator
   lmtf : Lmtf
   fulf : Fulf
@@ -1001,7 +1001,7 @@ def encode (message : ApaPostTradeMessage) : List UInt8 :=
     ++ (Alpha.encode message.expiryDate
     ++ (Alpha.encode message.deliveryType
     ++ (Alpha.encode message.typeEmissionAllowance
-    ++ (Alpha.encode message.otcPosttradeIndicator
+    ++ (Alpha.encode message.otcPostTradeIndicator
     ++ (DeferralIndicator.encode message.deferralIndicator
     ++ (Lmtf.encode message.lmtf
     ++ (Fulf.encode message.fulf
@@ -1050,7 +1050,7 @@ def decode (bytes : List UInt8) : Option (ApaPostTradeMessage × List UInt8) := 
   let (expiryDate, bytes) ← Alpha.decode 8 bytes
   let (deliveryType, bytes) ← Alpha.decode 4 bytes
   let (typeEmissionAllowance, bytes) ← Alpha.decode 4 bytes
-  let (otcPosttradeIndicator, bytes) ← Alpha.decode 4 bytes
+  let (otcPostTradeIndicator, bytes) ← Alpha.decode 4 bytes
   let (deferralIndicator, bytes) ← DeferralIndicator.decode bytes
   let (lmtf, bytes) ← Lmtf.decode bytes
   let (fulf, bytes) ← Fulf.decode bytes
@@ -1063,7 +1063,7 @@ def decode (bytes : List UInt8) : Option (ApaPostTradeMessage × List UInt8) := 
   let (idaf, bytes) ← Idaf.decode bytes
   let (volw, bytes) ← Volw.decode bytes
   let (coaf, bytes) ← Coaf.decode bytes
-  pure ({ reportStatus, tradingDateAndTime, tradeIdIndicator, tradeId, venue, transactionToBeCleared, priceNotation, price, priceCurrency, quantity, quantityCurrency, notationOfTheQuantityInMeasurementUnit, quantityInMeasurementUnit, notionalAmount, notionalCurrency, instrumentIdType, instrumentId, instrumentFullName, instrumentClassification, priceMultiplier, underlyingInstrumentCode, underlyingIndexName, termOfTheUnderlyingIndex, optionType, strikePrice, strikePriceCurrency, strikePriceNotation, optionExerciseStyle, maturityDate, expiryDate, deliveryType, typeEmissionAllowance, otcPosttradeIndicator, deferralIndicator, lmtf, fulf, datf, fula, volo, fulv, fwaf, fulj, idaf, volw, coaf }, bytes)
+  pure ({ reportStatus, tradingDateAndTime, tradeIdIndicator, tradeId, venue, transactionToBeCleared, priceNotation, price, priceCurrency, quantity, quantityCurrency, notationOfTheQuantityInMeasurementUnit, quantityInMeasurementUnit, notionalAmount, notionalCurrency, instrumentIdType, instrumentId, instrumentFullName, instrumentClassification, priceMultiplier, underlyingInstrumentCode, underlyingIndexName, termOfTheUnderlyingIndex, optionType, strikePrice, strikePriceCurrency, strikePriceNotation, optionExerciseStyle, maturityDate, expiryDate, deliveryType, typeEmissionAllowance, otcPostTradeIndicator, deferralIndicator, lmtf, fulf, datf, fula, volo, fulv, fwaf, fulj, idaf, volw, coaf }, bytes)
 
 @[simp] theorem encode_length (message : ApaPostTradeMessage) : (encode message).length = 699 := by
   unfold encode

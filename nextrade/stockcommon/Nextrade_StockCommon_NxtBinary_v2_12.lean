@@ -1309,14 +1309,14 @@ end CurrentMovementMessage
 structure ProgramTradingActivityPerInvestorMessage where
   calculationTime : Alpha 6
   investorCode : Alpha 4
-  sellsideArbitrageVolume : BitVec 64
-  sellsideArbitrageValue : Alpha 16
-  sellsideNonarbitrageVolume : BitVec 64
-  sellsideNonarbitrageValue : Alpha 16
-  buysideArbitrageVolume : BitVec 64
-  buysideArbitrageValue : Alpha 16
-  buysideNonarbitrageVolume : BitVec 64
-  buysideNonarbitrageValue : Alpha 16
+  sellSideArbitrageVolume : BitVec 64
+  sellSideArbitrageValue : Alpha 16
+  sellSideNonArbitrageVolume : BitVec 64
+  sellSideNonArbitrageValue : Alpha 16
+  buySideArbitrageVolume : BitVec 64
+  buySideArbitrageValue : Alpha 16
+  buySideNonArbitrageVolume : BitVec 64
+  buySideNonArbitrageValue : Alpha 16
   endKeyword : BitVec 32
   deriving DecidableEq, Repr
 
@@ -1325,29 +1325,29 @@ namespace ProgramTradingActivityPerInvestorMessage
 def encode (message : ProgramTradingActivityPerInvestorMessage) : List UInt8 :=
   Alpha.encode message.calculationTime
     ++ (Alpha.encode message.investorCode
-    ++ (encodeUIntLE 8 message.sellsideArbitrageVolume
-    ++ (Alpha.encode message.sellsideArbitrageValue
-    ++ (encodeUIntLE 8 message.sellsideNonarbitrageVolume
-    ++ (Alpha.encode message.sellsideNonarbitrageValue
-    ++ (encodeUIntLE 8 message.buysideArbitrageVolume
-    ++ (Alpha.encode message.buysideArbitrageValue
-    ++ (encodeUIntLE 8 message.buysideNonarbitrageVolume
-    ++ (Alpha.encode message.buysideNonarbitrageValue
+    ++ (encodeUIntLE 8 message.sellSideArbitrageVolume
+    ++ (Alpha.encode message.sellSideArbitrageValue
+    ++ (encodeUIntLE 8 message.sellSideNonArbitrageVolume
+    ++ (Alpha.encode message.sellSideNonArbitrageValue
+    ++ (encodeUIntLE 8 message.buySideArbitrageVolume
+    ++ (Alpha.encode message.buySideArbitrageValue
+    ++ (encodeUIntLE 8 message.buySideNonArbitrageVolume
+    ++ (Alpha.encode message.buySideNonArbitrageValue
     ++ (encodeUIntLE 4 message.endKeyword))))))))))
 
 def decode (bytes : List UInt8) : Option (ProgramTradingActivityPerInvestorMessage × List UInt8) := do
   let (calculationTime, bytes) ← Alpha.decode 6 bytes
   let (investorCode, bytes) ← Alpha.decode 4 bytes
-  let (sellsideArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideArbitrageValue, bytes) ← Alpha.decode 16 bytes
-  let (sellsideNonarbitrageVolume, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideNonarbitrageValue, bytes) ← Alpha.decode 16 bytes
-  let (buysideArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
-  let (buysideArbitrageValue, bytes) ← Alpha.decode 16 bytes
-  let (buysideNonarbitrageVolume, bytes) ← decodeUIntLE 8 bytes
-  let (buysideNonarbitrageValue, bytes) ← Alpha.decode 16 bytes
+  let (sellSideArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideArbitrageValue, bytes) ← Alpha.decode 16 bytes
+  let (sellSideNonArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideNonArbitrageValue, bytes) ← Alpha.decode 16 bytes
+  let (buySideArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
+  let (buySideArbitrageValue, bytes) ← Alpha.decode 16 bytes
+  let (buySideNonArbitrageVolume, bytes) ← decodeUIntLE 8 bytes
+  let (buySideNonArbitrageValue, bytes) ← Alpha.decode 16 bytes
   let (endKeyword, bytes) ← decodeUIntLE 4 bytes
-  pure ({ calculationTime, investorCode, sellsideArbitrageVolume, sellsideArbitrageValue, sellsideNonarbitrageVolume, sellsideNonarbitrageValue, buysideArbitrageVolume, buysideArbitrageValue, buysideNonarbitrageVolume, buysideNonarbitrageValue, endKeyword }, bytes)
+  pure ({ calculationTime, investorCode, sellSideArbitrageVolume, sellSideArbitrageValue, sellSideNonArbitrageVolume, sellSideNonArbitrageValue, buySideArbitrageVolume, buySideArbitrageValue, buySideNonArbitrageVolume, buySideNonArbitrageValue, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : ProgramTradingActivityPerInvestorMessage) : (encode message).length = 110 := by
   unfold encode
@@ -1389,14 +1389,14 @@ end ProgramTradingActivityPerInvestorMessage
 structure ProgramTradingInformationPerIssueAggregatedInformationMessage where
   isinCode : Alpha 12
   aDesignatedNumberForAnIssueFromKrx : BitVec 32
-  sellsideArbitrageTradingRemainingQuantity : BitVec 64
-  buysideArbitrageTradingRemainingQuantity : BitVec 64
-  sellsideNonarbitrageRemainingQuantity : BitVec 64
-  buysideNonarbitrageRemainingQuantity : BitVec 64
-  sellsideArbitrageQuantity : BitVec 64
-  buysideArbitrageQuantity : BitVec 64
-  sellsideNonarbitrageQuantity : BitVec 64
-  buysideNonarbitrageQuantity : BitVec 64
+  sellSideArbitrageTradingRemainingQuantity : BitVec 64
+  buySideArbitrageTradingRemainingQuantity : BitVec 64
+  sellSideNonArbitrageRemainingQuantity : BitVec 64
+  buySideNonArbitrageRemainingQuantity : BitVec 64
+  sellSideArbitrageQuantity : BitVec 64
+  buySideArbitrageQuantity : BitVec 64
+  sellSideNonArbitrageQuantity : BitVec 64
+  buySideNonArbitrageQuantity : BitVec 64
   arbitrageAskTrustTradingVolume : BitVec 64
   arbitrageAskPrincipalTradingVolume : BitVec 64
   arbitrageBidTrustTradingVolume : BitVec 64
@@ -1421,14 +1421,14 @@ namespace ProgramTradingInformationPerIssueAggregatedInformationMessage
 def encode (message : ProgramTradingInformationPerIssueAggregatedInformationMessage) : List UInt8 :=
   Alpha.encode message.isinCode
     ++ (encodeUIntLE 4 message.aDesignatedNumberForAnIssueFromKrx
-    ++ (encodeUIntLE 8 message.sellsideArbitrageTradingRemainingQuantity
-    ++ (encodeUIntLE 8 message.buysideArbitrageTradingRemainingQuantity
-    ++ (encodeUIntLE 8 message.sellsideNonarbitrageRemainingQuantity
-    ++ (encodeUIntLE 8 message.buysideNonarbitrageRemainingQuantity
-    ++ (encodeUIntLE 8 message.sellsideArbitrageQuantity
-    ++ (encodeUIntLE 8 message.buysideArbitrageQuantity
-    ++ (encodeUIntLE 8 message.sellsideNonarbitrageQuantity
-    ++ (encodeUIntLE 8 message.buysideNonarbitrageQuantity
+    ++ (encodeUIntLE 8 message.sellSideArbitrageTradingRemainingQuantity
+    ++ (encodeUIntLE 8 message.buySideArbitrageTradingRemainingQuantity
+    ++ (encodeUIntLE 8 message.sellSideNonArbitrageRemainingQuantity
+    ++ (encodeUIntLE 8 message.buySideNonArbitrageRemainingQuantity
+    ++ (encodeUIntLE 8 message.sellSideArbitrageQuantity
+    ++ (encodeUIntLE 8 message.buySideArbitrageQuantity
+    ++ (encodeUIntLE 8 message.sellSideNonArbitrageQuantity
+    ++ (encodeUIntLE 8 message.buySideNonArbitrageQuantity
     ++ (encodeUIntLE 8 message.arbitrageAskTrustTradingVolume
     ++ (encodeUIntLE 8 message.arbitrageAskPrincipalTradingVolume
     ++ (encodeUIntLE 8 message.arbitrageBidTrustTradingVolume
@@ -1452,14 +1452,14 @@ set_option maxRecDepth 4096 in
 def decode (bytes : List UInt8) : Option (ProgramTradingInformationPerIssueAggregatedInformationMessage × List UInt8) := do
   let (isinCode, bytes) ← Alpha.decode 12 bytes
   let (aDesignatedNumberForAnIssueFromKrx, bytes) ← decodeUIntLE 4 bytes
-  let (sellsideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideNonarbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideNonarbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideNonarbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideNonarbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideNonArbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideNonArbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideNonArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideNonArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageAskTrustTradingVolume, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageAskPrincipalTradingVolume, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageBidTrustTradingVolume, bytes) ← decodeUIntLE 8 bytes
@@ -1477,7 +1477,7 @@ def decode (bytes : List UInt8) : Option (ProgramTradingInformationPerIssueAggre
   let (nonArbitrageBidTrustTradingValue, bytes) ← Alpha.decode 16 bytes
   let (nonArbitrageBidPrincipalTradingValue, bytes) ← Alpha.decode 16 bytes
   let (endKeyword, bytes) ← decodeUIntLE 4 bytes
-  pure ({ isinCode, aDesignatedNumberForAnIssueFromKrx, sellsideArbitrageTradingRemainingQuantity, buysideArbitrageTradingRemainingQuantity, sellsideNonarbitrageRemainingQuantity, buysideNonarbitrageRemainingQuantity, sellsideArbitrageQuantity, buysideArbitrageQuantity, sellsideNonarbitrageQuantity, buysideNonarbitrageQuantity, arbitrageAskTrustTradingVolume, arbitrageAskPrincipalTradingVolume, arbitrageBidTrustTradingVolume, arbitrageBidPrincipalTradingVolume, nonArbitrageAskTrustTradingVolume, nonArbitrageAskPrincipalTradingVolume, nonArbitrageBidTrustTradingVolume, nonArbitrageBidPrincipalTradingVolume, arbitrageAskTrustTradingValue, arbitrageAskPrincipalTradingValue, arbitrageBidTrustTradingValue, arbitrageBidPrincipalTradingValue, nonArbitrageAskTrustTradingValue, nonArbitrageAskPrincipalTradingValue, nonArbitrageBidTrustTradingValue, nonArbitrageBidPrincipalTradingValue, endKeyword }, bytes)
+  pure ({ isinCode, aDesignatedNumberForAnIssueFromKrx, sellSideArbitrageTradingRemainingQuantity, buySideArbitrageTradingRemainingQuantity, sellSideNonArbitrageRemainingQuantity, buySideNonArbitrageRemainingQuantity, sellSideArbitrageQuantity, buySideArbitrageQuantity, sellSideNonArbitrageQuantity, buySideNonArbitrageQuantity, arbitrageAskTrustTradingVolume, arbitrageAskPrincipalTradingVolume, arbitrageBidTrustTradingVolume, arbitrageBidPrincipalTradingVolume, nonArbitrageAskTrustTradingVolume, nonArbitrageAskPrincipalTradingVolume, nonArbitrageBidTrustTradingVolume, nonArbitrageBidPrincipalTradingVolume, arbitrageAskTrustTradingValue, arbitrageAskPrincipalTradingValue, arbitrageBidTrustTradingValue, arbitrageBidPrincipalTradingValue, nonArbitrageAskTrustTradingValue, nonArbitrageAskPrincipalTradingValue, nonArbitrageBidTrustTradingValue, nonArbitrageBidPrincipalTradingValue, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : ProgramTradingInformationPerIssueAggregatedInformationMessage) : (encode message).length = 276 := by
   unfold encode
@@ -1550,14 +1550,14 @@ end ProgramTradingInformationPerIssueAggregatedInformationMessage
 
 /-- Program Trading Information Of Total Aggregated Information Message: 260 bytes -/
 structure ProgramTradingInformationOfTotalAggregatedInformationMessage where
-  sellsideArbitrageTradingRemainingQuantity : BitVec 64
-  buysideArbitrageTradingRemainingQuantity : BitVec 64
-  sellsideNonarbitrageRemainingQuantity : BitVec 64
-  buysideNonarbitrageRemainingQuantity : BitVec 64
-  sellsideArbitrageQuantity : BitVec 64
-  buysideArbitrageQuantity : BitVec 64
-  sellsideNonarbitrageQuantity : BitVec 64
-  buysideNonarbitrageQuantity : BitVec 64
+  sellSideArbitrageTradingRemainingQuantity : BitVec 64
+  buySideArbitrageTradingRemainingQuantity : BitVec 64
+  sellSideNonArbitrageRemainingQuantity : BitVec 64
+  buySideNonArbitrageRemainingQuantity : BitVec 64
+  sellSideArbitrageQuantity : BitVec 64
+  buySideArbitrageQuantity : BitVec 64
+  sellSideNonArbitrageQuantity : BitVec 64
+  buySideNonArbitrageQuantity : BitVec 64
   arbitrageAskTrustTradingVolume : BitVec 64
   arbitrageAskPrincipalTradingVolume : BitVec 64
   arbitrageBidTrustTradingVolume : BitVec 64
@@ -1580,14 +1580,14 @@ structure ProgramTradingInformationOfTotalAggregatedInformationMessage where
 namespace ProgramTradingInformationOfTotalAggregatedInformationMessage
 
 def encode (message : ProgramTradingInformationOfTotalAggregatedInformationMessage) : List UInt8 :=
-  encodeUIntLE 8 message.sellsideArbitrageTradingRemainingQuantity
-    ++ (encodeUIntLE 8 message.buysideArbitrageTradingRemainingQuantity
-    ++ (encodeUIntLE 8 message.sellsideNonarbitrageRemainingQuantity
-    ++ (encodeUIntLE 8 message.buysideNonarbitrageRemainingQuantity
-    ++ (encodeUIntLE 8 message.sellsideArbitrageQuantity
-    ++ (encodeUIntLE 8 message.buysideArbitrageQuantity
-    ++ (encodeUIntLE 8 message.sellsideNonarbitrageQuantity
-    ++ (encodeUIntLE 8 message.buysideNonarbitrageQuantity
+  encodeUIntLE 8 message.sellSideArbitrageTradingRemainingQuantity
+    ++ (encodeUIntLE 8 message.buySideArbitrageTradingRemainingQuantity
+    ++ (encodeUIntLE 8 message.sellSideNonArbitrageRemainingQuantity
+    ++ (encodeUIntLE 8 message.buySideNonArbitrageRemainingQuantity
+    ++ (encodeUIntLE 8 message.sellSideArbitrageQuantity
+    ++ (encodeUIntLE 8 message.buySideArbitrageQuantity
+    ++ (encodeUIntLE 8 message.sellSideNonArbitrageQuantity
+    ++ (encodeUIntLE 8 message.buySideNonArbitrageQuantity
     ++ (encodeUIntLE 8 message.arbitrageAskTrustTradingVolume
     ++ (encodeUIntLE 8 message.arbitrageAskPrincipalTradingVolume
     ++ (encodeUIntLE 8 message.arbitrageBidTrustTradingVolume
@@ -1609,14 +1609,14 @@ def encode (message : ProgramTradingInformationOfTotalAggregatedInformationMessa
 -- a long run of fields nests deeper than the elaborator's default limit
 set_option maxRecDepth 4096 in
 def decode (bytes : List UInt8) : Option (ProgramTradingInformationOfTotalAggregatedInformationMessage × List UInt8) := do
-  let (sellsideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideNonarbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideNonarbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (sellsideNonarbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
-  let (buysideNonarbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideArbitrageTradingRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideNonArbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideNonArbitrageRemainingQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (sellSideNonArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (buySideNonArbitrageQuantity, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageAskTrustTradingVolume, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageAskPrincipalTradingVolume, bytes) ← decodeUIntLE 8 bytes
   let (arbitrageBidTrustTradingVolume, bytes) ← decodeUIntLE 8 bytes
@@ -1634,7 +1634,7 @@ def decode (bytes : List UInt8) : Option (ProgramTradingInformationOfTotalAggreg
   let (nonArbitrageBidTrustTradingValue, bytes) ← Alpha.decode 16 bytes
   let (nonArbitrageBidPrincipalTradingValue, bytes) ← Alpha.decode 16 bytes
   let (endKeyword, bytes) ← decodeUIntLE 4 bytes
-  pure ({ sellsideArbitrageTradingRemainingQuantity, buysideArbitrageTradingRemainingQuantity, sellsideNonarbitrageRemainingQuantity, buysideNonarbitrageRemainingQuantity, sellsideArbitrageQuantity, buysideArbitrageQuantity, sellsideNonarbitrageQuantity, buysideNonarbitrageQuantity, arbitrageAskTrustTradingVolume, arbitrageAskPrincipalTradingVolume, arbitrageBidTrustTradingVolume, arbitrageBidPrincipalTradingVolume, nonArbitrageAskTrustTradingVolume, nonArbitrageAskPrincipalTradingVolume, nonArbitrageBidTrustTradingVolume, nonArbitrageBidPrincipalTradingVolume, arbitrageAskTrustTradingValue, arbitrageAskPrincipalTradingValue, arbitrageBidTrustTradingValue, arbitrageBidPrincipalTradingValue, nonArbitrageAskTrustTradingValue, nonArbitrageAskPrincipalTradingValue, nonArbitrageBidTrustTradingValue, nonArbitrageBidPrincipalTradingValue, endKeyword }, bytes)
+  pure ({ sellSideArbitrageTradingRemainingQuantity, buySideArbitrageTradingRemainingQuantity, sellSideNonArbitrageRemainingQuantity, buySideNonArbitrageRemainingQuantity, sellSideArbitrageQuantity, buySideArbitrageQuantity, sellSideNonArbitrageQuantity, buySideNonArbitrageQuantity, arbitrageAskTrustTradingVolume, arbitrageAskPrincipalTradingVolume, arbitrageBidTrustTradingVolume, arbitrageBidPrincipalTradingVolume, nonArbitrageAskTrustTradingVolume, nonArbitrageAskPrincipalTradingVolume, nonArbitrageBidTrustTradingVolume, nonArbitrageBidPrincipalTradingVolume, arbitrageAskTrustTradingValue, arbitrageAskPrincipalTradingValue, arbitrageBidTrustTradingValue, arbitrageBidPrincipalTradingValue, nonArbitrageAskTrustTradingValue, nonArbitrageAskPrincipalTradingValue, nonArbitrageBidTrustTradingValue, nonArbitrageBidPrincipalTradingValue, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : ProgramTradingInformationOfTotalAggregatedInformationMessage) : (encode message).length = 260 := by
   unfold encode
@@ -2084,7 +2084,7 @@ structure EquitiesBatchDataMessage where
   koreaCorporateGovernanceStockPriceIndexKogi : Alpha 1
   issueForAdministration : Alpha 1
   unfaithfulDisclosure : Alpha 1
-  backdoorListing : Alpha 1
+  backDoorListing : Alpha 1
   tradingHalt : Alpha 1
   industryId : Alpha 10
   smallMediumSizedBusiness : Alpha 1
@@ -2124,16 +2124,16 @@ structure EquitiesBatchDataMessage where
   lowestOrderPrice : Alpha 8
   highestOrderPrice : Alpha 8
   unitOfVolumeInMainBoard : BitVec 64
-  lotSizeAfterhoursTrading : BitVec 64
+  lotSizeAfterHoursTrading : BitVec 64
   reiTsTypeCode : Alpha 1
   targetStockIsinCode : Alpha 12
   currencyIsoCode : Alpha 3
   countryCode : Alpha 3
   marketMakingPossibility : Alpha 1
   closingPriceTradingPossibilityInTheAfterHours : Alpha 1
-  closingPriceTradingInThePreopeningMarket : Alpha 1
-  blockTradingInThePreopeningMarket : Alpha 1
-  basketTradingInThePreopeningMarket : Alpha 1
+  closingPriceTradingInThePreOpeningMarket : Alpha 1
+  blockTradingInThePreOpeningMarket : Alpha 1
+  basketTradingInThePreOpeningMarket : Alpha 1
   announcementOfEstimatedTradingPrice : Alpha 1
   shortSelling : Alpha 1
   etfTrackingDifference : Alpha 8
@@ -2143,7 +2143,7 @@ structure EquitiesBatchDataMessage where
   appraisalRatioOfSubstitutePrice : Alpha 8
   investmentCautionIssue : Alpha 1
   delistingDate : Alpha 8
-  shorttermOverheatIssueTypeCode : Alpha 1
+  shortTermOverheatIssueTypeCode : Alpha 1
   etfReplicationMethodsTypeCode : Alpha 1
   expirationDate : Alpha 8
   distributionTypeCode : Alpha 2
@@ -2205,7 +2205,7 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.koreaCorporateGovernanceStockPriceIndexKogi
     ++ (Alpha.encode message.issueForAdministration
     ++ (Alpha.encode message.unfaithfulDisclosure
-    ++ (Alpha.encode message.backdoorListing
+    ++ (Alpha.encode message.backDoorListing
     ++ (Alpha.encode message.tradingHalt
     ++ (Alpha.encode message.industryId
     ++ (Alpha.encode message.smallMediumSizedBusiness
@@ -2245,16 +2245,16 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.lowestOrderPrice
     ++ (Alpha.encode message.highestOrderPrice
     ++ (encodeUIntLE 8 message.unitOfVolumeInMainBoard
-    ++ (encodeUIntLE 8 message.lotSizeAfterhoursTrading
+    ++ (encodeUIntLE 8 message.lotSizeAfterHoursTrading
     ++ (Alpha.encode message.reiTsTypeCode
     ++ (Alpha.encode message.targetStockIsinCode
     ++ (Alpha.encode message.currencyIsoCode
     ++ (Alpha.encode message.countryCode
     ++ (Alpha.encode message.marketMakingPossibility
     ++ (Alpha.encode message.closingPriceTradingPossibilityInTheAfterHours
-    ++ (Alpha.encode message.closingPriceTradingInThePreopeningMarket
-    ++ (Alpha.encode message.blockTradingInThePreopeningMarket
-    ++ (Alpha.encode message.basketTradingInThePreopeningMarket
+    ++ (Alpha.encode message.closingPriceTradingInThePreOpeningMarket
+    ++ (Alpha.encode message.blockTradingInThePreOpeningMarket
+    ++ (Alpha.encode message.basketTradingInThePreOpeningMarket
     ++ (Alpha.encode message.announcementOfEstimatedTradingPrice
     ++ (Alpha.encode message.shortSelling
     ++ (Alpha.encode message.etfTrackingDifference
@@ -2264,7 +2264,7 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.appraisalRatioOfSubstitutePrice
     ++ (Alpha.encode message.investmentCautionIssue
     ++ (Alpha.encode message.delistingDate
-    ++ (Alpha.encode message.shorttermOverheatIssueTypeCode
+    ++ (Alpha.encode message.shortTermOverheatIssueTypeCode
     ++ (Alpha.encode message.etfReplicationMethodsTypeCode
     ++ (Alpha.encode message.expirationDate
     ++ (Alpha.encode message.distributionTypeCode
@@ -2325,7 +2325,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (koreaCorporateGovernanceStockPriceIndexKogi, bytes) ← Alpha.decode 1 bytes
   let (issueForAdministration, bytes) ← Alpha.decode 1 bytes
   let (unfaithfulDisclosure, bytes) ← Alpha.decode 1 bytes
-  let (backdoorListing, bytes) ← Alpha.decode 1 bytes
+  let (backDoorListing, bytes) ← Alpha.decode 1 bytes
   let (tradingHalt, bytes) ← Alpha.decode 1 bytes
   let (industryId, bytes) ← Alpha.decode 10 bytes
   let (smallMediumSizedBusiness, bytes) ← Alpha.decode 1 bytes
@@ -2365,16 +2365,16 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (lowestOrderPrice, bytes) ← Alpha.decode 8 bytes
   let (highestOrderPrice, bytes) ← Alpha.decode 8 bytes
   let (unitOfVolumeInMainBoard, bytes) ← decodeUIntLE 8 bytes
-  let (lotSizeAfterhoursTrading, bytes) ← decodeUIntLE 8 bytes
+  let (lotSizeAfterHoursTrading, bytes) ← decodeUIntLE 8 bytes
   let (reiTsTypeCode, bytes) ← Alpha.decode 1 bytes
   let (targetStockIsinCode, bytes) ← Alpha.decode 12 bytes
   let (currencyIsoCode, bytes) ← Alpha.decode 3 bytes
   let (countryCode, bytes) ← Alpha.decode 3 bytes
   let (marketMakingPossibility, bytes) ← Alpha.decode 1 bytes
   let (closingPriceTradingPossibilityInTheAfterHours, bytes) ← Alpha.decode 1 bytes
-  let (closingPriceTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
-  let (blockTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
-  let (basketTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (closingPriceTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (blockTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (basketTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
   let (announcementOfEstimatedTradingPrice, bytes) ← Alpha.decode 1 bytes
   let (shortSelling, bytes) ← Alpha.decode 1 bytes
   let (etfTrackingDifference, bytes) ← Alpha.decode 8 bytes
@@ -2384,7 +2384,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (appraisalRatioOfSubstitutePrice, bytes) ← Alpha.decode 8 bytes
   let (investmentCautionIssue, bytes) ← Alpha.decode 1 bytes
   let (delistingDate, bytes) ← Alpha.decode 8 bytes
-  let (shorttermOverheatIssueTypeCode, bytes) ← Alpha.decode 1 bytes
+  let (shortTermOverheatIssueTypeCode, bytes) ← Alpha.decode 1 bytes
   let (etfReplicationMethodsTypeCode, bytes) ← Alpha.decode 1 bytes
   let (expirationDate, bytes) ← Alpha.decode 8 bytes
   let (distributionTypeCode, bytes) ← Alpha.decode 2 bytes
@@ -2418,7 +2418,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (competitionBoardTradePermissionCode, bytes) ← decodeUIntLE 4 bytes
   let (negotiationPossibleOrNotBeforeMainMarket, bytes) ← Alpha.decode 1 bytes
   let (endKeyword, bytes) ← decodeUIntLE 4 bytes
-  pure ({ messageSequenceNumber, totalNumberOfInstrumentsOfTheContract, businessDate, isinCode, aDesignatedNumberForAnIssueFromKrx, abbreviatedIssueCode, abbreviatedIssueName, abbreviatedIssueNameInEn, groupNumber, marketOperationProductId, securityGroupId, unitTrading, rightsTypeCode, parValueTypeCode, anIssueOfWhichBasePriceIsSettledWithATodaysSinglePrice, reevaluationReasonCode, basePriceChange, randomEndTriggerCode, marketAlert, marketAlertTypeCode, koreaCorporateGovernanceStockPriceIndexKogi, issueForAdministration, unfaithfulDisclosure, backdoorListing, tradingHalt, industryId, smallMediumSizedBusiness, sectionTypeCode, investmentInstitutionTypeCode, basePrice, yesterdaysClosingPriceTypeCodeKrx, yesterdaysClosingPriceKrx, yesterdaysAccumulatedTradingAmount, yesterdaysAccumulatedTradingValue, upperLimitPrice, lowerLimitPrice, substitutePriceOfSecurities, parValue, issuingPrice, listingDate, numberOfListedShares, liquidationTrade, theEstablishmentDate, maturityDate, exercisingPeriod, expirationDateForRight, exercisePriceOfElwOrBw, capital, creditOrderPossibility, limitOrderPermissionTypeCode, marketPriceOrderPermissionTypeCode, conditionedOrderPermissionTypeCode, bestFavorableOrderPermissionTypeCode, firstBestOrderPermissionType, midPriceOrderPermissionTypeCode, stopLimitPriceOrderPermissionTypeCode, capitalIncreaseTypeCode, otherStockTypeCode, nationalStock, appraisedPrice, lowestOrderPrice, highestOrderPrice, unitOfVolumeInMainBoard, lotSizeAfterhoursTrading, reiTsTypeCode, targetStockIsinCode, currencyIsoCode, countryCode, marketMakingPossibility, closingPriceTradingPossibilityInTheAfterHours, closingPriceTradingInThePreopeningMarket, blockTradingInThePreopeningMarket, basketTradingInThePreopeningMarket, announcementOfEstimatedTradingPrice, shortSelling, etfTrackingDifference, regs, spac, taxTypeCode, appraisalRatioOfSubstitutePrice, investmentCautionIssue, delistingDate, shorttermOverheatIssueTypeCode, etfReplicationMethodsTypeCode, expirationDate, distributionTypeCode, calculationOfRedemptionPriceStartDate, calculationOfRedemptionPriceEndDate, etpProductTypeCode, indexCalculationInstitutionTypeCode, indexMarketClassificationId, indexSequenceNumber, trackingIndexLeverageInverseTypeCode, referenceIndexLeverageInverseTypeCode, indexAssetClassificationId1, indexAssetClassificationId2, ipoUnderwriterMemberNumber, lpOrder, lowLiquidity, abnormalRise, upperLimitQuantity, investmentPrecautionIssue, preferredStocksWithLesserShares, spacMerger, segmentTypeCode, afterMarketPossibility, choiceOnCompetitiveTrading, limitOnCompetitiveTradingVolume, occurrenceOfReasonsProhibitingCompetitiveTrading, approvalOnCompetitiveTrading, approvalOnNegotiationTrading, yesterdaysClosingPriceTypeCodeNxt, yesterdaysClosingPriceNxt, competitionBoardTradePermissionCode, negotiationPossibleOrNotBeforeMainMarket, endKeyword }, bytes)
+  pure ({ messageSequenceNumber, totalNumberOfInstrumentsOfTheContract, businessDate, isinCode, aDesignatedNumberForAnIssueFromKrx, abbreviatedIssueCode, abbreviatedIssueName, abbreviatedIssueNameInEn, groupNumber, marketOperationProductId, securityGroupId, unitTrading, rightsTypeCode, parValueTypeCode, anIssueOfWhichBasePriceIsSettledWithATodaysSinglePrice, reevaluationReasonCode, basePriceChange, randomEndTriggerCode, marketAlert, marketAlertTypeCode, koreaCorporateGovernanceStockPriceIndexKogi, issueForAdministration, unfaithfulDisclosure, backDoorListing, tradingHalt, industryId, smallMediumSizedBusiness, sectionTypeCode, investmentInstitutionTypeCode, basePrice, yesterdaysClosingPriceTypeCodeKrx, yesterdaysClosingPriceKrx, yesterdaysAccumulatedTradingAmount, yesterdaysAccumulatedTradingValue, upperLimitPrice, lowerLimitPrice, substitutePriceOfSecurities, parValue, issuingPrice, listingDate, numberOfListedShares, liquidationTrade, theEstablishmentDate, maturityDate, exercisingPeriod, expirationDateForRight, exercisePriceOfElwOrBw, capital, creditOrderPossibility, limitOrderPermissionTypeCode, marketPriceOrderPermissionTypeCode, conditionedOrderPermissionTypeCode, bestFavorableOrderPermissionTypeCode, firstBestOrderPermissionType, midPriceOrderPermissionTypeCode, stopLimitPriceOrderPermissionTypeCode, capitalIncreaseTypeCode, otherStockTypeCode, nationalStock, appraisedPrice, lowestOrderPrice, highestOrderPrice, unitOfVolumeInMainBoard, lotSizeAfterHoursTrading, reiTsTypeCode, targetStockIsinCode, currencyIsoCode, countryCode, marketMakingPossibility, closingPriceTradingPossibilityInTheAfterHours, closingPriceTradingInThePreOpeningMarket, blockTradingInThePreOpeningMarket, basketTradingInThePreOpeningMarket, announcementOfEstimatedTradingPrice, shortSelling, etfTrackingDifference, regs, spac, taxTypeCode, appraisalRatioOfSubstitutePrice, investmentCautionIssue, delistingDate, shortTermOverheatIssueTypeCode, etfReplicationMethodsTypeCode, expirationDate, distributionTypeCode, calculationOfRedemptionPriceStartDate, calculationOfRedemptionPriceEndDate, etpProductTypeCode, indexCalculationInstitutionTypeCode, indexMarketClassificationId, indexSequenceNumber, trackingIndexLeverageInverseTypeCode, referenceIndexLeverageInverseTypeCode, indexAssetClassificationId1, indexAssetClassificationId2, ipoUnderwriterMemberNumber, lpOrder, lowLiquidity, abnormalRise, upperLimitQuantity, investmentPrecautionIssue, preferredStocksWithLesserShares, spacMerger, segmentTypeCode, afterMarketPossibility, choiceOnCompetitiveTrading, limitOnCompetitiveTradingVolume, occurrenceOfReasonsProhibitingCompetitiveTrading, approvalOnCompetitiveTrading, approvalOnNegotiationTrading, yesterdaysClosingPriceTypeCodeNxt, yesterdaysClosingPriceNxt, competitionBoardTradePermissionCode, negotiationPossibleOrNotBeforeMainMarket, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : EquitiesBatchDataMessage) : (encode message).length = 551 := by
   unfold encode
@@ -3036,12 +3036,12 @@ end BrokersAcitityInformationMessage
 structure TradingActivityBySessionPerAnIssueMessage where
   isinCode : Alpha 12
   totalNumberOfTradableIssuesOnCompetitiveTrading : BitVec 32
-  premarketAccumulatedTradingVolume : BitVec 64
-  premarketAccumulatedTradingValue : Alpha 16
-  mainmarketAccumulatedTradingVolume : BitVec 64
-  mainmarketAccumulatedTradingValue : Alpha 16
-  aftermarketAccumulatedTradingVolume : BitVec 64
-  aftermarketAccumulatedTradingValue : Alpha 16
+  preMarketAccumulatedTradingVolume : BitVec 64
+  preMarketAccumulatedTradingValue : Alpha 16
+  mainMarketAccumulatedTradingVolume : BitVec 64
+  mainMarketAccumulatedTradingValue : Alpha 16
+  afterMarketAccumulatedTradingVolume : BitVec 64
+  afterMarketAccumulatedTradingValue : Alpha 16
   endKeyword : BitVec 32
   deriving DecidableEq, Repr
 
@@ -3050,25 +3050,25 @@ namespace TradingActivityBySessionPerAnIssueMessage
 def encode (message : TradingActivityBySessionPerAnIssueMessage) : List UInt8 :=
   Alpha.encode message.isinCode
     ++ (encodeUIntLE 4 message.totalNumberOfTradableIssuesOnCompetitiveTrading
-    ++ (encodeUIntLE 8 message.premarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.premarketAccumulatedTradingValue
-    ++ (encodeUIntLE 8 message.mainmarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.mainmarketAccumulatedTradingValue
-    ++ (encodeUIntLE 8 message.aftermarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.aftermarketAccumulatedTradingValue
+    ++ (encodeUIntLE 8 message.preMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.preMarketAccumulatedTradingValue
+    ++ (encodeUIntLE 8 message.mainMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.mainMarketAccumulatedTradingValue
+    ++ (encodeUIntLE 8 message.afterMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.afterMarketAccumulatedTradingValue
     ++ (encodeUIntLE 4 message.endKeyword))))))))
 
 def decode (bytes : List UInt8) : Option (TradingActivityBySessionPerAnIssueMessage × List UInt8) := do
   let (isinCode, bytes) ← Alpha.decode 12 bytes
   let (totalNumberOfTradableIssuesOnCompetitiveTrading, bytes) ← decodeUIntLE 4 bytes
-  let (premarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
-  let (premarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
-  let (mainmarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
-  let (mainmarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
-  let (aftermarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
-  let (aftermarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
+  let (preMarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
+  let (preMarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
+  let (mainMarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
+  let (mainMarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
+  let (afterMarketAccumulatedTradingVolume, bytes) ← decodeUIntLE 8 bytes
+  let (afterMarketAccumulatedTradingValue, bytes) ← Alpha.decode 16 bytes
   let (endKeyword, bytes) ← decodeUIntLE 4 bytes
-  pure ({ isinCode, totalNumberOfTradableIssuesOnCompetitiveTrading, premarketAccumulatedTradingVolume, premarketAccumulatedTradingValue, mainmarketAccumulatedTradingVolume, mainmarketAccumulatedTradingValue, aftermarketAccumulatedTradingVolume, aftermarketAccumulatedTradingValue, endKeyword }, bytes)
+  pure ({ isinCode, totalNumberOfTradableIssuesOnCompetitiveTrading, preMarketAccumulatedTradingVolume, preMarketAccumulatedTradingValue, mainMarketAccumulatedTradingVolume, mainMarketAccumulatedTradingValue, afterMarketAccumulatedTradingVolume, afterMarketAccumulatedTradingValue, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : TradingActivityBySessionPerAnIssueMessage) : (encode message).length = 92 := by
   unfold encode

@@ -27,7 +27,7 @@ inductive Status where
   | cancelledByTheFirmSupervisorUserGlobalCancel -- Cancelled By The Firm Supervisor User Global Cancel
   | eliminatedOnParticipantDisconnection -- Eliminated On Participant Disconnection
   | eliminatedByMod -- Eliminated By Mod
-  | eliminatedDueToWashTradePreventionInNontradingState -- Eliminated Due To Wash Trade Prevention In Nontrading State
+  | eliminatedDueToWashTradePreventionInNonTradingState -- Eliminated Due To Wash Trade Prevention In Non Trading State
   | eliminatedDueToWashTradePreventionAgainstQuote -- Eliminated Due To Wash Trade Prevention Against Quote
   | putInTheOrderBookAsStopOrder -- Put In The Order Book As Stop Order
   | eliminatedDueToTradeLimitExceeded -- Eliminated Due To Trade Limit Exceeded
@@ -48,7 +48,7 @@ def toByte : Status → UInt8
   | .cancelledByTheFirmSupervisorUserGlobalCancel => 0x47
   | .eliminatedOnParticipantDisconnection => 0x49
   | .eliminatedByMod => 0x4D
-  | .eliminatedDueToWashTradePreventionInNontradingState => 0x4E
+  | .eliminatedDueToWashTradePreventionInNonTradingState => 0x4E
   | .eliminatedDueToWashTradePreventionAgainstQuote => 0x51
   | .putInTheOrderBookAsStopOrder => 0x53
   | .eliminatedDueToTradeLimitExceeded => 0x54
@@ -67,7 +67,7 @@ def listed (byte : UInt8) : Status :=
   else if byte = 0x47 then .cancelledByTheFirmSupervisorUserGlobalCancel
   else if byte = 0x49 then .eliminatedOnParticipantDisconnection
   else if byte = 0x4D then .eliminatedByMod
-  else if byte = 0x4E then .eliminatedDueToWashTradePreventionInNontradingState
+  else if byte = 0x4E then .eliminatedDueToWashTradePreventionInNonTradingState
   else if byte = 0x51 then .eliminatedDueToWashTradePreventionAgainstQuote
   else if byte = 0x53 then .putInTheOrderBookAsStopOrder
   else if byte = 0x54 then .eliminatedDueToTradeLimitExceeded
@@ -88,7 +88,7 @@ theorem ofByte_toByte (value : Status) : ofByte value.toByte = value := by
   | cancelledByTheFirmSupervisorUserGlobalCancel => decide
   | eliminatedOnParticipantDisconnection => decide
   | eliminatedByMod => decide
-  | eliminatedDueToWashTradePreventionInNontradingState => decide
+  | eliminatedDueToWashTradePreventionInNonTradingState => decide
   | eliminatedDueToWashTradePreventionAgainstQuote => decide
   | putInTheOrderBookAsStopOrder => decide
   | eliminatedDueToTradeLimitExceeded => decide
@@ -747,7 +747,7 @@ def GroupState.codes : List UInt8 :=
 inductive GroupState where
   | consultationStart -- Consultation Start
   | noCancelPeriod -- No Cancel Period
-  | preopening -- Preopening
+  | preOpening -- Pre Opening
   | opening -- Opening
   | continuousTradingSession -- Continuous Trading Session
   | consultationEnd -- Consultation End
@@ -764,7 +764,7 @@ namespace GroupState
 def toByte : GroupState → UInt8
   | .consultationStart => 0x43
   | .noCancelPeriod => 0x45
-  | .preopening => 0x50
+  | .preOpening => 0x50
   | .opening => 0x4F
   | .continuousTradingSession => 0x53
   | .consultationEnd => 0x46
@@ -779,7 +779,7 @@ def toByte : GroupState → UInt8
 def listed (byte : UInt8) : GroupState :=
   if byte = 0x43 then .consultationStart
   else if byte = 0x45 then .noCancelPeriod
-  else if byte = 0x50 then .preopening
+  else if byte = 0x50 then .preOpening
   else if byte = 0x4F then .opening
   else if byte = 0x53 then .continuousTradingSession
   else if byte = 0x46 then .consultationEnd
@@ -796,7 +796,7 @@ theorem ofByte_toByte (value : GroupState) : ofByte value.toByte = value := by
   cases value with
   | consultationStart => decide
   | noCancelPeriod => decide
-  | preopening => decide
+  | preOpening => decide
   | opening => decide
   | continuousTradingSession => decide
   | consultationEnd => decide
@@ -834,7 +834,7 @@ def InstrumentState.codes : List UInt8 :=
 inductive InstrumentState where
   | normal -- Normal
   | forbidden -- Forbidden
-  | ordersAndQuotesAreProcessedInPreopeningIfTheGroupIsInTradingStatus -- Orders And Quotes Are Processed In Preopening If The Group Is In Trading Status
+  | ordersAndQuotesAreProcessedInPreOpeningIfTheGroupIsInTradingStatus -- Orders And Quotes Are Processed In Pre Opening If The Group Is In Trading Status
   | unlisted (byte : { byte : UInt8 // byte ∉ InstrumentState.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -843,14 +843,14 @@ namespace InstrumentState
 def toByte : InstrumentState → UInt8
   | .normal => 0x4E
   | .forbidden => 0x46
-  | .ordersAndQuotesAreProcessedInPreopeningIfTheGroupIsInTradingStatus => 0x52
+  | .ordersAndQuotesAreProcessedInPreOpeningIfTheGroupIsInTradingStatus => 0x52
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : InstrumentState :=
   if byte = 0x4E then .normal
   else if byte = 0x46 then .forbidden
-  else .ordersAndQuotesAreProcessedInPreopeningIfTheGroupIsInTradingStatus
+  else .ordersAndQuotesAreProcessedInPreOpeningIfTheGroupIsInTradingStatus
 
 def ofByte (byte : UInt8) : InstrumentState :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -859,7 +859,7 @@ theorem ofByte_toByte (value : InstrumentState) : ofByte value.toByte = value :=
   cases value with
   | normal => decide
   | forbidden => decide
-  | ordersAndQuotesAreProcessedInPreopeningIfTheGroupIsInTradingStatus => decide
+  | ordersAndQuotesAreProcessedInPreOpeningIfTheGroupIsInTradingStatus => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : InstrumentState) : List UInt8 :=

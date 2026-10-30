@@ -878,7 +878,7 @@ def OrderConditionValue.codes : List UInt8 :=
 inductive OrderConditionValue where
   | marketMakerOrder -- Market Maker Order
   | marketMakerOrderRefresh -- Market Maker Order Refresh
-  | topofBook -- Topof Book
+  | topOfBook -- Top Of Book
   | darkLitSweepAtomic -- Dark Lit Sweep Atomic
   | darkPeriodicLitSweepNonAtomic -- Dark Periodic Lit Sweep Non Atomic
   | darkPeriodicSweepNonAtomic -- Dark Periodic Sweep Non Atomic
@@ -892,7 +892,7 @@ namespace OrderConditionValue
 def toByte : OrderConditionValue → UInt8
   | .marketMakerOrder => 0x57
   | .marketMakerOrderRefresh => 0x55
-  | .topofBook => 0x50
+  | .topOfBook => 0x50
   | .darkLitSweepAtomic => 0x51
   | .darkPeriodicLitSweepNonAtomic => 0x78
   | .darkPeriodicSweepNonAtomic => 0x79
@@ -904,7 +904,7 @@ def toByte : OrderConditionValue → UInt8
 def listed (byte : UInt8) : OrderConditionValue :=
   if byte = 0x57 then .marketMakerOrder
   else if byte = 0x55 then .marketMakerOrderRefresh
-  else if byte = 0x50 then .topofBook
+  else if byte = 0x50 then .topOfBook
   else if byte = 0x51 then .darkLitSweepAtomic
   else if byte = 0x78 then .darkPeriodicLitSweepNonAtomic
   else if byte = 0x79 then .darkPeriodicSweepNonAtomic
@@ -918,7 +918,7 @@ theorem ofByte_toByte (value : OrderConditionValue) : ofByte value.toByte = valu
   cases value with
   | marketMakerOrder => decide
   | marketMakerOrderRefresh => decide
-  | topofBook => decide
+  | topOfBook => decide
   | darkLitSweepAtomic => decide
   | darkPeriodicLitSweepNonAtomic => decide
   | darkPeriodicSweepNonAtomic => decide

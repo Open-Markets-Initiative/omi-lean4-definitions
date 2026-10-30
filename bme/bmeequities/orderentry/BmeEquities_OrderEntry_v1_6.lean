@@ -1229,8 +1229,8 @@ inductive OrdStatus where
   | totallyFilled -- Totally Filled
   | cancelledNotFilled -- Cancelled Not Filled
   | cancelledPartiallyFilled -- Cancelled Partially Filled
-  | nonworkingOrderPendingValidation -- Nonworking Order Pending Validation
-  | nonworkingOrderPendingActivation -- Nonworking Order Pending Activation
+  | nonWorkingOrderPendingValidation -- Non Working Order Pending Validation
+  | nonWorkingOrderPendingActivation -- Non Working Order Pending Activation
   | expired -- Expired
   | unlisted (byte : { byte : UInt8 // byte ∉ OrdStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -1244,8 +1244,8 @@ def toByte : OrdStatus → UInt8
   | .totallyFilled => 0x32
   | .cancelledNotFilled => 0x34
   | .cancelledPartiallyFilled => 0x50
-  | .nonworkingOrderPendingValidation => 0x41
-  | .nonworkingOrderPendingActivation => 0x53
+  | .nonWorkingOrderPendingValidation => 0x41
+  | .nonWorkingOrderPendingActivation => 0x53
   | .expired => 0x43
   | .unlisted byte => byte.val
 
@@ -1257,8 +1257,8 @@ def listed (byte : UInt8) : OrdStatus :=
   else if byte = 0x32 then .totallyFilled
   else if byte = 0x34 then .cancelledNotFilled
   else if byte = 0x50 then .cancelledPartiallyFilled
-  else if byte = 0x41 then .nonworkingOrderPendingValidation
-  else if byte = 0x53 then .nonworkingOrderPendingActivation
+  else if byte = 0x41 then .nonWorkingOrderPendingValidation
+  else if byte = 0x53 then .nonWorkingOrderPendingActivation
   else .expired
 
 def ofByte (byte : UInt8) : OrdStatus :=
@@ -1272,8 +1272,8 @@ theorem ofByte_toByte (value : OrdStatus) : ofByte value.toByte = value := by
   | totallyFilled => decide
   | cancelledNotFilled => decide
   | cancelledPartiallyFilled => decide
-  | nonworkingOrderPendingValidation => decide
-  | nonworkingOrderPendingActivation => decide
+  | nonWorkingOrderPendingValidation => decide
+  | nonWorkingOrderPendingActivation => decide
   | expired => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -1512,7 +1512,7 @@ inductive ExecType where
   | orderModificationDeletingIntermediatedMember -- Order Modification Deleting Intermediated Member
   | orderModificationChangingIntermediatedMember -- Order Modification Changing Intermediated Member
   | orderRefresh -- Order Refresh
-  | stopOrderTriggeredAtthecloseOrderActivation -- Stop Order Triggered Attheclose Order Activation
+  | stopOrderTriggeredAtTheCloseOrderActivation -- Stop Order Triggered At The Close Order Activation
   | orderRejection -- Order Rejection
   | orderPendingValidation -- Order Pending Validation
   | orderModificationPendingValidation -- Order Modification Pending Validation
@@ -1533,7 +1533,7 @@ def toByte : ExecType → UInt8
   | .orderModificationDeletingIntermediatedMember => 0x47
   | .orderModificationChangingIntermediatedMember => 0x46
   | .orderRefresh => 0x52
-  | .stopOrderTriggeredAtthecloseOrderActivation => 0x44
+  | .stopOrderTriggeredAtTheCloseOrderActivation => 0x44
   | .orderRejection => 0x38
   | .orderPendingValidation => 0x4E
   | .orderModificationPendingValidation => 0x50
@@ -1552,7 +1552,7 @@ def listed (byte : UInt8) : ExecType :=
   else if byte = 0x47 then .orderModificationDeletingIntermediatedMember
   else if byte = 0x46 then .orderModificationChangingIntermediatedMember
   else if byte = 0x52 then .orderRefresh
-  else if byte = 0x44 then .stopOrderTriggeredAtthecloseOrderActivation
+  else if byte = 0x44 then .stopOrderTriggeredAtTheCloseOrderActivation
   else if byte = 0x38 then .orderRejection
   else if byte = 0x4E then .orderPendingValidation
   else if byte = 0x50 then .orderModificationPendingValidation
@@ -1573,7 +1573,7 @@ theorem ofByte_toByte (value : ExecType) : ofByte value.toByte = value := by
   | orderModificationDeletingIntermediatedMember => decide
   | orderModificationChangingIntermediatedMember => decide
   | orderRefresh => decide
-  | stopOrderTriggeredAtthecloseOrderActivation => decide
+  | stopOrderTriggeredAtTheCloseOrderActivation => decide
   | orderRejection => decide
   | orderPendingValidation => decide
   | orderModificationPendingValidation => decide
@@ -1614,8 +1614,8 @@ inductive OrdStatus2 where
   | totallyFilled -- Totally Filled
   | cancelledNotFilled -- Cancelled Not Filled
   | cancelledPartiallyFilled -- Cancelled Partially Filled
-  | nonworkingOrderPendingValidation -- Nonworking Order Pending Validation
-  | nonworkingOrderPendingActivation -- Nonworking Order Pending Activation
+  | nonWorkingOrderPendingValidation -- Non Working Order Pending Validation
+  | nonWorkingOrderPendingActivation -- Non Working Order Pending Activation
   | unlisted (byte : { byte : UInt8 // byte ∉ OrdStatus2.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1628,8 +1628,8 @@ def toByte : OrdStatus2 → UInt8
   | .totallyFilled => 0x32
   | .cancelledNotFilled => 0x34
   | .cancelledPartiallyFilled => 0x50
-  | .nonworkingOrderPendingValidation => 0x41
-  | .nonworkingOrderPendingActivation => 0x53
+  | .nonWorkingOrderPendingValidation => 0x41
+  | .nonWorkingOrderPendingActivation => 0x53
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -1640,8 +1640,8 @@ def listed (byte : UInt8) : OrdStatus2 :=
   else if byte = 0x32 then .totallyFilled
   else if byte = 0x34 then .cancelledNotFilled
   else if byte = 0x50 then .cancelledPartiallyFilled
-  else if byte = 0x41 then .nonworkingOrderPendingValidation
-  else .nonworkingOrderPendingActivation
+  else if byte = 0x41 then .nonWorkingOrderPendingValidation
+  else .nonWorkingOrderPendingActivation
 
 def ofByte (byte : UInt8) : OrdStatus2 :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1654,8 +1654,8 @@ theorem ofByte_toByte (value : OrdStatus2) : ofByte value.toByte = value := by
   | totallyFilled => decide
   | cancelledNotFilled => decide
   | cancelledPartiallyFilled => decide
-  | nonworkingOrderPendingValidation => decide
-  | nonworkingOrderPendingActivation => decide
+  | nonWorkingOrderPendingValidation => decide
+  | nonWorkingOrderPendingActivation => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OrdStatus2) : List UInt8 :=
@@ -2844,22 +2844,22 @@ theorem encode_length_pos (value : AggressorIndicator2) : (encode value).length 
 
 end AggressorIndicator2
 
-/-- Bencrfpt Flag: one byte code -/
-def BencrfptFlag.codes : List UInt8 :=
+/-- Benc Rfpt Flag: one byte code -/
+def BencRfptFlag.codes : List UInt8 :=
   [0x20, 0x36, 0x33, 0x43, 0x4D]
 
-inductive BencrfptFlag where
+inductive BencRfptFlag where
   | normalTrade -- Normal Trade
   | benchmarkTradeBenc -- Benchmark Trade Benc
   | referencePriceTradeRfpt -- Reference Price Trade Rfpt
   | contingencyTradeCont -- Contingency Trade Cont
   | bencCont -- Benc Cont
-  | unlisted (byte : { byte : UInt8 // byte ∉ BencrfptFlag.codes }) -- any other code, kept as it is
+  | unlisted (byte : { byte : UInt8 // byte ∉ BencRfptFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace BencrfptFlag
+namespace BencRfptFlag
 
-def toByte : BencrfptFlag → UInt8
+def toByte : BencRfptFlag → UInt8
   | .normalTrade => 0x20
   | .benchmarkTradeBenc => 0x36
   | .referencePriceTradeRfpt => 0x33
@@ -2868,17 +2868,17 @@ def toByte : BencrfptFlag → UInt8
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : BencrfptFlag :=
+def listed (byte : UInt8) : BencRfptFlag :=
   if byte = 0x20 then .normalTrade
   else if byte = 0x36 then .benchmarkTradeBenc
   else if byte = 0x33 then .referencePriceTradeRfpt
   else if byte = 0x43 then .contingencyTradeCont
   else .bencCont
 
-def ofByte (byte : UInt8) : BencrfptFlag :=
+def ofByte (byte : UInt8) : BencRfptFlag :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : BencrfptFlag) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : BencRfptFlag) : ofByte value.toByte = value := by
   cases value with
   | normalTrade => decide
   | benchmarkTradeBenc => decide
@@ -2887,25 +2887,25 @@ theorem ofByte_toByte (value : BencrfptFlag) : ofByte value.toByte = value := by
   | bencCont => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : BencrfptFlag) : List UInt8 :=
+def encode (value : BencRfptFlag) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (BencrfptFlag × List UInt8)
+def decode : List UInt8 → Option (BencRfptFlag × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : BencrfptFlag) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : BencRfptFlag) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : BencrfptFlag) : (encode value).length > 0 := by
+theorem encode_length_pos (value : BencRfptFlag) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : BencrfptFlag) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : BencRfptFlag) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end BencrfptFlag
+end BencRfptFlag
 
 /-- Trade Price Condition: one byte code -/
 def TradePriceCondition.codes : List UInt8 :=
@@ -7160,7 +7160,7 @@ structure TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage wher
   settlDate : BitVec 32
   transactionCategory : TransactionCategory
   lastChangeFlag : BitVec 8
-  bencrfptFlag : BencrfptFlag
+  bencRfptFlag : BencRfptFlag
   tradePriceCondition : TradePriceCondition
   preTradeTransparencyWaiver : PreTradeTransparencyWaiver
   deferralWaiver : DeferralWaiver
@@ -7236,7 +7236,7 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformation
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
     ++ (encodeUIntLE 1 message.lastChangeFlag
-    ++ (BencrfptFlag.encode message.bencrfptFlag
+    ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
     ++ (DeferralWaiver.encode message.deferralWaiver
@@ -7311,7 +7311,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
   let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
-  let (bencrfptFlag, bytes) ← BencrfptFlag.decode bytes
+  let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
   let (deferralWaiver, bytes) ← DeferralWaiver.decode bytes
@@ -7365,11 +7365,11 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
   let (ccv, bytes) ← Alpha.decode 20 bytes
   let (orderSecurityCode, bytes) ← decodeUIntLE 4 bytes
   let (externalMember, bytes) ← Alpha.decode 4 bytes
-  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencrfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember }, bytes)
+  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencRfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember }, bytes)
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage) : (encode message).length = 317 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencrfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -7413,7 +7413,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, BencrfptFlag.decode_encode, some_bind]
+  rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, TradePriceCondition.decode_encode, some_bind]
   dsimp only
@@ -7543,7 +7543,7 @@ structure TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage whe
   settlDate : BitVec 32
   transactionCategory : TransactionCategory
   lastChangeFlag : BitVec 8
-  bencrfptFlag : BencrfptFlag
+  bencRfptFlag : BencRfptFlag
   tradePriceCondition : TradePriceCondition
   preTradeTransparencyWaiver : PreTradeTransparencyWaiver
   deferralWaiver : DeferralWaiver
@@ -7619,7 +7619,7 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformatio
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
     ++ (encodeUIntLE 1 message.lastChangeFlag
-    ++ (BencrfptFlag.encode message.bencrfptFlag
+    ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
     ++ (DeferralWaiver.encode message.deferralWaiver
@@ -7694,7 +7694,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
   let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
-  let (bencrfptFlag, bytes) ← BencrfptFlag.decode bytes
+  let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
   let (deferralWaiver, bytes) ← DeferralWaiver.decode bytes
@@ -7748,11 +7748,11 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
   let (ccv, bytes) ← Alpha.decode 20 bytes
   let (orderSecurityCode, bytes) ← decodeUIntLE 4 bytes
   let (externalMember, bytes) ← Alpha.decode 4 bytes
-  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencrfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember }, bytes)
+  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencRfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember }, bytes)
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage) : (encode message).length = 317 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencrfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -7796,7 +7796,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, BencrfptFlag.decode_encode, some_bind]
+  rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, TradePriceCondition.decode_encode, some_bind]
   dsimp only
@@ -7926,7 +7926,7 @@ structure TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage where
   settlDate : BitVec 32
   transactionCategory : TransactionCategory
   lastChangeFlag : BitVec 8
-  bencrfptFlag : BencrfptFlag
+  bencRfptFlag : BencRfptFlag
   tradePriceCondition : TradePriceCondition
   preTradeTransparencyWaiver : PreTradeTransparencyWaiver
   deferralWaiver : DeferralWaiver
@@ -8044,7 +8044,7 @@ def encode (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMe
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
     ++ (encodeUIntLE 1 message.lastChangeFlag
-    ++ (BencrfptFlag.encode message.bencrfptFlag
+    ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
     ++ (DeferralWaiver.encode message.deferralWaiver
@@ -8161,7 +8161,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
   let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
-  let (bencrfptFlag, bytes) ← BencrfptFlag.decode bytes
+  let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
   let (deferralWaiver, bytes) ← DeferralWaiver.decode bytes
@@ -8257,11 +8257,11 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (ccv2, bytes) ← Alpha.decode 20 bytes
   let (orderSecurityCode2, bytes) ← decodeUIntLE 4 bytes
   let (externalMember2, bytes) ← Alpha.decode 4 bytes
-  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencrfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember, secondaryOrderId2, entryDate2, priority2, price2, displayQty2, orderId2, secondaryExecId2, orderQty2, ordStatus2, ccpCode2, aggressorIndicator2, requestId2, clientDataId2, algorithmicTradeIndicator2, clientId2, accountBolsa2, account2, deaFlag2, decisorId2, executorId2, liquidityProvisionActivity2, giveInMember2, firmMnemonic2, allocText2, lastCapacity2, selfMatchPreventionId2, automaticOrderFilterFlag2, receivedDeptId2, persistence2, accountType2, selfMatchPreventionType2, member2, trader2, subMember2, crossId2, bolsaCode2, csdbic2, participant2, ctaLiq2, ccv2, orderSecurityCode2, externalMember2 }, bytes)
+  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencRfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate, secondaryOrderId, entryDate, priority, price, displayQty, orderId, secondaryExecId, orderQty, ordStatus, ccpCode, aggressorIndicator, requestId, clientDataId, algorithmicTradeIndicator, clientId, accountBolsa, account, deaFlag, decisorId, executorId, liquidityProvisionActivity, giveInMember, firmMnemonic, allocText, lastCapacity, selfMatchPreventionId, automaticOrderFilterFlag, receivedDeptId, persistence, accountType, selfMatchPreventionType, member, trader, subMember, crossId, bolsaCode, csdbic, participant, ctaLiq, ccv, orderSecurityCode, externalMember, secondaryOrderId2, entryDate2, priority2, price2, displayQty2, orderId2, secondaryExecId2, orderQty2, ordStatus2, ccpCode2, aggressorIndicator2, requestId2, clientDataId2, algorithmicTradeIndicator2, clientId2, accountBolsa2, account2, deaFlag2, decisorId2, executorId2, liquidityProvisionActivity2, giveInMember2, firmMnemonic2, allocText2, lastCapacity2, selfMatchPreventionId2, automaticOrderFilterFlag2, receivedDeptId2, persistence2, accountType2, selfMatchPreventionType2, member2, trader2, subMember2, crossId2, bolsaCode2, csdbic2, participant2, ctaLiq2, ccv2, orderSecurityCode2, externalMember2 }, bytes)
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage) : (encode message).length = 536 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencrfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length, LastCapacity2.encode_length, AutomaticOrderFilterFlag2.encode_length, ReceivedDeptId2.encode_length, Persistence2.encode_length, AccountType2.encode_length, SelfMatchPreventionType2.encode_length, BolsaCode2.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, AutomaticOrderFilterFlag.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, AccountType.encode_length, SelfMatchPreventionType.encode_length, BolsaCode.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length, LastCapacity2.encode_length, AutomaticOrderFilterFlag2.encode_length, ReceivedDeptId2.encode_length, Persistence2.encode_length, AccountType2.encode_length, SelfMatchPreventionType2.encode_length, BolsaCode2.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -8305,7 +8305,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, BencrfptFlag.decode_encode, some_bind]
+  rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, TradePriceCondition.decode_encode, some_bind]
   dsimp only

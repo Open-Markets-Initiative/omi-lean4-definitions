@@ -1107,7 +1107,7 @@ structure StockDirectoryMessage where
   roundLotSize : BitVec 32
   roundLotsOnly : RoundLotsOnly
   issueClassification : Alpha 1
-  issueSubtype : Alpha 2
+  issueSubType : Alpha 2
   authenticity : Authenticity
   shortSaleThresholdIndicator : ShortSaleThresholdIndicator
   ipoFlag : IpoFlag
@@ -1128,7 +1128,7 @@ def encode (message : StockDirectoryMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.roundLotSize
     ++ (RoundLotsOnly.encode message.roundLotsOnly
     ++ (Alpha.encode message.issueClassification
-    ++ (Alpha.encode message.issueSubtype
+    ++ (Alpha.encode message.issueSubType
     ++ (Authenticity.encode message.authenticity
     ++ (ShortSaleThresholdIndicator.encode message.shortSaleThresholdIndicator
     ++ (IpoFlag.encode message.ipoFlag
@@ -1146,7 +1146,7 @@ def decode (bytes : List UInt8) : Option (StockDirectoryMessage × List UInt8) :
   let (roundLotSize, bytes) ← decodeUInt 4 bytes
   let (roundLotsOnly_, bytes) ← RoundLotsOnly.decode bytes
   let (issueClassification, bytes) ← Alpha.decode 1 bytes
-  let (issueSubtype, bytes) ← Alpha.decode 2 bytes
+  let (issueSubType, bytes) ← Alpha.decode 2 bytes
   let (authenticity, bytes) ← Authenticity.decode bytes
   let (shortSaleThresholdIndicator, bytes) ← ShortSaleThresholdIndicator.decode bytes
   let (ipoFlag, bytes) ← IpoFlag.decode bytes
@@ -1154,7 +1154,7 @@ def decode (bytes : List UInt8) : Option (StockDirectoryMessage × List UInt8) :
   let (etpFlag, bytes) ← EtpFlag.decode bytes
   let (etpLeverageFactor, bytes) ← decodeUInt 4 bytes
   let (inverseIndicator, bytes) ← InverseIndicator.decode bytes
-  pure ({ trackingNumber, timestamp, stock, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_, issueClassification, issueSubtype, authenticity, shortSaleThresholdIndicator, ipoFlag, luldReferencePriceTier, etpFlag, etpLeverageFactor, inverseIndicator }, bytes)
+  pure ({ trackingNumber, timestamp, stock, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_, issueClassification, issueSubType, authenticity, shortSaleThresholdIndicator, ipoFlag, luldReferencePriceTier, etpFlag, etpLeverageFactor, inverseIndicator }, bytes)
 
 @[simp] theorem encode_length (message : StockDirectoryMessage) : (encode message).length = 36 := by
   unfold encode

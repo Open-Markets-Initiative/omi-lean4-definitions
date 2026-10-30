@@ -301,7 +301,7 @@ def SipGeneratedUpdate.codes : List UInt8 :=
 
 inductive SipGeneratedUpdate where
   | originatedFromTheMarketParticipant -- Originated From The Market Participant
-  | siPgeneratedTransaction -- Si Pgenerated Transaction
+  | sipGeneratedTransaction -- Sip Generated Transaction
   | unlisted (byte : { byte : UInt8 // byte ∉ SipGeneratedUpdate.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -309,13 +309,13 @@ namespace SipGeneratedUpdate
 
 def toByte : SipGeneratedUpdate → UInt8
   | .originatedFromTheMarketParticipant => 0x20
-  | .siPgeneratedTransaction => 0x45
+  | .sipGeneratedTransaction => 0x45
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SipGeneratedUpdate :=
   if byte = 0x20 then .originatedFromTheMarketParticipant
-  else .siPgeneratedTransaction
+  else .sipGeneratedTransaction
 
 def ofByte (byte : UInt8) : SipGeneratedUpdate :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -323,7 +323,7 @@ def ofByte (byte : UInt8) : SipGeneratedUpdate :=
 theorem ofByte_toByte (value : SipGeneratedUpdate) : ofByte value.toByte = value := by
   cases value with
   | originatedFromTheMarketParticipant => decide
-  | siPgeneratedTransaction => decide
+  | sipGeneratedTransaction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SipGeneratedUpdate) : List UInt8 :=

@@ -980,8 +980,8 @@ structure EquitiesSnapshotMmLpQuotesIncluded10LevelMessage where
   estimatedTradingVolume : Alpha 12
   closingPriceTypeCode : Alpha 1
   tradingHalt : Alpha 1
-  knockoutElwTypeCode : Alpha 1
-  knockoutElwTriggeringTime : Alpha 9
+  knockOutElwTypeCode : Alpha 1
+  knockOutElwTriggeringTime : Alpha 9
   midPrice : Alpha 11
   totalMidPriceAskVolumeTotalAskVolumeOnMidPrice : Alpha 12
   totalMidPriceBidVolumeTotalBidVolumeOnMidPrice : Alpha 12
@@ -1072,8 +1072,8 @@ def encode (message : EquitiesSnapshotMmLpQuotesIncluded10LevelMessage) : List U
     ++ (Alpha.encode message.estimatedTradingVolume
     ++ (Alpha.encode message.closingPriceTypeCode
     ++ (Alpha.encode message.tradingHalt
-    ++ (Alpha.encode message.knockoutElwTypeCode
-    ++ (Alpha.encode message.knockoutElwTriggeringTime
+    ++ (Alpha.encode message.knockOutElwTypeCode
+    ++ (Alpha.encode message.knockOutElwTriggeringTime
     ++ (Alpha.encode message.midPrice
     ++ (Alpha.encode message.totalMidPriceAskVolumeTotalAskVolumeOnMidPrice
     ++ (Alpha.encode message.totalMidPriceBidVolumeTotalBidVolumeOnMidPrice
@@ -1163,13 +1163,13 @@ def decode (bytes : List UInt8) : Option (EquitiesSnapshotMmLpQuotesIncluded10Le
   let (estimatedTradingVolume, bytes) ← Alpha.decode 12 bytes
   let (closingPriceTypeCode, bytes) ← Alpha.decode 1 bytes
   let (tradingHalt, bytes) ← Alpha.decode 1 bytes
-  let (knockoutElwTypeCode, bytes) ← Alpha.decode 1 bytes
-  let (knockoutElwTriggeringTime, bytes) ← Alpha.decode 9 bytes
+  let (knockOutElwTypeCode, bytes) ← Alpha.decode 1 bytes
+  let (knockOutElwTriggeringTime, bytes) ← Alpha.decode 9 bytes
   let (midPrice, bytes) ← Alpha.decode 11 bytes
   let (totalMidPriceAskVolumeTotalAskVolumeOnMidPrice, bytes) ← Alpha.decode 12 bytes
   let (totalMidPriceBidVolumeTotalBidVolumeOnMidPrice, bytes) ← Alpha.decode 12 bytes
   let (endKeyword, bytes) ← Alpha.decode 1 bytes
-  pure ({ boardId, sessionId, isinCode, aDesignatedNumberForAnIssueFromKrx, priceChangeAgainstPreviousDay, aPriceChangeAgainstThePreviousDay, upperLimitPrice, lowerLimitPrice, currentPrice, openingPrice, todaysHigh, todaysLow, accumulatedTradingVolume, accumulatedTradingValue, finalAskBidTypeCode, askLevel1Price, bidLevel1Price, askLevel1Volume, bidLevel1Volume, lpAskLevel1Volume, lpBidLevel1Volume, askLevel2Price, bidLevel2Price, askLevel2Volume, bidLevel2Volume, lpAskLevel2Volume, lpBidLevel2Volume, askLevel3Price, bidLevel3Price, askLevel3Volume, bidLevel3Volume, lpAskLevel3Volume, lpBidLevel3Volume, askLevel4Price, bidLevel4Price, askLevel4Volume, bidLevel4Volume, lpAskLevel4Volume, lpBidLevel4Volume, askLevel5Price, bidLevel5Price, askLevel5Volume, bidLevel5Volume, lpAskLevel5Volume, lpBidLevel5Volume, askLevel6Price, bidLevel6Price, askLevel6Volume, bidLevel6Volume, lpAskLevel6Volume, lpBidLevel6Volume, askLevel7Price, bidLevel7Price, askLevel7Volume, bidLevel7Volume, lpAskLevel7Volume, lpBidLevel7Volume, askLevel8Price, bidLevel8Price, askLevel8Volume, bidLevel8Volume, lpAskLevel8Volume, lpBidLevel8Volume, askLevel9Price, bidLevel9Price, askLevel9Volume, bidLevel9Volume, lpAskLevel9Volume, lpBidLevel9Volume, askLevel10Price, bidLevel10Price, askLevel10Volume, bidLevel10Volume, lpAskLevel10Volume, lpBidLevel10Volume, totalAskVolume, totalBidVolume, estimatedTradingPrice, estimatedTradingVolume, closingPriceTypeCode, tradingHalt, knockoutElwTypeCode, knockoutElwTriggeringTime, midPrice, totalMidPriceAskVolumeTotalAskVolumeOnMidPrice, totalMidPriceBidVolumeTotalBidVolumeOnMidPrice, endKeyword }, bytes)
+  pure ({ boardId, sessionId, isinCode, aDesignatedNumberForAnIssueFromKrx, priceChangeAgainstPreviousDay, aPriceChangeAgainstThePreviousDay, upperLimitPrice, lowerLimitPrice, currentPrice, openingPrice, todaysHigh, todaysLow, accumulatedTradingVolume, accumulatedTradingValue, finalAskBidTypeCode, askLevel1Price, bidLevel1Price, askLevel1Volume, bidLevel1Volume, lpAskLevel1Volume, lpBidLevel1Volume, askLevel2Price, bidLevel2Price, askLevel2Volume, bidLevel2Volume, lpAskLevel2Volume, lpBidLevel2Volume, askLevel3Price, bidLevel3Price, askLevel3Volume, bidLevel3Volume, lpAskLevel3Volume, lpBidLevel3Volume, askLevel4Price, bidLevel4Price, askLevel4Volume, bidLevel4Volume, lpAskLevel4Volume, lpBidLevel4Volume, askLevel5Price, bidLevel5Price, askLevel5Volume, bidLevel5Volume, lpAskLevel5Volume, lpBidLevel5Volume, askLevel6Price, bidLevel6Price, askLevel6Volume, bidLevel6Volume, lpAskLevel6Volume, lpBidLevel6Volume, askLevel7Price, bidLevel7Price, askLevel7Volume, bidLevel7Volume, lpAskLevel7Volume, lpBidLevel7Volume, askLevel8Price, bidLevel8Price, askLevel8Volume, bidLevel8Volume, lpAskLevel8Volume, lpBidLevel8Volume, askLevel9Price, bidLevel9Price, askLevel9Volume, bidLevel9Volume, lpAskLevel9Volume, lpBidLevel9Volume, askLevel10Price, bidLevel10Price, askLevel10Volume, bidLevel10Volume, lpAskLevel10Volume, lpBidLevel10Volume, totalAskVolume, totalBidVolume, estimatedTradingPrice, estimatedTradingVolume, closingPriceTypeCode, tradingHalt, knockOutElwTypeCode, knockOutElwTriggeringTime, midPrice, totalMidPriceAskVolumeTotalAskVolumeOnMidPrice, totalMidPriceBidVolumeTotalBidVolumeOnMidPrice, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : EquitiesSnapshotMmLpQuotesIncluded10LevelMessage) : (encode message).length = 930 := by
   unfold encode
@@ -2008,7 +2008,7 @@ structure EquitiesBatchDataMessage where
   koreaCorporateGovernanceStockPriceIndexKogi : Alpha 1
   issueForAdministration : Alpha 1
   unfaithfulDisclosure : Alpha 1
-  backdoorListing : Alpha 1
+  backDoorListing : Alpha 1
   tradingHalt : Alpha 1
   industryId : Alpha 10
   smallMediumSizedBusiness : Alpha 1
@@ -2048,16 +2048,16 @@ structure EquitiesBatchDataMessage where
   lowestOrderPrice : Alpha 11
   highestOrderPrice : Alpha 11
   unitOfVolumeInMainBoard : Alpha 11
-  lotSizeAfterhoursTrading : Alpha 11
+  lotSizeAfterHoursTrading : Alpha 11
   reiTsTypeCode : Alpha 1
   targetStockIsinCode : Alpha 12
   currencyIsoCode : Alpha 3
   countryCode : Alpha 3
   marketMakingPossibility : Alpha 1
   closingPriceTradingPossibilityInTheAfterHours : Alpha 1
-  closingPriceTradingInThePreopeningMarket : Alpha 1
-  blockTradingInThePreopeningMarket : Alpha 1
-  basketTradingInThePreopeningMarket : Alpha 1
+  closingPriceTradingInThePreOpeningMarket : Alpha 1
+  blockTradingInThePreOpeningMarket : Alpha 1
+  basketTradingInThePreOpeningMarket : Alpha 1
   announcementOfEstimatedTradingPrice : Alpha 1
   shortSelling : Alpha 1
   etfTrackingDifference : Alpha 13
@@ -2067,7 +2067,7 @@ structure EquitiesBatchDataMessage where
   appraisalRatioOfSubstitutePrice : Alpha 13
   investmentCautionIssue : Alpha 1
   delistingDate : Alpha 8
-  shorttermOverheatIssueTypeCode : Alpha 1
+  shortTermOverheatIssueTypeCode : Alpha 1
   etfReplicationMethodsTypeCode : Alpha 1
   expirationDate : Alpha 8
   distributionTypeCode : Alpha 2
@@ -2129,7 +2129,7 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.koreaCorporateGovernanceStockPriceIndexKogi
     ++ (Alpha.encode message.issueForAdministration
     ++ (Alpha.encode message.unfaithfulDisclosure
-    ++ (Alpha.encode message.backdoorListing
+    ++ (Alpha.encode message.backDoorListing
     ++ (Alpha.encode message.tradingHalt
     ++ (Alpha.encode message.industryId
     ++ (Alpha.encode message.smallMediumSizedBusiness
@@ -2169,16 +2169,16 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.lowestOrderPrice
     ++ (Alpha.encode message.highestOrderPrice
     ++ (Alpha.encode message.unitOfVolumeInMainBoard
-    ++ (Alpha.encode message.lotSizeAfterhoursTrading
+    ++ (Alpha.encode message.lotSizeAfterHoursTrading
     ++ (Alpha.encode message.reiTsTypeCode
     ++ (Alpha.encode message.targetStockIsinCode
     ++ (Alpha.encode message.currencyIsoCode
     ++ (Alpha.encode message.countryCode
     ++ (Alpha.encode message.marketMakingPossibility
     ++ (Alpha.encode message.closingPriceTradingPossibilityInTheAfterHours
-    ++ (Alpha.encode message.closingPriceTradingInThePreopeningMarket
-    ++ (Alpha.encode message.blockTradingInThePreopeningMarket
-    ++ (Alpha.encode message.basketTradingInThePreopeningMarket
+    ++ (Alpha.encode message.closingPriceTradingInThePreOpeningMarket
+    ++ (Alpha.encode message.blockTradingInThePreOpeningMarket
+    ++ (Alpha.encode message.basketTradingInThePreOpeningMarket
     ++ (Alpha.encode message.announcementOfEstimatedTradingPrice
     ++ (Alpha.encode message.shortSelling
     ++ (Alpha.encode message.etfTrackingDifference
@@ -2188,7 +2188,7 @@ def encode (message : EquitiesBatchDataMessage) : List UInt8 :=
     ++ (Alpha.encode message.appraisalRatioOfSubstitutePrice
     ++ (Alpha.encode message.investmentCautionIssue
     ++ (Alpha.encode message.delistingDate
-    ++ (Alpha.encode message.shorttermOverheatIssueTypeCode
+    ++ (Alpha.encode message.shortTermOverheatIssueTypeCode
     ++ (Alpha.encode message.etfReplicationMethodsTypeCode
     ++ (Alpha.encode message.expirationDate
     ++ (Alpha.encode message.distributionTypeCode
@@ -2249,7 +2249,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (koreaCorporateGovernanceStockPriceIndexKogi, bytes) ← Alpha.decode 1 bytes
   let (issueForAdministration, bytes) ← Alpha.decode 1 bytes
   let (unfaithfulDisclosure, bytes) ← Alpha.decode 1 bytes
-  let (backdoorListing, bytes) ← Alpha.decode 1 bytes
+  let (backDoorListing, bytes) ← Alpha.decode 1 bytes
   let (tradingHalt, bytes) ← Alpha.decode 1 bytes
   let (industryId, bytes) ← Alpha.decode 10 bytes
   let (smallMediumSizedBusiness, bytes) ← Alpha.decode 1 bytes
@@ -2289,16 +2289,16 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (lowestOrderPrice, bytes) ← Alpha.decode 11 bytes
   let (highestOrderPrice, bytes) ← Alpha.decode 11 bytes
   let (unitOfVolumeInMainBoard, bytes) ← Alpha.decode 11 bytes
-  let (lotSizeAfterhoursTrading, bytes) ← Alpha.decode 11 bytes
+  let (lotSizeAfterHoursTrading, bytes) ← Alpha.decode 11 bytes
   let (reiTsTypeCode, bytes) ← Alpha.decode 1 bytes
   let (targetStockIsinCode, bytes) ← Alpha.decode 12 bytes
   let (currencyIsoCode, bytes) ← Alpha.decode 3 bytes
   let (countryCode, bytes) ← Alpha.decode 3 bytes
   let (marketMakingPossibility, bytes) ← Alpha.decode 1 bytes
   let (closingPriceTradingPossibilityInTheAfterHours, bytes) ← Alpha.decode 1 bytes
-  let (closingPriceTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
-  let (blockTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
-  let (basketTradingInThePreopeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (closingPriceTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (blockTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
+  let (basketTradingInThePreOpeningMarket, bytes) ← Alpha.decode 1 bytes
   let (announcementOfEstimatedTradingPrice, bytes) ← Alpha.decode 1 bytes
   let (shortSelling, bytes) ← Alpha.decode 1 bytes
   let (etfTrackingDifference, bytes) ← Alpha.decode 13 bytes
@@ -2308,7 +2308,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (appraisalRatioOfSubstitutePrice, bytes) ← Alpha.decode 13 bytes
   let (investmentCautionIssue, bytes) ← Alpha.decode 1 bytes
   let (delistingDate, bytes) ← Alpha.decode 8 bytes
-  let (shorttermOverheatIssueTypeCode, bytes) ← Alpha.decode 1 bytes
+  let (shortTermOverheatIssueTypeCode, bytes) ← Alpha.decode 1 bytes
   let (etfReplicationMethodsTypeCode, bytes) ← Alpha.decode 1 bytes
   let (expirationDate, bytes) ← Alpha.decode 8 bytes
   let (distributionTypeCode, bytes) ← Alpha.decode 2 bytes
@@ -2342,7 +2342,7 @@ def decode (bytes : List UInt8) : Option (EquitiesBatchDataMessage × List UInt8
   let (competitionBoardTradePermissionCode, bytes) ← Alpha.decode 5 bytes
   let (negotiationPossibleOrNotBeforeMainMarket, bytes) ← Alpha.decode 1 bytes
   let (endKeyword, bytes) ← Alpha.decode 1 bytes
-  pure ({ messageSequenceNumber, totalNumberOfInstrumentsOfTheContract, businessDate, isinCode, aDesignatedNumberForAnIssueFromKrx, abbreviatedIssueCode, abbreviatedIssueName, abbreviatedIssueNameInEn, groupNumber, marketOperationProductId, securityGroupId, unitTrading, rightsTypeCode, parValueTypeCode, anIssueOfWhichBasePriceIsSettledWithATodaysSinglePrice, reevaluationReasonCode, basePriceChange, randomEndTriggerCode, marketAlert, marketAlertTypeCode, koreaCorporateGovernanceStockPriceIndexKogi, issueForAdministration, unfaithfulDisclosure, backdoorListing, tradingHalt, industryId, smallMediumSizedBusiness, sectionTypeCode, investmentInstitutionTypeCode, basePrice, yesterdaysClosingPriceTypeCodeKrx, yesterdaysClosingPriceKrx, yesterdaysAccumulatedTradingAmount, yesterdaysAccumulatedTradingValue, upperLimitPrice, lowerLimitPrice, substitutePriceOfSecurities, parValue, issuingPrice, listingDate, numberOfListedShares, liquidationTrade, theEstablishmentDate, maturityDate, exercisingPeriod, expirationDateForRight, exercisePriceOfElwOrBw, capital, creditOrderPossibility, limitOrderPermissionTypeCode, marketPriceOrderPermissionTypeCode, conditionedOrderPermissionTypeCode, bestFavorableOrderPermissionTypeCode, firstBestOrderPermissionType, midPriceOrderPermissionTypeCode, stopLimitPriceOrderPermissionTypeCode, capitalIncreaseTypeCode, otherStockTypeCode, nationalStock, appraisedPrice, lowestOrderPrice, highestOrderPrice, unitOfVolumeInMainBoard, lotSizeAfterhoursTrading, reiTsTypeCode, targetStockIsinCode, currencyIsoCode, countryCode, marketMakingPossibility, closingPriceTradingPossibilityInTheAfterHours, closingPriceTradingInThePreopeningMarket, blockTradingInThePreopeningMarket, basketTradingInThePreopeningMarket, announcementOfEstimatedTradingPrice, shortSelling, etfTrackingDifference, regs, spac, taxTypeCode, appraisalRatioOfSubstitutePrice, investmentCautionIssue, delistingDate, shorttermOverheatIssueTypeCode, etfReplicationMethodsTypeCode, expirationDate, distributionTypeCode, calculationOfRedemptionPriceStartDate, calculationOfRedemptionPriceEndDate, etpProductTypeCode, indexCalculationInstitutionTypeCode, indexMarketClassificationId, indexSequenceNumber, trackingIndexLeverageInverseTypeCode, referenceIndexLeverageInverseTypeCode, indexAssetClassificationId1, indexAssetClassificationId2, ipoUnderwriterMemberNumber, lpOrder, lowLiquidity, abnormalRise, upperLimitQuantity, investmentPrecautionIssue, preferredStocksWithLesserShares, spacMerger, segmentTypeCode, afterMarketPossibility, choiceOnCompetitiveTrading, limitOnCompetitiveTradingVolume, occurrenceOfReasonsProhibitingCompetitiveTrading, approvalOnCompetitiveTrading, approvalOnNegotiationTrading, yesterdaysClosingPriceTypeCodeNxt, yesterdaysClosingPriceNxt, competitionBoardTradePermissionCode, negotiationPossibleOrNotBeforeMainMarket, endKeyword }, bytes)
+  pure ({ messageSequenceNumber, totalNumberOfInstrumentsOfTheContract, businessDate, isinCode, aDesignatedNumberForAnIssueFromKrx, abbreviatedIssueCode, abbreviatedIssueName, abbreviatedIssueNameInEn, groupNumber, marketOperationProductId, securityGroupId, unitTrading, rightsTypeCode, parValueTypeCode, anIssueOfWhichBasePriceIsSettledWithATodaysSinglePrice, reevaluationReasonCode, basePriceChange, randomEndTriggerCode, marketAlert, marketAlertTypeCode, koreaCorporateGovernanceStockPriceIndexKogi, issueForAdministration, unfaithfulDisclosure, backDoorListing, tradingHalt, industryId, smallMediumSizedBusiness, sectionTypeCode, investmentInstitutionTypeCode, basePrice, yesterdaysClosingPriceTypeCodeKrx, yesterdaysClosingPriceKrx, yesterdaysAccumulatedTradingAmount, yesterdaysAccumulatedTradingValue, upperLimitPrice, lowerLimitPrice, substitutePriceOfSecurities, parValue, issuingPrice, listingDate, numberOfListedShares, liquidationTrade, theEstablishmentDate, maturityDate, exercisingPeriod, expirationDateForRight, exercisePriceOfElwOrBw, capital, creditOrderPossibility, limitOrderPermissionTypeCode, marketPriceOrderPermissionTypeCode, conditionedOrderPermissionTypeCode, bestFavorableOrderPermissionTypeCode, firstBestOrderPermissionType, midPriceOrderPermissionTypeCode, stopLimitPriceOrderPermissionTypeCode, capitalIncreaseTypeCode, otherStockTypeCode, nationalStock, appraisedPrice, lowestOrderPrice, highestOrderPrice, unitOfVolumeInMainBoard, lotSizeAfterHoursTrading, reiTsTypeCode, targetStockIsinCode, currencyIsoCode, countryCode, marketMakingPossibility, closingPriceTradingPossibilityInTheAfterHours, closingPriceTradingInThePreOpeningMarket, blockTradingInThePreOpeningMarket, basketTradingInThePreOpeningMarket, announcementOfEstimatedTradingPrice, shortSelling, etfTrackingDifference, regs, spac, taxTypeCode, appraisalRatioOfSubstitutePrice, investmentCautionIssue, delistingDate, shortTermOverheatIssueTypeCode, etfReplicationMethodsTypeCode, expirationDate, distributionTypeCode, calculationOfRedemptionPriceStartDate, calculationOfRedemptionPriceEndDate, etpProductTypeCode, indexCalculationInstitutionTypeCode, indexMarketClassificationId, indexSequenceNumber, trackingIndexLeverageInverseTypeCode, referenceIndexLeverageInverseTypeCode, indexAssetClassificationId1, indexAssetClassificationId2, ipoUnderwriterMemberNumber, lpOrder, lowLiquidity, abnormalRise, upperLimitQuantity, investmentPrecautionIssue, preferredStocksWithLesserShares, spacMerger, segmentTypeCode, afterMarketPossibility, choiceOnCompetitiveTrading, limitOnCompetitiveTradingVolume, occurrenceOfReasonsProhibitingCompetitiveTrading, approvalOnCompetitiveTrading, approvalOnNegotiationTrading, yesterdaysClosingPriceTypeCodeNxt, yesterdaysClosingPriceNxt, competitionBoardTradePermissionCode, negotiationPossibleOrNotBeforeMainMarket, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : EquitiesBatchDataMessage) : (encode message).length = 649 := by
   unfold encode
@@ -2960,12 +2960,12 @@ end BrokersAcitityInformationMessage
 structure TradingActivityBySessionPerAnIssueMessage where
   isinCode : Alpha 12
   totalNumberOfTradableIssuesOnCompetitiveTrading : Alpha 5
-  premarketAccumulatedTradingVolume : Alpha 12
-  premarketAccumulatedTradingValue : Alpha 22
-  mainmarketAccumulatedTradingVolume : Alpha 12
-  mainmarketAccumulatedTradingValue : Alpha 22
-  aftermarketAccumulatedTradingVolume : Alpha 12
-  aftermarketAccumulatedTradingValue : Alpha 22
+  preMarketAccumulatedTradingVolume : Alpha 12
+  preMarketAccumulatedTradingValue : Alpha 22
+  mainMarketAccumulatedTradingVolume : Alpha 12
+  mainMarketAccumulatedTradingValue : Alpha 22
+  afterMarketAccumulatedTradingVolume : Alpha 12
+  afterMarketAccumulatedTradingValue : Alpha 22
   endKeyword : Alpha 1
   deriving DecidableEq, Repr
 
@@ -2974,25 +2974,25 @@ namespace TradingActivityBySessionPerAnIssueMessage
 def encode (message : TradingActivityBySessionPerAnIssueMessage) : List UInt8 :=
   Alpha.encode message.isinCode
     ++ (Alpha.encode message.totalNumberOfTradableIssuesOnCompetitiveTrading
-    ++ (Alpha.encode message.premarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.premarketAccumulatedTradingValue
-    ++ (Alpha.encode message.mainmarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.mainmarketAccumulatedTradingValue
-    ++ (Alpha.encode message.aftermarketAccumulatedTradingVolume
-    ++ (Alpha.encode message.aftermarketAccumulatedTradingValue
+    ++ (Alpha.encode message.preMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.preMarketAccumulatedTradingValue
+    ++ (Alpha.encode message.mainMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.mainMarketAccumulatedTradingValue
+    ++ (Alpha.encode message.afterMarketAccumulatedTradingVolume
+    ++ (Alpha.encode message.afterMarketAccumulatedTradingValue
     ++ (Alpha.encode message.endKeyword))))))))
 
 def decode (bytes : List UInt8) : Option (TradingActivityBySessionPerAnIssueMessage × List UInt8) := do
   let (isinCode, bytes) ← Alpha.decode 12 bytes
   let (totalNumberOfTradableIssuesOnCompetitiveTrading, bytes) ← Alpha.decode 5 bytes
-  let (premarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
-  let (premarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
-  let (mainmarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
-  let (mainmarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
-  let (aftermarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
-  let (aftermarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
+  let (preMarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
+  let (preMarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
+  let (mainMarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
+  let (mainMarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
+  let (afterMarketAccumulatedTradingVolume, bytes) ← Alpha.decode 12 bytes
+  let (afterMarketAccumulatedTradingValue, bytes) ← Alpha.decode 22 bytes
   let (endKeyword, bytes) ← Alpha.decode 1 bytes
-  pure ({ isinCode, totalNumberOfTradableIssuesOnCompetitiveTrading, premarketAccumulatedTradingVolume, premarketAccumulatedTradingValue, mainmarketAccumulatedTradingVolume, mainmarketAccumulatedTradingValue, aftermarketAccumulatedTradingVolume, aftermarketAccumulatedTradingValue, endKeyword }, bytes)
+  pure ({ isinCode, totalNumberOfTradableIssuesOnCompetitiveTrading, preMarketAccumulatedTradingVolume, preMarketAccumulatedTradingValue, mainMarketAccumulatedTradingVolume, mainMarketAccumulatedTradingValue, afterMarketAccumulatedTradingVolume, afterMarketAccumulatedTradingValue, endKeyword }, bytes)
 
 @[simp] theorem encode_length (message : TradingActivityBySessionPerAnIssueMessage) : (encode message).length = 120 := by
   unfold encode

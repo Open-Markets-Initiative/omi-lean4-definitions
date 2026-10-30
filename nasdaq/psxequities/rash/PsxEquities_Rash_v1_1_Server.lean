@@ -470,60 +470,60 @@ theorem encode_length_pos (value : DiscretionPegDifferenceSign) : (encode value)
 
 end DiscretionPegDifferenceSign
 
-/-- Intermarket Sweep Eligibility: one byte code -/
-def IntermarketSweepEligibility.codes : List UInt8 :=
+/-- Inter Market Sweep Eligibility: one byte code -/
+def InterMarketSweepEligibility.codes : List UInt8 :=
   [0x59, 0x4E, 0x79]
 
-inductive IntermarketSweepEligibility where
+inductive InterMarketSweepEligibility where
   | eligible -- Eligible
   | notEligible -- Not Eligible
   | tradeAtIntermarketSweepOrder -- Trade At Intermarket Sweep Order
-  | unlisted (byte : { byte : UInt8 // byte ∉ IntermarketSweepEligibility.codes }) -- any other code, kept as it is
+  | unlisted (byte : { byte : UInt8 // byte ∉ InterMarketSweepEligibility.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace IntermarketSweepEligibility
+namespace InterMarketSweepEligibility
 
-def toByte : IntermarketSweepEligibility → UInt8
+def toByte : InterMarketSweepEligibility → UInt8
   | .eligible => 0x59
   | .notEligible => 0x4E
   | .tradeAtIntermarketSweepOrder => 0x79
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : IntermarketSweepEligibility :=
+def listed (byte : UInt8) : InterMarketSweepEligibility :=
   if byte = 0x59 then .eligible
   else if byte = 0x4E then .notEligible
   else .tradeAtIntermarketSweepOrder
 
-def ofByte (byte : UInt8) : IntermarketSweepEligibility :=
+def ofByte (byte : UInt8) : InterMarketSweepEligibility :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : IntermarketSweepEligibility) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : InterMarketSweepEligibility) : ofByte value.toByte = value := by
   cases value with
   | eligible => decide
   | notEligible => decide
   | tradeAtIntermarketSweepOrder => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : IntermarketSweepEligibility) : List UInt8 :=
+def encode (value : InterMarketSweepEligibility) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (IntermarketSweepEligibility × List UInt8)
+def decode : List UInt8 → Option (InterMarketSweepEligibility × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : IntermarketSweepEligibility) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : InterMarketSweepEligibility) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : IntermarketSweepEligibility) : (encode value).length > 0 := by
+theorem encode_length_pos (value : InterMarketSweepEligibility) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : IntermarketSweepEligibility) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : InterMarketSweepEligibility) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end IntermarketSweepEligibility
+end InterMarketSweepEligibility
 
 /-- Cross Type: one byte code -/
 def CrossType.codes : List UInt8 :=
@@ -1383,7 +1383,7 @@ structure AcceptedOrderMessageWithCrossFunctionality where
   randomReserve : Alpha 6
   routeDestExecBroker : Alpha 4
   custTerminalIdSenderSubId : Alpha 32
-  intermarketSweepEligibility : IntermarketSweepEligibility
+  interMarketSweepEligibility : InterMarketSweepEligibility
   crossType : CrossType
   deriving DecidableEq, Repr
 
@@ -1412,7 +1412,7 @@ def encode (message : AcceptedOrderMessageWithCrossFunctionality) : List UInt8 :
     ++ (Alpha.encode message.randomReserve
     ++ (Alpha.encode message.routeDestExecBroker
     ++ (Alpha.encode message.custTerminalIdSenderSubId
-    ++ (IntermarketSweepEligibility.encode message.intermarketSweepEligibility
+    ++ (InterMarketSweepEligibility.encode message.interMarketSweepEligibility
     ++ (CrossType.encode message.crossType)))))))))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (AcceptedOrderMessageWithCrossFunctionality × List UInt8) := do
@@ -1438,13 +1438,13 @@ def decode (bytes : List UInt8) : Option (AcceptedOrderMessageWithCrossFunctiona
   let (randomReserve, bytes) ← Alpha.decode 6 bytes
   let (routeDestExecBroker, bytes) ← Alpha.decode 4 bytes
   let (custTerminalIdSenderSubId, bytes) ← Alpha.decode 32 bytes
-  let (intermarketSweepEligibility, bytes) ← IntermarketSweepEligibility.decode bytes
+  let (interMarketSweepEligibility, bytes) ← InterMarketSweepEligibility.decode bytes
   let (crossType, bytes) ← CrossType.decode bytes
-  pure ({ orderTokenClientOrderId, side, sharesOrderQty, stockSymbol, price, timeInForce, firmClientId, display, orderReferenceNumber, minQty, maxFloor, pegType, pegDifferenceSign, pegDifference, discretionPrice, discretionPegType, discretionPegDifferenceSign, discretionPegDifference, capacityRule80AIndicator, randomReserve, routeDestExecBroker, custTerminalIdSenderSubId, intermarketSweepEligibility, crossType }, bytes)
+  pure ({ orderTokenClientOrderId, side, sharesOrderQty, stockSymbol, price, timeInForce, firmClientId, display, orderReferenceNumber, minQty, maxFloor, pegType, pegDifferenceSign, pegDifference, discretionPrice, discretionPegType, discretionPegDifferenceSign, discretionPegDifference, capacityRule80AIndicator, randomReserve, routeDestExecBroker, custTerminalIdSenderSubId, interMarketSweepEligibility, crossType }, bytes)
 
 @[simp] theorem encode_length (message : AcceptedOrderMessageWithCrossFunctionality) : (encode message).length = 149 := by
   unfold encode
-  simp only [List.length_append, Alpha.encode_length, Side.encode_length, Display.encode_length, PegType.encode_length, PegDifferenceSign.encode_length, DiscretionPegType.encode_length, DiscretionPegDifferenceSign.encode_length, IntermarketSweepEligibility.encode_length, CrossType.encode_length]
+  simp only [List.length_append, Alpha.encode_length, Side.encode_length, Display.encode_length, PegType.encode_length, PegDifferenceSign.encode_length, DiscretionPegType.encode_length, DiscretionPegDifferenceSign.encode_length, InterMarketSweepEligibility.encode_length, CrossType.encode_length]
 
 theorem encode_length_pos (message : AcceptedOrderMessageWithCrossFunctionality) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1497,7 +1497,7 @@ theorem encode_length_pos (message : AcceptedOrderMessageWithCrossFunctionality)
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, IntermarketSweepEligibility.decode_encode, some_bind]
+  rw [List.append_assoc, InterMarketSweepEligibility.decode_encode, some_bind]
   dsimp only
   rw [CrossType.decode_encode, some_bind]
   rfl

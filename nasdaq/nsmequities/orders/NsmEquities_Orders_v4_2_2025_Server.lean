@@ -336,7 +336,7 @@ def IntermarketSweepEligibility.codes : List UInt8 :=
 inductive IntermarketSweepEligibility where
   | eligible -- Eligible
   | notEligible -- Not Eligible
-  | tradeat -- Tradeat
+  | tradeAt -- Trade At
   | unlisted (byte : { byte : UInt8 // byte ∉ IntermarketSweepEligibility.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -345,14 +345,14 @@ namespace IntermarketSweepEligibility
 def toByte : IntermarketSweepEligibility → UInt8
   | .eligible => 0x59
   | .notEligible => 0x4E
-  | .tradeat => 0x79
+  | .tradeAt => 0x79
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IntermarketSweepEligibility :=
   if byte = 0x59 then .eligible
   else if byte = 0x4E then .notEligible
-  else .tradeat
+  else .tradeAt
 
 def ofByte (byte : UInt8) : IntermarketSweepEligibility :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -361,7 +361,7 @@ theorem ofByte_toByte (value : IntermarketSweepEligibility) : ofByte value.toByt
   cases value with
   | eligible => decide
   | notEligible => decide
-  | tradeat => decide
+  | tradeAt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : IntermarketSweepEligibility) : List UInt8 :=
@@ -594,7 +594,7 @@ inductive ReplacedMessageDisplay where
   | retailPrice -- Retail Price
   | midPointPegAndMidPointTradeNow -- Mid Point Peg And Mid Point Trade Now
   | nonDisplayAndMidPoint -- Non Display And Mid Point
-  | meloAndContinuousBookMidpoint -- Melo And Continuous Book Midpoint
+  | mEloAndContinuousBookMidpoint -- M Elo And Continuous Book Midpoint
   | unlisted (byte : { byte : UInt8 // byte ∉ ReplacedMessageDisplay.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -613,7 +613,7 @@ def toByte : ReplacedMessageDisplay → UInt8
   | .retailPrice => 0x51
   | .midPointPegAndMidPointTradeNow => 0x6D
   | .nonDisplayAndMidPoint => 0x6E
-  | .meloAndContinuousBookMidpoint => 0x42
+  | .mEloAndContinuousBookMidpoint => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -630,7 +630,7 @@ def listed (byte : UInt8) : ReplacedMessageDisplay :=
   else if byte = 0x51 then .retailPrice
   else if byte = 0x6D then .midPointPegAndMidPointTradeNow
   else if byte = 0x6E then .nonDisplayAndMidPoint
-  else .meloAndContinuousBookMidpoint
+  else .mEloAndContinuousBookMidpoint
 
 def ofByte (byte : UInt8) : ReplacedMessageDisplay :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -649,7 +649,7 @@ theorem ofByte_toByte (value : ReplacedMessageDisplay) : ofByte value.toByte = v
   | retailPrice => decide
   | midPointPegAndMidPointTradeNow => decide
   | nonDisplayAndMidPoint => decide
-  | meloAndContinuousBookMidpoint => decide
+  | mEloAndContinuousBookMidpoint => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ReplacedMessageDisplay) : List UInt8 :=
@@ -831,7 +831,7 @@ inductive LiquidityFlag where
   | closingCross -- Closing Cross
   | haltIpo -- Halt Ipo
   | halt -- Halt
-  | nondisplayed -- Nondisplayed
+  | nonDisplayed -- Non Displayed
   | passiveMidpointExecution -- Passive Midpoint Execution
   | addedPostOnly -- Added Post Only
   | removedAtMidpoint -- Removed At Midpoint
@@ -869,7 +869,7 @@ def toByte : LiquidityFlag → UInt8
   | .closingCross => 0x4C
   | .haltIpo => 0x48
   | .halt => 0x4B
-  | .nondisplayed => 0x4A
+  | .nonDisplayed => 0x4A
   | .passiveMidpointExecution => 0x4E
   | .addedPostOnly => 0x57
   | .removedAtMidpoint => 0x6D
@@ -905,7 +905,7 @@ def listed (byte : UInt8) : LiquidityFlag :=
   else if byte = 0x4C then .closingCross
   else if byte = 0x48 then .haltIpo
   else if byte = 0x4B then .halt
-  else if byte = 0x4A then .nondisplayed
+  else if byte = 0x4A then .nonDisplayed
   else if byte = 0x4E then .passiveMidpointExecution
   else if byte = 0x57 then .addedPostOnly
   else if byte = 0x6D then .removedAtMidpoint
@@ -943,7 +943,7 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   | closingCross => decide
   | haltIpo => decide
   | halt => decide
-  | nondisplayed => decide
+  | nonDisplayed => decide
   | passiveMidpointExecution => decide
   | addedPostOnly => decide
   | removedAtMidpoint => decide

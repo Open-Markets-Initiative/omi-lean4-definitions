@@ -140,12 +140,12 @@ inductive LiquidityCode where
   | openingTradeOnNyse -- Opening Trade On Nyse
   | onCloseOrderOnNyse -- On Close Order On Nyse
   | openingCross -- Opening Cross
-  | openingCrossImbalanceonly -- Opening Cross Imbalanceonly
+  | openingCrossImbalanceOnly -- Opening Cross Imbalance Only
   | closingCross -- Closing Cross
-  | closingCrossImbalanceonly -- Closing Cross Imbalanceonly
+  | closingCrossImbalanceOnly -- Closing Cross Imbalance Only
   | haltIpoCross -- Halt Ipo Cross
   | haltCross -- Halt Cross
-  | nondisplayedAddingLiquidity -- Nondisplayed Adding Liquidity
+  | nonDisplayedAddingLiquidity -- Non Displayed Adding Liquidity
   | reRoutedByNyse -- Re Routed By Nyse
   | oddLotExecutionOnNyse -- Odd Lot Execution On Nyse
   | addedLiquidityOnNyse -- Added Liquidity On Nyse
@@ -154,26 +154,26 @@ inductive LiquidityCode where
   | routedToPsx -- Routed To Psx
   | openingTradeOnArca -- Opening Trade On Arca
   | onCloseOrderOnArca -- On Close Order On Arca
-  | addedPostonlyNotCurrentlyAvailable -- Added Postonly Not Currently Available
+  | addedPostOnlyNotCurrentlyAvailable -- Added Post Only Not Currently Available
   | removedLiquidityAtAMidpoint -- Removed Liquidity At A Midpoint
   | addedLiquidityViaAMidpointOrder -- Added Liquidity Via A Midpoint Order
   | supplementalOrderExecution -- Supplemental Order Execution
-  | displayedLiquidityaddingOrderImprovesTheNbbo -- Displayed Liquidityadding Order Improves The Nbbo
-  | displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo -- Displayed Liquidityadding Order Sets The Qbbo While Joining The Nbbo
+  | displayedLiquidityAddingOrderImprovesTheNbbo -- Displayed Liquidity Adding Order Improves The Nbbo
+  | displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo -- Displayed Liquidity Adding Order Sets The Qbbo While Joining The Nbbo
   | retailDesignatedExecutionThatRemovedLiquidityNotCurrentlyAvailable -- Retail Designated Execution That Removed Liquidity Not Currently Available
   | retailDesignatedExecutionThatAddedDisplayedLiquidity -- Retail Designated Execution That Added Displayed Liquidity
-  | retailDesignatedExecutionThatAddedNondisplayedLiquidityNotCurrentlyAvailable -- Retail Designated Execution That Added Nondisplayed Liquidity Not Currently Available
+  | retailDesignatedExecutionThatAddedNonDisplayedLiquidityNotCurrentlyAvailable -- Retail Designated Execution That Added Non Displayed Liquidity Not Currently Available
   | rpiOrderThatProvidesLiquidity -- Rpi Order That Provides Liquidity
   | retailOrderThatRemovesRpiLiquidity -- Retail Order That Removes Rpi Liquidity
-  | retailOrderThatRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity -- Retail Order That Removes Price Improving Nondisplayed Liquidity Other Than Rpi Liquidity
+  | retailOrderThatRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity -- Retail Order That Removes Price Improving Non Displayed Liquidity Other Than Rpi Liquidity
   | addedDisplayedLiquidityInAGroupASymbol -- Added Displayed Liquidity In A Group A Symbol
-  | addedNondisplayedLiquidityInAGroupASymbol -- Added Nondisplayed Liquidity In A Group A Symbol
+  | addedNonDisplayedLiquidityInAGroupASymbol -- Added Non Displayed Liquidity In A Group A Symbol
   | liquidityRemovingOrderInAGroupASymbol -- Liquidity Removing Order In A Group A Symbol
-  | addedNondisplayedMidpointLiquidityInAGroupASymbol -- Added Nondisplayed Midpoint Liquidity In A Group A Symbol
+  | addedNonDisplayedMidpointLiquidityInAGroupASymbol -- Added Non Displayed Midpoint Liquidity In A Group A Symbol
   | addedDisplayedLiquidityInAScipSymbol -- Added Displayed Liquidity In A Scip Symbol
-  | displayedLiquidityaddingOrderImprovesTheNbboInAScipSymbol -- Displayed Liquidityadding Order Improves The Nbbo In A Scip Symbol
-  | displayedLiquidityaddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol -- Displayed Liquidityadding Order Set The Qbbo While Joining The Nbbo In A Scip Symbol
-  | displayedLiquidityaddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe -- Displayed Liquidityadding Order Improves The Nbbo In Pilot Symbol During Specified Luld Pricing Pilot Timeframe
+  | displayedLiquidityAddingOrderImprovesTheNbboInAScipSymbol -- Displayed Liquidity Adding Order Improves The Nbbo In A Scip Symbol
+  | displayedLiquidityAddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol -- Displayed Liquidity Adding Order Set The Qbbo While Joining The Nbbo In A Scip Symbol
+  | displayedLiquidityAddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe -- Displayed Liquidity Adding Order Improves The Nbbo In Pilot Symbol During Specified Luld Pricing Pilot Timeframe
   | addedDisplayedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe -- Added Displayed Liquidity In A Pilot Symbol During Specified Luld Pricing Pilot Timeframe
   | removedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe -- Removed Liquidity In A Pilot Symbol During Specified Luld Pricing Pilot Timeframe
   | haltCrossOrdersEnteredInPilotSymbolsDuringTheLuldTradingPause -- Halt Cross Orders Entered In Pilot Symbols During The Luld Trading Pause
@@ -190,12 +190,12 @@ def toByte : LiquidityCode → UInt8
   | .openingTradeOnNyse => 0x46
   | .onCloseOrderOnNyse => 0x47
   | .openingCross => 0x4F
-  | .openingCrossImbalanceonly => 0x4D
+  | .openingCrossImbalanceOnly => 0x4D
   | .closingCross => 0x43
-  | .closingCrossImbalanceonly => 0x4C
+  | .closingCrossImbalanceOnly => 0x4C
   | .haltIpoCross => 0x48
   | .haltCross => 0x4B
-  | .nondisplayedAddingLiquidity => 0x4A
+  | .nonDisplayedAddingLiquidity => 0x4A
   | .reRoutedByNyse => 0x59
   | .oddLotExecutionOnNyse => 0x53
   | .addedLiquidityOnNyse => 0x55
@@ -204,26 +204,26 @@ def toByte : LiquidityCode → UInt8
   | .routedToPsx => 0x50
   | .openingTradeOnArca => 0x54
   | .onCloseOrderOnArca => 0x5A
-  | .addedPostonlyNotCurrentlyAvailable => 0x57
+  | .addedPostOnlyNotCurrentlyAvailable => 0x57
   | .removedLiquidityAtAMidpoint => 0x6D
   | .addedLiquidityViaAMidpointOrder => 0x6B
   | .supplementalOrderExecution => 0x30
-  | .displayedLiquidityaddingOrderImprovesTheNbbo => 0x37
-  | .displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo => 0x38
+  | .displayedLiquidityAddingOrderImprovesTheNbbo => 0x37
+  | .displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo => 0x38
   | .retailDesignatedExecutionThatRemovedLiquidityNotCurrentlyAvailable => 0x64
   | .retailDesignatedExecutionThatAddedDisplayedLiquidity => 0x65
-  | .retailDesignatedExecutionThatAddedNondisplayedLiquidityNotCurrentlyAvailable => 0x66
+  | .retailDesignatedExecutionThatAddedNonDisplayedLiquidityNotCurrentlyAvailable => 0x66
   | .rpiOrderThatProvidesLiquidity => 0x6A
   | .retailOrderThatRemovesRpiLiquidity => 0x72
-  | .retailOrderThatRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => 0x74
+  | .retailOrderThatRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => 0x74
   | .addedDisplayedLiquidityInAGroupASymbol => 0x34
-  | .addedNondisplayedLiquidityInAGroupASymbol => 0x35
+  | .addedNonDisplayedLiquidityInAGroupASymbol => 0x35
   | .liquidityRemovingOrderInAGroupASymbol => 0x36
-  | .addedNondisplayedMidpointLiquidityInAGroupASymbol => 0x67
+  | .addedNonDisplayedMidpointLiquidityInAGroupASymbol => 0x67
   | .addedDisplayedLiquidityInAScipSymbol => 0x61
-  | .displayedLiquidityaddingOrderImprovesTheNbboInAScipSymbol => 0x78
-  | .displayedLiquidityaddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol => 0x79
-  | .displayedLiquidityaddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => 0x62
+  | .displayedLiquidityAddingOrderImprovesTheNbboInAScipSymbol => 0x78
+  | .displayedLiquidityAddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol => 0x79
+  | .displayedLiquidityAddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => 0x62
   | .addedDisplayedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => 0x63
   | .removedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => 0x68
   | .haltCrossOrdersEnteredInPilotSymbolsDuringTheLuldTradingPause => 0x4E
@@ -238,12 +238,12 @@ def listed (byte : UInt8) : LiquidityCode :=
   else if byte = 0x46 then .openingTradeOnNyse
   else if byte = 0x47 then .onCloseOrderOnNyse
   else if byte = 0x4F then .openingCross
-  else if byte = 0x4D then .openingCrossImbalanceonly
+  else if byte = 0x4D then .openingCrossImbalanceOnly
   else if byte = 0x43 then .closingCross
-  else if byte = 0x4C then .closingCrossImbalanceonly
+  else if byte = 0x4C then .closingCrossImbalanceOnly
   else if byte = 0x48 then .haltIpoCross
   else if byte = 0x4B then .haltCross
-  else if byte = 0x4A then .nondisplayedAddingLiquidity
+  else if byte = 0x4A then .nonDisplayedAddingLiquidity
   else if byte = 0x59 then .reRoutedByNyse
   else if byte = 0x53 then .oddLotExecutionOnNyse
   else if byte = 0x55 then .addedLiquidityOnNyse
@@ -252,26 +252,26 @@ def listed (byte : UInt8) : LiquidityCode :=
   else if byte = 0x50 then .routedToPsx
   else if byte = 0x54 then .openingTradeOnArca
   else if byte = 0x5A then .onCloseOrderOnArca
-  else if byte = 0x57 then .addedPostonlyNotCurrentlyAvailable
+  else if byte = 0x57 then .addedPostOnlyNotCurrentlyAvailable
   else if byte = 0x6D then .removedLiquidityAtAMidpoint
   else if byte = 0x6B then .addedLiquidityViaAMidpointOrder
   else if byte = 0x30 then .supplementalOrderExecution
-  else if byte = 0x37 then .displayedLiquidityaddingOrderImprovesTheNbbo
-  else if byte = 0x38 then .displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo
+  else if byte = 0x37 then .displayedLiquidityAddingOrderImprovesTheNbbo
+  else if byte = 0x38 then .displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo
   else if byte = 0x64 then .retailDesignatedExecutionThatRemovedLiquidityNotCurrentlyAvailable
   else if byte = 0x65 then .retailDesignatedExecutionThatAddedDisplayedLiquidity
-  else if byte = 0x66 then .retailDesignatedExecutionThatAddedNondisplayedLiquidityNotCurrentlyAvailable
+  else if byte = 0x66 then .retailDesignatedExecutionThatAddedNonDisplayedLiquidityNotCurrentlyAvailable
   else if byte = 0x6A then .rpiOrderThatProvidesLiquidity
   else if byte = 0x72 then .retailOrderThatRemovesRpiLiquidity
-  else if byte = 0x74 then .retailOrderThatRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity
+  else if byte = 0x74 then .retailOrderThatRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity
   else if byte = 0x34 then .addedDisplayedLiquidityInAGroupASymbol
-  else if byte = 0x35 then .addedNondisplayedLiquidityInAGroupASymbol
+  else if byte = 0x35 then .addedNonDisplayedLiquidityInAGroupASymbol
   else if byte = 0x36 then .liquidityRemovingOrderInAGroupASymbol
-  else if byte = 0x67 then .addedNondisplayedMidpointLiquidityInAGroupASymbol
+  else if byte = 0x67 then .addedNonDisplayedMidpointLiquidityInAGroupASymbol
   else if byte = 0x61 then .addedDisplayedLiquidityInAScipSymbol
-  else if byte = 0x78 then .displayedLiquidityaddingOrderImprovesTheNbboInAScipSymbol
-  else if byte = 0x79 then .displayedLiquidityaddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol
-  else if byte = 0x62 then .displayedLiquidityaddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe
+  else if byte = 0x78 then .displayedLiquidityAddingOrderImprovesTheNbboInAScipSymbol
+  else if byte = 0x79 then .displayedLiquidityAddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol
+  else if byte = 0x62 then .displayedLiquidityAddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe
   else if byte = 0x63 then .addedDisplayedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe
   else if byte = 0x68 then .removedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe
   else .haltCrossOrdersEnteredInPilotSymbolsDuringTheLuldTradingPause
@@ -288,12 +288,12 @@ theorem ofByte_toByte (value : LiquidityCode) : ofByte value.toByte = value := b
   | openingTradeOnNyse => decide
   | onCloseOrderOnNyse => decide
   | openingCross => decide
-  | openingCrossImbalanceonly => decide
+  | openingCrossImbalanceOnly => decide
   | closingCross => decide
-  | closingCrossImbalanceonly => decide
+  | closingCrossImbalanceOnly => decide
   | haltIpoCross => decide
   | haltCross => decide
-  | nondisplayedAddingLiquidity => decide
+  | nonDisplayedAddingLiquidity => decide
   | reRoutedByNyse => decide
   | oddLotExecutionOnNyse => decide
   | addedLiquidityOnNyse => decide
@@ -302,26 +302,26 @@ theorem ofByte_toByte (value : LiquidityCode) : ofByte value.toByte = value := b
   | routedToPsx => decide
   | openingTradeOnArca => decide
   | onCloseOrderOnArca => decide
-  | addedPostonlyNotCurrentlyAvailable => decide
+  | addedPostOnlyNotCurrentlyAvailable => decide
   | removedLiquidityAtAMidpoint => decide
   | addedLiquidityViaAMidpointOrder => decide
   | supplementalOrderExecution => decide
-  | displayedLiquidityaddingOrderImprovesTheNbbo => decide
-  | displayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo => decide
+  | displayedLiquidityAddingOrderImprovesTheNbbo => decide
+  | displayedLiquidityAddingOrderSetsTheQbboWhileJoiningTheNbbo => decide
   | retailDesignatedExecutionThatRemovedLiquidityNotCurrentlyAvailable => decide
   | retailDesignatedExecutionThatAddedDisplayedLiquidity => decide
-  | retailDesignatedExecutionThatAddedNondisplayedLiquidityNotCurrentlyAvailable => decide
+  | retailDesignatedExecutionThatAddedNonDisplayedLiquidityNotCurrentlyAvailable => decide
   | rpiOrderThatProvidesLiquidity => decide
   | retailOrderThatRemovesRpiLiquidity => decide
-  | retailOrderThatRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => decide
+  | retailOrderThatRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => decide
   | addedDisplayedLiquidityInAGroupASymbol => decide
-  | addedNondisplayedLiquidityInAGroupASymbol => decide
+  | addedNonDisplayedLiquidityInAGroupASymbol => decide
   | liquidityRemovingOrderInAGroupASymbol => decide
-  | addedNondisplayedMidpointLiquidityInAGroupASymbol => decide
+  | addedNonDisplayedMidpointLiquidityInAGroupASymbol => decide
   | addedDisplayedLiquidityInAScipSymbol => decide
-  | displayedLiquidityaddingOrderImprovesTheNbboInAScipSymbol => decide
-  | displayedLiquidityaddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol => decide
-  | displayedLiquidityaddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => decide
+  | displayedLiquidityAddingOrderImprovesTheNbboInAScipSymbol => decide
+  | displayedLiquidityAddingOrderSetTheQbboWhileJoiningTheNbboInAScipSymbol => decide
+  | displayedLiquidityAddingOrderImprovesTheNbboInPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => decide
   | addedDisplayedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => decide
   | removedLiquidityInAPilotSymbolDuringSpecifiedLuldPricingPilotTimeframe => decide
   | haltCrossOrdersEnteredInPilotSymbolsDuringTheLuldTradingPause => decide

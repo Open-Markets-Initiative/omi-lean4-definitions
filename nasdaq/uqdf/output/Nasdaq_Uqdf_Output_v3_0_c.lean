@@ -215,10 +215,10 @@ inductive QuoteCondition where
   | manualBidAndAsk -- Manual Bid And Ask
   | orderImbalance -- Order Imbalance
   | closedQuote -- Closed Quote
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | openingQuoteAutomated -- Opening Quote Automated
-  | regularTwosidedOpenQuoteAutomated -- Regular Twosided Open Quote Automated
-  | manualBidAndAskNonfirm -- Manual Bid And Ask Nonfirm
+  | regularTwoSidedOpenQuoteAutomated -- Regular Two Sided Open Quote Automated
+  | manualBidAndAskNonFirm -- Manual Bid And Ask Non Firm
   | orderInflux -- Order Influx
   | automatedBidNoOfferOrAutomatedOfferNoBid -- Automated Bid No Offer Or Automated Offer No Bid
   | noOpenNoResume -- No Open No Resume
@@ -235,10 +235,10 @@ def toByte : QuoteCondition → UInt8
   | .manualBidAndAsk => 0x48
   | .orderImbalance => 0x49
   | .closedQuote => 0x4C
-  | .nonfirmQuote => 0x4E
+  | .nonFirmQuote => 0x4E
   | .openingQuoteAutomated => 0x4F
-  | .regularTwosidedOpenQuoteAutomated => 0x52
-  | .manualBidAndAskNonfirm => 0x55
+  | .regularTwoSidedOpenQuoteAutomated => 0x52
+  | .manualBidAndAskNonFirm => 0x55
   | .orderInflux => 0x58
   | .automatedBidNoOfferOrAutomatedOfferNoBid => 0x59
   | .noOpenNoResume => 0x5A
@@ -253,10 +253,10 @@ def listed (byte : UInt8) : QuoteCondition :=
   else if byte = 0x48 then .manualBidAndAsk
   else if byte = 0x49 then .orderImbalance
   else if byte = 0x4C then .closedQuote
-  else if byte = 0x4E then .nonfirmQuote
+  else if byte = 0x4E then .nonFirmQuote
   else if byte = 0x4F then .openingQuoteAutomated
-  else if byte = 0x52 then .regularTwosidedOpenQuoteAutomated
-  else if byte = 0x55 then .manualBidAndAskNonfirm
+  else if byte = 0x52 then .regularTwoSidedOpenQuoteAutomated
+  else if byte = 0x55 then .manualBidAndAskNonFirm
   else if byte = 0x58 then .orderInflux
   else if byte = 0x59 then .automatedBidNoOfferOrAutomatedOfferNoBid
   else if byte = 0x5A then .noOpenNoResume
@@ -273,10 +273,10 @@ theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := 
   | manualBidAndAsk => decide
   | orderImbalance => decide
   | closedQuote => decide
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | openingQuoteAutomated => decide
-  | regularTwosidedOpenQuoteAutomated => decide
-  | manualBidAndAskNonfirm => decide
+  | regularTwoSidedOpenQuoteAutomated => decide
+  | manualBidAndAskNonFirm => decide
   | orderInflux => decide
   | automatedBidNoOfferOrAutomatedOfferNoBid => decide
   | noOpenNoResume => decide
@@ -309,7 +309,7 @@ def SipGeneratedUpdateFlag.codes : List UInt8 :=
 
 inductive SipGeneratedUpdateFlag where
   | transactionOriginatedFromMarketParticipant -- Transaction Originated From Market Participant
-  | siPgeneratedTransactionEgPriceBandChange -- Si Pgenerated Transaction Eg Price Band Change
+  | sipGeneratedTransactionEgPriceBandChange -- Sip Generated Transaction Eg Price Band Change
   | unlisted (byte : { byte : UInt8 // byte ∉ SipGeneratedUpdateFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -317,13 +317,13 @@ namespace SipGeneratedUpdateFlag
 
 def toByte : SipGeneratedUpdateFlag → UInt8
   | .transactionOriginatedFromMarketParticipant => 0x20
-  | .siPgeneratedTransactionEgPriceBandChange => 0x45
+  | .sipGeneratedTransactionEgPriceBandChange => 0x45
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SipGeneratedUpdateFlag :=
   if byte = 0x20 then .transactionOriginatedFromMarketParticipant
-  else .siPgeneratedTransactionEgPriceBandChange
+  else .sipGeneratedTransactionEgPriceBandChange
 
 def ofByte (byte : UInt8) : SipGeneratedUpdateFlag :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -331,7 +331,7 @@ def ofByte (byte : UInt8) : SipGeneratedUpdateFlag :=
 theorem ofByte_toByte (value : SipGeneratedUpdateFlag) : ofByte value.toByte = value := by
   cases value with
   | transactionOriginatedFromMarketParticipant => decide
-  | siPgeneratedTransactionEgPriceBandChange => decide
+  | sipGeneratedTransactionEgPriceBandChange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SipGeneratedUpdateFlag) : List UInt8 :=
@@ -1265,7 +1265,7 @@ def SpecialCondition.codes : List UInt8 :=
   [0x4F, 0x48, 0x4D, 0x20]
 
 inductive SpecialCondition where
-  | onesidedNationalBboAtMarketClose -- Onesided National Bbo At Market Close
+  | oneSidedNationalBboAtMarketClose -- One Sided National Bbo At Market Close
   | tradingHaltInEffectAtMarketClose -- Trading Halt In Effect At Market Close
   | noEligibleMarketParticipantQuotesInIssueAtMarketClose -- No Eligible Market Participant Quotes In Issue At Market Close
   | noSpecialConditionExists -- No Special Condition Exists
@@ -1275,7 +1275,7 @@ inductive SpecialCondition where
 namespace SpecialCondition
 
 def toByte : SpecialCondition → UInt8
-  | .onesidedNationalBboAtMarketClose => 0x4F
+  | .oneSidedNationalBboAtMarketClose => 0x4F
   | .tradingHaltInEffectAtMarketClose => 0x48
   | .noEligibleMarketParticipantQuotesInIssueAtMarketClose => 0x4D
   | .noSpecialConditionExists => 0x20
@@ -1283,7 +1283,7 @@ def toByte : SpecialCondition → UInt8
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SpecialCondition :=
-  if byte = 0x4F then .onesidedNationalBboAtMarketClose
+  if byte = 0x4F then .oneSidedNationalBboAtMarketClose
   else if byte = 0x48 then .tradingHaltInEffectAtMarketClose
   else if byte = 0x4D then .noEligibleMarketParticipantQuotesInIssueAtMarketClose
   else .noSpecialConditionExists
@@ -1293,7 +1293,7 @@ def ofByte (byte : UInt8) : SpecialCondition :=
 
 theorem ofByte_toByte (value : SpecialCondition) : ofByte value.toByte = value := by
   cases value with
-  | onesidedNationalBboAtMarketClose => decide
+  | oneSidedNationalBboAtMarketClose => decide
   | tradingHaltInEffectAtMarketClose => decide
   | noEligibleMarketParticipantQuotesInIssueAtMarketClose => decide
   | noSpecialConditionExists => decide
@@ -1319,8 +1319,8 @@ theorem encode_length_pos (value : SpecialCondition) : (encode value).length > 0
 
 end SpecialCondition
 
-/-- National Bbo Appendage Shortform: 11 bytes -/
-structure NationalBboAppendageShortform where
+/-- National Bbo Appendage Short Form: 11 bytes -/
+structure NationalBboAppendageShortForm where
   nbboQuoteCondition : Alpha 1
   nationalBestBidMarketCenter : Alpha 1
   nationalBestBidPriceShort : BitVec 16
@@ -1330,9 +1330,9 @@ structure NationalBboAppendageShortform where
   nationalBestAskSizeShort : BitVec 16
   deriving DecidableEq, Repr
 
-namespace NationalBboAppendageShortform
+namespace NationalBboAppendageShortForm
 
-def encode (message : NationalBboAppendageShortform) : List UInt8 :=
+def encode (message : NationalBboAppendageShortForm) : List UInt8 :=
   Alpha.encode message.nbboQuoteCondition
     ++ (Alpha.encode message.nationalBestBidMarketCenter
     ++ (encodeUInt 2 message.nationalBestBidPriceShort
@@ -1341,7 +1341,7 @@ def encode (message : NationalBboAppendageShortform) : List UInt8 :=
     ++ (encodeUInt 2 message.nationalBestAskPriceShort
     ++ (encodeUInt 2 message.nationalBestAskSizeShort))))))
 
-def decode (bytes : List UInt8) : Option (NationalBboAppendageShortform × List UInt8) := do
+def decode (bytes : List UInt8) : Option (NationalBboAppendageShortForm × List UInt8) := do
   let (nbboQuoteCondition, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidMarketCenter, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidPriceShort, bytes) ← decodeUInt 2 bytes
@@ -1351,15 +1351,15 @@ def decode (bytes : List UInt8) : Option (NationalBboAppendageShortform × List 
   let (nationalBestAskSizeShort, bytes) ← decodeUInt 2 bytes
   pure ({ nbboQuoteCondition, nationalBestBidMarketCenter, nationalBestBidPriceShort, nationalBestBidSizeShort, nationalBestAskMarketCenter, nationalBestAskPriceShort, nationalBestAskSizeShort }, bytes)
 
-@[simp] theorem encode_length (message : NationalBboAppendageShortform) : (encode message).length = 11 := by
+@[simp] theorem encode_length (message : NationalBboAppendageShortForm) : (encode message).length = 11 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : NationalBboAppendageShortform) : (encode message).length > 0 := by
+theorem encode_length_pos (message : NationalBboAppendageShortForm) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : NationalBboAppendageShortform) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : NationalBboAppendageShortForm) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -1377,10 +1377,10 @@ theorem encode_length_pos (message : NationalBboAppendageShortform) : (encode me
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end NationalBboAppendageShortform
+end NationalBboAppendageShortForm
 
-/-- National Bbo Appendage Longform: 27 bytes -/
-structure NationalBboAppendageLongform where
+/-- National Bbo Appendage Long Form: 27 bytes -/
+structure NationalBboAppendageLongForm where
   nbboQuoteCondition : Alpha 1
   nationalBestBidMarketCenter : Alpha 1
   nationalBestBidPriceLong : BitVec 64
@@ -1390,9 +1390,9 @@ structure NationalBboAppendageLongform where
   nationalBestAskSizeLong : BitVec 32
   deriving DecidableEq, Repr
 
-namespace NationalBboAppendageLongform
+namespace NationalBboAppendageLongForm
 
-def encode (message : NationalBboAppendageLongform) : List UInt8 :=
+def encode (message : NationalBboAppendageLongForm) : List UInt8 :=
   Alpha.encode message.nbboQuoteCondition
     ++ (Alpha.encode message.nationalBestBidMarketCenter
     ++ (encodeUInt 8 message.nationalBestBidPriceLong
@@ -1401,7 +1401,7 @@ def encode (message : NationalBboAppendageLongform) : List UInt8 :=
     ++ (encodeUInt 8 message.nationalBestAskPriceLong
     ++ (encodeUInt 4 message.nationalBestAskSizeLong))))))
 
-def decode (bytes : List UInt8) : Option (NationalBboAppendageLongform × List UInt8) := do
+def decode (bytes : List UInt8) : Option (NationalBboAppendageLongForm × List UInt8) := do
   let (nbboQuoteCondition, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidMarketCenter, bytes) ← Alpha.decode 1 bytes
   let (nationalBestBidPriceLong, bytes) ← decodeUInt 8 bytes
@@ -1411,15 +1411,15 @@ def decode (bytes : List UInt8) : Option (NationalBboAppendageLongform × List U
   let (nationalBestAskSizeLong, bytes) ← decodeUInt 4 bytes
   pure ({ nbboQuoteCondition, nationalBestBidMarketCenter, nationalBestBidPriceLong, nationalBestBidSizeLong, nationalBestAskMarketCenter, nationalBestAskPriceLong, nationalBestAskSizeLong }, bytes)
 
-@[simp] theorem encode_length (message : NationalBboAppendageLongform) : (encode message).length = 27 := by
+@[simp] theorem encode_length (message : NationalBboAppendageLongForm) : (encode message).length = 27 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : NationalBboAppendageLongform) : (encode message).length > 0 := by
+theorem encode_length_pos (message : NationalBboAppendageLongForm) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : NationalBboAppendageLongform) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : NationalBboAppendageLongForm) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -1437,7 +1437,7 @@ theorem encode_length_pos (message : NationalBboAppendageLongform) : (encode mes
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end NationalBboAppendageLongform
+end NationalBboAppendageLongForm
 
 /-- Nbbo Appendage Indicator: 0 bytes -/
 structure NbboAppendageAbsent where
@@ -1460,10 +1460,10 @@ def decode (bytes : List UInt8) : Option (NbboAppendageAbsent × List UInt8) :=
 
 end NbboAppendageAbsent
 
-/-- The National Bbo Appendage Shortform or National Bbo Appendage Longform the Nbbo Appendage Indicator says is attached, or none -/
+/-- The National Bbo Appendage Short Form or National Bbo Appendage Long Form the Nbbo Appendage Indicator says is attached, or none -/
 inductive NbboAppendageChoice where
-  | nationalBboAppendageShortform (message : NationalBboAppendageShortform) -- "2" 0x32
-  | nationalBboAppendageLongform (message : NationalBboAppendageLongform) -- "3" 0x33
+  | nationalBboAppendageShortForm (message : NationalBboAppendageShortForm) -- "2" 0x32
+  | nationalBboAppendageLongForm (message : NationalBboAppendageLongForm) -- "3" 0x33
   | noNationalBboChange (message : NbboAppendageAbsent) -- "0" 0x30
   | noNationalBboCanBeCalculated (message : NbboAppendageAbsent) -- "1" 0x31
   | quoteContainsAllNationalBboInformation (message : NbboAppendageAbsent) -- "4" 0x34
@@ -1473,15 +1473,15 @@ namespace NbboAppendageChoice
 
 /-- The Nbbo Appendage Indicator each message is sent under -/
 def tag : NbboAppendageChoice → BitVec 8
-  | .nationalBboAppendageShortform _ => 50
-  | .nationalBboAppendageLongform _ => 51
+  | .nationalBboAppendageShortForm _ => 50
+  | .nationalBboAppendageLongForm _ => 51
   | .noNationalBboChange _ => 48
   | .noNationalBboCanBeCalculated _ => 49
   | .quoteContainsAllNationalBboInformation _ => 52
 
 def encode : NbboAppendageChoice → List UInt8
-  | .nationalBboAppendageShortform message => NationalBboAppendageShortform.encode message
-  | .nationalBboAppendageLongform message => NationalBboAppendageLongform.encode message
+  | .nationalBboAppendageShortForm message => NationalBboAppendageShortForm.encode message
+  | .nationalBboAppendageLongForm message => NationalBboAppendageLongForm.encode message
   | .noNationalBboChange message => NbboAppendageAbsent.encode message
   | .noNationalBboCanBeCalculated message => NbboAppendageAbsent.encode message
   | .quoteContainsAllNationalBboInformation message => NbboAppendageAbsent.encode message
@@ -1489,11 +1489,11 @@ def encode : NbboAppendageChoice → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : NbboAppendageChoice) : (encode message).length ≤ 27 := by
   cases message with
-  | nationalBboAppendageShortform inner =>
-    simp only [encode, NationalBboAppendageShortform.encode_length]
+  | nationalBboAppendageShortForm inner =>
+    simp only [encode, NationalBboAppendageShortForm.encode_length]
     omega
-  | nationalBboAppendageLongform inner =>
-    simp only [encode, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [encode, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [encode, NbboAppendageAbsent.encode_length]
@@ -1506,8 +1506,8 @@ theorem encode_length_le (message : NbboAppendageChoice) : (encode message).leng
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (NbboAppendageChoice × List UInt8) :=
-  if tag = 50 then (NationalBboAppendageShortform.decode bytes).map fun (message, rest) => (.nationalBboAppendageShortform message, rest)
-  else if tag = 51 then (NationalBboAppendageLongform.decode bytes).map fun (message, rest) => (.nationalBboAppendageLongform message, rest)
+  if tag = 50 then (NationalBboAppendageShortForm.decode bytes).map fun (message, rest) => (.nationalBboAppendageShortForm message, rest)
+  else if tag = 51 then (NationalBboAppendageLongForm.decode bytes).map fun (message, rest) => (.nationalBboAppendageLongForm message, rest)
   else if tag = 48 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.noNationalBboChange message, rest)
   else if tag = 49 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.noNationalBboCanBeCalculated message, rest)
   else if tag = 52 then (NbboAppendageAbsent.decode bytes).map fun (message, rest) => (.quoteContainsAllNationalBboInformation message, rest)
@@ -1519,8 +1519,8 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (NbboAppendageChoice �
 
 end NbboAppendageChoice
 
-/-- Utp Quote Shortform Message -/
-structure UtpQuoteShortformMessage where
+/-- Utp Quote Short Form Message -/
+structure UtpQuoteShortFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1539,9 +1539,9 @@ structure UtpQuoteShortformMessage where
   nbboAppendageChoice : NbboAppendageChoice
   deriving DecidableEq, Repr
 
-namespace UtpQuoteShortformMessage
+namespace UtpQuoteShortFormMessage
 
-def encode (message : UtpQuoteShortformMessage) : List UInt8 :=
+def encode (message : UtpQuoteShortFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1560,7 +1560,7 @@ def encode (message : UtpQuoteShortformMessage) : List UInt8 :=
     ++ (LuldNationalBboIndicator.encode message.luldNationalBboIndicator
     ++ (NbboAppendageChoice.encode message.nbboAppendageChoice))))))))))))))))
 
-def decode (bytes : List UInt8) : Option (UtpQuoteShortformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (UtpQuoteShortFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1580,20 +1580,20 @@ def decode (bytes : List UInt8) : Option (UtpQuoteShortformMessage × List UInt8
   let (nbboAppendageChoice, bytes) ← NbboAppendageChoice.decode nbboAppendageIndicator bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, symbolShort, bidPriceShort, bidSizeShort, askPriceShort, askSizeShort, quoteCondition, sipGeneratedUpdateFlag, luldBboIndicator, retailInterestIndicator, luldNationalBboIndicator, nbboAppendageChoice }, bytes)
 
-theorem encode_length_pos (message : UtpQuoteShortformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : UtpQuoteShortFormMessage) : (encode message).length > 0 := by
   unfold encode
   simp only [MarketCenterOriginator.encode_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : UtpQuoteShortformMessage) : (encode message).length ≤ 72 := by
+theorem encode_length_le (message : UtpQuoteShortFormMessage) : (encode message).length ≤ 72 := by
   unfold encode
   cases message.nbboAppendageChoice with
-  | nationalBboAppendageShortform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortform.encode_length]
+  | nationalBboAppendageShortForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortForm.encode_length]
     omega
-  | nationalBboAppendageLongform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NbboAppendageAbsent.encode_length]
@@ -1605,7 +1605,7 @@ theorem encode_length_le (message : UtpQuoteShortformMessage) : (encode message)
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NbboAppendageAbsent.encode_length]
     omega
 
-@[simp] theorem decode_encode (message : UtpQuoteShortformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : UtpQuoteShortFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -1643,10 +1643,10 @@ theorem encode_length_le (message : UtpQuoteShortformMessage) : (encode message)
   rw [NbboAppendageChoice.decode_encode, some_bind]
   rfl
 
-end UtpQuoteShortformMessage
+end UtpQuoteShortFormMessage
 
-/-- Utp Quote Longform Message -/
-structure UtpQuoteLongformMessage where
+/-- Utp Quote Long Form Message -/
+structure UtpQuoteLongFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1667,9 +1667,9 @@ structure UtpQuoteLongformMessage where
   nbboAppendageChoice : NbboAppendageChoice
   deriving DecidableEq, Repr
 
-namespace UtpQuoteLongformMessage
+namespace UtpQuoteLongFormMessage
 
-def encode (message : UtpQuoteLongformMessage) : List UInt8 :=
+def encode (message : UtpQuoteLongFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1690,7 +1690,7 @@ def encode (message : UtpQuoteLongformMessage) : List UInt8 :=
     ++ (FinraAdfMpidAppendageIndicator.encode message.finraAdfMpidAppendageIndicator
     ++ (NbboAppendageChoice.encode message.nbboAppendageChoice))))))))))))))))))
 
-def decode (bytes : List UInt8) : Option (UtpQuoteLongformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (UtpQuoteLongFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1712,20 +1712,20 @@ def decode (bytes : List UInt8) : Option (UtpQuoteLongformMessage × List UInt8)
   let (nbboAppendageChoice, bytes) ← NbboAppendageChoice.decode nbboAppendageIndicator bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, timestamp2, symbolLong, bidPriceLong, bidSizeLong, askPriceLong, askSizeLong, quoteCondition, sipGeneratedUpdateFlag, luldBboIndicator, retailInterestIndicator, luldNationalBboIndicator, finraAdfMpidAppendageIndicator, nbboAppendageChoice }, bytes)
 
-theorem encode_length_pos (message : UtpQuoteLongformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : UtpQuoteLongFormMessage) : (encode message).length > 0 := by
   unfold encode
   simp only [MarketCenterOriginator.encode_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : UtpQuoteLongformMessage) : (encode message).length ≤ 103 := by
+theorem encode_length_le (message : UtpQuoteLongFormMessage) : (encode message).length ≤ 103 := by
   unfold encode
   cases message.nbboAppendageChoice with
-  | nationalBboAppendageShortform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NationalBboAppendageShortform.encode_length]
+  | nationalBboAppendageShortForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NationalBboAppendageShortForm.encode_length]
     omega
-  | nationalBboAppendageLongform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NbboAppendageAbsent.encode_length]
@@ -1737,7 +1737,7 @@ theorem encode_length_le (message : UtpQuoteLongformMessage) : (encode message).
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, FinraAdfMpidAppendageIndicator.encode_length, NbboAppendageAbsent.encode_length]
     omega
 
-@[simp] theorem decode_encode (message : UtpQuoteLongformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : UtpQuoteLongFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -1779,7 +1779,7 @@ theorem encode_length_le (message : UtpQuoteLongformMessage) : (encode message).
   rw [NbboAppendageChoice.decode_encode, some_bind]
   rfl
 
-end UtpQuoteLongformMessage
+end UtpQuoteLongFormMessage
 
 /-- Finra Adf Market Participant Quotation Message: 74 bytes -/
 structure FinraAdfMarketParticipantQuotationMessage where
@@ -2424,11 +2424,11 @@ theorem encode_length_le (message : CombinedQuoteMessageShortFormMessage) : (enc
   have bound_oddLotAttachmentTypeChoice := OddLotAttachmentTypeChoice.encode_length_le message.oddLotAttachmentTypeChoice
   unfold encode
   cases message.nbboAppendageChoice with
-  | nationalBboAppendageShortform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortform.encode_length]
+  | nationalBboAppendageShortForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortForm.encode_length]
     omega
-  | nationalBboAppendageLongform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NbboAppendageAbsent.encode_length]
@@ -2694,11 +2694,11 @@ theorem encode_length_le (message : CombinedQuoteMessageLongFormMessage) : (enco
   have bound_oddLotAttachmentTypeChoice := OddLotAttachmentTypeChoice.encode_length_le message.oddLotAttachmentTypeChoice
   unfold encode
   cases message.nbboAppendageChoice with
-  | nationalBboAppendageShortform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortform.encode_length]
+  | nationalBboAppendageShortForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageShortForm.encode_length]
     omega
-  | nationalBboAppendageLongform inner =>
-    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongform.encode_length]
+  | nationalBboAppendageLongForm inner =>
+    simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NationalBboAppendageLongForm.encode_length]
     omega
   | noNationalBboChange inner =>
     simp only [NbboAppendageChoice.encode, List.length_append, ← Nat.add_assoc, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, QuoteCondition.encode_length, SipGeneratedUpdateFlag.encode_length, LuldBboIndicator.encode_length, RetailInterestIndicator.encode_length, LuldNationalBboIndicator.encode_length, NbboAppendageAbsent.encode_length]
@@ -2976,8 +2976,8 @@ end OddLotQuoteMessageLongFormMessage
 
 /-- Any Quote Message Payload, selected by Quote Message Type -/
 inductive QuoteMessagePayload where
-  | utpQuoteShortformMessage (message : UtpQuoteShortformMessage) -- "E" 0x45
-  | utpQuoteLongformMessage (message : UtpQuoteLongformMessage) -- "F" 0x46
+  | utpQuoteShortFormMessage (message : UtpQuoteShortFormMessage) -- "E" 0x45
+  | utpQuoteLongFormMessage (message : UtpQuoteLongFormMessage) -- "F" 0x46
   | finraAdfMarketParticipantQuotationMessage (message : FinraAdfMarketParticipantQuotationMessage) -- "M" 0x4D
   | combinedQuoteMessageShortFormMessage (message : CombinedQuoteMessageShortFormMessage) -- "C" 0x43
   | combinedQuoteMessageLongFormMessage (message : CombinedQuoteMessageLongFormMessage) -- "D" 0x44
@@ -2989,8 +2989,8 @@ namespace QuoteMessagePayload
 
 /-- The Quote Message Type each message is sent under -/
 def tag : QuoteMessagePayload → BitVec 8
-  | .utpQuoteShortformMessage _ => 69
-  | .utpQuoteLongformMessage _ => 70
+  | .utpQuoteShortFormMessage _ => 69
+  | .utpQuoteLongFormMessage _ => 70
   | .finraAdfMarketParticipantQuotationMessage _ => 77
   | .combinedQuoteMessageShortFormMessage _ => 67
   | .combinedQuoteMessageLongFormMessage _ => 68
@@ -2998,8 +2998,8 @@ def tag : QuoteMessagePayload → BitVec 8
   | .oddLotQuoteMessageLongFormMessage _ => 66
 
 def encode : QuoteMessagePayload → List UInt8
-  | .utpQuoteShortformMessage message => UtpQuoteShortformMessage.encode message
-  | .utpQuoteLongformMessage message => UtpQuoteLongformMessage.encode message
+  | .utpQuoteShortFormMessage message => UtpQuoteShortFormMessage.encode message
+  | .utpQuoteLongFormMessage message => UtpQuoteLongFormMessage.encode message
   | .finraAdfMarketParticipantQuotationMessage message => FinraAdfMarketParticipantQuotationMessage.encode message
   | .combinedQuoteMessageShortFormMessage message => CombinedQuoteMessageShortFormMessage.encode message
   | .combinedQuoteMessageLongFormMessage message => CombinedQuoteMessageLongFormMessage.encode message
@@ -3009,12 +3009,12 @@ def encode : QuoteMessagePayload → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : QuoteMessagePayload) : (encode message).length ≤ 161 := by
   cases message with
-  | utpQuoteShortformMessage inner =>
-    have bound_inner := UtpQuoteShortformMessage.encode_length_le inner
+  | utpQuoteShortFormMessage inner =>
+    have bound_inner := UtpQuoteShortFormMessage.encode_length_le inner
     simp only [encode]
     omega
-  | utpQuoteLongformMessage inner =>
-    have bound_inner := UtpQuoteLongformMessage.encode_length_le inner
+  | utpQuoteLongFormMessage inner =>
+    have bound_inner := UtpQuoteLongFormMessage.encode_length_le inner
     simp only [encode]
     omega
   | finraAdfMarketParticipantQuotationMessage inner =>
@@ -3038,8 +3038,8 @@ theorem encode_length_le (message : QuoteMessagePayload) : (encode message).leng
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (QuoteMessagePayload × List UInt8) :=
-  if tag = 69 then (UtpQuoteShortformMessage.decode bytes).map fun (message, rest) => (.utpQuoteShortformMessage message, rest)
-  else if tag = 70 then (UtpQuoteLongformMessage.decode bytes).map fun (message, rest) => (.utpQuoteLongformMessage message, rest)
+  if tag = 69 then (UtpQuoteShortFormMessage.decode bytes).map fun (message, rest) => (.utpQuoteShortFormMessage message, rest)
+  else if tag = 70 then (UtpQuoteLongFormMessage.decode bytes).map fun (message, rest) => (.utpQuoteLongFormMessage message, rest)
   else if tag = 77 then (FinraAdfMarketParticipantQuotationMessage.decode bytes).map fun (message, rest) => (.finraAdfMarketParticipantQuotationMessage message, rest)
   else if tag = 67 then (CombinedQuoteMessageShortFormMessage.decode bytes).map fun (message, rest) => (.combinedQuoteMessageShortFormMessage message, rest)
   else if tag = 68 then (CombinedQuoteMessageLongFormMessage.decode bytes).map fun (message, rest) => (.combinedQuoteMessageLongFormMessage message, rest)
@@ -3078,12 +3078,12 @@ theorem encode_length_pos (message : QuoteMessage) : (encode message).length > 0
 theorem encode_length_le (message : QuoteMessage) : (encode message).length ≤ 162 := by
   unfold encode
   cases message.quoteMessagePayload with
-  | utpQuoteShortformMessage inner =>
-    have bound_inner := UtpQuoteShortformMessage.encode_length_le inner
+  | utpQuoteShortFormMessage inner =>
+    have bound_inner := UtpQuoteShortFormMessage.encode_length_le inner
     simp only [QuoteMessagePayload.encode, List.length_append, encodeUInt_length]
     omega
-  | utpQuoteLongformMessage inner =>
-    have bound_inner := UtpQuoteLongformMessage.encode_length_le inner
+  | utpQuoteLongFormMessage inner =>
+    have bound_inner := UtpQuoteLongFormMessage.encode_length_le inner
     simp only [QuoteMessagePayload.encode, List.length_append, encodeUInt_length]
     omega
   | finraAdfMarketParticipantQuotationMessage inner =>

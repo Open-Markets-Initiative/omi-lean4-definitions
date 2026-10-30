@@ -1204,8 +1204,8 @@ theorem encode_length_pos (value : MarketCenterCloseIndicator) : (encode value).
 
 end MarketCenterCloseIndicator
 
-/-- Trade Report Message Shortform Message: 58 bytes -/
-structure TradeReportMessageShortformMessage where
+/-- Trade Report Message Short Form Message: 58 bytes -/
+structure TradeReportMessageShortFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1222,9 +1222,9 @@ structure TradeReportMessageShortformMessage where
   participantPriceChangeIndicator : ParticipantPriceChangeIndicator
   deriving DecidableEq, Repr
 
-namespace TradeReportMessageShortformMessage
+namespace TradeReportMessageShortFormMessage
 
-def encode (message : TradeReportMessageShortformMessage) : List UInt8 :=
+def encode (message : TradeReportMessageShortFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1240,7 +1240,7 @@ def encode (message : TradeReportMessageShortformMessage) : List UInt8 :=
     ++ (ConsolidatedPriceChangeIndicator.encode message.consolidatedPriceChangeIndicator
     ++ (ParticipantPriceChangeIndicator.encode message.participantPriceChangeIndicator)))))))))))))
 
-def decode (bytes : List UInt8) : Option (TradeReportMessageShortformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (TradeReportMessageShortFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1257,15 +1257,15 @@ def decode (bytes : List UInt8) : Option (TradeReportMessageShortformMessage × 
   let (participantPriceChangeIndicator, bytes) ← ParticipantPriceChangeIndicator.decode bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, timestamp2, symbolShort, tradeId, tradePriceShort, tradeVolumeShort, saleCondition, tradeThroughExemptFlag, consolidatedPriceChangeIndicator, participantPriceChangeIndicator }, bytes)
 
-@[simp] theorem encode_length (message : TradeReportMessageShortformMessage) : (encode message).length = 58 := by
+@[simp] theorem encode_length (message : TradeReportMessageShortFormMessage) : (encode message).length = 58 := by
   unfold encode
   simp only [List.length_append, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, TradeThroughExemptFlag.encode_length, ConsolidatedPriceChangeIndicator.encode_length, ParticipantPriceChangeIndicator.encode_length]
 
-theorem encode_length_pos (message : TradeReportMessageShortformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : TradeReportMessageShortFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : TradeReportMessageShortformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : TradeReportMessageShortFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -1297,10 +1297,10 @@ theorem encode_length_pos (message : TradeReportMessageShortformMessage) : (enco
   rw [ParticipantPriceChangeIndicator.decode_encode, some_bind]
   rfl
 
-end TradeReportMessageShortformMessage
+end TradeReportMessageShortFormMessage
 
-/-- Trade Report Message Longform Message: 74 bytes -/
-structure TradeReportMessageLongformMessage where
+/-- Trade Report Message Long Form Message: 74 bytes -/
+structure TradeReportMessageLongFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1318,9 +1318,9 @@ structure TradeReportMessageLongformMessage where
   participantPriceChangeIndicator : ParticipantPriceChangeIndicator
   deriving DecidableEq, Repr
 
-namespace TradeReportMessageLongformMessage
+namespace TradeReportMessageLongFormMessage
 
-def encode (message : TradeReportMessageLongformMessage) : List UInt8 :=
+def encode (message : TradeReportMessageLongFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1337,7 +1337,7 @@ def encode (message : TradeReportMessageLongformMessage) : List UInt8 :=
     ++ (ConsolidatedPriceChangeIndicator.encode message.consolidatedPriceChangeIndicator
     ++ (ParticipantPriceChangeIndicator.encode message.participantPriceChangeIndicator))))))))))))))
 
-def decode (bytes : List UInt8) : Option (TradeReportMessageLongformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (TradeReportMessageLongFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1355,15 +1355,15 @@ def decode (bytes : List UInt8) : Option (TradeReportMessageLongformMessage × L
   let (participantPriceChangeIndicator, bytes) ← ParticipantPriceChangeIndicator.decode bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, timestamp2, symbolLong, tradeId, tradePriceLong, tradeVolumeLong, saleCondition, tradeThroughExemptFlag, sellersSaleDays, consolidatedPriceChangeIndicator, participantPriceChangeIndicator }, bytes)
 
-@[simp] theorem encode_length (message : TradeReportMessageLongformMessage) : (encode message).length = 74 := by
+@[simp] theorem encode_length (message : TradeReportMessageLongFormMessage) : (encode message).length = 74 := by
   unfold encode
   simp only [List.length_append, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, TradeThroughExemptFlag.encode_length, ConsolidatedPriceChangeIndicator.encode_length, ParticipantPriceChangeIndicator.encode_length]
 
-theorem encode_length_pos (message : TradeReportMessageLongformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : TradeReportMessageLongFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : TradeReportMessageLongformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : TradeReportMessageLongFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -1397,7 +1397,7 @@ theorem encode_length_pos (message : TradeReportMessageLongformMessage) : (encod
   rw [ParticipantPriceChangeIndicator.decode_encode, some_bind]
   rfl
 
-end TradeReportMessageLongformMessage
+end TradeReportMessageLongFormMessage
 
 /-- Trade Cancel Error Message: 139 bytes -/
 structure TradeCancelErrorMessage where
@@ -1817,8 +1817,8 @@ theorem encode_length_pos (message : PriorDayAsOfTradeMessage) : (encode message
 
 end PriorDayAsOfTradeMessage
 
-/-- Fractional Trade Report Message Shortform Message: 64 bytes -/
-structure FractionalTradeReportMessageShortformMessage where
+/-- Fractional Trade Report Message Short Form Message: 64 bytes -/
+structure FractionalTradeReportMessageShortFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1835,9 +1835,9 @@ structure FractionalTradeReportMessageShortformMessage where
   participantPriceChangeIndicator : ParticipantPriceChangeIndicator
   deriving DecidableEq, Repr
 
-namespace FractionalTradeReportMessageShortformMessage
+namespace FractionalTradeReportMessageShortFormMessage
 
-def encode (message : FractionalTradeReportMessageShortformMessage) : List UInt8 :=
+def encode (message : FractionalTradeReportMessageShortFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1853,7 +1853,7 @@ def encode (message : FractionalTradeReportMessageShortformMessage) : List UInt8
     ++ (ConsolidatedPriceChangeIndicator.encode message.consolidatedPriceChangeIndicator
     ++ (ParticipantPriceChangeIndicator.encode message.participantPriceChangeIndicator)))))))))))))
 
-def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageShortformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageShortFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1870,15 +1870,15 @@ def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageShortformM
   let (participantPriceChangeIndicator, bytes) ← ParticipantPriceChangeIndicator.decode bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, timestamp2, symbolShort, tradeId, tradePriceShort, tradeVolume, saleCondition, tradeThroughExemptFlag, consolidatedPriceChangeIndicator, participantPriceChangeIndicator }, bytes)
 
-@[simp] theorem encode_length (message : FractionalTradeReportMessageShortformMessage) : (encode message).length = 64 := by
+@[simp] theorem encode_length (message : FractionalTradeReportMessageShortFormMessage) : (encode message).length = 64 := by
   unfold encode
   simp only [List.length_append, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, TradeThroughExemptFlag.encode_length, ConsolidatedPriceChangeIndicator.encode_length, ParticipantPriceChangeIndicator.encode_length]
 
-theorem encode_length_pos (message : FractionalTradeReportMessageShortformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : FractionalTradeReportMessageShortFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : FractionalTradeReportMessageShortformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : FractionalTradeReportMessageShortFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -1910,10 +1910,10 @@ theorem encode_length_pos (message : FractionalTradeReportMessageShortformMessag
   rw [ParticipantPriceChangeIndicator.decode_encode, some_bind]
   rfl
 
-end FractionalTradeReportMessageShortformMessage
+end FractionalTradeReportMessageShortFormMessage
 
-/-- Fractional Trade Report Message Longform Message: 78 bytes -/
-structure FractionalTradeReportMessageLongformMessage where
+/-- Fractional Trade Report Message Long Form Message: 78 bytes -/
+structure FractionalTradeReportMessageLongFormMessage where
   marketCenterOriginator : MarketCenterOriginator
   subMarketCenterId : SubMarketCenterId
   sipTimestamp : BitVec 64
@@ -1931,9 +1931,9 @@ structure FractionalTradeReportMessageLongformMessage where
   participantPriceChangeIndicator : ParticipantPriceChangeIndicator
   deriving DecidableEq, Repr
 
-namespace FractionalTradeReportMessageLongformMessage
+namespace FractionalTradeReportMessageLongFormMessage
 
-def encode (message : FractionalTradeReportMessageLongformMessage) : List UInt8 :=
+def encode (message : FractionalTradeReportMessageLongFormMessage) : List UInt8 :=
   MarketCenterOriginator.encode message.marketCenterOriginator
     ++ (SubMarketCenterId.encode message.subMarketCenterId
     ++ (encodeUInt 8 message.sipTimestamp
@@ -1950,7 +1950,7 @@ def encode (message : FractionalTradeReportMessageLongformMessage) : List UInt8 
     ++ (ConsolidatedPriceChangeIndicator.encode message.consolidatedPriceChangeIndicator
     ++ (ParticipantPriceChangeIndicator.encode message.participantPriceChangeIndicator))))))))))))))
 
-def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageLongformMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageLongFormMessage × List UInt8) := do
   let (marketCenterOriginator, bytes) ← MarketCenterOriginator.decode bytes
   let (subMarketCenterId, bytes) ← SubMarketCenterId.decode bytes
   let (sipTimestamp, bytes) ← decodeUInt 8 bytes
@@ -1968,15 +1968,15 @@ def decode (bytes : List UInt8) : Option (FractionalTradeReportMessageLongformMe
   let (participantPriceChangeIndicator, bytes) ← ParticipantPriceChangeIndicator.decode bytes
   pure ({ marketCenterOriginator, subMarketCenterId, sipTimestamp, timestamp1, participantToken, timestamp2, symbolLong, tradeId, tradePriceLong, tradeVolume, saleCondition, tradeThroughExemptFlag, sellersSaleDays, consolidatedPriceChangeIndicator, participantPriceChangeIndicator }, bytes)
 
-@[simp] theorem encode_length (message : FractionalTradeReportMessageLongformMessage) : (encode message).length = 78 := by
+@[simp] theorem encode_length (message : FractionalTradeReportMessageLongFormMessage) : (encode message).length = 78 := by
   unfold encode
   simp only [List.length_append, MarketCenterOriginator.encode_length, SubMarketCenterId.encode_length, encodeUInt_length, Alpha.encode_length, TradeThroughExemptFlag.encode_length, ConsolidatedPriceChangeIndicator.encode_length, ParticipantPriceChangeIndicator.encode_length]
 
-theorem encode_length_pos (message : FractionalTradeReportMessageLongformMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : FractionalTradeReportMessageLongFormMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : FractionalTradeReportMessageLongformMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : FractionalTradeReportMessageLongFormMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, MarketCenterOriginator.decode_encode, some_bind]
@@ -2010,7 +2010,7 @@ theorem encode_length_pos (message : FractionalTradeReportMessageLongformMessage
   rw [ParticipantPriceChangeIndicator.decode_encode, some_bind]
   rfl
 
-end FractionalTradeReportMessageLongformMessage
+end FractionalTradeReportMessageLongFormMessage
 
 /-- Fractional Trade Cancel Error Message: 143 bytes -/
 structure FractionalTradeCancelErrorMessage where
@@ -2432,13 +2432,13 @@ end FractionalAsOfTradeMessage
 
 /-- Any Trade Message Payload, selected by Trade Message Type -/
 inductive TradeMessagePayload where
-  | tradeReportMessageShortformMessage (message : TradeReportMessageShortformMessage) -- "A" 0x41
-  | tradeReportMessageLongformMessage (message : TradeReportMessageLongformMessage) -- "W" 0x57
+  | tradeReportMessageShortFormMessage (message : TradeReportMessageShortFormMessage) -- "A" 0x41
+  | tradeReportMessageLongFormMessage (message : TradeReportMessageLongFormMessage) -- "W" 0x57
   | tradeCancelErrorMessage (message : TradeCancelErrorMessage) -- "Z" 0x5A
   | tradeCorrectionMessage (message : TradeCorrectionMessage) -- "Y" 0x59
   | priorDayAsOfTradeMessage (message : PriorDayAsOfTradeMessage) -- "H" 0x48
-  | fractionalTradeReportMessageShortformMessage (message : FractionalTradeReportMessageShortformMessage) -- "M" 0x4D
-  | fractionalTradeReportMessageLongformMessage (message : FractionalTradeReportMessageLongformMessage) -- "N" 0x4E
+  | fractionalTradeReportMessageShortFormMessage (message : FractionalTradeReportMessageShortFormMessage) -- "M" 0x4D
+  | fractionalTradeReportMessageLongFormMessage (message : FractionalTradeReportMessageLongFormMessage) -- "N" 0x4E
   | fractionalTradeCancelErrorMessage (message : FractionalTradeCancelErrorMessage) -- "O" 0x4F
   | fractionalTradeCorrectionMessage (message : FractionalTradeCorrectionMessage) -- "P" 0x50
   | fractionalAsOfTradeMessage (message : FractionalAsOfTradeMessage) -- "Q" 0x51
@@ -2448,25 +2448,25 @@ namespace TradeMessagePayload
 
 /-- The Trade Message Type each message is sent under -/
 def tag : TradeMessagePayload → BitVec 8
-  | .tradeReportMessageShortformMessage _ => 65
-  | .tradeReportMessageLongformMessage _ => 87
+  | .tradeReportMessageShortFormMessage _ => 65
+  | .tradeReportMessageLongFormMessage _ => 87
   | .tradeCancelErrorMessage _ => 90
   | .tradeCorrectionMessage _ => 89
   | .priorDayAsOfTradeMessage _ => 72
-  | .fractionalTradeReportMessageShortformMessage _ => 77
-  | .fractionalTradeReportMessageLongformMessage _ => 78
+  | .fractionalTradeReportMessageShortFormMessage _ => 77
+  | .fractionalTradeReportMessageLongFormMessage _ => 78
   | .fractionalTradeCancelErrorMessage _ => 79
   | .fractionalTradeCorrectionMessage _ => 80
   | .fractionalAsOfTradeMessage _ => 81
 
 def encode : TradeMessagePayload → List UInt8
-  | .tradeReportMessageShortformMessage message => TradeReportMessageShortformMessage.encode message
-  | .tradeReportMessageLongformMessage message => TradeReportMessageLongformMessage.encode message
+  | .tradeReportMessageShortFormMessage message => TradeReportMessageShortFormMessage.encode message
+  | .tradeReportMessageLongFormMessage message => TradeReportMessageLongFormMessage.encode message
   | .tradeCancelErrorMessage message => TradeCancelErrorMessage.encode message
   | .tradeCorrectionMessage message => TradeCorrectionMessage.encode message
   | .priorDayAsOfTradeMessage message => PriorDayAsOfTradeMessage.encode message
-  | .fractionalTradeReportMessageShortformMessage message => FractionalTradeReportMessageShortformMessage.encode message
-  | .fractionalTradeReportMessageLongformMessage message => FractionalTradeReportMessageLongformMessage.encode message
+  | .fractionalTradeReportMessageShortFormMessage message => FractionalTradeReportMessageShortFormMessage.encode message
+  | .fractionalTradeReportMessageLongFormMessage message => FractionalTradeReportMessageLongFormMessage.encode message
   | .fractionalTradeCancelErrorMessage message => FractionalTradeCancelErrorMessage.encode message
   | .fractionalTradeCorrectionMessage message => FractionalTradeCorrectionMessage.encode message
   | .fractionalAsOfTradeMessage message => FractionalAsOfTradeMessage.encode message
@@ -2474,11 +2474,11 @@ def encode : TradeMessagePayload → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : TradeMessagePayload) : (encode message).length ≤ 173 := by
   cases message with
-  | tradeReportMessageShortformMessage inner =>
-    simp only [encode, TradeReportMessageShortformMessage.encode_length]
+  | tradeReportMessageShortFormMessage inner =>
+    simp only [encode, TradeReportMessageShortFormMessage.encode_length]
     omega
-  | tradeReportMessageLongformMessage inner =>
-    simp only [encode, TradeReportMessageLongformMessage.encode_length]
+  | tradeReportMessageLongFormMessage inner =>
+    simp only [encode, TradeReportMessageLongFormMessage.encode_length]
     omega
   | tradeCancelErrorMessage inner =>
     simp only [encode, TradeCancelErrorMessage.encode_length]
@@ -2489,11 +2489,11 @@ theorem encode_length_le (message : TradeMessagePayload) : (encode message).leng
   | priorDayAsOfTradeMessage inner =>
     simp only [encode, PriorDayAsOfTradeMessage.encode_length]
     omega
-  | fractionalTradeReportMessageShortformMessage inner =>
-    simp only [encode, FractionalTradeReportMessageShortformMessage.encode_length]
+  | fractionalTradeReportMessageShortFormMessage inner =>
+    simp only [encode, FractionalTradeReportMessageShortFormMessage.encode_length]
     omega
-  | fractionalTradeReportMessageLongformMessage inner =>
-    simp only [encode, FractionalTradeReportMessageLongformMessage.encode_length]
+  | fractionalTradeReportMessageLongFormMessage inner =>
+    simp only [encode, FractionalTradeReportMessageLongFormMessage.encode_length]
     omega
   | fractionalTradeCancelErrorMessage inner =>
     simp only [encode, FractionalTradeCancelErrorMessage.encode_length]
@@ -2506,13 +2506,13 @@ theorem encode_length_le (message : TradeMessagePayload) : (encode message).leng
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (TradeMessagePayload × List UInt8) :=
-  if tag = 65 then (TradeReportMessageShortformMessage.decode bytes).map fun (message, rest) => (.tradeReportMessageShortformMessage message, rest)
-  else if tag = 87 then (TradeReportMessageLongformMessage.decode bytes).map fun (message, rest) => (.tradeReportMessageLongformMessage message, rest)
+  if tag = 65 then (TradeReportMessageShortFormMessage.decode bytes).map fun (message, rest) => (.tradeReportMessageShortFormMessage message, rest)
+  else if tag = 87 then (TradeReportMessageLongFormMessage.decode bytes).map fun (message, rest) => (.tradeReportMessageLongFormMessage message, rest)
   else if tag = 90 then (TradeCancelErrorMessage.decode bytes).map fun (message, rest) => (.tradeCancelErrorMessage message, rest)
   else if tag = 89 then (TradeCorrectionMessage.decode bytes).map fun (message, rest) => (.tradeCorrectionMessage message, rest)
   else if tag = 72 then (PriorDayAsOfTradeMessage.decode bytes).map fun (message, rest) => (.priorDayAsOfTradeMessage message, rest)
-  else if tag = 77 then (FractionalTradeReportMessageShortformMessage.decode bytes).map fun (message, rest) => (.fractionalTradeReportMessageShortformMessage message, rest)
-  else if tag = 78 then (FractionalTradeReportMessageLongformMessage.decode bytes).map fun (message, rest) => (.fractionalTradeReportMessageLongformMessage message, rest)
+  else if tag = 77 then (FractionalTradeReportMessageShortFormMessage.decode bytes).map fun (message, rest) => (.fractionalTradeReportMessageShortFormMessage message, rest)
+  else if tag = 78 then (FractionalTradeReportMessageLongFormMessage.decode bytes).map fun (message, rest) => (.fractionalTradeReportMessageLongFormMessage message, rest)
   else if tag = 79 then (FractionalTradeCancelErrorMessage.decode bytes).map fun (message, rest) => (.fractionalTradeCancelErrorMessage message, rest)
   else if tag = 80 then (FractionalTradeCorrectionMessage.decode bytes).map fun (message, rest) => (.fractionalTradeCorrectionMessage message, rest)
   else if tag = 81 then (FractionalAsOfTradeMessage.decode bytes).map fun (message, rest) => (.fractionalAsOfTradeMessage message, rest)
@@ -2549,11 +2549,11 @@ theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0
 theorem encode_length_le (message : TradeMessage) : (encode message).length ≤ 174 := by
   unfold encode
   cases message.tradeMessagePayload with
-  | tradeReportMessageShortformMessage inner =>
-    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, TradeReportMessageShortformMessage.encode_length]
+  | tradeReportMessageShortFormMessage inner =>
+    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, TradeReportMessageShortFormMessage.encode_length]
     omega
-  | tradeReportMessageLongformMessage inner =>
-    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, TradeReportMessageLongformMessage.encode_length]
+  | tradeReportMessageLongFormMessage inner =>
+    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, TradeReportMessageLongFormMessage.encode_length]
     omega
   | tradeCancelErrorMessage inner =>
     simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, TradeCancelErrorMessage.encode_length]
@@ -2564,11 +2564,11 @@ theorem encode_length_le (message : TradeMessage) : (encode message).length ≤ 
   | priorDayAsOfTradeMessage inner =>
     simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, PriorDayAsOfTradeMessage.encode_length]
     omega
-  | fractionalTradeReportMessageShortformMessage inner =>
-    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, FractionalTradeReportMessageShortformMessage.encode_length]
+  | fractionalTradeReportMessageShortFormMessage inner =>
+    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, FractionalTradeReportMessageShortFormMessage.encode_length]
     omega
-  | fractionalTradeReportMessageLongformMessage inner =>
-    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, FractionalTradeReportMessageLongformMessage.encode_length]
+  | fractionalTradeReportMessageLongFormMessage inner =>
+    simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, FractionalTradeReportMessageLongFormMessage.encode_length]
     omega
   | fractionalTradeCancelErrorMessage inner =>
     simp only [TradeMessagePayload.encode, List.length_append, encodeUInt_length, FractionalTradeCancelErrorMessage.encode_length]

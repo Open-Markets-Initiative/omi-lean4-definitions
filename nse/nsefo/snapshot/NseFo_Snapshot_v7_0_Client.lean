@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NseNsefoSnapshotBinaryV70Client
+namespace Omi.NseNsefoSnapshotTbtV70Client
 
 /-- Order Book Snapshot Recovery Request Message: 10 bytes -/
 structure OrderBookSnapshotRecoveryRequestMessage where
@@ -124,4 +124,4 @@ theorem encode_length_le (message : ClientPacket) : (encode message).length ≤ 
 
 end ClientPacket
 
-end Omi.NseNsefoSnapshotBinaryV70Client
+end Omi.NseNsefoSnapshotTbtV70Client

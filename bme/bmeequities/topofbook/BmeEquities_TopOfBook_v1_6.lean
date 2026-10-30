@@ -1126,22 +1126,22 @@ theorem encode_length_pos (value : TransactionCategory) : (encode value).length 
 
 end TransactionCategory
 
-/-- Bencrfpt Flag: one byte code -/
-def BencrfptFlag.codes : List UInt8 :=
+/-- Benc Rfpt Flag: one byte code -/
+def BencRfptFlag.codes : List UInt8 :=
   [0x20, 0x36, 0x33, 0x43, 0x4D]
 
-inductive BencrfptFlag where
+inductive BencRfptFlag where
   | normalTrade -- Normal Trade
   | benchmarkTradeBenc -- Benchmark Trade Benc
   | referencePriceTradeRfpt -- Reference Price Trade Rfpt
   | contingencyTradeCont -- Contingency Trade Cont
   | bencCont -- Benc Cont
-  | unlisted (byte : { byte : UInt8 // byte ∉ BencrfptFlag.codes }) -- any other code, kept as it is
+  | unlisted (byte : { byte : UInt8 // byte ∉ BencRfptFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace BencrfptFlag
+namespace BencRfptFlag
 
-def toByte : BencrfptFlag → UInt8
+def toByte : BencRfptFlag → UInt8
   | .normalTrade => 0x20
   | .benchmarkTradeBenc => 0x36
   | .referencePriceTradeRfpt => 0x33
@@ -1150,17 +1150,17 @@ def toByte : BencrfptFlag → UInt8
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : BencrfptFlag :=
+def listed (byte : UInt8) : BencRfptFlag :=
   if byte = 0x20 then .normalTrade
   else if byte = 0x36 then .benchmarkTradeBenc
   else if byte = 0x33 then .referencePriceTradeRfpt
   else if byte = 0x43 then .contingencyTradeCont
   else .bencCont
 
-def ofByte (byte : UInt8) : BencrfptFlag :=
+def ofByte (byte : UInt8) : BencRfptFlag :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : BencrfptFlag) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : BencRfptFlag) : ofByte value.toByte = value := by
   cases value with
   | normalTrade => decide
   | benchmarkTradeBenc => decide
@@ -1169,25 +1169,25 @@ theorem ofByte_toByte (value : BencrfptFlag) : ofByte value.toByte = value := by
   | bencCont => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : BencrfptFlag) : List UInt8 :=
+def encode (value : BencRfptFlag) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (BencrfptFlag × List UInt8)
+def decode : List UInt8 → Option (BencRfptFlag × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : BencrfptFlag) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : BencRfptFlag) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : BencrfptFlag) : (encode value).length > 0 := by
+theorem encode_length_pos (value : BencRfptFlag) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : BencrfptFlag) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : BencRfptFlag) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end BencrfptFlag
+end BencRfptFlag
 
 /-- Trade Price Condition: one byte code -/
 def TradePriceCondition.codes : List UInt8 :=
@@ -3048,8 +3048,8 @@ theorem encode_length_pos (message : SecurityStatusMessage) : (encode message).l
 
 end SecurityStatusMessage
 
-/-- Trade Market Post Transparency Information Topofbook Message: 55 bytes -/
-structure TradeMarketPostTransparencyInformationTopofbookMessage where
+/-- Trade Market Post Transparency Information Top Of Book Message: 55 bytes -/
+structure TradeMarketPostTransparencyInformationTopOfBookMessage where
   sequenceNumber : BitVec 32
   securityCode : BitVec 32
   transactionDateAndTime : BitVec 64
@@ -3068,9 +3068,9 @@ structure TradeMarketPostTransparencyInformationTopofbookMessage where
   transactionCategory : TransactionCategory
   deriving DecidableEq, Repr
 
-namespace TradeMarketPostTransparencyInformationTopofbookMessage
+namespace TradeMarketPostTransparencyInformationTopOfBookMessage
 
-def encode (message : TradeMarketPostTransparencyInformationTopofbookMessage) : List UInt8 :=
+def encode (message : TradeMarketPostTransparencyInformationTopOfBookMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
@@ -3088,7 +3088,7 @@ def encode (message : TradeMarketPostTransparencyInformationTopofbookMessage) : 
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory)))))))))))))))
 
-def decode (bytes : List UInt8) : Option (TradeMarketPostTransparencyInformationTopofbookMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (TradeMarketPostTransparencyInformationTopOfBookMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
@@ -3107,15 +3107,15 @@ def decode (bytes : List UInt8) : Option (TradeMarketPostTransparencyInformation
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
   pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory }, bytes)
 
-@[simp] theorem encode_length (message : TradeMarketPostTransparencyInformationTopofbookMessage) : (encode message).length = 55 := by
+@[simp] theorem encode_length (message : TradeMarketPostTransparencyInformationTopOfBookMessage) : (encode message).length = 55 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length]
 
-theorem encode_length_pos (message : TradeMarketPostTransparencyInformationTopofbookMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : TradeMarketPostTransparencyInformationTopOfBookMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : TradeMarketPostTransparencyInformationTopofbookMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : TradeMarketPostTransparencyInformationTopOfBookMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3151,7 +3151,7 @@ theorem encode_length_pos (message : TradeMarketPostTransparencyInformationTopof
   rw [TransactionCategory.decode_encode, some_bind]
   rfl
 
-end TradeMarketPostTransparencyInformationTopofbookMessage
+end TradeMarketPostTransparencyInformationTopOfBookMessage
 
 /-- Trade Trade Amendment Or Cancellation Message: 98 bytes -/
 structure TradeTradeAmendmentOrCancellationMessage where
@@ -3172,7 +3172,7 @@ structure TradeTradeAmendmentOrCancellationMessage where
   settlDate : BitVec 32
   transactionCategory : TransactionCategory
   lastChangeFlag : BitVec 8
-  bencrfptFlag : BencrfptFlag
+  bencRfptFlag : BencRfptFlag
   tradePriceCondition : TradePriceCondition
   preTradeTransparencyWaiver : PreTradeTransparencyWaiver
   deferralWaiver : DeferralWaiver
@@ -3206,7 +3206,7 @@ def encode (message : TradeTradeAmendmentOrCancellationMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
     ++ (encodeUIntLE 1 message.lastChangeFlag
-    ++ (BencrfptFlag.encode message.bencrfptFlag
+    ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
     ++ (DeferralWaiver.encode message.deferralWaiver
@@ -3239,7 +3239,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellationMessa
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
   let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
-  let (bencrfptFlag, bytes) ← BencrfptFlag.decode bytes
+  let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
   let (deferralWaiver, bytes) ← DeferralWaiver.decode bytes
@@ -3251,11 +3251,11 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellationMessa
   let (amendedTradeType, bytes) ← AmendedTradeType.decode bytes
   let (execRefId, bytes) ← decodeUIntLE 4 bytes
   let (amendedTradeDate, bytes) ← decodeUIntLE 4 bytes
-  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencrfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate }, bytes)
+  pure ({ sequenceNumber, securityCode, transactionDateAndTime, marketSegmentId, tradingSessionId, trdMatchId, tradeType, lastPx, lastQty, grossTradeAmt, designation, marketMechanism, algoFlag, buyerBolsaCode, settlDate, transactionCategory, lastChangeFlag, bencRfptFlag, tradePriceCondition, preTradeTransparencyWaiver, deferralWaiver, publishDateAndTime, tradeDate, tradeSessionDate, volumeFloat, sicavFundCounterpartySide, amendedTradeType, execRefId, amendedTradeDate }, bytes)
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellationMessage) : (encode message).length = 98 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencrfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, BuyerBolsaCode.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, SicavFundCounterpartySide.encode_length, AmendedTradeType.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3299,7 +3299,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, BencrfptFlag.decode_encode, some_bind]
+  rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, TradePriceCondition.decode_encode, some_bind]
   dsimp only
@@ -3326,8 +3326,8 @@ set_option maxRecDepth 4096 in
 
 end TradeTradeAmendmentOrCancellationMessage
 
-/-- Topofbook Message: 44 bytes -/
-structure TopofbookMessage where
+/-- Top Of Book Message: 44 bytes -/
+structure TopOfBookMessage where
   sequenceNumber : BitVec 32
   securityCode : BitVec 32
   transactionDateAndTime : BitVec 64
@@ -3339,9 +3339,9 @@ structure TopofbookMessage where
   askPx1 : BitVec 64
   deriving DecidableEq, Repr
 
-namespace TopofbookMessage
+namespace TopOfBookMessage
 
-def encode (message : TopofbookMessage) : List UInt8 :=
+def encode (message : TopOfBookMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
@@ -3352,7 +3352,7 @@ def encode (message : TopofbookMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.askSize1
     ++ (encodeUIntLE 8 message.askPx1))))))))
 
-def decode (bytes : List UInt8) : Option (TopofbookMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (TopOfBookMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
@@ -3364,15 +3364,15 @@ def decode (bytes : List UInt8) : Option (TopofbookMessage × List UInt8) := do
   let (askPx1, bytes) ← decodeUIntLE 8 bytes
   pure ({ sequenceNumber, securityCode, transactionDateAndTime, bidOrders1, bidSize1, bidPx1, askOrders1, askSize1, askPx1 }, bytes)
 
-@[simp] theorem encode_length (message : TopofbookMessage) : (encode message).length = 44 := by
+@[simp] theorem encode_length (message : TopOfBookMessage) : (encode message).length = 44 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : TopofbookMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : TopOfBookMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : TopofbookMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : TopOfBookMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3394,7 +3394,7 @@ theorem encode_length_pos (message : TopofbookMessage) : (encode message).length
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end TopofbookMessage
+end TopOfBookMessage
 
 /-- Any Payload, selected by Message Type -/
 inductive Payload where
@@ -3409,9 +3409,9 @@ inductive Payload where
   | securityListMessage (message : SecurityListMessage) -- 121
   | securityListUpdateReportMessage (message : SecurityListUpdateReportMessage) -- 128
   | securityStatusMessage (message : SecurityStatusMessage) -- 102
-  | tradeMarketPostTransparencyInformationTopofbookMessage (message : TradeMarketPostTransparencyInformationTopofbookMessage) -- 16
+  | tradeMarketPostTransparencyInformationTopOfBookMessage (message : TradeMarketPostTransparencyInformationTopOfBookMessage) -- 16
   | tradeTradeAmendmentOrCancellationMessage (message : TradeTradeAmendmentOrCancellationMessage) -- 24
-  | topofbookMessage (message : TopofbookMessage) -- 130
+  | topOfBookMessage (message : TopOfBookMessage) -- 130
   deriving DecidableEq, Repr
 
 namespace Payload
@@ -3429,9 +3429,9 @@ def tag : Payload → BitVec 8
   | .securityListMessage _ => 121
   | .securityListUpdateReportMessage _ => 128
   | .securityStatusMessage _ => 102
-  | .tradeMarketPostTransparencyInformationTopofbookMessage _ => 16
+  | .tradeMarketPostTransparencyInformationTopOfBookMessage _ => 16
   | .tradeTradeAmendmentOrCancellationMessage _ => 24
-  | .topofbookMessage _ => 130
+  | .topOfBookMessage _ => 130
 
 def encode : Payload → List UInt8
   | .logonResponseMessage message => LogonResponseMessage.encode message
@@ -3445,9 +3445,9 @@ def encode : Payload → List UInt8
   | .securityListMessage message => SecurityListMessage.encode message
   | .securityListUpdateReportMessage message => SecurityListUpdateReportMessage.encode message
   | .securityStatusMessage message => SecurityStatusMessage.encode message
-  | .tradeMarketPostTransparencyInformationTopofbookMessage message => TradeMarketPostTransparencyInformationTopofbookMessage.encode message
+  | .tradeMarketPostTransparencyInformationTopOfBookMessage message => TradeMarketPostTransparencyInformationTopOfBookMessage.encode message
   | .tradeTradeAmendmentOrCancellationMessage message => TradeTradeAmendmentOrCancellationMessage.encode message
-  | .topofbookMessage message => TopofbookMessage.encode message
+  | .topOfBookMessage message => TopOfBookMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 2312 := by
@@ -3486,14 +3486,14 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 2312 
   | securityStatusMessage inner =>
     simp only [encode, SecurityStatusMessage.encode_length]
     omega
-  | tradeMarketPostTransparencyInformationTopofbookMessage inner =>
-    simp only [encode, TradeMarketPostTransparencyInformationTopofbookMessage.encode_length]
+  | tradeMarketPostTransparencyInformationTopOfBookMessage inner =>
+    simp only [encode, TradeMarketPostTransparencyInformationTopOfBookMessage.encode_length]
     omega
   | tradeTradeAmendmentOrCancellationMessage inner =>
     simp only [encode, TradeTradeAmendmentOrCancellationMessage.encode_length]
     omega
-  | topofbookMessage inner =>
-    simp only [encode, TopofbookMessage.encode_length]
+  | topOfBookMessage inner =>
+    simp only [encode, TopOfBookMessage.encode_length]
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8) :=
@@ -3508,9 +3508,9 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8
   else if tag = 121 then (SecurityListMessage.decode bytes).map fun (message, rest) => (.securityListMessage message, rest)
   else if tag = 128 then (SecurityListUpdateReportMessage.decode bytes).map fun (message, rest) => (.securityListUpdateReportMessage message, rest)
   else if tag = 102 then (SecurityStatusMessage.decode bytes).map fun (message, rest) => (.securityStatusMessage message, rest)
-  else if tag = 16 then (TradeMarketPostTransparencyInformationTopofbookMessage.decode bytes).map fun (message, rest) => (.tradeMarketPostTransparencyInformationTopofbookMessage message, rest)
+  else if tag = 16 then (TradeMarketPostTransparencyInformationTopOfBookMessage.decode bytes).map fun (message, rest) => (.tradeMarketPostTransparencyInformationTopOfBookMessage message, rest)
   else if tag = 24 then (TradeTradeAmendmentOrCancellationMessage.decode bytes).map fun (message, rest) => (.tradeTradeAmendmentOrCancellationMessage message, rest)
-  else if tag = 130 then (TopofbookMessage.decode bytes).map fun (message, rest) => (.topofbookMessage message, rest)
+  else if tag = 130 then (TopOfBookMessage.decode bytes).map fun (message, rest) => (.topOfBookMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : Payload) (rest : List UInt8) :
@@ -3581,14 +3581,14 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
   | securityStatusMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityStatusMessage.encode_length]
     omega
-  | tradeMarketPostTransparencyInformationTopofbookMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, TradeMarketPostTransparencyInformationTopofbookMessage.encode_length]
+  | tradeMarketPostTransparencyInformationTopOfBookMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, TradeMarketPostTransparencyInformationTopOfBookMessage.encode_length]
     omega
   | tradeTradeAmendmentOrCancellationMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, TradeTradeAmendmentOrCancellationMessage.encode_length]
     omega
-  | topofbookMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, TopofbookMessage.encode_length]
+  | topOfBookMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, TopOfBookMessage.encode_length]
     omega
 
 /-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body and checked on decode -/

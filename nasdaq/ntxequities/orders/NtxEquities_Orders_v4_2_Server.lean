@@ -185,7 +185,7 @@ inductive Display where
   | nonDisplay -- Non Display
   | postOnly -- Post Only
   | imbalanceOnly -- Imbalance Only
-  | changedToNondisplayed -- Changed To Nondisplayed
+  | changedToNonDisplayed -- Changed To Non Displayed
   | midPoint -- Mid Point
   | retailOrderType1 -- Retail Order Type 1
   | retailOrderType2 -- Retail Order Type 2
@@ -201,7 +201,7 @@ def toByte : Display → UInt8
   | .nonDisplay => 0x4E
   | .postOnly => 0x50
   | .imbalanceOnly => 0x49
-  | .changedToNondisplayed => 0x5A
+  | .changedToNonDisplayed => 0x5A
   | .midPoint => 0x4D
   | .retailOrderType1 => 0x4F
   | .retailOrderType2 => 0x54
@@ -215,7 +215,7 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x4E then .nonDisplay
   else if byte = 0x50 then .postOnly
   else if byte = 0x49 then .imbalanceOnly
-  else if byte = 0x5A then .changedToNondisplayed
+  else if byte = 0x5A then .changedToNonDisplayed
   else if byte = 0x4D then .midPoint
   else if byte = 0x4F then .retailOrderType1
   else if byte = 0x54 then .retailOrderType2
@@ -231,7 +231,7 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | nonDisplay => decide
   | postOnly => decide
   | imbalanceOnly => decide
-  | changedToNondisplayed => decide
+  | changedToNonDisplayed => decide
   | midPoint => decide
   | retailOrderType1 => decide
   | retailOrderType2 => decide
@@ -324,7 +324,7 @@ def IntermarketSweepEligibility.codes : List UInt8 :=
 inductive IntermarketSweepEligibility where
   | eligible -- Eligible
   | notEligible -- Not Eligible
-  | tradeat -- Tradeat
+  | tradeAt -- Trade At
   | unlisted (byte : { byte : UInt8 // byte ∉ IntermarketSweepEligibility.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -333,14 +333,14 @@ namespace IntermarketSweepEligibility
 def toByte : IntermarketSweepEligibility → UInt8
   | .eligible => 0x59
   | .notEligible => 0x4E
-  | .tradeat => 0x79
+  | .tradeAt => 0x79
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IntermarketSweepEligibility :=
   if byte = 0x59 then .eligible
   else if byte = 0x4E then .notEligible
-  else .tradeat
+  else .tradeAt
 
 def ofByte (byte : UInt8) : IntermarketSweepEligibility :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -349,7 +349,7 @@ theorem ofByte_toByte (value : IntermarketSweepEligibility) : ofByte value.toByt
   cases value with
   | eligible => decide
   | notEligible => decide
-  | tradeat => decide
+  | tradeAt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : IntermarketSweepEligibility) : List UInt8 :=
@@ -631,16 +631,16 @@ def LiquidityFlag.codes : List UInt8 :=
 inductive LiquidityFlag where
   | added -- Added
   | removed -- Removed
-  | nondisplayed -- Nondisplayed
+  | nonDisplayed -- Non Displayed
   | removed_6d -- Removed
   | added_6b -- Added
   | rpi -- Rpi
   | rmoRetailOrderRemovesRpiLiquidity -- Rmo Retail Order Removes Rpi Liquidity
-  | rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity -- Rmo Retail Order Removes Price Improving Nondisplayed Liquidity Other Than Rpi Liquidity
+  | rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity -- Rmo Retail Order Removes Price Improving Non Displayed Liquidity Other Than Rpi Liquidity
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity -- Rmo Retail Order Removes Non Rpi Midpoint Liquidity
-  | displayedLiquidityaddingOrderImprovesTheNbbo -- Displayed Liquidityadding Order Improves The Nbbo
-  | displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo -- Displayed Liquidityadding Order Sets The Bxbbo While Joining The Nbbo
-  | removedPriceImprovingNondisplayedLiquidity -- Removed Price Improving Nondisplayed Liquidity
+  | displayedLiquidityAddingOrderImprovesTheNbbo -- Displayed Liquidity Adding Order Improves The Nbbo
+  | displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo -- Displayed Liquidity Adding Order Sets The Bxbbo While Joining The Nbbo
+  | removedPriceImprovingNonDisplayedLiquidity -- Removed Price Improving Non Displayed Liquidity
   | passiveMidpointExecution -- Passive Midpoint Execution
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -650,16 +650,16 @@ namespace LiquidityFlag
 def toByte : LiquidityFlag → UInt8
   | .added => 0x41
   | .removed => 0x52
-  | .nondisplayed => 0x4A
+  | .nonDisplayed => 0x4A
   | .removed_6d => 0x6D
   | .added_6b => 0x6B
   | .rpi => 0x6A
   | .rmoRetailOrderRemovesRpiLiquidity => 0x72
-  | .rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => 0x74
+  | .rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => 0x74
   | .rmoRetailOrderRemovesNonRpiMidpointLiquidity => 0x71
-  | .displayedLiquidityaddingOrderImprovesTheNbbo => 0x37
-  | .displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo => 0x38
-  | .removedPriceImprovingNondisplayedLiquidity => 0x70
+  | .displayedLiquidityAddingOrderImprovesTheNbbo => 0x37
+  | .displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo => 0x38
+  | .removedPriceImprovingNonDisplayedLiquidity => 0x70
   | .passiveMidpointExecution => 0x4E
   | .unlisted byte => byte.val
 
@@ -667,16 +667,16 @@ def toByte : LiquidityFlag → UInt8
 def listed (byte : UInt8) : LiquidityFlag :=
   if byte = 0x41 then .added
   else if byte = 0x52 then .removed
-  else if byte = 0x4A then .nondisplayed
+  else if byte = 0x4A then .nonDisplayed
   else if byte = 0x6D then .removed_6d
   else if byte = 0x6B then .added_6b
   else if byte = 0x6A then .rpi
   else if byte = 0x72 then .rmoRetailOrderRemovesRpiLiquidity
-  else if byte = 0x74 then .rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity
+  else if byte = 0x74 then .rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity
   else if byte = 0x71 then .rmoRetailOrderRemovesNonRpiMidpointLiquidity
-  else if byte = 0x37 then .displayedLiquidityaddingOrderImprovesTheNbbo
-  else if byte = 0x38 then .displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo
-  else if byte = 0x70 then .removedPriceImprovingNondisplayedLiquidity
+  else if byte = 0x37 then .displayedLiquidityAddingOrderImprovesTheNbbo
+  else if byte = 0x38 then .displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo
+  else if byte = 0x70 then .removedPriceImprovingNonDisplayedLiquidity
   else .passiveMidpointExecution
 
 def ofByte (byte : UInt8) : LiquidityFlag :=
@@ -686,16 +686,16 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   cases value with
   | added => decide
   | removed => decide
-  | nondisplayed => decide
+  | nonDisplayed => decide
   | removed_6d => decide
   | added_6b => decide
   | rpi => decide
   | rmoRetailOrderRemovesRpiLiquidity => decide
-  | rmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity => decide
+  | rmoRetailOrderRemovesPriceImprovingNonDisplayedLiquidityOtherThanRpiLiquidity => decide
   | rmoRetailOrderRemovesNonRpiMidpointLiquidity => decide
-  | displayedLiquidityaddingOrderImprovesTheNbbo => decide
-  | displayedLiquidityaddingOrderSetsTheBxbboWhileJoiningTheNbbo => decide
-  | removedPriceImprovingNondisplayedLiquidity => decide
+  | displayedLiquidityAddingOrderImprovesTheNbbo => decide
+  | displayedLiquidityAddingOrderSetsTheBxbboWhileJoiningTheNbbo => decide
+  | removedPriceImprovingNonDisplayedLiquidity => decide
   | passiveMidpointExecution => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

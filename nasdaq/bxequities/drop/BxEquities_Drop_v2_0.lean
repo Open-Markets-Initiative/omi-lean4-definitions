@@ -85,13 +85,13 @@ inductive LiquidityCode where
   | addedOrOpeningTradeOnNyse -- Added Or Opening Trade On Nyse
   | oddLotOrOnCloseOrderOnNyse -- Odd Lot Or On Close Order On Nyse
   | openingCrossBillable -- Opening Cross Billable
-  | openingCrossNonbillable -- Opening Cross Nonbillable
+  | openingCrossNonBillable -- Opening Cross Non Billable
   | closingCrossBillable -- Closing Cross Billable
-  | closingCrossNonbillable -- Closing Cross Nonbillable
+  | closingCrossNonBillable -- Closing Cross Non Billable
   | haltIpoCrossBillable -- Halt Ipo Cross Billable
-  | haltIpoCrossNonbillable -- Halt Ipo Cross Nonbillable
-  | intradayAndPostmarketCrosses -- Intraday And Postmarket Crosses
-  | nondisplayedAddingLiquidity -- Nondisplayed Adding Liquidity
+  | haltIpoCrossNonBillable -- Halt Ipo Cross Non Billable
+  | intradayAndPostMarketCrosses -- Intraday And Post Market Crosses
+  | nonDisplayedAddingLiquidity -- Non Displayed Adding Liquidity
   | reRoutedByNyse -- Re Routed By Nyse
   | oddLotExecutionOnNyse -- Odd Lot Execution On Nyse
   | addedLiquidityOnNyse -- Added Liquidity On Nyse
@@ -115,13 +115,13 @@ def toByte : LiquidityCode → UInt8
   | .addedOrOpeningTradeOnNyse => 0x46
   | .oddLotOrOnCloseOrderOnNyse => 0x47
   | .openingCrossBillable => 0x4F
-  | .openingCrossNonbillable => 0x4D
+  | .openingCrossNonBillable => 0x4D
   | .closingCrossBillable => 0x43
-  | .closingCrossNonbillable => 0x4C
+  | .closingCrossNonBillable => 0x4C
   | .haltIpoCrossBillable => 0x48
-  | .haltIpoCrossNonbillable => 0x4B
-  | .intradayAndPostmarketCrosses => 0x49
-  | .nondisplayedAddingLiquidity => 0x4A
+  | .haltIpoCrossNonBillable => 0x4B
+  | .intradayAndPostMarketCrosses => 0x49
+  | .nonDisplayedAddingLiquidity => 0x4A
   | .reRoutedByNyse => 0x59
   | .oddLotExecutionOnNyse => 0x53
   | .addedLiquidityOnNyse => 0x55
@@ -143,13 +143,13 @@ def listed (byte : UInt8) : LiquidityCode :=
   else if byte = 0x46 then .addedOrOpeningTradeOnNyse
   else if byte = 0x47 then .oddLotOrOnCloseOrderOnNyse
   else if byte = 0x4F then .openingCrossBillable
-  else if byte = 0x4D then .openingCrossNonbillable
+  else if byte = 0x4D then .openingCrossNonBillable
   else if byte = 0x43 then .closingCrossBillable
-  else if byte = 0x4C then .closingCrossNonbillable
+  else if byte = 0x4C then .closingCrossNonBillable
   else if byte = 0x48 then .haltIpoCrossBillable
-  else if byte = 0x4B then .haltIpoCrossNonbillable
-  else if byte = 0x49 then .intradayAndPostmarketCrosses
-  else if byte = 0x4A then .nondisplayedAddingLiquidity
+  else if byte = 0x4B then .haltIpoCrossNonBillable
+  else if byte = 0x49 then .intradayAndPostMarketCrosses
+  else if byte = 0x4A then .nonDisplayedAddingLiquidity
   else if byte = 0x59 then .reRoutedByNyse
   else if byte = 0x53 then .oddLotExecutionOnNyse
   else if byte = 0x55 then .addedLiquidityOnNyse
@@ -173,13 +173,13 @@ theorem ofByte_toByte (value : LiquidityCode) : ofByte value.toByte = value := b
   | addedOrOpeningTradeOnNyse => decide
   | oddLotOrOnCloseOrderOnNyse => decide
   | openingCrossBillable => decide
-  | openingCrossNonbillable => decide
+  | openingCrossNonBillable => decide
   | closingCrossBillable => decide
-  | closingCrossNonbillable => decide
+  | closingCrossNonBillable => decide
   | haltIpoCrossBillable => decide
-  | haltIpoCrossNonbillable => decide
-  | intradayAndPostmarketCrosses => decide
-  | nondisplayedAddingLiquidity => decide
+  | haltIpoCrossNonBillable => decide
+  | intradayAndPostMarketCrosses => decide
+  | nonDisplayedAddingLiquidity => decide
   | reRoutedByNyse => decide
   | oddLotExecutionOnNyse => decide
   | addedLiquidityOnNyse => decide

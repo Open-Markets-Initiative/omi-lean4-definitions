@@ -345,7 +345,7 @@ def QuoteCondition.codes : List UInt8 :=
   [0x46, 0x52, 0x58, 0x59, 0x20]
 
 inductive QuoteCondition where
-  | nonfirmQuote -- Nonfirm Quote
+  | nonFirmQuote -- Non Firm Quote
   | rotationalQuote -- Rotational Quote
   | bidSideFirm -- Bid Side Firm
   | askSideFirm -- Ask Side Firm
@@ -356,7 +356,7 @@ inductive QuoteCondition where
 namespace QuoteCondition
 
 def toByte : QuoteCondition → UInt8
-  | .nonfirmQuote => 0x46
+  | .nonFirmQuote => 0x46
   | .rotationalQuote => 0x52
   | .bidSideFirm => 0x58
   | .askSideFirm => 0x59
@@ -365,7 +365,7 @@ def toByte : QuoteCondition → UInt8
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : QuoteCondition :=
-  if byte = 0x46 then .nonfirmQuote
+  if byte = 0x46 then .nonFirmQuote
   else if byte = 0x52 then .rotationalQuote
   else if byte = 0x58 then .bidSideFirm
   else if byte = 0x59 then .askSideFirm
@@ -376,7 +376,7 @@ def ofByte (byte : UInt8) : QuoteCondition :=
 
 theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := by
   cases value with
-  | nonfirmQuote => decide
+  | nonFirmQuote => decide
   | rotationalQuote => decide
   | bidSideFirm => decide
   | askSideFirm => decide
@@ -438,7 +438,7 @@ structure SystemEventMessage where
   nanoseconds : BitVec 32
   eventCode : EventCode
   version : BitVec 8
-  subversion : BitVec 8
+  subVersion : BitVec 8
   deriving DecidableEq, Repr
 
 namespace SystemEventMessage
@@ -447,14 +447,14 @@ def encode (message : SystemEventMessage) : List UInt8 :=
   encodeUInt 4 message.nanoseconds
     ++ (EventCode.encode message.eventCode
     ++ (encodeUInt 1 message.version
-    ++ (encodeUInt 1 message.subversion)))
+    ++ (encodeUInt 1 message.subVersion)))
 
 def decode (bytes : List UInt8) : Option (SystemEventMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUInt 4 bytes
   let (eventCode, bytes) ← EventCode.decode bytes
   let (version, bytes) ← decodeUInt 1 bytes
-  let (subversion, bytes) ← decodeUInt 1 bytes
-  pure ({ nanoseconds, eventCode, version, subversion }, bytes)
+  let (subVersion, bytes) ← decodeUInt 1 bytes
+  pure ({ nanoseconds, eventCode, version, subVersion }, bytes)
 
 @[simp] theorem encode_length (message : SystemEventMessage) : (encode message).length = 7 := by
   unfold encode

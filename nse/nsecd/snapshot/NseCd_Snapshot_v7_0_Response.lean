@@ -12,7 +12,7 @@ Text fields are kept byte for byte, padding included, so what is decoded encodes
 Prices with implied decimals are proven as the integers on the wire.
 -/
 
-namespace Omi.NseNsecdSnapshotBinaryV70Response
+namespace Omi.NseNsecdSnapshotTbtV70Response
 
 /-- Request Status: one byte code -/
 def RequestStatus.codes : List UInt8 :=
@@ -210,4 +210,4 @@ theorem encode_length_le (message : ResponsePacket) : (encode message).length â‰
 
 end ResponsePacket
 
-end Omi.NseNsecdSnapshotBinaryV70Response
+end Omi.NseNsecdSnapshotTbtV70Response

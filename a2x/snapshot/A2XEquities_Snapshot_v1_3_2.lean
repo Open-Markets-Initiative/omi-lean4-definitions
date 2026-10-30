@@ -135,9 +135,10 @@ theorem encode_length_pos (message : BookStatusMessage) : (encode message).lengt
 
 end BookStatusMessage
 
-/-- Book Entry Message: 18 bytes -/
+/-- Book Entry Message: 19 bytes -/
 structure BookEntryMessage where
   securityId : BitVec 16
+  side : BitVec 8
   quantity : BitVec 32
   price : BitVec 64
   orderRef : BitVec 32
@@ -147,18 +148,20 @@ namespace BookEntryMessage
 
 def encode (message : BookEntryMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
+    ++ (encodeUIntLE 1 message.side
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 4 message.orderRef)))
+    ++ (encodeUIntLE 4 message.orderRef))))
 
 def decode (bytes : List UInt8) : Option (BookEntryMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
+  let (side, bytes) ← decodeUIntLE 1 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, quantity, price, orderRef }, bytes)
+  pure ({ securityId, side, quantity, price, orderRef }, bytes)
 
-@[simp] theorem encode_length (message : BookEntryMessage) : (encode message).length = 18 := by
+@[simp] theorem encode_length (message : BookEntryMessage) : (encode message).length = 19 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
@@ -175,43 +178,48 @@ theorem encode_length_pos (message : BookEntryMessage) : (encode message).length
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
 end BookEntryMessage
 
-/-- Market At Close Book Entry Message: 18 bytes -/
-structure MarketAtCloseBookEntryMessage where
+/-- Mac Book Entry Message: 19 bytes -/
+structure MacBookEntryMessage where
   securityId : BitVec 16
+  side : BitVec 8
   quantity : BitVec 32
   price : BitVec 64
   orderRef : BitVec 32
   deriving DecidableEq, Repr
 
-namespace MarketAtCloseBookEntryMessage
+namespace MacBookEntryMessage
 
-def encode (message : MarketAtCloseBookEntryMessage) : List UInt8 :=
+def encode (message : MacBookEntryMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
+    ++ (encodeUIntLE 1 message.side
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 4 message.orderRef)))
+    ++ (encodeUIntLE 4 message.orderRef))))
 
-def decode (bytes : List UInt8) : Option (MarketAtCloseBookEntryMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (MacBookEntryMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
+  let (side, bytes) ← decodeUIntLE 1 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, quantity, price, orderRef }, bytes)
+  pure ({ securityId, side, quantity, price, orderRef }, bytes)
 
-@[simp] theorem encode_length (message : MarketAtCloseBookEntryMessage) : (encode message).length = 18 := by
+@[simp] theorem encode_length (message : MacBookEntryMessage) : (encode message).length = 19 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : MarketAtCloseBookEntryMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : MacBookEntryMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : MarketAtCloseBookEntryMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : MacBookEntryMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -220,10 +228,12 @@ theorem encode_length_pos (message : MarketAtCloseBookEntryMessage) : (encode me
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end MarketAtCloseBookEntryMessage
+end MacBookEntryMessage
 
 /-- Any Payload, selected by Msg Type -/
 inductive Payload where
@@ -231,7 +241,7 @@ inductive Payload where
   | snapshotStartMessage (message : SnapshotStartMessage) -- 10
   | bookStatusMessage (message : BookStatusMessage) -- 11
   | bookEntryMessage (message : BookEntryMessage) -- 12
-  | marketAtCloseBookEntryMessage (message : MarketAtCloseBookEntryMessage) -- 18
+  | macBookEntryMessage (message : MacBookEntryMessage) -- 18
   deriving DecidableEq, Repr
 
 namespace Payload
@@ -242,14 +252,14 @@ def tag : Payload → BitVec 8
   | .snapshotStartMessage _ => 10
   | .bookStatusMessage _ => 11
   | .bookEntryMessage _ => 12
-  | .marketAtCloseBookEntryMessage _ => 18
+  | .macBookEntryMessage _ => 18
 
 def encode : Payload → List UInt8
   | .heartbeatMessage message => HeartbeatMessage.encode message
   | .snapshotStartMessage message => SnapshotStartMessage.encode message
   | .bookStatusMessage message => BookStatusMessage.encode message
   | .bookEntryMessage message => BookEntryMessage.encode message
-  | .marketAtCloseBookEntryMessage message => MarketAtCloseBookEntryMessage.encode message
+  | .macBookEntryMessage message => MacBookEntryMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 22 := by
@@ -266,8 +276,8 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 22 :=
   | bookEntryMessage inner =>
     simp only [encode, BookEntryMessage.encode_length]
     omega
-  | marketAtCloseBookEntryMessage inner =>
-    simp only [encode, MarketAtCloseBookEntryMessage.encode_length]
+  | macBookEntryMessage inner =>
+    simp only [encode, MacBookEntryMessage.encode_length]
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8) :=
@@ -275,7 +285,7 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8
   else if tag = 10 then (SnapshotStartMessage.decode bytes).map fun (message, rest) => (.snapshotStartMessage message, rest)
   else if tag = 11 then (BookStatusMessage.decode bytes).map fun (message, rest) => (.bookStatusMessage message, rest)
   else if tag = 12 then (BookEntryMessage.decode bytes).map fun (message, rest) => (.bookEntryMessage message, rest)
-  else if tag = 18 then (MarketAtCloseBookEntryMessage.decode bytes).map fun (message, rest) => (.marketAtCloseBookEntryMessage message, rest)
+  else if tag = 18 then (MacBookEntryMessage.decode bytes).map fun (message, rest) => (.macBookEntryMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : Payload) (rest : List UInt8) :
@@ -293,18 +303,18 @@ structure Message where
 namespace Message
 
 def encodeBody (message : Message) : List UInt8 :=
-  encodeUInt 4 message.seqNo
+  encodeUIntLE 4 message.seqNo
     ++ (Payload.encode message.payload)
 
 def decodeBody (msgType : BitVec 8) (bytes : List UInt8) : Option (Message × List UInt8) := do
-  let (seqNo, bytes) ← decodeUInt 4 bytes
+  let (seqNo, bytes) ← decodeUIntLE 4 bytes
   let (payload, bytes) ← Payload.decode msgType bytes
   pure ({ seqNo, payload }, bytes)
 
 theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
     decodeBody (Payload.tag message.payload) (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [Payload.decode_encode, some_bind]
   rfl
@@ -314,19 +324,19 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
   unfold encodeBody
   cases message.payload with
   | heartbeatMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, HeartbeatMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, HeartbeatMessage.encode_length]
     omega
   | snapshotStartMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SnapshotStartMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, SnapshotStartMessage.encode_length]
     omega
   | bookStatusMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BookStatusMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, BookStatusMessage.encode_length]
     omega
   | bookEntryMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BookEntryMessage.encode_length]
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, BookEntryMessage.encode_length]
     omega
-  | marketAtCloseBookEntryMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, MarketAtCloseBookEntryMessage.encode_length]
+  | macBookEntryMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, MacBookEntryMessage.encode_length]
     omega
 
 /-- Size rule: Msg Length counts the bytes after it plus 2, so it is written from the body and checked on decode; Msg Type is read ahead of it -/

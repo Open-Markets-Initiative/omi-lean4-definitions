@@ -1039,7 +1039,7 @@ def Category2.codes : List UInt8 :=
 
 inductive Category2 where
   | noTradeThroughExemptReason -- No Trade Through Exempt Reason
-  | intermarketSweepOrder -- Intermarket Sweep Order
+  | interMarketSweepOrder -- Inter Market Sweep Order
   | derivativelyPriced -- Derivatively Priced
   | marketCenterReopeningTrade -- Market Center Reopening Trade
   | marketCenterClosingTrade -- Market Center Closing Trade
@@ -1053,7 +1053,7 @@ namespace Category2
 
 def toByte : Category2 → UInt8
   | .noTradeThroughExemptReason => 0x20
-  | .intermarketSweepOrder => 0x46
+  | .interMarketSweepOrder => 0x46
   | .derivativelyPriced => 0x34
   | .marketCenterReopeningTrade => 0x35
   | .marketCenterClosingTrade => 0x36
@@ -1065,7 +1065,7 @@ def toByte : Category2 → UInt8
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : Category2 :=
   if byte = 0x20 then .noTradeThroughExemptReason
-  else if byte = 0x46 then .intermarketSweepOrder
+  else if byte = 0x46 then .interMarketSweepOrder
   else if byte = 0x34 then .derivativelyPriced
   else if byte = 0x35 then .marketCenterReopeningTrade
   else if byte = 0x36 then .marketCenterClosingTrade
@@ -1079,7 +1079,7 @@ def ofByte (byte : UInt8) : Category2 :=
 theorem ofByte_toByte (value : Category2) : ofByte value.toByte = value := by
   cases value with
   | noTradeThroughExemptReason => decide
-  | intermarketSweepOrder => decide
+  | interMarketSweepOrder => decide
   | derivativelyPriced => decide
   | marketCenterReopeningTrade => decide
   | marketCenterClosingTrade => decide
@@ -1732,7 +1732,7 @@ inductive SaleCondition1 where
   | averagePriceTrade -- Average Price Trade
   | cashTradeSameDayClearing -- Cash Trade Same Day Clearing
   | automaticExecution -- Automatic Execution
-  | intermarketSweepOrder -- Intermarket Sweep Order
+  | interMarketSweepOrder -- Inter Market Sweep Order
   | priceVariationTrade -- Price Variation Trade
   | oddLotTrade -- Odd Lot Trade
   | rule127NyseOnlyOrRule155NyseAmericanOnly -- Rule 127 Nyse Only Or Rule 155 Nyse American Only
@@ -1764,7 +1764,7 @@ def toByte : SaleCondition1 → UInt8
   | .averagePriceTrade => 0x42
   | .cashTradeSameDayClearing => 0x43
   | .automaticExecution => 0x45
-  | .intermarketSweepOrder => 0x46
+  | .interMarketSweepOrder => 0x46
   | .priceVariationTrade => 0x48
   | .oddLotTrade => 0x49
   | .rule127NyseOnlyOrRule155NyseAmericanOnly => 0x4B
@@ -1794,7 +1794,7 @@ def listed (byte : UInt8) : SaleCondition1 :=
   else if byte = 0x42 then .averagePriceTrade
   else if byte = 0x43 then .cashTradeSameDayClearing
   else if byte = 0x45 then .automaticExecution
-  else if byte = 0x46 then .intermarketSweepOrder
+  else if byte = 0x46 then .interMarketSweepOrder
   else if byte = 0x48 then .priceVariationTrade
   else if byte = 0x49 then .oddLotTrade
   else if byte = 0x4B then .rule127NyseOnlyOrRule155NyseAmericanOnly
@@ -1826,7 +1826,7 @@ theorem ofByte_toByte (value : SaleCondition1) : ofByte value.toByte = value := 
   | averagePriceTrade => decide
   | cashTradeSameDayClearing => decide
   | automaticExecution => decide
-  | intermarketSweepOrder => decide
+  | interMarketSweepOrder => decide
   | priceVariationTrade => decide
   | oddLotTrade => decide
   | rule127NyseOnlyOrRule155NyseAmericanOnly => decide

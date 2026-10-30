@@ -280,7 +280,7 @@ def CurrentTradingState.codes : List UInt8 :=
 
 inductive CurrentTradingState where
   | haltInEffect -- Halt In Effect
-  | quotationonlyPeriodInEffect -- Quotationonly Period In Effect
+  | quotationOnlyPeriodInEffect -- Quotation Only Period In Effect
   | tradingOnNasdaq -- Trading On Nasdaq
   | unlisted (byte : { byte : UInt8 // byte ∉ CurrentTradingState.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -289,14 +289,14 @@ namespace CurrentTradingState
 
 def toByte : CurrentTradingState → UInt8
   | .haltInEffect => 0x48
-  | .quotationonlyPeriodInEffect => 0x51
+  | .quotationOnlyPeriodInEffect => 0x51
   | .tradingOnNasdaq => 0x54
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CurrentTradingState :=
   if byte = 0x48 then .haltInEffect
-  else if byte = 0x51 then .quotationonlyPeriodInEffect
+  else if byte = 0x51 then .quotationOnlyPeriodInEffect
   else .tradingOnNasdaq
 
 def ofByte (byte : UInt8) : CurrentTradingState :=
@@ -305,7 +305,7 @@ def ofByte (byte : UInt8) : CurrentTradingState :=
 theorem ofByte_toByte (value : CurrentTradingState) : ofByte value.toByte = value := by
   cases value with
   | haltInEffect => decide
-  | quotationonlyPeriodInEffect => decide
+  | quotationOnlyPeriodInEffect => decide
   | tradingOnNasdaq => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

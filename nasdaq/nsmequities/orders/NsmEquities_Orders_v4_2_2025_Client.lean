@@ -91,7 +91,7 @@ inductive Display where
   | retailPrice -- Retail Price
   | midPointPegAndMidPointTradeNow -- Mid Point Peg And Mid Point Trade Now
   | nonDisplayAndMidPoint -- Non Display And Mid Point
-  | meloAndContinuousBookMidpoint -- Melo And Continuous Book Midpoint
+  | mEloAndContinuousBookMidpoint -- M Elo And Continuous Book Midpoint
   | unlisted (byte : { byte : UInt8 // byte ∉ Display.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -111,7 +111,7 @@ def toByte : Display → UInt8
   | .retailPrice => 0x51
   | .midPointPegAndMidPointTradeNow => 0x6D
   | .nonDisplayAndMidPoint => 0x6E
-  | .meloAndContinuousBookMidpoint => 0x42
+  | .mEloAndContinuousBookMidpoint => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -129,7 +129,7 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x51 then .retailPrice
   else if byte = 0x6D then .midPointPegAndMidPointTradeNow
   else if byte = 0x6E then .nonDisplayAndMidPoint
-  else .meloAndContinuousBookMidpoint
+  else .mEloAndContinuousBookMidpoint
 
 def ofByte (byte : UInt8) : Display :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -149,7 +149,7 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | retailPrice => decide
   | midPointPegAndMidPointTradeNow => decide
   | nonDisplayAndMidPoint => decide
-  | meloAndContinuousBookMidpoint => decide
+  | mEloAndContinuousBookMidpoint => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Display) : List UInt8 :=
@@ -238,7 +238,7 @@ def IntermarketSweepEligibility.codes : List UInt8 :=
 inductive IntermarketSweepEligibility where
   | eligible -- Eligible
   | notEligible -- Not Eligible
-  | tradeat -- Tradeat
+  | tradeAt -- Trade At
   | unlisted (byte : { byte : UInt8 // byte ∉ IntermarketSweepEligibility.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -247,14 +247,14 @@ namespace IntermarketSweepEligibility
 def toByte : IntermarketSweepEligibility → UInt8
   | .eligible => 0x59
   | .notEligible => 0x4E
-  | .tradeat => 0x79
+  | .tradeAt => 0x79
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IntermarketSweepEligibility :=
   if byte = 0x59 then .eligible
   else if byte = 0x4E then .notEligible
-  else .tradeat
+  else .tradeAt
 
 def ofByte (byte : UInt8) : IntermarketSweepEligibility :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -263,7 +263,7 @@ theorem ofByte_toByte (value : IntermarketSweepEligibility) : ofByte value.toByt
   cases value with
   | eligible => decide
   | notEligible => decide
-  | tradeat => decide
+  | tradeAt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : IntermarketSweepEligibility) : List UInt8 :=

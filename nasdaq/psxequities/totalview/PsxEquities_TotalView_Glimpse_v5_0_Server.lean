@@ -724,7 +724,7 @@ def TradingState.codes : List UInt8 :=
 
 inductive TradingState where
   | haltedPausedAcrossAllUsEquityMarkets -- Halted Paused Across All Us Equity Markets
-  | quotationOnlyPeriodForCrossmarketHaltOrPause -- Quotation Only Period For Crossmarket Halt Or Pause
+  | quotationOnlyPeriodForCrossMarketHaltOrPause -- Quotation Only Period For Cross Market Halt Or Pause
   | tradingOnPsx -- Trading On Psx
   | unlisted (byte : { byte : UInt8 // byte ∉ TradingState.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -733,14 +733,14 @@ namespace TradingState
 
 def toByte : TradingState → UInt8
   | .haltedPausedAcrossAllUsEquityMarkets => 0x48
-  | .quotationOnlyPeriodForCrossmarketHaltOrPause => 0x51
+  | .quotationOnlyPeriodForCrossMarketHaltOrPause => 0x51
   | .tradingOnPsx => 0x54
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradingState :=
   if byte = 0x48 then .haltedPausedAcrossAllUsEquityMarkets
-  else if byte = 0x51 then .quotationOnlyPeriodForCrossmarketHaltOrPause
+  else if byte = 0x51 then .quotationOnlyPeriodForCrossMarketHaltOrPause
   else .tradingOnPsx
 
 def ofByte (byte : UInt8) : TradingState :=
@@ -749,7 +749,7 @@ def ofByte (byte : UInt8) : TradingState :=
 theorem ofByte_toByte (value : TradingState) : ofByte value.toByte = value := by
   cases value with
   | haltedPausedAcrossAllUsEquityMarkets => decide
-  | quotationOnlyPeriodForCrossmarketHaltOrPause => decide
+  | quotationOnlyPeriodForCrossMarketHaltOrPause => decide
   | tradingOnPsx => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
