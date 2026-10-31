@@ -1427,8 +1427,8 @@ theorem encode_length_le (message : TradeBustMessage) : (encode message).length 
 
 end TradeBustMessage
 
-/-- Incremetal Orders Group: 44 bytes -/
-structure IncremetalOrdersGroup where
+/-- Incremental Orders Group: 44 bytes -/
+structure IncrementalOrdersGroup where
   orderUpdateAction : OrderUpdateAction
   orderId : BitVec 64
   tradeIdOptional : BitVec 64
@@ -1439,9 +1439,9 @@ structure IncremetalOrdersGroup where
   orderAttributes : BitVec 16
   deriving DecidableEq, Repr
 
-namespace IncremetalOrdersGroup
+namespace IncrementalOrdersGroup
 
-def encode (message : IncremetalOrdersGroup) : List UInt8 :=
+def encode (message : IncrementalOrdersGroup) : List UInt8 :=
   OrderUpdateAction.encode message.orderUpdateAction
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.tradeIdOptional
@@ -1451,7 +1451,7 @@ def encode (message : IncremetalOrdersGroup) : List UInt8 :=
     ++ (encodeUIntLE 8 message.orderPriorityOptional
     ++ (encodeUIntLE 2 message.orderAttributes)))))))
 
-def decode (bytes : List UInt8) : Option (IncremetalOrdersGroup × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalOrdersGroup × List UInt8) := do
   let (orderUpdateAction, bytes) ← OrderUpdateAction.decode bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (tradeIdOptional, bytes) ← decodeUIntLE 8 bytes
@@ -1462,15 +1462,15 @@ def decode (bytes : List UInt8) : Option (IncremetalOrdersGroup × List UInt8) :
   let (orderAttributes, bytes) ← decodeUIntLE 2 bytes
   pure ({ orderUpdateAction, orderId, tradeIdOptional, side, priceOptional, size, orderPriorityOptional, orderAttributes }, bytes)
 
-@[simp] theorem encode_length (message : IncremetalOrdersGroup) : (encode message).length = 44 := by
+@[simp] theorem encode_length (message : IncrementalOrdersGroup) : (encode message).length = 44 := by
   unfold encode
   simp only [List.length_append, OrderUpdateAction.encode_length, encodeUIntLE_length, Side.encode_length]
 
-theorem encode_length_pos (message : IncremetalOrdersGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalOrdersGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncremetalOrdersGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalOrdersGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, OrderUpdateAction.decode_encode, some_bind]
@@ -1490,54 +1490,54 @@ theorem encode_length_pos (message : IncremetalOrdersGroup) : (encode message).l
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end IncremetalOrdersGroup
+end IncrementalOrdersGroup
 
-/-- Incremetal Orders Groups -/
-structure IncremetalOrdersGroups where
+/-- Incremental Orders Groups -/
+structure IncrementalOrdersGroups where
   blockLength : BitVec 16
-  incremetalOrdersGroup : Bounded 1 IncremetalOrdersGroup
+  incrementalOrdersGroup : Bounded 1 IncrementalOrdersGroup
   deriving DecidableEq, Repr
 
-namespace IncremetalOrdersGroups
+namespace IncrementalOrdersGroups
 
-def encode (message : IncremetalOrdersGroups) : List UInt8 :=
+def encode (message : IncrementalOrdersGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incremetalOrdersGroup.val.length)
-    ++ (encodeMany IncremetalOrdersGroup.encode message.incremetalOrdersGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalOrdersGroup.val.length)
+    ++ (encodeMany IncrementalOrdersGroup.encode message.incrementalOrdersGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncremetalOrdersGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalOrdersGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incremetalOrdersGroup_, bytes) ← decodeMany IncremetalOrdersGroup.decode numInGroup.toNat bytes
-  if fits_incremetalOrdersGroup : incremetalOrdersGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incremetalOrdersGroup := ⟨incremetalOrdersGroup_, fits_incremetalOrdersGroup⟩ }, bytes)
+  let (incrementalOrdersGroup_, bytes) ← decodeMany IncrementalOrdersGroup.decode numInGroup.toNat bytes
+  if fits_incrementalOrdersGroup : incrementalOrdersGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalOrdersGroup := ⟨incrementalOrdersGroup_, fits_incrementalOrdersGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncremetalOrdersGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalOrdersGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncremetalOrdersGroups) : (encode message).length ≤ 11223 := by
-  have bound_incremetalOrdersGroup := message.incremetalOrdersGroup.length_lt
+theorem encode_length_le (message : IncrementalOrdersGroups) : (encode message).length ≤ 11223 := by
+  have bound_incrementalOrdersGroup := message.incrementalOrdersGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncremetalOrdersGroup.encode 44 IncremetalOrdersGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalOrdersGroup.encode 44 IncrementalOrdersGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncremetalOrdersGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalOrdersGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncremetalOrdersGroup.encode IncremetalOrdersGroup.decode IncremetalOrdersGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalOrdersGroup.encode IncrementalOrdersGroup.decode IncrementalOrdersGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incremetalOrdersGroup.length_lt]
+  rw [dite_eq_left message.incrementalOrdersGroup.length_lt]
   rfl
 
-end IncremetalOrdersGroups
+end IncrementalOrdersGroups
 
 /-- Order Book Incremental Message -/
 structure OrderBookIncrementalMessage where
@@ -1547,7 +1547,7 @@ structure OrderBookIncrementalMessage where
   tradingSessionDate : BitVec 16
   instrumentTradingStatus : InstrumentTradingStatus
   incrementalMessageInstructions : BitVec 16
-  incremetalOrdersGroups : IncremetalOrdersGroups
+  incrementalOrdersGroups : IncrementalOrdersGroups
   deriving DecidableEq, Repr
 
 namespace OrderBookIncrementalMessage
@@ -1559,7 +1559,7 @@ def encode (message : OrderBookIncrementalMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.tradingSessionDate
     ++ (InstrumentTradingStatus.encode message.instrumentTradingStatus
     ++ (encodeUIntLE 2 message.incrementalMessageInstructions
-    ++ (IncremetalOrdersGroups.encode message.incremetalOrdersGroups))))))
+    ++ (IncrementalOrdersGroups.encode message.incrementalOrdersGroups))))))
 
 def decode (bytes : List UInt8) : Option (OrderBookIncrementalMessage × List UInt8) := do
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
@@ -1568,8 +1568,8 @@ def decode (bytes : List UInt8) : Option (OrderBookIncrementalMessage × List UI
   let (tradingSessionDate, bytes) ← decodeUIntLE 2 bytes
   let (instrumentTradingStatus, bytes) ← InstrumentTradingStatus.decode bytes
   let (incrementalMessageInstructions, bytes) ← decodeUIntLE 2 bytes
-  let (incremetalOrdersGroups, bytes) ← IncremetalOrdersGroups.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, incremetalOrdersGroups }, bytes)
+  let (incrementalOrdersGroups, bytes) ← IncrementalOrdersGroups.decode bytes
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, incrementalOrdersGroups }, bytes)
 
 theorem encode_length_pos (message : OrderBookIncrementalMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1578,7 +1578,7 @@ theorem encode_length_pos (message : OrderBookIncrementalMessage) : (encode mess
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : OrderBookIncrementalMessage) : (encode message).length ≤ 11248 := by
-  have bound_incremetalOrdersGroups := IncremetalOrdersGroups.encode_length_le message.incremetalOrdersGroups
+  have bound_incrementalOrdersGroups := IncrementalOrdersGroups.encode_length_le message.incrementalOrdersGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, InstrumentTradingStatus.encode_length]
   omega
@@ -1598,7 +1598,7 @@ theorem encode_length_le (message : OrderBookIncrementalMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [IncremetalOrdersGroups.decode_encode, some_bind]
+  rw [IncrementalOrdersGroups.decode_encode, some_bind]
   rfl
 
 end OrderBookIncrementalMessage
@@ -1698,8 +1698,8 @@ theorem encode_length_pos (message : MarketSummaryIncrementalMessage) : (encode 
 
 end MarketSummaryIncrementalMessage
 
-/-- Snaphot Orders Group: 43 bytes -/
-structure SnaphotOrdersGroup where
+/-- Snapshot Orders Group: 43 bytes -/
+structure SnapshotOrdersGroup where
   orderId : BitVec 64
   side : Side
   price : BitVec 64
@@ -1709,9 +1709,9 @@ structure SnaphotOrdersGroup where
   time : BitVec 64
   deriving DecidableEq, Repr
 
-namespace SnaphotOrdersGroup
+namespace SnapshotOrdersGroup
 
-def encode (message : SnaphotOrdersGroup) : List UInt8 :=
+def encode (message : SnapshotOrdersGroup) : List UInt8 :=
   encodeUIntLE 8 message.orderId
     ++ (Side.encode message.side
     ++ (encodeUIntLE 8 message.price
@@ -1720,7 +1720,7 @@ def encode (message : SnaphotOrdersGroup) : List UInt8 :=
     ++ (encodeUIntLE 2 message.orderAttributes
     ++ (encodeUIntLE 8 message.time))))))
 
-def decode (bytes : List UInt8) : Option (SnaphotOrdersGroup × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SnapshotOrdersGroup × List UInt8) := do
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (side, bytes) ← Side.decode bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
@@ -1730,15 +1730,15 @@ def decode (bytes : List UInt8) : Option (SnaphotOrdersGroup × List UInt8) := d
   let (time, bytes) ← decodeUIntLE 8 bytes
   pure ({ orderId, side, price, size, orderPriority, orderAttributes, time }, bytes)
 
-@[simp] theorem encode_length (message : SnaphotOrdersGroup) : (encode message).length = 43 := by
+@[simp] theorem encode_length (message : SnapshotOrdersGroup) : (encode message).length = 43 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Side.encode_length]
 
-theorem encode_length_pos (message : SnaphotOrdersGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SnapshotOrdersGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : SnaphotOrdersGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SnapshotOrdersGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -1756,54 +1756,54 @@ theorem encode_length_pos (message : SnaphotOrdersGroup) : (encode message).leng
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end SnaphotOrdersGroup
+end SnapshotOrdersGroup
 
-/-- Snaphot Orders Groups -/
-structure SnaphotOrdersGroups where
+/-- Snapshot Orders Groups -/
+structure SnapshotOrdersGroups where
   blockLength : BitVec 16
-  snaphotOrdersGroup : Bounded 1 SnaphotOrdersGroup
+  snapshotOrdersGroup : Bounded 1 SnapshotOrdersGroup
   deriving DecidableEq, Repr
 
-namespace SnaphotOrdersGroups
+namespace SnapshotOrdersGroups
 
-def encode (message : SnaphotOrdersGroups) : List UInt8 :=
+def encode (message : SnapshotOrdersGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snaphotOrdersGroup.val.length)
-    ++ (encodeMany SnaphotOrdersGroup.encode message.snaphotOrdersGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snapshotOrdersGroup.val.length)
+    ++ (encodeMany SnapshotOrdersGroup.encode message.snapshotOrdersGroup.val))
 
-def decode (bytes : List UInt8) : Option (SnaphotOrdersGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SnapshotOrdersGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (snaphotOrdersGroup_, bytes) ← decodeMany SnaphotOrdersGroup.decode numInGroup.toNat bytes
-  if fits_snaphotOrdersGroup : snaphotOrdersGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, snaphotOrdersGroup := ⟨snaphotOrdersGroup_, fits_snaphotOrdersGroup⟩ }, bytes)
+  let (snapshotOrdersGroup_, bytes) ← decodeMany SnapshotOrdersGroup.decode numInGroup.toNat bytes
+  if fits_snapshotOrdersGroup : snapshotOrdersGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, snapshotOrdersGroup := ⟨snapshotOrdersGroup_, fits_snapshotOrdersGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : SnaphotOrdersGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SnapshotOrdersGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : SnaphotOrdersGroups) : (encode message).length ≤ 10968 := by
-  have bound_snaphotOrdersGroup := message.snaphotOrdersGroup.length_lt
+theorem encode_length_le (message : SnapshotOrdersGroups) : (encode message).length ≤ 10968 := by
+  have bound_snapshotOrdersGroup := message.snapshotOrdersGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnaphotOrdersGroup.encode 43 SnaphotOrdersGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnapshotOrdersGroup.encode 43 SnapshotOrdersGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : SnaphotOrdersGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SnapshotOrdersGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 SnaphotOrdersGroup.encode SnaphotOrdersGroup.decode SnaphotOrdersGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 SnapshotOrdersGroup.encode SnapshotOrdersGroup.decode SnapshotOrdersGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.snaphotOrdersGroup.length_lt]
+  rw [dite_eq_left message.snapshotOrdersGroup.length_lt]
   rfl
 
-end SnaphotOrdersGroups
+end SnapshotOrdersGroups
 
 /-- Order Book Snapshot Message -/
 structure OrderBookSnapshotMessage where
@@ -1815,7 +1815,7 @@ structure OrderBookSnapshotMessage where
   snapshotMessageInstructions : BitVec 16
   snapshotInstrumentsCount : BitVec 32
   lastIncrementalMessageSeq : BitVec 64
-  snaphotOrdersGroups : SnaphotOrdersGroups
+  snapshotOrdersGroups : SnapshotOrdersGroups
   deriving DecidableEq, Repr
 
 namespace OrderBookSnapshotMessage
@@ -1829,7 +1829,7 @@ def encode (message : OrderBookSnapshotMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.snapshotMessageInstructions
     ++ (encodeUIntLE 4 message.snapshotInstrumentsCount
     ++ (encodeUIntLE 8 message.lastIncrementalMessageSeq
-    ++ (SnaphotOrdersGroups.encode message.snaphotOrdersGroups))))))))
+    ++ (SnapshotOrdersGroups.encode message.snapshotOrdersGroups))))))))
 
 def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessage × List UInt8) := do
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
@@ -1840,8 +1840,8 @@ def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessage × List UInt8
   let (snapshotMessageInstructions, bytes) ← decodeUIntLE 2 bytes
   let (snapshotInstrumentsCount, bytes) ← decodeUIntLE 4 bytes
   let (lastIncrementalMessageSeq, bytes) ← decodeUIntLE 8 bytes
-  let (snaphotOrdersGroups, bytes) ← SnaphotOrdersGroups.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, snapshotMessageInstructions, snapshotInstrumentsCount, lastIncrementalMessageSeq, snaphotOrdersGroups }, bytes)
+  let (snapshotOrdersGroups, bytes) ← SnapshotOrdersGroups.decode bytes
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, snapshotMessageInstructions, snapshotInstrumentsCount, lastIncrementalMessageSeq, snapshotOrdersGroups }, bytes)
 
 theorem encode_length_pos (message : OrderBookSnapshotMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1850,7 +1850,7 @@ theorem encode_length_pos (message : OrderBookSnapshotMessage) : (encode message
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : OrderBookSnapshotMessage) : (encode message).length ≤ 11005 := by
-  have bound_snaphotOrdersGroups := SnaphotOrdersGroups.encode_length_le message.snaphotOrdersGroups
+  have bound_snapshotOrdersGroups := SnapshotOrdersGroups.encode_length_le message.snapshotOrdersGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, InstrumentTradingStatus.encode_length]
   omega
@@ -1874,7 +1874,7 @@ theorem encode_length_le (message : OrderBookSnapshotMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [SnaphotOrdersGroups.decode_encode, some_bind]
+  rw [SnapshotOrdersGroups.decode_encode, some_bind]
   rfl
 
 end OrderBookSnapshotMessage

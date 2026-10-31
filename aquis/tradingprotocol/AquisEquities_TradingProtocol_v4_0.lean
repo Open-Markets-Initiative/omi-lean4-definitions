@@ -741,7 +741,7 @@ structure OrderCancelResponseMessage where
   orderRef : BitVec 32
   requestRef : BitVec 32
   status : BitVec 8
-  timestamp : BitVec 64
+  cancellationTimestamp : BitVec 64
   userTag : BitVec 64
   deriving DecidableEq, Repr
 
@@ -751,16 +751,16 @@ def encode (message : OrderCancelResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.requestRef
     ++ (encodeUIntLE 1 message.status
-    ++ (encodeUIntLE 8 message.timestamp
+    ++ (encodeUIntLE 8 message.cancellationTimestamp
     ++ (encodeUIntLE 8 message.userTag))))
 
 def decode (bytes : List UInt8) : Option (OrderCancelResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (requestRef, bytes) ← decodeUIntLE 4 bytes
   let (status, bytes) ← decodeUIntLE 1 bytes
-  let (timestamp, bytes) ← decodeUIntLE 8 bytes
+  let (cancellationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
-  pure ({ orderRef, requestRef, status, timestamp, userTag }, bytes)
+  pure ({ orderRef, requestRef, status, cancellationTimestamp, userTag }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelResponseMessage) : (encode message).length = 25 := by
   unfold encode
@@ -791,9 +791,9 @@ structure OrderModifyResponseMessage where
   orderRef : BitVec 32
   requestRef : BitVec 32
   status : BitVec 8
-  timestamp : BitVec 64
+  modificationTimestamp : BitVec 64
   userTag : BitVec 64
-  orderModifyResponseFlagsU81 : BitVec 8
+  orderModifyResponseFlags : BitVec 8
   deriving DecidableEq, Repr
 
 namespace OrderModifyResponseMessage
@@ -802,18 +802,18 @@ def encode (message : OrderModifyResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.requestRef
     ++ (encodeUIntLE 1 message.status
-    ++ (encodeUIntLE 8 message.timestamp
+    ++ (encodeUIntLE 8 message.modificationTimestamp
     ++ (encodeUIntLE 8 message.userTag
-    ++ (encodeUIntLE 1 message.orderModifyResponseFlagsU81)))))
+    ++ (encodeUIntLE 1 message.orderModifyResponseFlags)))))
 
 def decode (bytes : List UInt8) : Option (OrderModifyResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (requestRef, bytes) ← decodeUIntLE 4 bytes
   let (status, bytes) ← decodeUIntLE 1 bytes
-  let (timestamp, bytes) ← decodeUIntLE 8 bytes
+  let (modificationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
-  let (orderModifyResponseFlagsU81, bytes) ← decodeUIntLE 1 bytes
-  pure ({ orderRef, requestRef, status, timestamp, userTag, orderModifyResponseFlagsU81 }, bytes)
+  let (orderModifyResponseFlags, bytes) ← decodeUIntLE 1 bytes
+  pure ({ orderRef, requestRef, status, modificationTimestamp, userTag, orderModifyResponseFlags }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyResponseMessage) : (encode message).length = 26 := by
   unfold encode
@@ -1001,7 +1001,7 @@ structure TradeMessage where
   ccpCode : BitVec 8
   liqIndicator : BitVec 8
   securityIdShort : BitVec 16
-  timestamp : BitVec 64
+  tradeTimestamp : BitVec 64
   userTag : BitVec 64
   tradeFlags : BitVec 8
   deriving DecidableEq, Repr
@@ -1017,7 +1017,7 @@ def encode (message : TradeMessage) : List UInt8 :=
     ++ (encodeUIntLE 1 message.ccpCode
     ++ (encodeUIntLE 1 message.liqIndicator
     ++ (encodeUIntLE 2 message.securityIdShort
-    ++ (encodeUIntLE 8 message.timestamp
+    ++ (encodeUIntLE 8 message.tradeTimestamp
     ++ (encodeUIntLE 8 message.userTag
     ++ (encodeUIntLE 1 message.tradeFlags))))))))))
 
@@ -1030,10 +1030,10 @@ def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (ccpCode, bytes) ← decodeUIntLE 1 bytes
   let (liqIndicator, bytes) ← decodeUIntLE 1 bytes
   let (securityIdShort, bytes) ← decodeUIntLE 2 bytes
-  let (timestamp, bytes) ← decodeUIntLE 8 bytes
+  let (tradeTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (tradeFlags, bytes) ← decodeUIntLE 1 bytes
-  pure ({ orderRef, quantity, price, side, tradeRef, ccpCode, liqIndicator, securityIdShort, timestamp, userTag, tradeFlags }, bytes)
+  pure ({ orderRef, quantity, price, side, tradeRef, ccpCode, liqIndicator, securityIdShort, tradeTimestamp, userTag, tradeFlags }, bytes)
 
 @[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 42 := by
   unfold encode
@@ -1078,7 +1078,7 @@ structure TradeBustMessage where
   price : BitVec 64
   side : BitVec 8
   tradeRef : BitVec 32
-  timestamp : BitVec 64
+  bustTimestamp : BitVec 64
   deriving DecidableEq, Repr
 
 namespace TradeBustMessage
@@ -1089,7 +1089,7 @@ def encode (message : TradeBustMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 1 message.side
     ++ (encodeUIntLE 4 message.tradeRef
-    ++ (encodeUIntLE 8 message.timestamp)))))
+    ++ (encodeUIntLE 8 message.bustTimestamp)))))
 
 def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -1097,8 +1097,8 @@ def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (side, bytes) ← decodeUIntLE 1 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
-  let (timestamp, bytes) ← decodeUIntLE 8 bytes
-  pure ({ orderRef, quantity, price, side, tradeRef, timestamp }, bytes)
+  let (bustTimestamp, bytes) ← decodeUIntLE 8 bytes
+  pure ({ orderRef, quantity, price, side, tradeRef, bustTimestamp }, bytes)
 
 @[simp] theorem encode_length (message : TradeBustMessage) : (encode message).length = 29 := by
   unfold encode
@@ -1257,7 +1257,7 @@ structure IoiInviteMessage where
   price : BitVec 64
   quantity : BitVec 32
   minQty : BitVec 32
-  timestamp : BitVec 64
+  inviteTimestamp : BitVec 64
   userTag : BitVec 64
   deriving DecidableEq, Repr
 
@@ -1268,7 +1268,7 @@ def encode (message : IoiInviteMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 4 message.minQty
-    ++ (encodeUIntLE 8 message.timestamp
+    ++ (encodeUIntLE 8 message.inviteTimestamp
     ++ (encodeUIntLE 8 message.userTag)))))
 
 def decode (bytes : List UInt8) : Option (IoiInviteMessage × List UInt8) := do
@@ -1276,9 +1276,9 @@ def decode (bytes : List UInt8) : Option (IoiInviteMessage × List UInt8) := do
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (minQty, bytes) ← decodeUIntLE 4 bytes
-  let (timestamp, bytes) ← decodeUIntLE 8 bytes
+  let (inviteTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
-  pure ({ orderRef, price, quantity, minQty, timestamp, userTag }, bytes)
+  pure ({ orderRef, price, quantity, minQty, inviteTimestamp, userTag }, bytes)
 
 @[simp] theorem encode_length (message : IoiInviteMessage) : (encode message).length = 36 := by
   unfold encode

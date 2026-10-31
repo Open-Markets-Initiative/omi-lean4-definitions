@@ -133,7 +133,7 @@ end OrderCancelMessage
 /-- Order Modify Message: 26 bytes -/
 structure OrderModifyMessage where
   securityId : BitVec 16
-  quantity : BitVec 32
+  remainingQuantity : BitVec 32
   price : BitVec 64
   orderRef : BitVec 32
   timestamp : BitVec 64
@@ -143,18 +143,18 @@ namespace OrderModifyMessage
 
 def encode (message : OrderModifyMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 4 message.quantity
+    ++ (encodeUIntLE 4 message.remainingQuantity
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 8 message.timestamp))))
 
 def decode (bytes : List UInt8) : Option (OrderModifyMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
+  let (remainingQuantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityId, quantity, price, orderRef, timestamp }, bytes)
+  pure ({ securityId, remainingQuantity, price, orderRef, timestamp }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyMessage) : (encode message).length = 26 := by
   unfold encode
@@ -184,8 +184,8 @@ end OrderModifyMessage
 structure TradeMessage where
   securityId : BitVec 16
   tradeType : BitVec 8
-  quantity : BitVec 32
-  price : BitVec 64
+  tradedQuantity : BitVec 32
+  executionPrice : BitVec 64
   orderRef : BitVec 32
   tradeRef : BitVec 32
   timestamp : BitVec 64
@@ -196,8 +196,8 @@ namespace TradeMessage
 def encode (message : TradeMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 1 message.tradeType
-    ++ (encodeUIntLE 4 message.quantity
-    ++ (encodeUIntLE 8 message.price
+    ++ (encodeUIntLE 4 message.tradedQuantity
+    ++ (encodeUIntLE 8 message.executionPrice
     ++ (encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.tradeRef
     ++ (encodeUIntLE 8 message.timestamp))))))
@@ -205,12 +205,12 @@ def encode (message : TradeMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (tradeType, bytes) ← decodeUIntLE 1 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
+  let (tradedQuantity, bytes) ← decodeUIntLE 4 bytes
+  let (executionPrice, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityId, tradeType, quantity, price, orderRef, tradeRef, timestamp }, bytes)
+  pure ({ securityId, tradeType, tradedQuantity, executionPrice, orderRef, tradeRef, timestamp }, bytes)
 
 @[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 31 := by
   unfold encode
@@ -243,8 +243,8 @@ end TradeMessage
 /-- Trade Bust Message: 26 bytes -/
 structure TradeBustMessage where
   securityId : BitVec 16
-  quantity : BitVec 32
-  price : BitVec 64
+  tradedQuantity : BitVec 32
+  executionPrice : BitVec 64
   tradeRef : BitVec 32
   timestamp : BitVec 64
   deriving DecidableEq, Repr
@@ -253,18 +253,18 @@ namespace TradeBustMessage
 
 def encode (message : TradeBustMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 4 message.quantity
-    ++ (encodeUIntLE 8 message.price
+    ++ (encodeUIntLE 4 message.tradedQuantity
+    ++ (encodeUIntLE 8 message.executionPrice
     ++ (encodeUIntLE 4 message.tradeRef
     ++ (encodeUIntLE 8 message.timestamp))))
 
 def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
+  let (tradedQuantity, bytes) ← decodeUIntLE 4 bytes
+  let (executionPrice, bytes) ← decodeUIntLE 8 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityId, quantity, price, tradeRef, timestamp }, bytes)
+  pure ({ securityId, tradedQuantity, executionPrice, tradeRef, timestamp }, bytes)
 
 @[simp] theorem encode_length (message : TradeBustMessage) : (encode message).length = 26 := by
   unfold encode

@@ -14,8 +14,29 @@ Prices with implied decimals are proven as the integers on the wire.
 
 namespace Omi.AquisAquisequitiesRealtimeAmdV40
 
-/-- Order Add: 28 bytes -/
-structure OrderAdd where
+/-- Heartbeat Message: 0 bytes -/
+structure HeartbeatMessage where
+  deriving DecidableEq, Repr
+
+namespace HeartbeatMessage
+
+def encode (_ : HeartbeatMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (HeartbeatMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : HeartbeatMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : HeartbeatMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end HeartbeatMessage
+
+/-- Order Add Message: 28 bytes -/
+structure OrderAddMessage where
   securityId : BitVec 16
   side : BitVec 8
   quantity : BitVec 32
@@ -25,9 +46,9 @@ structure OrderAdd where
   mdFlags : BitVec 8
   deriving DecidableEq, Repr
 
-namespace OrderAdd
+namespace OrderAddMessage
 
-def encode (message : OrderAdd) : List UInt8 :=
+def encode (message : OrderAddMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 1 message.side
     ++ (encodeUIntLE 4 message.quantity
@@ -36,7 +57,7 @@ def encode (message : OrderAdd) : List UInt8 :=
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 1 message.mdFlags))))))
 
-def decode (bytes : List UInt8) : Option (OrderAdd × List UInt8) := do
+def decode (bytes : List UInt8) : Option (OrderAddMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (side, bytes) ← decodeUIntLE 1 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
@@ -46,15 +67,15 @@ def decode (bytes : List UInt8) : Option (OrderAdd × List UInt8) := do
   let (mdFlags, bytes) ← decodeUIntLE 1 bytes
   pure ({ securityId, side, quantity, price, orderRef, timestamp, mdFlags }, bytes)
 
-@[simp] theorem encode_length (message : OrderAdd) : (encode message).length = 28 := by
+@[simp] theorem encode_length (message : OrderAddMessage) : (encode message).length = 28 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : OrderAdd) : (encode message).length > 0 := by
+theorem encode_length_pos (message : OrderAddMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : OrderAdd) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : OrderAddMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -72,40 +93,40 @@ theorem encode_length_pos (message : OrderAdd) : (encode message).length > 0 := 
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end OrderAdd
+end OrderAddMessage
 
-/-- Order Cancel: 15 bytes -/
-structure OrderCancel where
+/-- Order Cancel Message: 15 bytes -/
+structure OrderCancelMessage where
   securityId : BitVec 16
   orderRef : BitVec 32
   timestamp : BitVec 64
   mdFlags : BitVec 8
   deriving DecidableEq, Repr
 
-namespace OrderCancel
+namespace OrderCancelMessage
 
-def encode (message : OrderCancel) : List UInt8 :=
+def encode (message : OrderCancelMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 1 message.mdFlags)))
 
-def decode (bytes : List UInt8) : Option (OrderCancel × List UInt8) := do
+def decode (bytes : List UInt8) : Option (OrderCancelMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags, bytes) ← decodeUIntLE 1 bytes
   pure ({ securityId, orderRef, timestamp, mdFlags }, bytes)
 
-@[simp] theorem encode_length (message : OrderCancel) : (encode message).length = 15 := by
+@[simp] theorem encode_length (message : OrderCancelMessage) : (encode message).length = 15 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : OrderCancel) : (encode message).length > 0 := by
+theorem encode_length_pos (message : OrderCancelMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : OrderCancel) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : OrderCancelMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -117,46 +138,46 @@ theorem encode_length_pos (message : OrderCancel) : (encode message).length > 0 
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end OrderCancel
+end OrderCancelMessage
 
-/-- Order Modify: 27 bytes -/
-structure OrderModify where
+/-- Order Modify Message: 27 bytes -/
+structure OrderModifyMessage where
   securityId : BitVec 16
-  quantity : BitVec 32
+  remainingQuantity : BitVec 32
   price : BitVec 64
   orderRef : BitVec 32
   timestamp : BitVec 64
   mdFlags : BitVec 8
   deriving DecidableEq, Repr
 
-namespace OrderModify
+namespace OrderModifyMessage
 
-def encode (message : OrderModify) : List UInt8 :=
+def encode (message : OrderModifyMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 4 message.quantity
+    ++ (encodeUIntLE 4 message.remainingQuantity
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 1 message.mdFlags)))))
 
-def decode (bytes : List UInt8) : Option (OrderModify × List UInt8) := do
+def decode (bytes : List UInt8) : Option (OrderModifyMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
+  let (remainingQuantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags, bytes) ← decodeUIntLE 1 bytes
-  pure ({ securityId, quantity, price, orderRef, timestamp, mdFlags }, bytes)
+  pure ({ securityId, remainingQuantity, price, orderRef, timestamp, mdFlags }, bytes)
 
-@[simp] theorem encode_length (message : OrderModify) : (encode message).length = 27 := by
+@[simp] theorem encode_length (message : OrderModifyMessage) : (encode message).length = 27 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : OrderModify) : (encode message).length > 0 := by
+theorem encode_length_pos (message : OrderModifyMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : OrderModify) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : OrderModifyMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -172,14 +193,14 @@ theorem encode_length_pos (message : OrderModify) : (encode message).length > 0 
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end OrderModify
+end OrderModifyMessage
 
-/-- Trade: 36 bytes -/
-structure Trade where
+/-- Trade Message: 36 bytes -/
+structure TradeMessage where
   securityId : BitVec 16
   tradeType : BitVec 8
-  quantity : BitVec 32
-  price : BitVec 64
+  tradedQuantity : BitVec 32
+  executionPrice : BitVec 64
   orderRef : BitVec 32
   tradeRef : BitVec 32
   timestamp : BitVec 64
@@ -187,40 +208,40 @@ structure Trade where
   mdFlags : BitVec 8
   deriving DecidableEq, Repr
 
-namespace Trade
+namespace TradeMessage
 
-def encode (message : Trade) : List UInt8 :=
+def encode (message : TradeMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 1 message.tradeType
-    ++ (encodeUIntLE 4 message.quantity
-    ++ (encodeUIntLE 8 message.price
+    ++ (encodeUIntLE 4 message.tradedQuantity
+    ++ (encodeUIntLE 8 message.executionPrice
     ++ (encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.tradeRef
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 4 message.binaryMmt
     ++ (encodeUIntLE 1 message.mdFlags))))))))
 
-def decode (bytes : List UInt8) : Option (Trade × List UInt8) := do
+def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (tradeType, bytes) ← decodeUIntLE 1 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
+  let (tradedQuantity, bytes) ← decodeUIntLE 4 bytes
+  let (executionPrice, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (binaryMmt, bytes) ← decodeUIntLE 4 bytes
   let (mdFlags, bytes) ← decodeUIntLE 1 bytes
-  pure ({ securityId, tradeType, quantity, price, orderRef, tradeRef, timestamp, binaryMmt, mdFlags }, bytes)
+  pure ({ securityId, tradeType, tradedQuantity, executionPrice, orderRef, tradeRef, timestamp, binaryMmt, mdFlags }, bytes)
 
-@[simp] theorem encode_length (message : Trade) : (encode message).length = 36 := by
+@[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 36 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : Trade) : (encode message).length > 0 := by
+theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : Trade) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : TradeMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -242,13 +263,13 @@ theorem encode_length_pos (message : Trade) : (encode message).length > 0 := by
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end Trade
+end TradeMessage
 
 /-- Trade Bust Message: 30 bytes -/
 structure TradeBustMessage where
   securityId : BitVec 16
-  quantity : BitVec 32
-  price : BitVec 64
+  tradedQuantity : BitVec 32
+  executionPrice : BitVec 64
   tradeRef : BitVec 32
   timestamp : BitVec 64
   binaryMmt : BitVec 32
@@ -258,20 +279,20 @@ namespace TradeBustMessage
 
 def encode (message : TradeBustMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 4 message.quantity
-    ++ (encodeUIntLE 8 message.price
+    ++ (encodeUIntLE 4 message.tradedQuantity
+    ++ (encodeUIntLE 8 message.executionPrice
     ++ (encodeUIntLE 4 message.tradeRef
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 4 message.binaryMmt)))))
 
 def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (quantity, bytes) ← decodeUIntLE 4 bytes
-  let (price, bytes) ← decodeUIntLE 8 bytes
+  let (tradedQuantity, bytes) ← decodeUIntLE 4 bytes
+  let (executionPrice, bytes) ← decodeUIntLE 8 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (binaryMmt, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, quantity, price, tradeRef, timestamp, binaryMmt }, bytes)
+  pure ({ securityId, tradedQuantity, executionPrice, tradeRef, timestamp, binaryMmt }, bytes)
 
 @[simp] theorem encode_length (message : TradeBustMessage) : (encode message).length = 30 := by
   unfold encode
@@ -387,8 +408,8 @@ structure SecurityDefinitionMessage where
   currency : Alpha 3
   mic : Alpha 4
   tickTableId : BitVec 8
-  securityDefinitionFlags : BitVec 16
-  reserved20 : Alpha 20
+  flags : BitVec 16
+  reserved : Alpha 20
   lotSizeComposite : LotSizeComposite
   deriving DecidableEq, Repr
 
@@ -401,8 +422,8 @@ def encode (message : SecurityDefinitionMessage) : List UInt8 :=
     ++ (Alpha.encode message.currency
     ++ (Alpha.encode message.mic
     ++ (encodeUIntLE 1 message.tickTableId
-    ++ (encodeUIntLE 2 message.securityDefinitionFlags
-    ++ (Alpha.encode message.reserved20
+    ++ (encodeUIntLE 2 message.flags
+    ++ (Alpha.encode message.reserved
     ++ (LotSizeComposite.encode message.lotSizeComposite))))))))
 
 def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt8) := do
@@ -412,10 +433,10 @@ def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt
   let (currency, bytes) ← Alpha.decode 3 bytes
   let (mic, bytes) ← Alpha.decode 4 bytes
   let (tickTableId, bytes) ← decodeUIntLE 1 bytes
-  let (securityDefinitionFlags, bytes) ← decodeUIntLE 2 bytes
-  let (reserved20, bytes) ← Alpha.decode 20 bytes
+  let (flags, bytes) ← decodeUIntLE 2 bytes
+  let (reserved, bytes) ← Alpha.decode 20 bytes
   let (lotSizeComposite, bytes) ← LotSizeComposite.decode bytes
-  pure ({ securityId, umtf, isin, currency, mic, tickTableId, securityDefinitionFlags, reserved20, lotSizeComposite }, bytes)
+  pure ({ securityId, umtf, isin, currency, mic, tickTableId, flags, reserved, lotSizeComposite }, bytes)
 
 @[simp] theorem encode_length (message : SecurityDefinitionMessage) : (encode message).length = 59 := by
   unfold encode
@@ -499,38 +520,38 @@ theorem encode_length_pos (message : SecurityStatusMessage) : (encode message).l
 
 end SecurityStatusMessage
 
-/-- Ao D Update Message: 22 bytes -/
-structure AoDUpdateMessage where
+/-- Aod Update Message: 22 bytes -/
+structure AodUpdateMessage where
   securityId : BitVec 16
   indicativePrice : BitVec 64
   matchVol : BitVec 32
   timestamp : BitVec 64
   deriving DecidableEq, Repr
 
-namespace AoDUpdateMessage
+namespace AodUpdateMessage
 
-def encode (message : AoDUpdateMessage) : List UInt8 :=
+def encode (message : AodUpdateMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 8 message.indicativePrice
     ++ (encodeUIntLE 4 message.matchVol
     ++ (encodeUIntLE 8 message.timestamp)))
 
-def decode (bytes : List UInt8) : Option (AoDUpdateMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (AodUpdateMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (indicativePrice, bytes) ← decodeUIntLE 8 bytes
   let (matchVol, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   pure ({ securityId, indicativePrice, matchVol, timestamp }, bytes)
 
-@[simp] theorem encode_length (message : AoDUpdateMessage) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : AodUpdateMessage) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : AoDUpdateMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : AodUpdateMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : AoDUpdateMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : AodUpdateMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -542,10 +563,10 @@ theorem encode_length_pos (message : AoDUpdateMessage) : (encode message).length
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end AoDUpdateMessage
+end AodUpdateMessage
 
-/-- Ma C Update Message: 26 bytes -/
-structure MaCUpdateMessage where
+/-- Mac Update Message: 26 bytes -/
+structure MacUpdateMessage where
   securityId : BitVec 16
   indicativePrice : BitVec 64
   closingBuyQty : BitVec 32
@@ -553,16 +574,16 @@ structure MaCUpdateMessage where
   timestamp : BitVec 64
   deriving DecidableEq, Repr
 
-namespace MaCUpdateMessage
+namespace MacUpdateMessage
 
-def encode (message : MaCUpdateMessage) : List UInt8 :=
+def encode (message : MacUpdateMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
     ++ (encodeUIntLE 8 message.indicativePrice
     ++ (encodeUIntLE 4 message.closingBuyQty
     ++ (encodeUIntLE 4 message.closingSellQty
     ++ (encodeUIntLE 8 message.timestamp))))
 
-def decode (bytes : List UInt8) : Option (MaCUpdateMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (MacUpdateMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
   let (indicativePrice, bytes) ← decodeUIntLE 8 bytes
   let (closingBuyQty, bytes) ← decodeUIntLE 4 bytes
@@ -570,15 +591,15 @@ def decode (bytes : List UInt8) : Option (MaCUpdateMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   pure ({ securityId, indicativePrice, closingBuyQty, closingSellQty, timestamp }, bytes)
 
-@[simp] theorem encode_length (message : MaCUpdateMessage) : (encode message).length = 26 := by
+@[simp] theorem encode_length (message : MacUpdateMessage) : (encode message).length = 26 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : MaCUpdateMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : MacUpdateMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : MaCUpdateMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : MacUpdateMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -592,63 +613,69 @@ theorem encode_length_pos (message : MaCUpdateMessage) : (encode message).length
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end MaCUpdateMessage
+end MacUpdateMessage
 
 /-- Any Payload, selected by Msg Type -/
 inductive Payload where
-  | orderAdd (message : OrderAdd) -- 2
-  | orderCancel (message : OrderCancel) -- 3
-  | orderModify (message : OrderModify) -- 4
-  | trade (message : Trade) -- 5
+  | heartbeatMessage (message : HeartbeatMessage) -- 1
+  | orderAddMessage (message : OrderAddMessage) -- 2
+  | orderCancelMessage (message : OrderCancelMessage) -- 3
+  | orderModifyMessage (message : OrderModifyMessage) -- 4
+  | tradeMessage (message : TradeMessage) -- 5
   | tradeBustMessage (message : TradeBustMessage) -- 6
   | tickTableDataMessage (message : TickTableDataMessage) -- 7
   | securityDefinitionMessage (message : SecurityDefinitionMessage) -- 8
   | securityStatusMessage (message : SecurityStatusMessage) -- 9
-  | aoDUpdateMessage (message : AoDUpdateMessage) -- 17
-  | maCUpdateMessage (message : MaCUpdateMessage) -- 16
+  | aodUpdateMessage (message : AodUpdateMessage) -- 17
+  | macUpdateMessage (message : MacUpdateMessage) -- 16
   deriving DecidableEq, Repr
 
 namespace Payload
 
 /-- The Msg Type each message is sent under -/
 def tag : Payload → BitVec 8
-  | .orderAdd _ => 2
-  | .orderCancel _ => 3
-  | .orderModify _ => 4
-  | .trade _ => 5
+  | .heartbeatMessage _ => 1
+  | .orderAddMessage _ => 2
+  | .orderCancelMessage _ => 3
+  | .orderModifyMessage _ => 4
+  | .tradeMessage _ => 5
   | .tradeBustMessage _ => 6
   | .tickTableDataMessage _ => 7
   | .securityDefinitionMessage _ => 8
   | .securityStatusMessage _ => 9
-  | .aoDUpdateMessage _ => 17
-  | .maCUpdateMessage _ => 16
+  | .aodUpdateMessage _ => 17
+  | .macUpdateMessage _ => 16
 
 def encode : Payload → List UInt8
-  | .orderAdd message => OrderAdd.encode message
-  | .orderCancel message => OrderCancel.encode message
-  | .orderModify message => OrderModify.encode message
-  | .trade message => Trade.encode message
+  | .heartbeatMessage message => HeartbeatMessage.encode message
+  | .orderAddMessage message => OrderAddMessage.encode message
+  | .orderCancelMessage message => OrderCancelMessage.encode message
+  | .orderModifyMessage message => OrderModifyMessage.encode message
+  | .tradeMessage message => TradeMessage.encode message
   | .tradeBustMessage message => TradeBustMessage.encode message
   | .tickTableDataMessage message => TickTableDataMessage.encode message
   | .securityDefinitionMessage message => SecurityDefinitionMessage.encode message
   | .securityStatusMessage message => SecurityStatusMessage.encode message
-  | .aoDUpdateMessage message => AoDUpdateMessage.encode message
-  | .maCUpdateMessage message => MaCUpdateMessage.encode message
+  | .aodUpdateMessage message => AodUpdateMessage.encode message
+  | .macUpdateMessage message => MacUpdateMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 59 := by
   cases message with
-  | orderAdd inner =>
-    simp only [encode, OrderAdd.encode_length]
+  | heartbeatMessage inner =>
+    simp only [encode, HeartbeatMessage.encode_length]
     omega
-  | orderCancel inner =>
-    simp only [encode, OrderCancel.encode_length]
+  | orderAddMessage inner =>
+    simp only [encode, OrderAddMessage.encode_length]
     omega
-  | orderModify inner =>
-    simp only [encode, OrderModify.encode_length]
+  | orderCancelMessage inner =>
+    simp only [encode, OrderCancelMessage.encode_length]
     omega
-  | trade inner =>
-    simp only [encode, Trade.encode_length]
+  | orderModifyMessage inner =>
+    simp only [encode, OrderModifyMessage.encode_length]
+    omega
+  | tradeMessage inner =>
+    simp only [encode, TradeMessage.encode_length]
     omega
   | tradeBustMessage inner =>
     simp only [encode, TradeBustMessage.encode_length]
@@ -662,24 +689,25 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 59 :=
   | securityStatusMessage inner =>
     simp only [encode, SecurityStatusMessage.encode_length]
     omega
-  | aoDUpdateMessage inner =>
-    simp only [encode, AoDUpdateMessage.encode_length]
+  | aodUpdateMessage inner =>
+    simp only [encode, AodUpdateMessage.encode_length]
     omega
-  | maCUpdateMessage inner =>
-    simp only [encode, MaCUpdateMessage.encode_length]
+  | macUpdateMessage inner =>
+    simp only [encode, MacUpdateMessage.encode_length]
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8) :=
-  if tag = 2 then (OrderAdd.decode bytes).map fun (message, rest) => (.orderAdd message, rest)
-  else if tag = 3 then (OrderCancel.decode bytes).map fun (message, rest) => (.orderCancel message, rest)
-  else if tag = 4 then (OrderModify.decode bytes).map fun (message, rest) => (.orderModify message, rest)
-  else if tag = 5 then (Trade.decode bytes).map fun (message, rest) => (.trade message, rest)
+  if tag = 1 then (HeartbeatMessage.decode bytes).map fun (message, rest) => (.heartbeatMessage message, rest)
+  else if tag = 2 then (OrderAddMessage.decode bytes).map fun (message, rest) => (.orderAddMessage message, rest)
+  else if tag = 3 then (OrderCancelMessage.decode bytes).map fun (message, rest) => (.orderCancelMessage message, rest)
+  else if tag = 4 then (OrderModifyMessage.decode bytes).map fun (message, rest) => (.orderModifyMessage message, rest)
+  else if tag = 5 then (TradeMessage.decode bytes).map fun (message, rest) => (.tradeMessage message, rest)
   else if tag = 6 then (TradeBustMessage.decode bytes).map fun (message, rest) => (.tradeBustMessage message, rest)
   else if tag = 7 then (TickTableDataMessage.decode bytes).map fun (message, rest) => (.tickTableDataMessage message, rest)
   else if tag = 8 then (SecurityDefinitionMessage.decode bytes).map fun (message, rest) => (.securityDefinitionMessage message, rest)
   else if tag = 9 then (SecurityStatusMessage.decode bytes).map fun (message, rest) => (.securityStatusMessage message, rest)
-  else if tag = 17 then (AoDUpdateMessage.decode bytes).map fun (message, rest) => (.aoDUpdateMessage message, rest)
-  else if tag = 16 then (MaCUpdateMessage.decode bytes).map fun (message, rest) => (.maCUpdateMessage message, rest)
+  else if tag = 17 then (AodUpdateMessage.decode bytes).map fun (message, rest) => (.aodUpdateMessage message, rest)
+  else if tag = 16 then (MacUpdateMessage.decode bytes).map fun (message, rest) => (.macUpdateMessage message, rest)
   else none
 
 @[simp] theorem decode_encode (message : Payload) (rest : List UInt8) :
@@ -717,17 +745,20 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
 theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 2 < 256 ^ 1 := by
   unfold encodeBody
   cases message.payload with
-  | orderAdd inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderAdd.encode_length]
+  | heartbeatMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, HeartbeatMessage.encode_length]
     omega
-  | orderCancel inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderCancel.encode_length]
+  | orderAddMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderAddMessage.encode_length]
     omega
-  | orderModify inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderModify.encode_length]
+  | orderCancelMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderCancelMessage.encode_length]
     omega
-  | trade inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, Trade.encode_length]
+  | orderModifyMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, OrderModifyMessage.encode_length]
+    omega
+  | tradeMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, TradeMessage.encode_length]
     omega
   | tradeBustMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUIntLE_length, TradeBustMessage.encode_length]
@@ -741,11 +772,11 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
   | securityStatusMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUIntLE_length, SecurityStatusMessage.encode_length]
     omega
-  | aoDUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, AoDUpdateMessage.encode_length]
+  | aodUpdateMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, AodUpdateMessage.encode_length]
     omega
-  | maCUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUIntLE_length, MaCUpdateMessage.encode_length]
+  | macUpdateMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUIntLE_length, MacUpdateMessage.encode_length]
     omega
 
 /-- Size rule: Msg Length counts the bytes after it plus 2, so it is written from the body and checked on decode; Msg Type is read ahead of it -/

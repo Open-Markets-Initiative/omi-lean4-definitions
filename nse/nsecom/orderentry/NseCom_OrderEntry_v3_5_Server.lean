@@ -12030,6 +12030,69 @@ theorem encode_length_pos (message : SpdOrdLimitUpdateOutMessage) : (encode mess
 
 end SpdOrdLimitUpdateOutMessage
 
+/-- Header Record Message: 0 bytes -/
+structure HeaderRecordMessage where
+  deriving DecidableEq, Repr
+
+namespace HeaderRecordMessage
+
+def encode (_ : HeaderRecordMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (HeaderRecordMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : HeaderRecordMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : HeaderRecordMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end HeaderRecordMessage
+
+/-- Message Record Message: 0 bytes -/
+structure MessageRecordMessage where
+  deriving DecidableEq, Repr
+
+namespace MessageRecordMessage
+
+def encode (_ : MessageRecordMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (MessageRecordMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : MessageRecordMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : MessageRecordMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end MessageRecordMessage
+
+/-- Trailer Record Message: 0 bytes -/
+structure TrailerRecordMessage where
+  deriving DecidableEq, Repr
+
+namespace TrailerRecordMessage
+
+def encode (_ : TrailerRecordMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (TrailerRecordMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : TrailerRecordMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : TrailerRecordMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end TrailerRecordMessage
+
 /-- Update Localdb Header Message: 2 bytes -/
 structure UpdateLocaldbHeaderMessage where
   reserved2 : Alpha 2
@@ -12160,6 +12223,27 @@ theorem encode_length_pos (message : BoxSignOnRequestOutMessage) : (encode messa
 
 end BoxSignOnRequestOutMessage
 
+/-- Secure Box Registration Response Out Message: 0 bytes -/
+structure SecureBoxRegistrationResponseOutMessage where
+  deriving DecidableEq, Repr
+
+namespace SecureBoxRegistrationResponseOutMessage
+
+def encode (_ : SecureBoxRegistrationResponseOutMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (SecureBoxRegistrationResponseOutMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : SecureBoxRegistrationResponseOutMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : SecureBoxRegistrationResponseOutMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end SecureBoxRegistrationResponseOutMessage
+
 /-- Box Sign Off Message: 2 bytes -/
 structure BoxSignOffMessage where
   boxId : BitVec 16
@@ -12247,10 +12331,14 @@ inductive ServerMessagePayload where
   | resetUserPasswordOutMessage (message : ResetUserPasswordOutMessage) -- 5741
   | colUserStatusChangeOutMessage (message : ColUserStatusChangeOutMessage) -- 5745
   | spdOrdLimitUpdateOutMessage (message : SpdOrdLimitUpdateOutMessage) -- 5772
+  | headerRecordMessage (message : HeaderRecordMessage) -- 7011
+  | messageRecordMessage (message : MessageRecordMessage) -- 7021
+  | trailerRecordMessage (message : TrailerRecordMessage) -- 7031
   | updateLocaldbHeaderMessage (message : UpdateLocaldbHeaderMessage) -- 7307
   | updateLocaldbTrailerMessage (message : UpdateLocaldbTrailerMessage) -- 7308
   | bcastAssetMstrChgMessage (message : BcastAssetMstrChgMessage) -- 7325
   | boxSignOnRequestOutMessage (message : BoxSignOnRequestOutMessage) -- 23001
+  | secureBoxRegistrationResponseOutMessage (message : SecureBoxRegistrationResponseOutMessage) -- 23009
   | boxSignOffMessage (message : BoxSignOffMessage) -- 20322
   deriving DecidableEq, Repr
 
@@ -12313,10 +12401,14 @@ def tag : ServerMessagePayload → BitVec 16
   | .resetUserPasswordOutMessage _ => 5741
   | .colUserStatusChangeOutMessage _ => 5745
   | .spdOrdLimitUpdateOutMessage _ => 5772
+  | .headerRecordMessage _ => 7011
+  | .messageRecordMessage _ => 7021
+  | .trailerRecordMessage _ => 7031
   | .updateLocaldbHeaderMessage _ => 7307
   | .updateLocaldbTrailerMessage _ => 7308
   | .bcastAssetMstrChgMessage _ => 7325
   | .boxSignOnRequestOutMessage _ => 23001
+  | .secureBoxRegistrationResponseOutMessage _ => 23009
   | .boxSignOffMessage _ => 20322
 
 def encode : ServerMessagePayload → List UInt8
@@ -12375,10 +12467,14 @@ def encode : ServerMessagePayload → List UInt8
   | .resetUserPasswordOutMessage message => ResetUserPasswordOutMessage.encode message
   | .colUserStatusChangeOutMessage message => ColUserStatusChangeOutMessage.encode message
   | .spdOrdLimitUpdateOutMessage message => SpdOrdLimitUpdateOutMessage.encode message
+  | .headerRecordMessage message => HeaderRecordMessage.encode message
+  | .messageRecordMessage message => MessageRecordMessage.encode message
+  | .trailerRecordMessage message => TrailerRecordMessage.encode message
   | .updateLocaldbHeaderMessage message => UpdateLocaldbHeaderMessage.encode message
   | .updateLocaldbTrailerMessage message => UpdateLocaldbTrailerMessage.encode message
   | .bcastAssetMstrChgMessage message => BcastAssetMstrChgMessage.encode message
   | .boxSignOnRequestOutMessage message => BoxSignOnRequestOutMessage.encode message
+  | .secureBoxRegistrationResponseOutMessage message => SecureBoxRegistrationResponseOutMessage.encode message
   | .boxSignOffMessage message => BoxSignOffMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
@@ -12549,6 +12645,15 @@ theorem encode_length_le (message : ServerMessagePayload) : (encode message).len
   | spdOrdLimitUpdateOutMessage inner =>
     simp only [encode, SpdOrdLimitUpdateOutMessage.encode_length]
     omega
+  | headerRecordMessage inner =>
+    simp only [encode, HeaderRecordMessage.encode_length]
+    omega
+  | messageRecordMessage inner =>
+    simp only [encode, MessageRecordMessage.encode_length]
+    omega
+  | trailerRecordMessage inner =>
+    simp only [encode, TrailerRecordMessage.encode_length]
+    omega
   | updateLocaldbHeaderMessage inner =>
     simp only [encode, UpdateLocaldbHeaderMessage.encode_length]
     omega
@@ -12560,6 +12665,9 @@ theorem encode_length_le (message : ServerMessagePayload) : (encode message).len
     omega
   | boxSignOnRequestOutMessage inner =>
     simp only [encode, BoxSignOnRequestOutMessage.encode_length]
+    omega
+  | secureBoxRegistrationResponseOutMessage inner =>
+    simp only [encode, SecureBoxRegistrationResponseOutMessage.encode_length]
     omega
   | boxSignOffMessage inner =>
     simp only [encode, BoxSignOffMessage.encode_length]
@@ -12621,10 +12729,14 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ServerMessagePayload
   else if tag = 5741 then (ResetUserPasswordOutMessage.decode bytes).map fun (message, rest) => (.resetUserPasswordOutMessage message, rest)
   else if tag = 5745 then (ColUserStatusChangeOutMessage.decode bytes).map fun (message, rest) => (.colUserStatusChangeOutMessage message, rest)
   else if tag = 5772 then (SpdOrdLimitUpdateOutMessage.decode bytes).map fun (message, rest) => (.spdOrdLimitUpdateOutMessage message, rest)
+  else if tag = 7011 then (HeaderRecordMessage.decode bytes).map fun (message, rest) => (.headerRecordMessage message, rest)
+  else if tag = 7021 then (MessageRecordMessage.decode bytes).map fun (message, rest) => (.messageRecordMessage message, rest)
+  else if tag = 7031 then (TrailerRecordMessage.decode bytes).map fun (message, rest) => (.trailerRecordMessage message, rest)
   else if tag = 7307 then (UpdateLocaldbHeaderMessage.decode bytes).map fun (message, rest) => (.updateLocaldbHeaderMessage message, rest)
   else if tag = 7308 then (UpdateLocaldbTrailerMessage.decode bytes).map fun (message, rest) => (.updateLocaldbTrailerMessage message, rest)
   else if tag = 7325 then (BcastAssetMstrChgMessage.decode bytes).map fun (message, rest) => (.bcastAssetMstrChgMessage message, rest)
   else if tag = 23001 then (BoxSignOnRequestOutMessage.decode bytes).map fun (message, rest) => (.boxSignOnRequestOutMessage message, rest)
+  else if tag = 23009 then (SecureBoxRegistrationResponseOutMessage.decode bytes).map fun (message, rest) => (.secureBoxRegistrationResponseOutMessage message, rest)
   else if tag = 20322 then (BoxSignOffMessage.decode bytes).map fun (message, rest) => (.boxSignOffMessage message, rest)
   else none
 
@@ -12830,6 +12942,15 @@ theorem encodeBody_length_lt (message : ServerMessage) : (encodeBody message).le
   | spdOrdLimitUpdateOutMessage inner =>
     simp only [ServerMessagePayload.encode, SpdOrdLimitUpdateOutMessage.encode_length]
     omega
+  | headerRecordMessage inner =>
+    simp only [ServerMessagePayload.encode, HeaderRecordMessage.encode_length]
+    omega
+  | messageRecordMessage inner =>
+    simp only [ServerMessagePayload.encode, MessageRecordMessage.encode_length]
+    omega
+  | trailerRecordMessage inner =>
+    simp only [ServerMessagePayload.encode, TrailerRecordMessage.encode_length]
+    omega
   | updateLocaldbHeaderMessage inner =>
     simp only [ServerMessagePayload.encode, UpdateLocaldbHeaderMessage.encode_length]
     omega
@@ -12841,6 +12962,9 @@ theorem encodeBody_length_lt (message : ServerMessage) : (encodeBody message).le
     omega
   | boxSignOnRequestOutMessage inner =>
     simp only [ServerMessagePayload.encode, BoxSignOnRequestOutMessage.encode_length]
+    omega
+  | secureBoxRegistrationResponseOutMessage inner =>
+    simp only [ServerMessagePayload.encode, SecureBoxRegistrationResponseOutMessage.encode_length]
     omega
   | boxSignOffMessage inner =>
     simp only [ServerMessagePayload.encode, BoxSignOffMessage.encode_length]
