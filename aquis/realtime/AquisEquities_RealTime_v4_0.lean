@@ -409,7 +409,7 @@ structure SecurityDefinitionMessage where
   mic : Alpha 4
   tickTableId : BitVec 8
   flags : BitVec 16
-  reserved : Alpha 20
+  reserved20 : Alpha 20
   lotSizeComposite : LotSizeComposite
   deriving DecidableEq, Repr
 
@@ -423,7 +423,7 @@ def encode (message : SecurityDefinitionMessage) : List UInt8 :=
     ++ (Alpha.encode message.mic
     ++ (encodeUIntLE 1 message.tickTableId
     ++ (encodeUIntLE 2 message.flags
-    ++ (Alpha.encode message.reserved
+    ++ (Alpha.encode message.reserved20
     ++ (LotSizeComposite.encode message.lotSizeComposite))))))))
 
 def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt8) := do
@@ -434,9 +434,9 @@ def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt
   let (mic, bytes) ← Alpha.decode 4 bytes
   let (tickTableId, bytes) ← decodeUIntLE 1 bytes
   let (flags, bytes) ← decodeUIntLE 2 bytes
-  let (reserved, bytes) ← Alpha.decode 20 bytes
+  let (reserved20, bytes) ← Alpha.decode 20 bytes
   let (lotSizeComposite, bytes) ← LotSizeComposite.decode bytes
-  pure ({ securityId, umtf, isin, currency, mic, tickTableId, flags, reserved, lotSizeComposite }, bytes)
+  pure ({ securityId, umtf, isin, currency, mic, tickTableId, flags, reserved20, lotSizeComposite }, bytes)
 
 @[simp] theorem encode_length (message : SecurityDefinitionMessage) : (encode message).length = 59 := by
   unfold encode

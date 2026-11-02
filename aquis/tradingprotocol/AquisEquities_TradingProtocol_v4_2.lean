@@ -302,9 +302,9 @@ structure OrderAddExtendedMessage where
   displayQuantity : BitVec 32
   minQty : BitVec 32
   extendedOrderFlags : BitVec 8
-  reservedLong : BitVec 64
+  reserved8 : Alpha 8
   designatedOrderId : BitVec 64
-  reservedShort : BitVec 16
+  reserved2 : Alpha 2
   pegDifference : BitVec 64
   deriving DecidableEq, Repr
 
@@ -330,9 +330,9 @@ def encode (message : OrderAddExtendedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.displayQuantity
     ++ (encodeUIntLE 4 message.minQty
     ++ (encodeUIntLE 1 message.extendedOrderFlags
-    ++ (encodeUIntLE 8 message.reservedLong
+    ++ (Alpha.encode message.reserved8
     ++ (encodeUIntLE 8 message.designatedOrderId
-    ++ (encodeUIntLE 2 message.reservedShort
+    ++ (Alpha.encode message.reserved2
     ++ (encodeUIntLE 8 message.pegDifference))))))))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (OrderAddExtendedMessage × List UInt8) := do
@@ -355,15 +355,15 @@ def decode (bytes : List UInt8) : Option (OrderAddExtendedMessage × List UInt8)
   let (displayQuantity, bytes) ← decodeUIntLE 4 bytes
   let (minQty, bytes) ← decodeUIntLE 4 bytes
   let (extendedOrderFlags, bytes) ← decodeUIntLE 1 bytes
-  let (reservedLong, bytes) ← decodeUIntLE 8 bytes
+  let (reserved8, bytes) ← Alpha.decode 8 bytes
   let (designatedOrderId, bytes) ← decodeUIntLE 8 bytes
-  let (reservedShort, bytes) ← decodeUIntLE 2 bytes
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (pegDifference, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityIdShort, orderType, timeInForce, side, quantity, price, orderCapacity, account, userTag, flags, tableSelect1, shortCode1, tableSelect2, shortCode2, tableSelect3, shortCode3, displayQuantity, minQty, extendedOrderFlags, reservedLong, designatedOrderId, reservedShort, pegDifference }, bytes)
+  pure ({ securityIdShort, orderType, timeInForce, side, quantity, price, orderCapacity, account, userTag, flags, tableSelect1, shortCode1, tableSelect2, shortCode2, tableSelect3, shortCode3, displayQuantity, minQty, extendedOrderFlags, reserved8, designatedOrderId, reserved2, pegDifference }, bytes)
 
 @[simp] theorem encode_length (message : OrderAddExtendedMessage) : (encode message).length = 78 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderAddExtendedMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -410,11 +410,11 @@ theorem encode_length_pos (message : OrderAddExtendedMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -592,7 +592,7 @@ structure OrderModifyExtendedMessage where
   orderCapacity : BitVec 8
   displayQuantity : BitVec 32
   minQty : BitVec 32
-  reservedLong : BitVec 64
+  reserved8 : Alpha 8
   deriving DecidableEq, Repr
 
 namespace OrderModifyExtendedMessage
@@ -612,7 +612,7 @@ def encode (message : OrderModifyExtendedMessage) : List UInt8 :=
     ++ (encodeUIntLE 1 message.orderCapacity
     ++ (encodeUIntLE 4 message.displayQuantity
     ++ (encodeUIntLE 4 message.minQty
-    ++ (encodeUIntLE 8 message.reservedLong))))))))))))))
+    ++ (Alpha.encode message.reserved8))))))))))))))
 
 def decode (bytes : List UInt8) : Option (OrderModifyExtendedMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -629,12 +629,12 @@ def decode (bytes : List UInt8) : Option (OrderModifyExtendedMessage × List UIn
   let (orderCapacity, bytes) ← decodeUIntLE 1 bytes
   let (displayQuantity, bytes) ← decodeUIntLE 4 bytes
   let (minQty, bytes) ← decodeUIntLE 4 bytes
-  let (reservedLong, bytes) ← decodeUIntLE 8 bytes
-  pure ({ orderRef, price, quantity, userTag, flags, tableSelect1, shortCode1, tableSelect2, shortCode2, tableSelect3, shortCode3, orderCapacity, displayQuantity, minQty, reservedLong }, bytes)
+  let (reserved8, bytes) ← Alpha.decode 8 bytes
+  pure ({ orderRef, price, quantity, userTag, flags, tableSelect1, shortCode1, tableSelect2, shortCode2, tableSelect3, shortCode3, orderCapacity, displayQuantity, minQty, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyExtendedMessage) : (encode message).length = 57 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderModifyExtendedMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -671,7 +671,7 @@ theorem encode_length_pos (message : OrderModifyExtendedMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end OrderModifyExtendedMessage
@@ -685,7 +685,7 @@ structure OrderAddResponseMessage where
   timestamp : BitVec 64
   userTag : BitVec 64
   orderAddResponseFlags : BitVec 8
-  reservedShort : BitVec 16
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace OrderAddResponseMessage
@@ -698,7 +698,7 @@ def encode (message : OrderAddResponseMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 8 message.userTag
     ++ (encodeUIntLE 1 message.orderAddResponseFlags
-    ++ (encodeUIntLE 2 message.reservedShort)))))))
+    ++ (Alpha.encode message.reserved2)))))))
 
 def decode (bytes : List UInt8) : Option (OrderAddResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -708,12 +708,12 @@ def decode (bytes : List UInt8) : Option (OrderAddResponseMessage × List UInt8)
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (orderAddResponseFlags, bytes) ← decodeUIntLE 1 bytes
-  let (reservedShort, bytes) ← decodeUIntLE 2 bytes
-  pure ({ orderRef, marketDataId, status, tradedQuantity, timestamp, userTag, orderAddResponseFlags, reservedShort }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ orderRef, marketDataId, status, tradedQuantity, timestamp, userTag, orderAddResponseFlags, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderAddResponseMessage) : (encode message).length = 32 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderAddResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -736,7 +736,7 @@ theorem encode_length_pos (message : OrderAddResponseMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end OrderAddResponseMessage
@@ -748,7 +748,7 @@ structure OrderCancelResponseMessage where
   status : BitVec 8
   cancellationTimestamp : BitVec 64
   userTag : BitVec 64
-  reservedShort : BitVec 16
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace OrderCancelResponseMessage
@@ -759,7 +759,7 @@ def encode (message : OrderCancelResponseMessage) : List UInt8 :=
     ++ (encodeUIntLE 1 message.status
     ++ (encodeUIntLE 8 message.cancellationTimestamp
     ++ (encodeUIntLE 8 message.userTag
-    ++ (encodeUIntLE 2 message.reservedShort)))))
+    ++ (Alpha.encode message.reserved2)))))
 
 def decode (bytes : List UInt8) : Option (OrderCancelResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -767,12 +767,12 @@ def decode (bytes : List UInt8) : Option (OrderCancelResponseMessage × List UIn
   let (status, bytes) ← decodeUIntLE 1 bytes
   let (cancellationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
-  let (reservedShort, bytes) ← decodeUIntLE 2 bytes
-  pure ({ orderRef, requestRef, status, cancellationTimestamp, userTag, reservedShort }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ orderRef, requestRef, status, cancellationTimestamp, userTag, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelResponseMessage) : (encode message).length = 27 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderCancelResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -791,7 +791,7 @@ theorem encode_length_pos (message : OrderCancelResponseMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end OrderCancelResponseMessage
@@ -804,7 +804,7 @@ structure OrderModifyResponseMessage where
   modificationTimestamp : BitVec 64
   userTag : BitVec 64
   orderModifyResponseFlags : BitVec 8
-  reservedShort : BitVec 16
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace OrderModifyResponseMessage
@@ -816,7 +816,7 @@ def encode (message : OrderModifyResponseMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.modificationTimestamp
     ++ (encodeUIntLE 8 message.userTag
     ++ (encodeUIntLE 1 message.orderModifyResponseFlags
-    ++ (encodeUIntLE 2 message.reservedShort))))))
+    ++ (Alpha.encode message.reserved2))))))
 
 def decode (bytes : List UInt8) : Option (OrderModifyResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -825,12 +825,12 @@ def decode (bytes : List UInt8) : Option (OrderModifyResponseMessage × List UIn
   let (modificationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (orderModifyResponseFlags, bytes) ← decodeUIntLE 1 bytes
-  let (reservedShort, bytes) ← decodeUIntLE 2 bytes
-  pure ({ orderRef, requestRef, status, modificationTimestamp, userTag, orderModifyResponseFlags, reservedShort }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ orderRef, requestRef, status, modificationTimestamp, userTag, orderModifyResponseFlags, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyResponseMessage) : (encode message).length = 28 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderModifyResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -851,7 +851,7 @@ theorem encode_length_pos (message : OrderModifyResponseMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end OrderModifyResponseMessage
@@ -967,7 +967,7 @@ structure TradeCaptureResponseMessage where
   tradeRef : BitVec 32
   requestRef : BitVec 32
   userTag : BitVec 64
-  reservedShort : BitVec 16
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace TradeCaptureResponseMessage
@@ -977,19 +977,19 @@ def encode (message : TradeCaptureResponseMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.tradeRef
     ++ (encodeUIntLE 4 message.requestRef
     ++ (encodeUIntLE 8 message.userTag
-    ++ (encodeUIntLE 2 message.reservedShort))))
+    ++ (Alpha.encode message.reserved2))))
 
 def decode (bytes : List UInt8) : Option (TradeCaptureResponseMessage × List UInt8) := do
   let (status, bytes) ← decodeUIntLE 1 bytes
   let (tradeRef, bytes) ← decodeUIntLE 4 bytes
   let (requestRef, bytes) ← decodeUIntLE 4 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
-  let (reservedShort, bytes) ← decodeUIntLE 2 bytes
-  pure ({ status, tradeRef, requestRef, userTag, reservedShort }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ status, tradeRef, requestRef, userTag, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : TradeCaptureResponseMessage) : (encode message).length = 19 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : TradeCaptureResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1006,7 +1006,7 @@ theorem encode_length_pos (message : TradeCaptureResponseMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end TradeCaptureResponseMessage
