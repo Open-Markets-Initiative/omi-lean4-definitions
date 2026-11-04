@@ -1,12 +1,12 @@
-[![Sgx](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Sgx/Images/Logo.png)](https://www.sgx.com)
+[![Sgx](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/Organizations/Sgx/Images/Logo.png)](https://www.sgx.com)
 
 
 ## Singapore Exchange
 
 | Division | [Protocol][Omi.Sgx.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Transport | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Sgx.Specifications] |
 | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [TitanDt][TitanDt.Platform] | [DepthOfBook][Sgx.TitanDt.DepthOfBook] | [Glimpse][Omi.Encoding.Glimpse] | 1.4 | [Client][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Client.Definition] [Server][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Server.Definition] | 5/10/2016 | 1,583 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Url] |
-| [TitanDt][TitanDt.Platform] | [DepthOfBook][Sgx.TitanDt.DepthOfBook] | [Itch][Omi.Encoding.Itch] | [1.4][Sgx.TitanDt.DepthOfBook.Itch.v1.4.Definition] |  | 5/10/2016 | 1,554 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Sgx.TitanDt.DepthOfBook.Itch.v1.4.Url] |
+| [TitanDt][TitanDt.Platform] | [DepthOfBook][Sgx.TitanDt.DepthOfBook] | [Glimpse][Omi.Encoding.Glimpse] | 1.4 | [Client][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Client.Definition] [Server][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Server.Definition] | 5/10/2016 | 1,587 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Url] |
+| [TitanDt][TitanDt.Platform] | [DepthOfBook][Sgx.TitanDt.DepthOfBook] | [Itch][Omi.Encoding.Itch] | [1.4][Sgx.TitanDt.DepthOfBook.Itch.v1.4.Definition] |  | 5/10/2016 | 1,556 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Sgx.TitanDt.DepthOfBook.Itch.v1.4.Url] |
 
 
 <p align="center"><a href="https://www.sgx.com" title="Singapore Exchange Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/sgxgroup" title="Singapore Exchange on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/Singapore_Exchange" title="Singapore Exchange on Wikipedia"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Wikipedia.png" alt="Wikipedia" width="32" height="32"></a></p>
