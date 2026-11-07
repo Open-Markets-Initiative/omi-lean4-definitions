@@ -5077,14 +5077,14 @@ theorem encode_length_pos (message : SecurityDefinitionResponseMessage) : (encod
 
 end SecurityDefinitionResponseMessage
 
-/-- Bidirectional Business Header: 19 bytes -/
+/-- Bidirectional Business Header: 20 bytes -/
 structure BidirectionalBusinessHeader where
   sessionId : BitVec 32
   msgSeqNum : BitVec 32
   sendingTime : BitVec 64
   eventIndicator : BitVec 8
   marketSegmentIdOptional : BitVec 8
-  padding : Alpha 1
+  paddingChar2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace BidirectionalBusinessHeader
@@ -5095,7 +5095,7 @@ def encode (message : BidirectionalBusinessHeader) : List UInt8 :=
     ++ (encodeUIntLE 8 message.sendingTime
     ++ (encodeUInt 1 message.eventIndicator
     ++ (encodeUInt 1 message.marketSegmentIdOptional
-    ++ (Alpha.encode message.padding)))))
+    ++ (Alpha.encode message.paddingChar2)))))
 
 def decode (bytes : List UInt8) : Option (BidirectionalBusinessHeader × List UInt8) := do
   let (sessionId, bytes) ← decodeUIntLE 4 bytes
@@ -5103,10 +5103,10 @@ def decode (bytes : List UInt8) : Option (BidirectionalBusinessHeader × List UI
   let (sendingTime, bytes) ← decodeUIntLE 8 bytes
   let (eventIndicator, bytes) ← decodeUInt 1 bytes
   let (marketSegmentIdOptional, bytes) ← decodeUInt 1 bytes
-  let (padding, bytes) ← Alpha.decode 1 bytes
-  pure ({ sessionId, msgSeqNum, sendingTime, eventIndicator, marketSegmentIdOptional, padding }, bytes)
+  let (paddingChar2, bytes) ← Alpha.decode 2 bytes
+  pure ({ sessionId, msgSeqNum, sendingTime, eventIndicator, marketSegmentIdOptional, paddingChar2 }, bytes)
 
-@[simp] theorem encode_length (message : BidirectionalBusinessHeader) : (encode message).length = 19 := by
+@[simp] theorem encode_length (message : BidirectionalBusinessHeader) : (encode message).length = 20 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
@@ -5293,7 +5293,7 @@ theorem encode_length_pos (message : QuoteRequestMessage) : (encode message).len
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : QuoteRequestMessage) : (encode message).length ≤ 2917 := by
+theorem encode_length_le (message : QuoteRequestMessage) : (encode message).length ≤ 2918 := by
   have bound_sidesGroups := SidesGroups.encode_length_le message.sidesGroups
   have bound_deskId := DeskId.encode_length_le message.deskId
   have bound_memo := Memo.encode_length_le message.memo
@@ -5439,7 +5439,7 @@ theorem encode_length_pos (message : QuoteStatusReportMessage) : (encode message
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : QuoteStatusReportMessage) : (encode message).length ≤ 890 := by
+theorem encode_length_le (message : QuoteStatusReportMessage) : (encode message).length ≤ 891 := by
   have bound_deskId := DeskId.encode_length_le message.deskId
   have bound_memo := Memo.encode_length_le message.memo
   have bound_text := Text.encode_length_le message.text
@@ -5578,7 +5578,7 @@ theorem encode_length_pos (message : QuoteMessage) : (encode message).length > 0
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : QuoteMessage) : (encode message).length ≤ 620 := by
+theorem encode_length_le (message : QuoteMessage) : (encode message).length ≤ 621 := by
   have bound_deskId := DeskId.encode_length_le message.deskId
   have bound_memo := Memo.encode_length_le message.memo
   unfold encode
@@ -5676,7 +5676,7 @@ theorem encode_length_pos (message : QuoteCancelMessage) : (encode message).leng
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : QuoteCancelMessage) : (encode message).length ≤ 579 := by
+theorem encode_length_le (message : QuoteCancelMessage) : (encode message).length ≤ 580 := by
   have bound_deskId := DeskId.encode_length_le message.deskId
   have bound_memo := Memo.encode_length_le message.memo
   unfold encode
@@ -5786,7 +5786,7 @@ theorem encode_length_pos (message : QuoteRequestRejectMessage) : (encode messag
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : QuoteRequestRejectMessage) : (encode message).length ≤ 3176 := by
+theorem encode_length_le (message : QuoteRequestRejectMessage) : (encode message).length ≤ 3177 := by
   have bound_sidesGroups := SidesGroups.encode_length_le message.sidesGroups
   have bound_deskId := DeskId.encode_length_le message.deskId
   have bound_memo := Memo.encode_length_le message.memo

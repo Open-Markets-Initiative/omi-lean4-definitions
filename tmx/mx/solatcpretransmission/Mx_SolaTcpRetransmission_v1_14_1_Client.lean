@@ -11,6 +11,8 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Client Sola Frame is not framed: its size rule does not read a length field
+
 License: MIT No Attribution
 -/
 
@@ -167,38 +169,38 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ClientMessageBody ×
 
 end ClientMessageBody
 
-/-- Client Frame -/
-structure ClientFrame where
-  hsvfStx : BitVec 8
+/-- Client Sola Frame -/
+structure ClientSolaFrame where
+  solaMessageStart : BitVec 8
   sequenceNumber : Alpha 10
   clientMessageBody : ClientMessageBody
-  hsvfEtx : BitVec 8
+  solaMessageEnd : BitVec 8
   deriving DecidableEq, Repr
 
-namespace ClientFrame
+namespace ClientSolaFrame
 
-def encode (message : ClientFrame) : List UInt8 :=
-  encodeUInt 1 message.hsvfStx
+def encode (message : ClientSolaFrame) : List UInt8 :=
+  encodeUInt 1 message.solaMessageStart
     ++ (Alpha.encode message.sequenceNumber
     ++ (encodeUInt 2 (ClientMessageBody.tag message.clientMessageBody)
     ++ (ClientMessageBody.encode message.clientMessageBody
-    ++ (encodeUInt 1 message.hsvfEtx))))
+    ++ (encodeUInt 1 message.solaMessageEnd))))
 
-def decode (bytes : List UInt8) : Option (ClientFrame × List UInt8) := do
-  let (hsvfStx, bytes) ← decodeUInt 1 bytes
+def decode (bytes : List UInt8) : Option (ClientSolaFrame × List UInt8) := do
+  let (solaMessageStart, bytes) ← decodeUInt 1 bytes
   let (sequenceNumber, bytes) ← Alpha.decode 10 bytes
   let (clientMessageType, bytes) ← decodeUInt 2 bytes
   let (clientMessageBody, bytes) ← ClientMessageBody.decode clientMessageType bytes
-  let (hsvfEtx, bytes) ← decodeUInt 1 bytes
-  pure ({ hsvfStx, sequenceNumber, clientMessageBody, hsvfEtx }, bytes)
+  let (solaMessageEnd, bytes) ← decodeUInt 1 bytes
+  pure ({ solaMessageStart, sequenceNumber, clientMessageBody, solaMessageEnd }, bytes)
 
-theorem encode_length_pos (message : ClientFrame) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ClientSolaFrame) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : ClientFrame) : (encode message).length ≤ 54 := by
+theorem encode_length_le (message : ClientSolaFrame) : (encode message).length ≤ 54 := by
   unfold encode
   cases message.clientMessageBody with
   | loginMessage inner =>
@@ -211,7 +213,7 @@ theorem encode_length_le (message : ClientFrame) : (encode message).length ≤ 5
     simp only [ClientMessageBody.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, RetransmissionRequestMessage.encode_length]
     omega
 
-@[simp] theorem decode_encode (message : ClientFrame) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ClientSolaFrame) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
@@ -225,25 +227,25 @@ theorem encode_length_le (message : ClientFrame) : (encode message).length ≤ 5
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end ClientFrame
+end ClientSolaFrame
 
 /-- Client Packet -/
 structure ClientPacket where
-  clientFrame : List ClientFrame
+  clientSolaFrame : List ClientSolaFrame
   deriving DecidableEq, Repr
 
 namespace ClientPacket
 
 def encode (message : ClientPacket) : List UInt8 :=
-  encodeMany ClientFrame.encode message.clientFrame
+  encodeMany ClientSolaFrame.encode message.clientSolaFrame
 
 def decode (bytes : List UInt8) : Option ClientPacket := do
-  let clientFrame ← decodeAll ClientFrame.decode bytes.length bytes
-  pure { clientFrame }
+  let clientSolaFrame ← decodeAll ClientSolaFrame.decode bytes.length bytes
+  pure { clientSolaFrame }
 
 theorem decode_encode (message : ClientPacket) : decode (encode message) = some message := by
   unfold decode encode
-  rw [decodeAll_encodeMany ClientFrame.encode ClientFrame.decode ClientFrame.decode_encode ClientFrame.encode_length_pos message.clientFrame _ (encodeMany_length_ge ClientFrame.encode ClientFrame.encode_length_pos message.clientFrame), some_bind]
+  rw [decodeAll_encodeMany ClientSolaFrame.encode ClientSolaFrame.decode ClientSolaFrame.decode_encode ClientSolaFrame.encode_length_pos message.clientSolaFrame _ (encodeMany_length_ge ClientSolaFrame.encode ClientSolaFrame.encode_length_pos message.clientSolaFrame), some_bind]
   rfl
 
 end ClientPacket

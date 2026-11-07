@@ -11,6 +11,18 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Message Payload is keyed on the Message Category and Message Type joined, which the model
+states as one key: it is dispatched on those fields, each code split between them
+
+Note: Odd Lot Quote Appendage Type chooses the Partial Reject Odd Lot Bid Short Quote Appendage or
+Partial Reject Odd Lot Offer Short Quote Appendage or Partial Reject Odd Lot Bid Long Quote
+Appendage or Partial Reject Odd Lot Offer Long Quote Appendage or Partial Reject Odd Lot Bid
+Extended Quote Appendage or Partial Reject Odd Lot Offer Extended Quote Appendage attached, or none:
+it is written from the choice, and a value it does not list is not decoded
+
+Note: Block Pad Byte pads to a 2 byte boundary: it is read as the bytes left to the end of the
+frame, fewer than 2, and the frame's length is trusted to keep the boundary
+
 License: MIT No Attribution
 -/
 
@@ -3055,8 +3067,8 @@ namespace Message
 
 def encode (message : Message) : List UInt8 :=
   encodeUInt 2 message.messageLength
-    ++ (MessageCategory.encode (MessagePayload.messageCategory message.messagePayload)
-    ++ (Alpha.encode (MessagePayload.messageType message.messagePayload)
+    ++ (encodeUInt 1 (MessagePayload.messageCategory message.messagePayload)
+    ++ (encodeUInt 1 (MessagePayload.messageType message.messagePayload)
     ++ (Alpha.encode message.participantId
     ++ (Timestamp1.encode message.timestamp1
     ++ (encodeUInt 1 message.messageId
@@ -3066,8 +3078,8 @@ def encode (message : Message) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (Message × List UInt8) := do
   let (messageLength, bytes) ← decodeUInt 2 bytes
-  let (messageCategory, bytes) ← MessageCategory.decode bytes
-  let (messageType, bytes) ← Alpha.decode 1 bytes
+  let (messageCategory, bytes) ← decodeUInt 1 bytes
+  let (messageType, bytes) ← decodeUInt 1 bytes
   let (participantId, bytes) ← Alpha.decode 1 bytes
   let (timestamp1, bytes) ← Timestamp1.decode bytes
   let (messageId, bytes) ← decodeUInt 1 bytes
@@ -3086,80 +3098,80 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 6744 
   unfold encode
   cases message.messagePayload with
   | rejectionMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, RejectionMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, RejectionMessage.encode_length]
     omega
   | partialRejectionMessage inner =>
     have bound_inner := PartialRejectionMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | warningMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, WarningMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, WarningMessage.encode_length]
     omega
   | startOfDayMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, StartOfDayMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, StartOfDayMessage.encode_length]
     omega
   | finraCloseMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, FinraCloseMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, FinraCloseMessage.encode_length]
     omega
   | sequenceInformationAndMessageCountInquiryMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, SequenceInformationAndMessageCountInquiryMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, SequenceInformationAndMessageCountInquiryMessage.encode_length]
     omega
   | sequenceInformationAndMessageCountResponseMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, SequenceInformationAndMessageCountResponseMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, SequenceInformationAndMessageCountResponseMessage.encode_length]
     omega
   | finraOpenMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, FinraOpenMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, FinraOpenMessage.encode_length]
     omega
   | oddLotRefreshRequestMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, OddLotRefreshRequestMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, OddLotRefreshRequestMessage.encode_length]
     omega
   | lineIntegrityMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, LineIntegrityMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, LineIntegrityMessage.encode_length]
     omega
   | endOfDayMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, EndOfDayMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, EndOfDayMessage.encode_length]
     omega
   | testMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, TestMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, TestMessage.encode_length]
     omega
   | auctionStatusMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, AuctionStatusMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, AuctionStatusMessage.encode_length]
     omega
   | shortQuoteMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, ShortQuoteMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, ShortQuoteMessage.encode_length]
     omega
   | longQuoteMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, LongQuoteMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, LongQuoteMessage.encode_length]
     omega
   | specialLongQuoteMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, SpecialLongQuoteMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, SpecialLongQuoteMessage.encode_length]
     omega
   | roundLotShortQuoteMessage inner =>
     have bound_inner := RoundLotShortQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | roundLotLongQuoteMessage inner =>
     have bound_inner := RoundLotLongQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | roundLotFinraAdfQuoteMessage inner =>
     have bound_inner := RoundLotFinraAdfQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | oddLotShortQuoteMessage inner =>
     have bound_inner := OddLotShortQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | oddLotLongQuoteMessage inner =>
     have bound_inner := OddLotLongQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | oddLotFinraAdfQuoteMessage inner =>
     have bound_inner := OddLotFinraAdfQuoteMessage.encode_length_le inner
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length]
     omega
   | tradingStatusMessage inner =>
-    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, MessageCategory.encode_length, Alpha.encode_length, Timestamp1.encode_length, TradingStatusMessage.encode_length]
+    simp only [MessagePayload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, Timestamp1.encode_length, TradingStatusMessage.encode_length]
     omega
 
 @[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
@@ -3167,9 +3179,9 @@ theorem encode_length_le (message : Message) : (encode message).length ≤ 6744 
   unfold decode encode
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, MessageCategory.decode_encode, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

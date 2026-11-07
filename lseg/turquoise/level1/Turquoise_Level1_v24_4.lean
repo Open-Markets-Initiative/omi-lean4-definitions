@@ -11,6 +11,12 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Allowed Book Types is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Top Of Book Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Trade Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 

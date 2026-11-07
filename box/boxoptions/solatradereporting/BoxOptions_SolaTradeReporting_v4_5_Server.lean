@@ -1885,8 +1885,8 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ServerMessage × Lis
 
 end ServerMessage
 
-/-- Server Frame -/
-structure ServerFrame where
+/-- Server Sola Frame -/
+structure ServerSolaFrame where
   source : Alpha 4
   destination : Alpha 4
   messageFlag : MessageFlag
@@ -1894,12 +1894,12 @@ structure ServerFrame where
   sequenceNumber : Alpha 8
   acknowledgementSequenceNumber : Alpha 8
   serverMessage : ServerMessage
-  endOfText : BitVec 8
+  solaMessageEnd : BitVec 8
   deriving DecidableEq, Repr
 
-namespace ServerFrame
+namespace ServerSolaFrame
 
-def encode (message : ServerFrame) : List UInt8 :=
+def encode (message : ServerSolaFrame) : List UInt8 :=
   Alpha.encode message.source
     ++ (Alpha.encode message.destination
     ++ (encodeUInt 2 (ServerMessage.tag message.serverMessage)
@@ -1908,9 +1908,9 @@ def encode (message : ServerFrame) : List UInt8 :=
     ++ (Alpha.encode message.sequenceNumber
     ++ (Alpha.encode message.acknowledgementSequenceNumber
     ++ (ServerMessage.encode message.serverMessage
-    ++ (encodeUInt 1 message.endOfText))))))))
+    ++ (encodeUInt 1 message.solaMessageEnd))))))))
 
-def decode (bytes : List UInt8) : Option (ServerFrame × List UInt8) := do
+def decode (bytes : List UInt8) : Option (ServerSolaFrame × List UInt8) := do
   let (source, bytes) ← Alpha.decode 4 bytes
   let (destination, bytes) ← Alpha.decode 4 bytes
   let (messageType, bytes) ← decodeUInt 2 bytes
@@ -1919,16 +1919,16 @@ def decode (bytes : List UInt8) : Option (ServerFrame × List UInt8) := do
   let (sequenceNumber, bytes) ← Alpha.decode 8 bytes
   let (acknowledgementSequenceNumber, bytes) ← Alpha.decode 8 bytes
   let (serverMessage, bytes) ← ServerMessage.decode messageType bytes
-  let (endOfText, bytes) ← decodeUInt 1 bytes
-  pure ({ source, destination, messageFlag, controlByte, sequenceNumber, acknowledgementSequenceNumber, serverMessage, endOfText }, bytes)
+  let (solaMessageEnd, bytes) ← decodeUInt 1 bytes
+  pure ({ source, destination, messageFlag, controlByte, sequenceNumber, acknowledgementSequenceNumber, serverMessage, solaMessageEnd }, bytes)
 
-theorem encode_length_pos (message : ServerFrame) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ServerSolaFrame) : (encode message).length > 0 := by
   unfold encode
   simp only [Alpha.encode_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : ServerFrame) : (encode message).length ≤ 237 := by
+theorem encode_length_le (message : ServerSolaFrame) : (encode message).length ≤ 237 := by
   unfold encode
   cases message.serverMessage with
   | startOfDay inner =>
@@ -1971,7 +1971,7 @@ theorem encode_length_le (message : ServerFrame) : (encode message).length ≤ 2
     simp only [ServerMessage.encode, List.length_append, ← Nat.add_assoc, Alpha.encode_length, encodeUInt_length, MessageFlag.encode_length, ErrorMessage.encode_length]
     omega
 
-@[simp] theorem decode_encode (message : ServerFrame) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ServerSolaFrame) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -1993,25 +1993,25 @@ theorem encode_length_le (message : ServerFrame) : (encode message).length ≤ 2
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end ServerFrame
+end ServerSolaFrame
 
 /-- Server Packet -/
 structure ServerPacket where
-  serverFrame : List ServerFrame
+  serverSolaFrame : List ServerSolaFrame
   deriving DecidableEq, Repr
 
 namespace ServerPacket
 
 def encode (message : ServerPacket) : List UInt8 :=
-  encodeMany ServerFrame.encode message.serverFrame
+  encodeMany ServerSolaFrame.encode message.serverSolaFrame
 
 def decode (bytes : List UInt8) : Option ServerPacket := do
-  let serverFrame ← decodeAll ServerFrame.decode bytes.length bytes
-  pure { serverFrame }
+  let serverSolaFrame ← decodeAll ServerSolaFrame.decode bytes.length bytes
+  pure { serverSolaFrame }
 
 theorem decode_encode (message : ServerPacket) : decode (encode message) = some message := by
   unfold decode encode
-  rw [decodeAll_encodeMany ServerFrame.encode ServerFrame.decode ServerFrame.decode_encode ServerFrame.encode_length_pos message.serverFrame _ (encodeMany_length_ge ServerFrame.encode ServerFrame.encode_length_pos message.serverFrame), some_bind]
+  rw [decodeAll_encodeMany ServerSolaFrame.encode ServerSolaFrame.decode ServerSolaFrame.decode_encode ServerSolaFrame.encode_length_pos message.serverSolaFrame _ (encodeMany_length_ge ServerSolaFrame.encode ServerSolaFrame.encode_length_pos message.serverSolaFrame), some_bind]
   rfl
 
 end ServerPacket

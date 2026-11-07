@@ -11,6 +11,24 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Securities Quote 10 Level Message is selected by more than one code: each is a constructor of
+its own over the one record, so the code read is the code written back
+
+Note: Securities Order Filled Message is selected by more than one code: each is a constructor of
+its own over the one record, so the code read is the code written back
+
+Note: Market Operation Ts Message is selected by more than one code: each is a constructor of its
+own over the one record, so the code read is the code written back
+
+Note: Issue Closing Message is selected by more than one code: each is a constructor of its own over
+the one record, so the code read is the code written back
+
+Note: Triggering Removing Vi Message is selected by more than one code: each is a constructor of its
+own over the one record, so the code read is the code written back
+
+Note: Closing Price Trading Quote Message is selected by more than one code: each is a constructor
+of its own over the one record, so the code read is the code written back
+
 License: MIT No Attribution
 -/
 

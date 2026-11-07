@@ -11,6 +11,30 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Message Count counts Symbol Index Mapping Response Message from outside Symbol Index Mapping
+Response Messages: it is handed down to the decoder, and the list holds exactly as many as it says
+
+Note: Full Update Message Body is not framed: its length Update Size is not an integer it reads
+
+Note: Full Update Message's body has no bound its 2 byte Update Size must fit, so every message
+carries the proof its own encoding fits: the record is its body with that proof, checked as the
+frame is read
+
+Note: Message Count counts Full Update Message from outside Full Update Messages: it is handed down
+to the decoder, and the list holds exactly as many as it says
+
+Note: Delta Update Message Body is not framed: its length Delta Size is not an integer it reads
+
+Note: Delta Update Message's body has no bound its 2 byte Delta Size must fit, so every message
+carries the proof its own encoding fits: the record is its body with that proof, checked as the
+frame is read
+
+Note: Message Count counts Delta Update Message from outside Delta Update Messages: it is handed
+down to the decoder, and the list holds exactly as many as it says
+
+Note: Packet's Packet Size is written from its body but not checked on decode, since the body has no
+bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 

@@ -11,6 +11,30 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Session Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Flags Order Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Flags Replace Order Flags is a bit field set, proven as its 2 byte integer rather than bit by
+bit
+
+Note: Flags Mass Quote Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Bid Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Ask Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Flags Fill Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Flags Multi Part Event Flags is a bit field set, proven as its 1 byte integer rather than bit
+by bit
+
+Note: Flags Cancel Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Sbe Message's body has no bound its 2 byte Message Length must fit, so every message carries
+the proof its own encoding fits: the record is its body with that proof, checked as the frame is
+read
+
 License: MIT No Attribution
 -/
 

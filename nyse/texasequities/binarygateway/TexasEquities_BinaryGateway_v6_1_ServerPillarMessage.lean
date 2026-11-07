@@ -11,6 +11,85 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Server Message is keyed on the Msg Type every message leads with: it is read once ahead of the
+dispatch and written from the message chosen, and each message reads on after it
+
+Note: Equities Symbol Reference Data Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Dmm Symbol Reference Data Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Minimum Price Variant Class Reference Data Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Minimum Price Variant Level Reference Data Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Mpid Configuration Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Mmid Configuration Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Session Configuration Acknowledgement Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Bitfield Order Instructions is a bit field set, proven as its 8 byte integer rather than bit
+by bit
+
+Note: Bitfield Flow Indicator is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Order And Cancel Replace Acknowledgement Message's add ons are keyed on Seq Msg Length, which
+sizes it: a framed body is handed its bytes and not their count, so they are read by the bytes left
+instead — 41 for OptionalOrderAddOn, 32 for OptionalRoutingStrategyAddOn, 5 for
+OptionalSettlementTypeAddOn, and none when none are left
+
+Note: Order And Cancel Replace Acknowledgement Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Order Modify Cancel Request Acknowledgment And Urout Message is not framed: its length Seq Msg
+Length is not an integer it reads
+
+Note: Order Priority Update Acknowledgment Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Bitfield Execution Details is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Execution Report Message's add ons are keyed on Seq Msg Length, which sizes it: a framed body
+is handed its bytes and not their count, so they are read by the bytes left instead — 5 for
+OptionalSettlementTypeAddOn, and none when none are left
+
+Note: Execution Report Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Trade Bust Correct Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Application Layer Reject Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Symbol Subscription Acknowledgement Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Gt Begin Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Gt End Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Auction Price Data Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Auction Request Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Manual Action Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Risk Control Acknowledgement Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Risk Control Alert Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Server Seq Msg's body has no bound its 2 byte Msg Length must fit, so every message carries
+the proof its own encoding fits: the record is its body with that proof, checked as the frame is
+read
+
 License: MIT No Attribution
 -/
 

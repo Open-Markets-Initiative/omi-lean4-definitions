@@ -11,6 +11,19 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: a Message Count of 0 marks Heartbeat and carries no messages; the decoder reads it as a count
+and the encoder never writes it
+
+Note: Expiration is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: a Message Length of any value but 0 is the length of Message Data: it is read from the bytes
+the length counts, and the length is written from it
+
+Note: Message is not framed: its length Message Length is not an integer it reads
+
+Note: a Message that ends the session is the last of message: the decoder turns away one that is
+followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 

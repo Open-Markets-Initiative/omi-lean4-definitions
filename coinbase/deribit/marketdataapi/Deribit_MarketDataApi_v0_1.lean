@@ -11,6 +11,19 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Packet Type is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: a Message Count of 0 marks Empty Packet and carries no messages; the decoder reads it as a
+count and the encoder never writes it
+
+Note: Message Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Flags is a bit field set, proven as its 4 byte integer rather than bit by bit
+
+Note: Taker Flags is a bit field set, proven as its 4 byte integer rather than bit by bit
+
+Note: Maker Flags is a bit field set, proven as its 4 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 

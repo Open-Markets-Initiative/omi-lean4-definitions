@@ -12,6 +12,20 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Msg Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Md Flags is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Md Flags 2 is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Server Replay is not framed: its length Msg Size is not an integer it reads
+
+Note: Server Body is keyed on Incremental Packet, one bit of Msg Flags: the set is read as the
+number it is, the bit says which message follows, and the flags beside it are carried as they lie
+
+Note: Server Frame's body has no bound its 2 byte Msg Size must fit, so every message carries the
+proof its own encoding fits: the record is its body with that proof, checked as the frame is read
+
 License: MIT No Attribution
 -/
 

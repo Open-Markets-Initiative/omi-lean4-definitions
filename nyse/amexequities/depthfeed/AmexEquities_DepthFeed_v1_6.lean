@@ -11,6 +11,12 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: a Delivery Flag of 1 marks Heartbeat and carries no messages; the decoder reads it as a count
+and the encoder never writes it
+
+Note: Message's Message Size is written from its body but not checked on decode, since the body has
+no bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 

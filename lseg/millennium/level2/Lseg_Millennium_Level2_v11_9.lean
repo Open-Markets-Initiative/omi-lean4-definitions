@@ -11,6 +11,23 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Symbol Status Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Add Order Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Add Attributed Order Flags is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Order Deleted Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Order Modified Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Order Book Clear Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Pt Mod Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Statistics Reserved is a bit field set, proven as its 1 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 

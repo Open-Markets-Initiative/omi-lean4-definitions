@@ -11,6 +11,76 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Server Message is keyed on the Msg Type every message leads with: it is read once ahead of the
+dispatch and written from the message chosen, and each message reads on after it
+
+Note: Underlying Symbol Reference Data Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Series Reference Data Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Minimum Price Variant Class Reference Data Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Minimum Price Variant Level Reference Data Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Mpid Configuration Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Options Market Maker Symbol Appointment Reference Data Message is not framed: its length Seq
+Msg Length is not an integer it reads
+
+Note: Session Configuration Acknowledgement Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Bitfield Order Instructions is a bit field set, proven as its 16 byte integer rather than bit
+by bit
+
+Note: Bitfield Flow Indicator is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Optional Order Add On is stated optional on a length comparison, but Order And Cancel Replace
+Acknowledgement Message's fixed layout makes that comparison always hold, so it is read as a
+mandatory part
+
+Note: Order And Cancel Replace Acknowledgement Message is not framed: its length Seq Msg Length is
+not an integer it reads
+
+Note: Bulk Quote Acknowledgment Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Bulk Quote Acknowledgment With Details Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Order Single Complex Modify Cancel Request Acknowledgment And Urout Message is not framed: its
+length Seq Msg Length is not an integer it reads
+
+Note: Order Priority Update Acknowledgment Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Optional Order Add On is stated optional on a length comparison, but Execution Report
+Message's fixed layout makes that comparison always hold, so it is read as a mandatory part
+
+Note: Execution Report Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Trade Bust Correct Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Application Layer Reject Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Risk Control Acknowledgement Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Risk Control Alert Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Complex Series Request Acknowledgement Message is not framed: its length Seq Msg Length is not
+an integer it reads
+
+Note: Server Seq Msg's body has no bound its 2 byte Msg Length must fit, so every message carries
+the proof its own encoding fits: the record is its body with that proof, checked as the frame is
+read
+
 License: MIT No Attribution
 -/
 

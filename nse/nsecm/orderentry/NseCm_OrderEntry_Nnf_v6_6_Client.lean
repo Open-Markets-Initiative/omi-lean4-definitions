@@ -11,6 +11,20 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: St Order Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Order Entry In Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
+Note: Broker Eligibility Per Market is a bit field set, proven as its 2 byte integer rather than bit
+by bit
+
+Note: Sign On Request In Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
+Note: Trade Inquiry In Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
 License: MIT No Attribution
 -/
 

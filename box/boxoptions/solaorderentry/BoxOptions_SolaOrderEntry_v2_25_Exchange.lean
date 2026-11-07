@@ -11,6 +11,12 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Number Of Legs counts New Complex Order Instrument Acknowledgement Occurrence in ascii digits:
+it is written from the list as its digits, and a list of more than 99 could not be written
+
+Note: Number Of Quotes In Error counts Bulk Quote Acknowledgement Occurrence in ascii digits: it is
+written from the list as its digits, and a list of more than 999 could not be written
+
 License: MIT No Attribution
 -/
 

@@ -11,6 +11,35 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Phase Qualifier is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Ack Qualifiers is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Dark Execution Instruction is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Execution Instruction is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Mi Fid Indicators is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Trade Qualifier Optional is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Trading Session is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Open Close is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Mi Fid Indicators Optional is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Trade Qualifier is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Execution Instruction Optional is a bit field set, proven as its 1 byte integer rather than
+bit by bit
+
+Note: Message's Frame is written from its body but not checked on decode, since the body has no
+bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 

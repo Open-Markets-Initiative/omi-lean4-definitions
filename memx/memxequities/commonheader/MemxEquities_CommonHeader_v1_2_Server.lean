@@ -11,6 +11,8 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Sequenced Message is not framed: its length Message Length is not an integer it reads
+
 License: MIT No Attribution
 -/
 

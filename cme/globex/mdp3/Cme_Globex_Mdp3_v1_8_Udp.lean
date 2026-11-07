@@ -11,6 +11,15 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Mktdata Message and Mdpsessionmgmt Message carry no fields of their own, so their messages are
+dispatched as one, keyed on Schema Id and Template Id
+
+Note: Match Event Indicator is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Settl Price Type is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Inst Attrib Value is a bit field set, proven as its 4 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 

@@ -11,6 +11,12 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Msg Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Md Flags is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Md Flags 2 is a bit field set, proven as its 8 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 

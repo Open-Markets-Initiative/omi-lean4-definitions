@@ -12,6 +12,39 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Limit Order Presence Bits is a bit field set, proven as its 4 byte integer rather than bit by
+bit
+
+Note: Limit Order Bit Fields is a bit field set, proven as its 4 byte integer rather than bit by bit
+
+Note: Market Order Presence Bits is a bit field set, proven as its 2 byte integer rather than bit by
+bit
+
+Note: Market Order Bit Fields is a bit field set, proven as its 2 byte integer rather than bit by
+bit
+
+Note: Modify Order Presence Bits is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Modify Order Bit Fields is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Replace Order Presence Bits is a bit field set, proven as its 2 byte integer rather than bit
+by bit
+
+Note: Replace Order Bit Fields is a bit field set, proven as its 2 byte integer rather than bit by
+bit
+
+Note: Mass Cancel Presence Bits is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Mass Cancel Bit Fields is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Tcp Unsequenced Message is not framed: its length Message Length is not an integer it reads
+
+Note: Client Rake Tcp Message's Message Length is written from its body but not checked on decode,
+since the body has no bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 

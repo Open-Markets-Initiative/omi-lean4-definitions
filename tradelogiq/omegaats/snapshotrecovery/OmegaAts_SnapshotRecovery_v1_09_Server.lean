@@ -11,6 +11,13 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Sequenced Message is present only while bytes remain after Sequenced Data Packet's fixed
+fields: it is read as the record's closing optional, the record the frame left or none
+
+Note: Server Soup Tcp Packet's body has no bound its 2 byte Packet Length must fit, so every message
+carries the proof its own encoding fits: the record is its body with that proof, checked as the
+frame is read
+
 License: MIT No Attribution
 -/
 

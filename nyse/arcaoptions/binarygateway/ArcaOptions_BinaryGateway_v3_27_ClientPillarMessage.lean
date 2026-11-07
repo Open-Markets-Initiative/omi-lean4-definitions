@@ -11,6 +11,62 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Client Message is keyed on the Msg Type every message leads with: it is read once ahead of the
+dispatch and written from the message chosen, and each message reads on after it
+
+Note: Session Configuration Request Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Sequenced Filler Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Bitfield Order Instructions is a bit field set, proven as its 16 byte integer rather than bit
+by bit
+
+Note: Optional Order Add On is stated optional on a length comparison, but New Order Message's fixed
+layout makes that comparison always hold, so it is read as a mandatory part
+
+Note: New Order Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Order Cancel Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Order Modify Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Bitfield Quote Inst is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: New Bulk Quote Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: New Bulk Quote With Order Id Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Optional Order Add On is stated optional on a length comparison, but Exposed's fixed layout
+makes that comparison always hold, so it is read as a mandatory part
+
+Note: Optional Order Add On is stated optional on a length comparison, but Covered's fixed layout
+makes that comparison always hold, so it is read as a mandatory part
+
+Note: New Order Cross Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Bulk Cancel Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Bulk Cancel Request With Mp Sub Id Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Risk Limit Update Request Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Risk Action Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: New Complex Series Request Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Client Seq Msg's body has no bound its 2 byte Msg Length must fit, so every message carries
+the proof its own encoding fits: the record is its body with that proof, checked as the frame is
+read
+
 License: MIT No Attribution
 -/
 

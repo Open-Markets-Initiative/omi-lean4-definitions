@@ -11,6 +11,9 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Control Fields is read up to the first 10 and carries the proof it holds none itself, which is
+what lets it be written back with the one that closes it
+
 License: MIT No Attribution
 -/
 

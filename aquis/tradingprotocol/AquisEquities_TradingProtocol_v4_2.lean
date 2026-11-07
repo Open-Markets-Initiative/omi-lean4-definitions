@@ -11,6 +11,48 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Table Select 1 is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Table Select 2 is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Table Select 3 is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Extended Order Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Order Add Response Status is 1 byte whichever arm the model names: the arms are bit field sets
+of that width and differ only in what the bits beside Order Status are called — Order Status of 3
+names Status Cancel Reason; Order Status of 4 names Status Reject Reason; any other value names
+Status. It is read as that set's integer, so which naming applies is left to what is built on the
+definition, as a set's members always are.
+
+Note: Order Add Response Flags is a bit field set, proven as its 1 byte integer rather than bit by
+bit
+
+Note: Order Cancel Response Status is 1 byte whichever arm the model names: the arms are bit field
+sets of that width and differ only in what the bits beside Order Status are called — Order Status of
+3 names Status Cancel Reason; Order Status of 4 names Status Reject Reason; any other value names
+Status. It is read as that set's integer, so which naming applies is left to what is built on the
+definition, as a set's members always are.
+
+Note: Order Modify Response Status is 1 byte whichever arm the model names: the arms are bit field
+sets of that width and differ only in what the bits beside Order Status are called — Order Status of
+4 names Status Reject Reason; any other value names Status Modification Reason. It is read as that
+set's integer, so which naming applies is left to what is built on the definition, as a set's
+members always are.
+
+Note: Order Modify Response Flags is a bit field set, proven as its 1 byte integer rather than bit
+by bit
+
+Note: Trade Capture Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Status is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Trade Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Ioi Extended Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 
@@ -682,7 +724,7 @@ end OrderModifyExtendedMessage
 structure OrderAddResponseMessage where
   orderRef : BitVec 32
   marketDataId : BitVec 32
-  status : BitVec 8
+  orderAddResponseStatus : BitVec 8
   tradedQuantity : BitVec 32
   timestamp : BitVec 64
   userTag : BitVec 64
@@ -695,7 +737,7 @@ namespace OrderAddResponseMessage
 def encode (message : OrderAddResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.marketDataId
-    ++ (encodeUIntLE 1 message.status
+    ++ (encodeUIntLE 1 message.orderAddResponseStatus
     ++ (encodeUIntLE 4 message.tradedQuantity
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 8 message.userTag
@@ -705,13 +747,13 @@ def encode (message : OrderAddResponseMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (OrderAddResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (marketDataId, bytes) ← decodeUIntLE 4 bytes
-  let (status, bytes) ← decodeUIntLE 1 bytes
+  let (orderAddResponseStatus, bytes) ← decodeUIntLE 1 bytes
   let (tradedQuantity, bytes) ← decodeUIntLE 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (orderAddResponseFlags, bytes) ← decodeUIntLE 1 bytes
   let (reserved2, bytes) ← Alpha.decode 2 bytes
-  pure ({ orderRef, marketDataId, status, tradedQuantity, timestamp, userTag, orderAddResponseFlags, reserved2 }, bytes)
+  pure ({ orderRef, marketDataId, orderAddResponseStatus, tradedQuantity, timestamp, userTag, orderAddResponseFlags, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderAddResponseMessage) : (encode message).length = 32 := by
   unfold encode
@@ -747,7 +789,7 @@ end OrderAddResponseMessage
 structure OrderCancelResponseMessage where
   orderRef : BitVec 32
   requestRef : BitVec 32
-  status : BitVec 8
+  orderCancelResponseStatus : BitVec 8
   cancellationTimestamp : BitVec 64
   userTag : BitVec 64
   reserved2 : Alpha 2
@@ -758,7 +800,7 @@ namespace OrderCancelResponseMessage
 def encode (message : OrderCancelResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.requestRef
-    ++ (encodeUIntLE 1 message.status
+    ++ (encodeUIntLE 1 message.orderCancelResponseStatus
     ++ (encodeUIntLE 8 message.cancellationTimestamp
     ++ (encodeUIntLE 8 message.userTag
     ++ (Alpha.encode message.reserved2)))))
@@ -766,11 +808,11 @@ def encode (message : OrderCancelResponseMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (OrderCancelResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (requestRef, bytes) ← decodeUIntLE 4 bytes
-  let (status, bytes) ← decodeUIntLE 1 bytes
+  let (orderCancelResponseStatus, bytes) ← decodeUIntLE 1 bytes
   let (cancellationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (reserved2, bytes) ← Alpha.decode 2 bytes
-  pure ({ orderRef, requestRef, status, cancellationTimestamp, userTag, reserved2 }, bytes)
+  pure ({ orderRef, requestRef, orderCancelResponseStatus, cancellationTimestamp, userTag, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelResponseMessage) : (encode message).length = 27 := by
   unfold encode
@@ -802,7 +844,7 @@ end OrderCancelResponseMessage
 structure OrderModifyResponseMessage where
   orderRef : BitVec 32
   requestRef : BitVec 32
-  status : BitVec 8
+  orderModifyResponseStatus : BitVec 8
   modificationTimestamp : BitVec 64
   userTag : BitVec 64
   orderModifyResponseFlags : BitVec 8
@@ -814,7 +856,7 @@ namespace OrderModifyResponseMessage
 def encode (message : OrderModifyResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.orderRef
     ++ (encodeUIntLE 4 message.requestRef
-    ++ (encodeUIntLE 1 message.status
+    ++ (encodeUIntLE 1 message.orderModifyResponseStatus
     ++ (encodeUIntLE 8 message.modificationTimestamp
     ++ (encodeUIntLE 8 message.userTag
     ++ (encodeUIntLE 1 message.orderModifyResponseFlags
@@ -823,12 +865,12 @@ def encode (message : OrderModifyResponseMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (OrderModifyResponseMessage × List UInt8) := do
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
   let (requestRef, bytes) ← decodeUIntLE 4 bytes
-  let (status, bytes) ← decodeUIntLE 1 bytes
+  let (orderModifyResponseStatus, bytes) ← decodeUIntLE 1 bytes
   let (modificationTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (userTag, bytes) ← decodeUIntLE 8 bytes
   let (orderModifyResponseFlags, bytes) ← decodeUIntLE 1 bytes
   let (reserved2, bytes) ← Alpha.decode 2 bytes
-  pure ({ orderRef, requestRef, status, modificationTimestamp, userTag, orderModifyResponseFlags, reserved2 }, bytes)
+  pure ({ orderRef, requestRef, orderModifyResponseStatus, modificationTimestamp, userTag, orderModifyResponseFlags, reserved2 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyResponseMessage) : (encode message).length = 28 := by
   unfold encode

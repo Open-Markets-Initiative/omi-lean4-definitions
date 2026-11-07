@@ -11,6 +11,21 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Etp Constituents Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
+Note: Mm Lp Information Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
+Note: Equities Batch Data Message is selected by more than one code: each is a constructor of its
+own over the one record, so the code read is the code written back
+
+Note: Member Information Message is selected by more than one code: each is a constructor of its own
+over the one record, so the code read is the code written back
+
+Note: Issue Event Message is selected by more than one code: each is a constructor of its own over
+the one record, so the code read is the code written back
+
 License: MIT No Attribution
 -/
 

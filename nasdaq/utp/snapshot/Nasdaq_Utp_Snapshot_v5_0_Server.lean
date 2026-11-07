@@ -11,6 +11,18 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Nbbo Appendage Indicator chooses the National Bbo Appendage Long Form attached, or none: it is
+written from the choice, and a value it does not list is not decoded
+
+Note: Finra Adf Mpid Appendage Indicator chooses the Finra Adf Mpid Appendage attached, or none: it
+is written from the choice, and a value it does not list is not decoded
+
+Note: Bolo Appendage Indicator chooses the Bolo Appendage Mpid Form attached, or none: it is written
+from the choice, and a value it does not list is not decoded
+
+Note: Odd Lot Attachment Type chooses the Utp Adf Mpid Odd Lot Attachment attached, or none: it is
+written from the choice, and a value it does not list is not decoded
+
 License: MIT No Attribution
 -/
 

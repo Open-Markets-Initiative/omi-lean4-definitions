@@ -11,6 +11,17 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Best Bid Or Ask Update Short Form Message is selected by more than one code: each is a
+constructor of its own over the one record, so the code read is the code written back
+
+Note: Best Bid Or Ask Update Long Form Message is selected by more than one code: each is a
+constructor of its own over the one record, so the code read is the code written back
+
+Note: Sequenced Data Packet is not framed: its length Packet Length is not an integer it reads
+
+Note: a Server Soup Bin Tcp Packet that ends the session is the last of serverSoupBinTcpPacket: the
+decoder turns away one that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 

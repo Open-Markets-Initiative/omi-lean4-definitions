@@ -11,6 +11,18 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Market Conditions is selected by more than one code: each is a constructor of its own over the
+one record, so the code read is the code written back
+
+Note: Number Msg Entries counts Message from outside Message Buffer: it is handed down to the
+decoder, and the list holds exactly as many as it says
+
+Note: Message Buffer is not framed: its size rule does not read a length field
+
+Note: Delivery Flag says whether the Message Buffer was Zlib transformed, by 15 < Delivery Flag: the
+bytes of a transformed body are carried as they lie rather than read, and Delivery Flag is written
+from the body the message holds with the proof of which it is
+
 License: MIT No Attribution
 -/
 

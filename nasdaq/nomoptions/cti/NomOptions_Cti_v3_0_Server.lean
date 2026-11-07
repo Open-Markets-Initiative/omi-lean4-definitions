@@ -11,6 +11,21 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Expiration is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Trade Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Clearing Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Order Date is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Order Indicators is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Sequenced Data Packet is not framed: its length Packet Length is not an integer it reads
+
+Note: a Server Soup Bin Tcp Packet that ends the session is the last of serverSoupBinTcpPacket: the
+decoder turns away one that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 

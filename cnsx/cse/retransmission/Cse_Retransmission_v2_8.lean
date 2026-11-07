@@ -11,6 +11,9 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Block's Block Length is written from its body but not checked on decode, since the body has no
+bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 

@@ -11,6 +11,50 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Client Message is keyed on the Msg Type every message leads with: it is read once ahead of the
+dispatch and written from the message chosen, and each message reads on after it
+
+Note: Session Configuration Request Message is not framed: its length Seq Msg Length is not an
+integer it reads
+
+Note: Sequenced Filler Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Bitfield Order Instructions is a bit field set, proven as its 8 byte integer rather than bit
+by bit
+
+Note: New Order Single And Cancel Replace Request Message's add ons are keyed on Seq Msg Length,
+which sizes it: a framed body is handed its bytes and not their count, so they are read by the bytes
+left instead — 41 for OptionalOrderAddOn, 5 for OptionalSettlementTypeAddOn, and none when none are
+left
+
+Note: New Order Single And Cancel Replace Request Message is not framed: its length Seq Msg Length
+is not an integer it reads
+
+Note: Order Cancel Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Order Modify Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Bulk Cancel Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Symbol Subscription Request Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Tg Begin Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Tg End Message is not framed: its length Seq Msg Length is not an integer it reads
+
+Note: Manual Action Response Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
+Note: Risk Limit Update Request Message is not framed: its length Seq Msg Length is not an integer
+it reads
+
+Note: Risk Action Request Message is not framed: its length Seq Msg Length is not an integer it
+reads
+
 License: MIT No Attribution
 -/
 

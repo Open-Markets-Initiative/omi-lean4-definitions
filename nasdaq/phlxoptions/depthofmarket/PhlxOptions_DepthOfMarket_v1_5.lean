@@ -11,6 +11,15 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: a Message Count of 0 marks Heartbeat and carries no messages; the decoder reads it as a count
+and the encoder never writes it
+
+Note: a Message Count of 65535 marks End Of Session and carries no messages; the decoder reads it as
+a count and the encoder never writes it
+
+Note: Message's Message Length is written from its body but not checked on decode, since the body
+has no bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 
@@ -1931,33 +1940,68 @@ theorem encode_length_pos (message : QuoteDeleteMessage) : (encode message).leng
 
 end QuoteDeleteMessage
 
-/-- Block Delete Message: 10 bytes -/
+/-- Cancelled Reference Number Delta: 4 bytes -/
+structure CancelledReferenceNumberDeltaEntry where
+  cancelledReferenceNumberDelta : BitVec 32
+  deriving DecidableEq, Repr
+
+namespace CancelledReferenceNumberDeltaEntry
+
+def encode (message : CancelledReferenceNumberDeltaEntry) : List UInt8 :=
+  encodeUInt 4 message.cancelledReferenceNumberDelta
+
+def decode (bytes : List UInt8) : Option (CancelledReferenceNumberDeltaEntry × List UInt8) := do
+  let (cancelledReferenceNumberDelta, bytes) ← decodeUInt 4 bytes
+  pure ({ cancelledReferenceNumberDelta }, bytes)
+
+@[simp] theorem encode_length (message : CancelledReferenceNumberDeltaEntry) : (encode message).length = 4 := by
+  unfold encode
+  simp only [encodeUInt_length]
+
+theorem encode_length_pos (message : CancelledReferenceNumberDeltaEntry) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : CancelledReferenceNumberDeltaEntry) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+end CancelledReferenceNumberDeltaEntry
+
+/-- Block Delete Message -/
 structure BlockDeleteMessage where
   nanoseconds : BitVec 32
-  numberOfReferenceNumberDeltas : BitVec 16
-  cancelledReferenceNumberDelta : BitVec 32
+  cancelledReferenceNumberDelta : Bounded 2 CancelledReferenceNumberDeltaEntry
   deriving DecidableEq, Repr
 
 namespace BlockDeleteMessage
 
 def encode (message : BlockDeleteMessage) : List UInt8 :=
   encodeUInt 4 message.nanoseconds
-    ++ (encodeUInt 2 message.numberOfReferenceNumberDeltas
-    ++ (encodeUInt 4 message.cancelledReferenceNumberDelta))
+    ++ (encodeUInt 2 (BitVec.ofNat (8 * 2) message.cancelledReferenceNumberDelta.val.length)
+    ++ (encodeMany CancelledReferenceNumberDeltaEntry.encode message.cancelledReferenceNumberDelta.val))
 
 def decode (bytes : List UInt8) : Option (BlockDeleteMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUInt 4 bytes
   let (numberOfReferenceNumberDeltas, bytes) ← decodeUInt 2 bytes
-  let (cancelledReferenceNumberDelta, bytes) ← decodeUInt 4 bytes
-  pure ({ nanoseconds, numberOfReferenceNumberDeltas, cancelledReferenceNumberDelta }, bytes)
-
-@[simp] theorem encode_length (message : BlockDeleteMessage) : (encode message).length = 10 := by
-  unfold encode
-  simp only [List.length_append, encodeUInt_length]
+  let (cancelledReferenceNumberDelta_, bytes) ← decodeMany CancelledReferenceNumberDeltaEntry.decode numberOfReferenceNumberDeltas.toNat bytes
+  if fits_cancelledReferenceNumberDelta : cancelledReferenceNumberDelta_.length < 256 ^ 2 then
+    pure ({ nanoseconds, cancelledReferenceNumberDelta := ⟨cancelledReferenceNumberDelta_, fits_cancelledReferenceNumberDelta⟩ }, bytes)
+  else none
 
 theorem encode_length_pos (message : BlockDeleteMessage) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
+  unfold encode
+  simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : BlockDeleteMessage) : (encode message).length ≤ 262146 := by
+  have bound_cancelledReferenceNumberDelta := message.cancelledReferenceNumberDelta.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const CancelledReferenceNumberDeltaEntry.encode 4 CancelledReferenceNumberDeltaEntry.encode_length]
+  omega
 
 @[simp] theorem decode_encode (message : BlockDeleteMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
@@ -1966,7 +2010,9 @@ theorem encode_length_pos (message : BlockDeleteMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [decodeMany_bounded 2 CancelledReferenceNumberDeltaEntry.encode CancelledReferenceNumberDeltaEntry.decode CancelledReferenceNumberDeltaEntry.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.cancelledReferenceNumberDelta.length_lt]
   rfl
 
 end BlockDeleteMessage
@@ -2299,7 +2345,7 @@ def encode : Payload → List UInt8
   | .auctionNotificationMessage message => AuctionNotificationMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : Payload) : (encode message).length ≤ 39 := by
+theorem encode_length_le (message : Payload) : (encode message).length ≤ 262146 := by
   cases message with
   | secondsMessage inner =>
     simp only [encode, SecondsMessage.encode_length]
@@ -2368,7 +2414,8 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 39 :=
     simp only [encode, QuoteDeleteMessage.encode_length]
     omega
   | blockDeleteMessage inner =>
-    simp only [encode, BlockDeleteMessage.encode_length]
+    have bound_inner := BlockDeleteMessage.encode_length_le inner
+    simp only [encode]
     omega
   | nonAuctionOptionsTradeMessage inner =>
     simp only [encode, NonAuctionOptionsTradeMessage.encode_length]
@@ -2443,106 +2490,23 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
   rw [Payload.decode_encode, some_bind]
   rfl
 
-/-- Every body fits the length prefix -/
-theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 0 < 256 ^ 2 := by
-  unfold encodeBody
-  cases message.payload with
-  | secondsMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SecondsMessage.encode_length]
-    omega
-  | systemEventMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SystemEventMessage.encode_length]
-    omega
-  | baseReferenceMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BaseReferenceMessage.encode_length]
-    omega
-  | optionDirectoryMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OptionDirectoryMessage.encode_length]
-    omega
-  | tradingActionMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, TradingActionMessage.encode_length]
-    omega
-  | securityOpenMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SecurityOpenMessage.encode_length]
-    omega
-  | addOrderMessageShortForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AddOrderMessageShortForm.encode_length]
-    omega
-  | addOrderMessageLongForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AddOrderMessageLongForm.encode_length]
-    omega
-  | addQuoteMessageShortForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AddQuoteMessageShortForm.encode_length]
-    omega
-  | addQuoteMessageLongForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AddQuoteMessageLongForm.encode_length]
-    omega
-  | singleSideExecutedMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideExecutedMessage.encode_length]
-    omega
-  | singleSideExecutedWithPriceMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideExecutedWithPriceMessage.encode_length]
-    omega
-  | singleSideCancelMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideCancelMessage.encode_length]
-    omega
-  | singleSideReplaceMessageShortForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideReplaceMessageShortForm.encode_length]
-    omega
-  | singleSideReplaceMessageLongForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideReplaceMessageLongForm.encode_length]
-    omega
-  | orderReplaceMessageShortForm inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OrderReplaceMessageShortForm.encode_length]
-    omega
-  | singleSideReplaceLongFormMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideReplaceLongFormMessage.encode_length]
-    omega
-  | singleSideDeleteMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideDeleteMessage.encode_length]
-    omega
-  | singleSideUpdateMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, SingleSideUpdateMessage.encode_length]
-    omega
-  | quoteReplaceShortFormMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, QuoteReplaceShortFormMessage.encode_length]
-    omega
-  | quoteReplaceLongFormMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, QuoteReplaceLongFormMessage.encode_length]
-    omega
-  | quoteDeleteMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, QuoteDeleteMessage.encode_length]
-    omega
-  | blockDeleteMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BlockDeleteMessage.encode_length]
-    omega
-  | nonAuctionOptionsTradeMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, NonAuctionOptionsTradeMessage.encode_length]
-    omega
-  | optionsCrossTradeMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, OptionsCrossTradeMessage.encode_length]
-    omega
-  | brokenTradeOrderExecutionMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, BrokenTradeOrderExecutionMessage.encode_length]
-    omega
-  | auctionNotificationMessage inner =>
-    simp only [Payload.encode, List.length_append, encodeUInt_length, AuctionNotificationMessage.encode_length]
-    omega
+/-- Size rule: Message Length counts the bytes after it, so it is written from the body; the body has no bound the prefix must fit, so it is read by its content and the prefix is not checked -/
+def encode (message : Message) : List UInt8 :=
+  encodeUInt 2 (BitVec.ofNat (8 * 2) ((encodeBody message).length + 0)) ++ encodeBody message
 
-/-- Size rule: Message Length counts the bytes after it, so it is written from the body and checked on decode -/
-def encode : Message → List UInt8 :=
-  encodeFramed 2 0 encodeBody
-
-def decode : List UInt8 → Option (Message × List UInt8) :=
-  decodeFramed 2 0 decodeBody
+def decode (bytes : List UInt8) : Option (Message × List UInt8) := do
+  let (_, bytes) ← decodeUInt 2 bytes
+  decodeBody bytes
 
 @[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) :=
-  decodeFramed_encodeFramed 2 0 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  exact decodeBody_encodeBody message rest
 
 theorem encode_length_pos (message : Message) : (encode message).length > 0 := by
   unfold encode
-  rw [encodeFramed_length]
+  simp only [List.length_append, encodeUInt_length]
   omega
 
 end Message

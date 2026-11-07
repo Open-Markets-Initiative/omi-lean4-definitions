@@ -11,6 +11,24 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Equity And Index Last Sale Message is selected by more than one code: each is a constructor of
+its own over the one record, so the code read is the code written back
+
+Note: Long Equity And Index Quote Message is selected by more than one code: each is a constructor
+of its own over the one record, so the code read is the code written back
+
+Note: Short Equity And Index Quote Message is selected by more than one code: each is a constructor
+of its own over the one record, so the code read is the code written back
+
+Note: Administrative Message is not framed: its length Message Data Length is not an integer it
+reads
+
+Note: Control Message is selected by more than one code: each is a constructor of its own over the
+one record, so the code read is the code written back
+
+Note: Block Pad Byte pads to a 2 byte boundary: it is read as the bytes left to the end of the
+frame, fewer than 2, and the frame's length is trusted to keep the boundary
+
 License: MIT No Attribution
 -/
 

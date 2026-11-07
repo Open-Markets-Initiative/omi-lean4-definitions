@@ -11,6 +11,19 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: St Order Flags is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Message Buffer is not framed: its size rule does not read a length field
+
+Note: Compression Indicator says whether the Message Buffer was LZ4 transformed, by Compression
+Indicator = CompressionIndicator.dataIsCompressed: the bytes of a transformed body are carried as
+they lie rather than read, and Compression Indicator is written from the body the message holds with
+the proof of which it is
+
+Note: Server Drop Copy Packet's body has no bound its 2 byte Packet Length must fit, so every
+message carries the proof its own encoding fits: the record is its body with that proof, checked as
+the frame is read
+
 License: MIT No Attribution
 -/
 

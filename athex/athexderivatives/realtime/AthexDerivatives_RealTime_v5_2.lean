@@ -11,6 +11,21 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Buy Waiver Indicator is a bit field set spelled as 4 characters, proven as the characters on
+the wire; its 6 flags are the bits of the number they say
+
+Note: Sell Waiver Indicator is a bit field set spelled as 4 characters, proven as the characters on
+the wire; its 6 flags are the bits of the number they say
+
+Note: Quote Levels counts Quote Level in ascii digits: it is written from the list as its digits,
+and a list of more than 999 could not be written
+
+Note: Text Size In English counts English Notification Text in ascii digits: it is written from the
+list as its digits, and a list of more than 99999 could not be written
+
+Note: Text Size In Local counts Local Notification Text in ascii digits: it is written from the list
+as its digits, and a list of more than 99999 could not be written
+
 License: MIT No Attribution
 -/
 

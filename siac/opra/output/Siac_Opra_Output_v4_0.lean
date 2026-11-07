@@ -11,6 +11,28 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Equity And Index Last Sale Message is selected by more than one code: each is a constructor of
+its own over the one record, so the code read is the code written back
+
+Note: Bbo Indicator chooses the Best Bid Appendage or Best Offer Appendage or Best Bid And Offer
+Appendage attached, or none: it is written from the choice, and a value it does not list is not
+decoded
+
+Note: Long Equity And Index Quote Message is selected by more than one code: each is a constructor
+of its own over the one record, so the code read is the code written back
+
+Note: Bbo Indicator chooses the Best Bid Appendage or Best Offer Appendage attached, or none: it is
+written from the choice, and a value it does not list is not decoded
+
+Note: Short Equity And Index Quote Message is selected by more than one code: each is a constructor
+of its own over the one record, so the code read is the code written back
+
+Note: Control Message is selected by more than one code: each is a constructor of its own over the
+one record, so the code read is the code written back
+
+Note: Block Pad Byte pads to a 2 byte boundary: it is read as the bytes left to the end of the
+frame, fewer than 2, and the frame's length is trusted to keep the boundary
+
 License: MIT No Attribution
 -/
 
@@ -3396,7 +3418,7 @@ theorem encode_length_pos (message : UnderlyingValueLastSaleMessage) : (encode m
 
 end UnderlyingValueLastSaleMessage
 
-/-- Underlying Value Bid And Offer Message: 28 bytes -/
+/-- Underlying Value Bid And Offer Message: 24 bytes -/
 structure UnderlyingValueBidAndOfferMessage where
   messageIndicator : Alpha 1
   transactionId : BitVec 64
@@ -3404,7 +3426,7 @@ structure UnderlyingValueBidAndOfferMessage where
   reserved1 : Alpha 1
   indexValueDenominatorCode : IndexValueDenominatorCode
   bidIndexValue : BitVec 32
-  offerIndexValue : BitVec 64
+  offerIndexValue : BitVec 32
   deriving DecidableEq, Repr
 
 namespace UnderlyingValueBidAndOfferMessage
@@ -3416,7 +3438,7 @@ def encode (message : UnderlyingValueBidAndOfferMessage) : List UInt8 :=
     ++ (Alpha.encode message.reserved1
     ++ (IndexValueDenominatorCode.encode message.indexValueDenominatorCode
     ++ (encodeUInt 4 message.bidIndexValue
-    ++ (encodeUInt 8 message.offerIndexValue))))))
+    ++ (encodeUInt 4 message.offerIndexValue))))))
 
 def decode (bytes : List UInt8) : Option (UnderlyingValueBidAndOfferMessage × List UInt8) := do
   let (messageIndicator, bytes) ← Alpha.decode 1 bytes
@@ -3425,10 +3447,10 @@ def decode (bytes : List UInt8) : Option (UnderlyingValueBidAndOfferMessage × L
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (indexValueDenominatorCode, bytes) ← IndexValueDenominatorCode.decode bytes
   let (bidIndexValue, bytes) ← decodeUInt 4 bytes
-  let (offerIndexValue, bytes) ← decodeUInt 8 bytes
+  let (offerIndexValue, bytes) ← decodeUInt 4 bytes
   pure ({ messageIndicator, transactionId, securitySymbol, reserved1, indexValueDenominatorCode, bidIndexValue, offerIndexValue }, bytes)
 
-@[simp] theorem encode_length (message : UnderlyingValueBidAndOfferMessage) : (encode message).length = 28 := by
+@[simp] theorem encode_length (message : UnderlyingValueBidAndOfferMessage) : (encode message).length = 24 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length, IndexValueDenominatorCode.encode_length]
 
@@ -3474,7 +3496,7 @@ def encode : UnderlyingValueMessagePayload → List UInt8
   | .underlyingValueBidAndOfferMessage message => UnderlyingValueBidAndOfferMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : UnderlyingValueMessagePayload) : (encode message).length ≤ 28 := by
+theorem encode_length_le (message : UnderlyingValueMessagePayload) : (encode message).length ≤ 24 := by
   cases message with
   | underlyingValueLastSaleMessage inner =>
     simp only [encode, UnderlyingValueLastSaleMessage.encode_length]
@@ -3516,7 +3538,7 @@ theorem encode_length_pos (message : UnderlyingValueCategory) : (encode message)
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : UnderlyingValueCategory) : (encode message).length ≤ 29 := by
+theorem encode_length_le (message : UnderlyingValueCategory) : (encode message).length ≤ 25 := by
   unfold encode
   cases message.underlyingValueMessagePayload with
   | underlyingValueLastSaleMessage inner =>

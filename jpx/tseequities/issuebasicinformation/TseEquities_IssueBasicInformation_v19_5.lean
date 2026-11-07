@@ -11,6 +11,13 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: a Message Type Large Classification of any value but 49 or 50 or 51 or 52 or 57 reads Other
+Medium Classification: the value is carried with the proof no case lists it, so what is read is
+written back
+
+Note: a Issue Classification Large Classification of any value but 12337 or 12338 reads Blank Issue
+Code: the value is carried with the proof no case lists it, so what is read is written back
+
 License: MIT No Attribution
 -/
 
@@ -1623,6 +1630,36 @@ theorem encode_length_pos (message : ControlMediumClassificationValue) : (encode
 
 end ControlMediumClassificationValue
 
+/-- Other Medium Classification: 2 bytes -/
+structure OtherMediumClassificationValue where
+  otherMediumClassification : Alpha 2
+  deriving DecidableEq, Repr
+
+namespace OtherMediumClassificationValue
+
+def encode (message : OtherMediumClassificationValue) : List UInt8 :=
+  Alpha.encode message.otherMediumClassification
+
+def decode (bytes : List UInt8) : Option (OtherMediumClassificationValue × List UInt8) := do
+  let (otherMediumClassification, bytes) ← Alpha.decode 2 bytes
+  pure ({ otherMediumClassification }, bytes)
+
+@[simp] theorem encode_length (message : OtherMediumClassificationValue) : (encode message).length = 2 := by
+  unfold encode
+  simp only [Alpha.encode_length]
+
+theorem encode_length_pos (message : OtherMediumClassificationValue) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : OtherMediumClassificationValue) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end OtherMediumClassificationValue
+
 /-- Any Message Type Medium Classification, selected by Message Type Large Classification -/
 inductive MessageTypeMediumClassification where
   | issueRealtimeMediumClassification (message : IssueRealtimeMediumClassificationValue) -- "1" 0x31
@@ -1630,6 +1667,7 @@ inductive MessageTypeMediumClassification where
   | indexMediumClassification (message : IndexMediumClassificationValue) -- "3" 0x33
   | issueBasicMediumClassification (message : IssueBasicMediumClassificationValue) -- "4" 0x34
   | controlMediumClassification (message : ControlMediumClassificationValue) -- "9" 0x39
+  | otherMediumClassification (tag : { v : BitVec 8 // v ≠ 49 ∧ v ≠ 50 ∧ v ≠ 51 ∧ v ≠ 52 ∧ v ≠ 57 }) (message : OtherMediumClassificationValue) -- any other value: the bytes it states
   deriving DecidableEq, Repr
 
 namespace MessageTypeMediumClassification
@@ -1641,6 +1679,7 @@ def tag : MessageTypeMediumClassification → BitVec 8
   | .indexMediumClassification _ => 51
   | .issueBasicMediumClassification _ => 52
   | .controlMediumClassification _ => 57
+  | .otherMediumClassification tag _ => tag.val
 
 def encode : MessageTypeMediumClassification → List UInt8
   | .issueRealtimeMediumClassification message => IssueRealtimeMediumClassificationValue.encode message
@@ -1648,6 +1687,7 @@ def encode : MessageTypeMediumClassification → List UInt8
   | .indexMediumClassification message => IndexMediumClassificationValue.encode message
   | .issueBasicMediumClassification message => IssueBasicMediumClassificationValue.encode message
   | .controlMediumClassification message => ControlMediumClassificationValue.encode message
+  | .otherMediumClassification _ message => OtherMediumClassificationValue.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : MessageTypeMediumClassification) : (encode message).length ≤ 2 := by
@@ -1667,18 +1707,29 @@ theorem encode_length_le (message : MessageTypeMediumClassification) : (encode m
   | controlMediumClassification inner =>
     simp only [encode, ControlMediumClassificationValue.encode_length]
     omega
+  | otherMediumClassification _ inner =>
+    simp only [encode, OtherMediumClassificationValue.encode_length]
+    omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (MessageTypeMediumClassification × List UInt8) :=
-  if tag = 49 then (IssueRealtimeMediumClassificationValue.decode bytes).map fun (message, rest) => (.issueRealtimeMediumClassification message, rest)
-  else if tag = 50 then (StatisticsMediumClassificationValue.decode bytes).map fun (message, rest) => (.statisticsMediumClassification message, rest)
-  else if tag = 51 then (IndexMediumClassificationValue.decode bytes).map fun (message, rest) => (.indexMediumClassification message, rest)
-  else if tag = 52 then (IssueBasicMediumClassificationValue.decode bytes).map fun (message, rest) => (.issueBasicMediumClassification message, rest)
-  else if tag = 57 then (ControlMediumClassificationValue.decode bytes).map fun (message, rest) => (.controlMediumClassification message, rest)
-  else none
+  if h0 : tag = 49 then (IssueRealtimeMediumClassificationValue.decode bytes).map fun (message, rest) => (.issueRealtimeMediumClassification message, rest)
+  else if h1 : tag = 50 then (StatisticsMediumClassificationValue.decode bytes).map fun (message, rest) => (.statisticsMediumClassification message, rest)
+  else if h2 : tag = 51 then (IndexMediumClassificationValue.decode bytes).map fun (message, rest) => (.indexMediumClassification message, rest)
+  else if h3 : tag = 52 then (IssueBasicMediumClassificationValue.decode bytes).map fun (message, rest) => (.issueBasicMediumClassification message, rest)
+  else if h4 : tag = 57 then (ControlMediumClassificationValue.decode bytes).map fun (message, rest) => (.controlMediumClassification message, rest)
+  else (OtherMediumClassificationValue.decode bytes).map fun (message, rest) => (.otherMediumClassification ⟨tag, h0, h1, h2, h3, h4⟩ message, rest)
 
 @[simp] theorem decode_encode (message : MessageTypeMediumClassification) (rest : List UInt8) :
     decode (tag message) (encode message ++ rest) = some (message, rest) := by
-  cases message <;> simp [decode, encode, tag]
+  cases message with
+  | issueRealtimeMediumClassification m => simp [decode, encode, tag]
+  | statisticsMediumClassification m => simp [decode, encode, tag]
+  | indexMediumClassification m => simp [decode, encode, tag]
+  | issueBasicMediumClassification m => simp [decode, encode, tag]
+  | controlMediumClassification m => simp [decode, encode, tag]
+  | otherMediumClassification t m =>
+    obtain ⟨v, h0, h1, h2, h3, h4⟩ := t
+    simp only [tag, encode, decode, h0, h1, h2, h3, h4, reduceDIte, OtherMediumClassificationValue.decode_encode, Option.map_some]
 
 end MessageTypeMediumClassification
 
@@ -1721,6 +1772,9 @@ theorem encode_length_le (message : MessageType) : (encode message).length ≤ 3
     omega
   | controlMediumClassification inner =>
     simp only [MessageTypeMediumClassification.encode, List.length_append, encodeUInt_length, ControlMediumClassificationValue.encode_length]
+    omega
+  | otherMediumClassification _ inner =>
+    simp only [MessageTypeMediumClassification.encode, List.length_append, encodeUInt_length, OtherMediumClassificationValue.encode_length]
     omega
 
 @[simp] theorem decode_encode (message : MessageType) (rest : List UInt8) :

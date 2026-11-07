@@ -11,6 +11,23 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Exec Inst is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Order Id is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Mass Cancel Id is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Mass Quote Id is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Bid Order Id is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Ask Order Id is a bit field set, proven as its 8 byte integer rather than bit by bit
+
+Note: Secondary Trade Report Id is a bit field set, proven as its 8 byte integer rather than bit by
+bit
+
 License: MIT No Attribution
 -/
 

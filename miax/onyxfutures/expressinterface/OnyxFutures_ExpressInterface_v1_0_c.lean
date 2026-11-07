@@ -11,6 +11,18 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Order Instructions is a bit field set, proven as its 2 byte integer rather than bit by bit
+
+Note: Self Trade Protection is a bit field set, proven as its 1 byte integer rather than bit by bit
+
+Note: Additional Order Indicators is a bit field set, proven as its 1 byte integer rather than bit
+by bit
+
+Note: Sequenced Data Packet is not framed: its length Sesm Packet Length is not an integer it reads
+
+Note: Unsequenced Data Packet is not framed: its length Sesm Packet Length is not an integer it
+reads
+
 License: MIT No Attribution
 -/
 

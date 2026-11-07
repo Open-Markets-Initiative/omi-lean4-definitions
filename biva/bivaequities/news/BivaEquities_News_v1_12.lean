@@ -11,6 +11,24 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: a Message Count of 0 marks Heartbeat and carries no messages; the decoder reads it as a count
+and the encoder never writes it
+
+Note: a Message Count of 65535 marks End Of Session and carries no messages; the decoder reads it as
+a count and the encoder never writes it
+
+Note: Title is read up to the first NullCharacter and carries the proof it holds none itself, which
+is what lets it be written back with the one that closes it
+
+Note: Reference is read up to the first NullCharacter and carries the proof it holds none itself,
+which is what lets it be written back with the one that closes it
+
+Note: News Text is read up to the first NullCharacter and carries the proof it holds none itself,
+which is what lets it be written back with the one that closes it
+
+Note: Message's Message Length is written from its body but not checked on decode, since the body
+has no bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 
