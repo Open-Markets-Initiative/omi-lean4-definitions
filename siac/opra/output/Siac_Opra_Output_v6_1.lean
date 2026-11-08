@@ -3461,7 +3461,7 @@ theorem encode_length_pos (message : UnderlyingValueLastSaleMessage) : (encode m
 
 end UnderlyingValueLastSaleMessage
 
-/-- Underlying Value Bid And Offer Message: 24 bytes -/
+/-- Underlying Value Bid And Offer Message: 28 bytes -/
 structure UnderlyingValueBidAndOfferMessage where
   messageIndicator : Alpha 1
   transactionId : BitVec 32
@@ -3470,7 +3470,7 @@ structure UnderlyingValueBidAndOfferMessage where
   reserved1 : Alpha 1
   indexValueDenominatorCode : IndexValueDenominatorCode
   bidIndexValue : BitVec 32
-  offerIndexValue : BitVec 32
+  offerIndexValue : BitVec 64
   deriving DecidableEq, Repr
 
 namespace UnderlyingValueBidAndOfferMessage
@@ -3483,7 +3483,7 @@ def encode (message : UnderlyingValueBidAndOfferMessage) : List UInt8 :=
     ++ (Alpha.encode message.reserved1
     ++ (IndexValueDenominatorCode.encode message.indexValueDenominatorCode
     ++ (encodeUInt 4 message.bidIndexValue
-    ++ (encodeUInt 4 message.offerIndexValue)))))))
+    ++ (encodeUInt 8 message.offerIndexValue)))))))
 
 def decode (bytes : List UInt8) : Option (UnderlyingValueBidAndOfferMessage × List UInt8) := do
   let (messageIndicator, bytes) ← Alpha.decode 1 bytes
@@ -3493,10 +3493,10 @@ def decode (bytes : List UInt8) : Option (UnderlyingValueBidAndOfferMessage × L
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (indexValueDenominatorCode, bytes) ← IndexValueDenominatorCode.decode bytes
   let (bidIndexValue, bytes) ← decodeUInt 4 bytes
-  let (offerIndexValue, bytes) ← decodeUInt 4 bytes
+  let (offerIndexValue, bytes) ← decodeUInt 8 bytes
   pure ({ messageIndicator, transactionId, participantReferenceNumber, securitySymbol, reserved1, indexValueDenominatorCode, bidIndexValue, offerIndexValue }, bytes)
 
-@[simp] theorem encode_length (message : UnderlyingValueBidAndOfferMessage) : (encode message).length = 24 := by
+@[simp] theorem encode_length (message : UnderlyingValueBidAndOfferMessage) : (encode message).length = 28 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUInt_length, IndexValueDenominatorCode.encode_length]
 
@@ -3544,7 +3544,7 @@ def encode : UnderlyingValueMessagePayload → List UInt8
   | .underlyingValueBidAndOfferMessage message => UnderlyingValueBidAndOfferMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : UnderlyingValueMessagePayload) : (encode message).length ≤ 24 := by
+theorem encode_length_le (message : UnderlyingValueMessagePayload) : (encode message).length ≤ 28 := by
   cases message with
   | underlyingValueLastSaleMessage inner =>
     simp only [encode, UnderlyingValueLastSaleMessage.encode_length]
@@ -3586,7 +3586,7 @@ theorem encode_length_pos (message : UnderlyingValueCategory) : (encode message)
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : UnderlyingValueCategory) : (encode message).length ≤ 25 := by
+theorem encode_length_le (message : UnderlyingValueCategory) : (encode message).length ≤ 29 := by
   unfold encode
   cases message.underlyingValueMessagePayload with
   | underlyingValueLastSaleMessage inner =>

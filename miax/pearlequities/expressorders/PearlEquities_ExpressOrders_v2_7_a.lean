@@ -1910,80 +1910,96 @@ theorem encode_length_pos (value : Action) : (encode value).length > 0 := by
 
 end Action
 
-/-- Login Status: one byte code -/
-def LoginStatus.codes : List UInt8 :=
-  [0x20, 0x53, 0x55, 0x58, 0x4E, 0x49, 0x41, 0x4C]
+/-- Matching Engine Status: one byte code -/
+def MatchingEngineStatus.codes : List UInt8 :=
+  [0x20, 0x49, 0x58, 0x50, 0x52, 0x41, 0x43, 0x55, 0x4F, 0x5A, 0x36, 0x2A]
 
-inductive LoginStatus where
+inductive MatchingEngineStatus where
   | successful -- Successful
-  | invalidTradingSessionRequested -- Invalid Trading Session Requested
-  | noActiveTradingSessionExists -- No Active Trading Session Exists
-  | rejected -- Rejected
-  | invalidStartSequenceNumberRequested -- Invalid Start Sequence Number Requested
-  | incompatibleSessionProtocolVersion -- Incompatible Session Protocol Version
-  | incompatibleApplicationProtocolVersion -- Incompatible Application Protocol Version
-  | requestRejectedBecauseClientAlreadyLoggedIn -- Request Rejected Because Client Already Logged In
-  | unlisted (byte : { byte : UInt8 // byte ∉ LoginStatus.codes }) -- any other code, kept as it is
+  | invalidMpid -- Invalid Mpid
+  | mpidNotPermitted -- Mpid Not Permitted
+  | requestIsNotPermittedForThisSession -- Request Is Not Permitted For This Session
+  | invalidScope -- Invalid Scope
+  | invalidAction -- Invalid Action
+  | matchingEngineNotAvailable -- Matching Engine Not Available
+  | stateOfTheRequestForThisMatchingEngine -- State Of The Request For This Matching Engine
+  | invalidClientOrderId -- Invalid Client Order Id
+  | undefinedReason -- Undefined Reason
+  | invalidPurgeGroupSpecified -- Invalid Purge Group Specified
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ MatchingEngineStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace LoginStatus
+namespace MatchingEngineStatus
 
-def toByte : LoginStatus → UInt8
+def toByte : MatchingEngineStatus → UInt8
   | .successful => 0x20
-  | .invalidTradingSessionRequested => 0x53
-  | .noActiveTradingSessionExists => 0x55
-  | .rejected => 0x58
-  | .invalidStartSequenceNumberRequested => 0x4E
-  | .incompatibleSessionProtocolVersion => 0x49
-  | .incompatibleApplicationProtocolVersion => 0x41
-  | .requestRejectedBecauseClientAlreadyLoggedIn => 0x4C
+  | .invalidMpid => 0x49
+  | .mpidNotPermitted => 0x58
+  | .requestIsNotPermittedForThisSession => 0x50
+  | .invalidScope => 0x52
+  | .invalidAction => 0x41
+  | .matchingEngineNotAvailable => 0x43
+  | .stateOfTheRequestForThisMatchingEngine => 0x55
+  | .invalidClientOrderId => 0x4F
+  | .undefinedReason => 0x5A
+  | .invalidPurgeGroupSpecified => 0x36
+  | .downgradedFromOlderVersion => 0x2A
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : LoginStatus :=
+def listed (byte : UInt8) : MatchingEngineStatus :=
   if byte = 0x20 then .successful
-  else if byte = 0x53 then .invalidTradingSessionRequested
-  else if byte = 0x55 then .noActiveTradingSessionExists
-  else if byte = 0x58 then .rejected
-  else if byte = 0x4E then .invalidStartSequenceNumberRequested
-  else if byte = 0x49 then .incompatibleSessionProtocolVersion
-  else if byte = 0x41 then .incompatibleApplicationProtocolVersion
-  else .requestRejectedBecauseClientAlreadyLoggedIn
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x58 then .mpidNotPermitted
+  else if byte = 0x50 then .requestIsNotPermittedForThisSession
+  else if byte = 0x52 then .invalidScope
+  else if byte = 0x41 then .invalidAction
+  else if byte = 0x43 then .matchingEngineNotAvailable
+  else if byte = 0x55 then .stateOfTheRequestForThisMatchingEngine
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x5A then .undefinedReason
+  else if byte = 0x36 then .invalidPurgeGroupSpecified
+  else .downgradedFromOlderVersion
 
-def ofByte (byte : UInt8) : LoginStatus :=
+def ofByte (byte : UInt8) : MatchingEngineStatus :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : LoginStatus) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : MatchingEngineStatus) : ofByte value.toByte = value := by
   cases value with
   | successful => decide
-  | invalidTradingSessionRequested => decide
-  | noActiveTradingSessionExists => decide
-  | rejected => decide
-  | invalidStartSequenceNumberRequested => decide
-  | incompatibleSessionProtocolVersion => decide
-  | incompatibleApplicationProtocolVersion => decide
-  | requestRejectedBecauseClientAlreadyLoggedIn => decide
+  | invalidMpid => decide
+  | mpidNotPermitted => decide
+  | requestIsNotPermittedForThisSession => decide
+  | invalidScope => decide
+  | invalidAction => decide
+  | matchingEngineNotAvailable => decide
+  | stateOfTheRequestForThisMatchingEngine => decide
+  | invalidClientOrderId => decide
+  | undefinedReason => decide
+  | invalidPurgeGroupSpecified => decide
+  | downgradedFromOlderVersion => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : LoginStatus) : List UInt8 :=
+def encode (value : MatchingEngineStatus) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (LoginStatus × List UInt8)
+def decode : List UInt8 → Option (MatchingEngineStatus × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : LoginStatus) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : MatchingEngineStatus) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : LoginStatus) : (encode value).length > 0 := by
+theorem encode_length_pos (value : MatchingEngineStatus) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : LoginStatus) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : MatchingEngineStatus) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end LoginStatus
+end MatchingEngineStatus
 
 /-- Purge Status: one byte code -/
 def PurgeStatus.codes : List UInt8 :=
@@ -2071,6 +2087,81 @@ theorem encode_length_pos (value : PurgeStatus) : (encode value).length > 0 := b
   simp [decode, encode, ofByte_toByte]
 
 end PurgeStatus
+
+/-- Login Status: one byte code -/
+def LoginStatus.codes : List UInt8 :=
+  [0x20, 0x53, 0x55, 0x58, 0x4E, 0x49, 0x41, 0x4C]
+
+inductive LoginStatus where
+  | successful -- Successful
+  | invalidTradingSessionRequested -- Invalid Trading Session Requested
+  | noActiveTradingSessionExists -- No Active Trading Session Exists
+  | rejected -- Rejected
+  | invalidStartSequenceNumberRequested -- Invalid Start Sequence Number Requested
+  | incompatibleSessionProtocolVersion -- Incompatible Session Protocol Version
+  | incompatibleApplicationProtocolVersion -- Incompatible Application Protocol Version
+  | requestRejectedBecauseClientAlreadyLoggedIn -- Request Rejected Because Client Already Logged In
+  | unlisted (byte : { byte : UInt8 // byte ∉ LoginStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace LoginStatus
+
+def toByte : LoginStatus → UInt8
+  | .successful => 0x20
+  | .invalidTradingSessionRequested => 0x53
+  | .noActiveTradingSessionExists => 0x55
+  | .rejected => 0x58
+  | .invalidStartSequenceNumberRequested => 0x4E
+  | .incompatibleSessionProtocolVersion => 0x49
+  | .incompatibleApplicationProtocolVersion => 0x41
+  | .requestRejectedBecauseClientAlreadyLoggedIn => 0x4C
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : LoginStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x53 then .invalidTradingSessionRequested
+  else if byte = 0x55 then .noActiveTradingSessionExists
+  else if byte = 0x58 then .rejected
+  else if byte = 0x4E then .invalidStartSequenceNumberRequested
+  else if byte = 0x49 then .incompatibleSessionProtocolVersion
+  else if byte = 0x41 then .incompatibleApplicationProtocolVersion
+  else .requestRejectedBecauseClientAlreadyLoggedIn
+
+def ofByte (byte : UInt8) : LoginStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : LoginStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | invalidTradingSessionRequested => decide
+  | noActiveTradingSessionExists => decide
+  | rejected => decide
+  | invalidStartSequenceNumberRequested => decide
+  | incompatibleSessionProtocolVersion => decide
+  | incompatibleApplicationProtocolVersion => decide
+  | requestRejectedBecauseClientAlreadyLoggedIn => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : LoginStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (LoginStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : LoginStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : LoginStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : LoginStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end LoginStatus
 
 /-- Logout Reason: one byte code -/
 def LogoutReason.codes : List UInt8 :=
@@ -3751,52 +3842,42 @@ theorem encode_length_pos (message : MassCancelRequest) : (encode message).lengt
 
 end MassCancelRequest
 
-/-- Matching Engine Status: 10 bytes -/
-structure MatchingEngineStatus where
-  loginStatus : LoginStatus
-  tradingSessionId : BitVec 8
-  highestSequenceNumber : BitVec 64
+/-- Matching Engine: 1 bytes -/
+structure MatchingEngine where
+  matchingEngineStatus : MatchingEngineStatus
   deriving DecidableEq, Repr
 
-namespace MatchingEngineStatus
+namespace MatchingEngine
 
-def encode (message : MatchingEngineStatus) : List UInt8 :=
-  LoginStatus.encode message.loginStatus
-    ++ (encodeUInt 1 message.tradingSessionId
-    ++ (encodeUIntLE 8 message.highestSequenceNumber))
+def encode (message : MatchingEngine) : List UInt8 :=
+  MatchingEngineStatus.encode message.matchingEngineStatus
 
-def decode (bytes : List UInt8) : Option (MatchingEngineStatus × List UInt8) := do
-  let (loginStatus, bytes) ← LoginStatus.decode bytes
-  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
-  let (highestSequenceNumber, bytes) ← decodeUIntLE 8 bytes
-  pure ({ loginStatus, tradingSessionId, highestSequenceNumber }, bytes)
+def decode (bytes : List UInt8) : Option (MatchingEngine × List UInt8) := do
+  let (matchingEngineStatus, bytes) ← MatchingEngineStatus.decode bytes
+  pure ({ matchingEngineStatus }, bytes)
 
-@[simp] theorem encode_length (message : MatchingEngineStatus) : (encode message).length = 10 := by
+@[simp] theorem encode_length (message : MatchingEngine) : (encode message).length = 1 := by
   unfold encode
-  simp only [List.length_append, LoginStatus.encode_length, encodeUInt_length, encodeUIntLE_length]
+  simp only [MatchingEngineStatus.encode_length]
 
-theorem encode_length_pos (message : MatchingEngineStatus) : (encode message).length > 0 := by
+theorem encode_length_pos (message : MatchingEngine) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : MatchingEngineStatus) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : MatchingEngine) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, LoginStatus.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [MatchingEngineStatus.decode_encode, some_bind]
   rfl
 
-end MatchingEngineStatus
+end MatchingEngine
 
 /-- Mass Cancel Response -/
 structure MassCancelResponse where
   notificationTime : BitVec 64
   mpid : Alpha 4
   clientOrderId : Alpha 20
-  matchingEngineStatus : Bounded 1 MatchingEngineStatus
+  matchingEngine : Bounded 1 MatchingEngine
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
@@ -3806,8 +3887,8 @@ def encode (message : MassCancelResponse) : List UInt8 :=
   encodeUIntLE 8 message.notificationTime
     ++ (Alpha.encode message.mpid
     ++ (Alpha.encode message.clientOrderId
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.matchingEngineStatus.val.length)
-    ++ (encodeMany MatchingEngineStatus.encode message.matchingEngineStatus.val
+    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.matchingEngine.val.length)
+    ++ (encodeMany MatchingEngine.encode message.matchingEngine.val
     ++ (Alpha.encode message.reserved10)))))
 
 def decode (bytes : List UInt8) : Option (MassCancelResponse × List UInt8) := do
@@ -3815,10 +3896,10 @@ def decode (bytes : List UInt8) : Option (MassCancelResponse × List UInt8) := d
   let (mpid, bytes) ← Alpha.decode 4 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (numberOfMatchingEngines, bytes) ← decodeUIntLE 1 bytes
-  let (matchingEngineStatus_, bytes) ← decodeMany MatchingEngineStatus.decode numberOfMatchingEngines.toNat bytes
+  let (matchingEngine_, bytes) ← decodeMany MatchingEngine.decode numberOfMatchingEngines.toNat bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  if fits_matchingEngineStatus : matchingEngineStatus_.length < 256 ^ 1 then
-    pure ({ notificationTime, mpid, clientOrderId, matchingEngineStatus := ⟨matchingEngineStatus_, fits_matchingEngineStatus⟩, reserved10 }, bytes)
+  if fits_matchingEngine : matchingEngine_.length < 256 ^ 1 then
+    pure ({ notificationTime, mpid, clientOrderId, matchingEngine := ⟨matchingEngine_, fits_matchingEngine⟩, reserved10 }, bytes)
   else none
 
 theorem encode_length_pos (message : MassCancelResponse) : (encode message).length > 0 := by
@@ -3827,10 +3908,10 @@ theorem encode_length_pos (message : MassCancelResponse) : (encode message).leng
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MassCancelResponse) : (encode message).length ≤ 2593 := by
-  have bound_matchingEngineStatus := message.matchingEngineStatus.length_lt
+theorem encode_length_le (message : MassCancelResponse) : (encode message).length ≤ 298 := by
+  have bound_matchingEngine := message.matchingEngine.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeMany_length_const MatchingEngineStatus.encode 10 MatchingEngineStatus.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeMany_length_const MatchingEngine.encode 1 MatchingEngine.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : MassCancelResponse) (rest : List UInt8) :
@@ -3844,11 +3925,11 @@ theorem encode_length_le (message : MassCancelResponse) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_bounded 1 MatchingEngineStatus.encode MatchingEngineStatus.decode MatchingEngineStatus.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_bounded 1 MatchingEngine.encode MatchingEngine.decode MatchingEngine.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.matchingEngineStatus.length_lt]
+  rw [dite_eq_left message.matchingEngine.length_lt]
   rfl
 
 end MassCancelResponse
@@ -4032,7 +4113,7 @@ def encode : UnsequencedMessage → List UInt8
   | .executionNotification message => ExecutionNotification.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : UnsequencedMessage) : (encode message).length ≤ 2593 := by
+theorem encode_length_le (message : UnsequencedMessage) : (encode message).length ≤ 298 := by
   cases message with
   | newOrderRequestMessage inner =>
     simp only [encode, NewOrderRequestMessage.encode_length]
@@ -4123,7 +4204,7 @@ theorem encode_length_pos (message : UnsequencedDataPacket) : (encode message).l
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : UnsequencedDataPacket) : (encode message).length ≤ 2595 := by
+theorem encode_length_le (message : UnsequencedDataPacket) : (encode message).length ≤ 300 := by
   unfold encode
   cases message.unsequencedMessage with
   | newOrderRequestMessage inner =>
@@ -4285,22 +4366,62 @@ theorem decode_encode_nil (message : LoginRequest) : decode (encode message) = s
 
 end LoginRequest
 
+/-- Login Matching Engine: 10 bytes -/
+structure LoginMatchingEngine where
+  loginStatus : LoginStatus
+  tradingSessionId : BitVec 8
+  highestSequenceNumber : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace LoginMatchingEngine
+
+def encode (message : LoginMatchingEngine) : List UInt8 :=
+  LoginStatus.encode message.loginStatus
+    ++ (encodeUInt 1 message.tradingSessionId
+    ++ (encodeUIntLE 8 message.highestSequenceNumber))
+
+def decode (bytes : List UInt8) : Option (LoginMatchingEngine × List UInt8) := do
+  let (loginStatus, bytes) ← LoginStatus.decode bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
+  let (highestSequenceNumber, bytes) ← decodeUIntLE 8 bytes
+  pure ({ loginStatus, tradingSessionId, highestSequenceNumber }, bytes)
+
+@[simp] theorem encode_length (message : LoginMatchingEngine) : (encode message).length = 10 := by
+  unfold encode
+  simp only [List.length_append, LoginStatus.encode_length, encodeUInt_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : LoginMatchingEngine) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LoginMatchingEngine) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, LoginStatus.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end LoginMatchingEngine
+
 /-- Login Response -/
 structure LoginResponse where
-  matchingEngineStatus : Bounded 1 MatchingEngineStatus
+  loginMatchingEngine : Bounded 1 LoginMatchingEngine
   deriving DecidableEq, Repr
 
 namespace LoginResponse
 
 def encode (message : LoginResponse) : List UInt8 :=
-  encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.matchingEngineStatus.val.length)
-    ++ (encodeMany MatchingEngineStatus.encode message.matchingEngineStatus.val)
+  encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.loginMatchingEngine.val.length)
+    ++ (encodeMany LoginMatchingEngine.encode message.loginMatchingEngine.val)
 
 def decode (bytes : List UInt8) : Option (LoginResponse × List UInt8) := do
   let (numberOfMatchingEngines, bytes) ← decodeUIntLE 1 bytes
-  let (matchingEngineStatus_, bytes) ← decodeMany MatchingEngineStatus.decode numberOfMatchingEngines.toNat bytes
-  if fits_matchingEngineStatus : matchingEngineStatus_.length < 256 ^ 1 then
-    pure ({ matchingEngineStatus := ⟨matchingEngineStatus_, fits_matchingEngineStatus⟩ }, bytes)
+  let (loginMatchingEngine_, bytes) ← decodeMany LoginMatchingEngine.decode numberOfMatchingEngines.toNat bytes
+  if fits_loginMatchingEngine : loginMatchingEngine_.length < 256 ^ 1 then
+    pure ({ loginMatchingEngine := ⟨loginMatchingEngine_, fits_loginMatchingEngine⟩ }, bytes)
   else none
 
 theorem encode_length_pos (message : LoginResponse) : (encode message).length > 0 := by
@@ -4310,9 +4431,9 @@ theorem encode_length_pos (message : LoginResponse) : (encode message).length > 
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : LoginResponse) : (encode message).length ≤ 2551 := by
-  have bound_matchingEngineStatus := message.matchingEngineStatus.length_lt
+  have bound_loginMatchingEngine := message.loginMatchingEngine.length_lt
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeMany_length_const MatchingEngineStatus.encode 10 MatchingEngineStatus.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeMany_length_const LoginMatchingEngine.encode 10 LoginMatchingEngine.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : LoginResponse) (rest : List UInt8) :
@@ -4320,9 +4441,9 @@ theorem encode_length_le (message : LoginResponse) : (encode message).length ≤
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 MatchingEngineStatus.encode MatchingEngineStatus.decode MatchingEngineStatus.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 LoginMatchingEngine.encode LoginMatchingEngine.decode LoginMatchingEngine.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.matchingEngineStatus.length_lt]
+  rw [dite_eq_left message.loginMatchingEngine.length_lt]
   rfl
 
 /-- Decoded as the whole of a frame: nothing follows -/
@@ -4407,7 +4528,7 @@ end RetransmissionRequest
 /-- Logout Request -/
 structure LogoutRequest where
   logoutReason : LogoutReason
-  logoutText : Capped 62939
+  logoutText : Capped 62983
   deriving DecidableEq, Repr
 
 namespace LogoutRequest
@@ -4419,7 +4540,7 @@ def encode (message : LogoutRequest) : List UInt8 :=
 def decode (bytes : List UInt8) : Option LogoutRequest := do
   let (logoutReason, bytes) ← LogoutReason.decode bytes
   let logoutText_ := bytes
-  if fits_logoutText : logoutText_.length ≤ 62939 then
+  if fits_logoutText : logoutText_.length ≤ 62983 then
     pure { logoutReason, logoutText := ⟨logoutText_, fits_logoutText⟩ }
   else none
 
@@ -4429,7 +4550,7 @@ theorem encode_length_pos (message : LogoutRequest) : (encode message).length > 
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : LogoutRequest) : (encode message).length ≤ 62940 := by
+theorem encode_length_le (message : LogoutRequest) : (encode message).length ≤ 62984 := by
   have bound_logoutText := message.logoutText.length_le
   unfold encode
   simp only [List.length_append, LogoutReason.encode_length]
@@ -4447,7 +4568,7 @@ end LogoutRequest
 /-- Goodbye Packet -/
 structure GoodbyePacket where
   logoutReason : LogoutReason
-  logoutText : Capped 62939
+  logoutText : Capped 62983
   deriving DecidableEq, Repr
 
 namespace GoodbyePacket
@@ -4459,7 +4580,7 @@ def encode (message : GoodbyePacket) : List UInt8 :=
 def decode (bytes : List UInt8) : Option GoodbyePacket := do
   let (logoutReason, bytes) ← LogoutReason.decode bytes
   let logoutText_ := bytes
-  if fits_logoutText : logoutText_.length ≤ 62939 then
+  if fits_logoutText : logoutText_.length ≤ 62983 then
     pure { logoutReason, logoutText := ⟨logoutText_, fits_logoutText⟩ }
   else none
 
@@ -4469,7 +4590,7 @@ theorem encode_length_pos (message : GoodbyePacket) : (encode message).length > 
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : GoodbyePacket) : (encode message).length ≤ 62940 := by
+theorem encode_length_le (message : GoodbyePacket) : (encode message).length ≤ 62984 := by
   have bound_logoutText := message.logoutText.length_le
   unfold encode
   simp only [List.length_append, LogoutReason.encode_length]
@@ -4561,7 +4682,7 @@ end ClientHeartbeat
 
 /-- Test Packet -/
 structure TestPacket where
-  testText : Capped 62939
+  testText : Capped 62983
   deriving DecidableEq, Repr
 
 namespace TestPacket
@@ -4571,12 +4692,12 @@ def encode (message : TestPacket) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option TestPacket := do
   let testText_ := bytes
-  if fits_testText : testText_.length ≤ 62939 then
+  if fits_testText : testText_.length ≤ 62983 then
     pure { testText := ⟨testText_, fits_testText⟩ }
   else none
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : TestPacket) : (encode message).length ≤ 62939 := by
+theorem encode_length_le (message : TestPacket) : (encode message).length ≤ 62983 := by
   have bound_testText := message.testText.length_le
   unfold encode
   omega
@@ -4636,7 +4757,7 @@ def encode : EsesmPayload → List UInt8
   | .testPacket message => TestPacket.encode message
 
 /-- The most bytes any message's encoding can take -/
-theorem encode_length_le (message : EsesmPayload) : (encode message).length ≤ 62940 := by
+theorem encode_length_le (message : EsesmPayload) : (encode message).length ≤ 62984 := by
   cases message with
   | sequencedDataPacket inner =>
     have bound_inner := SequencedDataPacket.encode_length_le inner
