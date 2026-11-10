@@ -77,7 +77,7 @@ end Source
 
 /-- Last Fragment: one byte code -/
 def LastFragment.codes : List UInt8 :=
-  [0x59, 0x4D]
+  [0x59, 0x4E]
 
 inductive LastFragment where
   | complete -- Complete
@@ -89,7 +89,7 @@ namespace LastFragment
 
 def toByte : LastFragment → UInt8
   | .complete => 0x59
-  | .notComplete => 0x4D
+  | .notComplete => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/

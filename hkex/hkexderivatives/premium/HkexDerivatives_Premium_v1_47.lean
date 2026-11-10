@@ -87,7 +87,7 @@ end Source
 
 /-- Last Fragment: one byte code -/
 def LastFragment.codes : List UInt8 :=
-  [0x59, 0x4D]
+  [0x59, 0x4E]
 
 inductive LastFragment where
   | complete -- Complete
@@ -99,7 +99,7 @@ namespace LastFragment
 
 def toByte : LastFragment → UInt8
   | .complete => 0x59
-  | .notComplete => 0x4D
+  | .notComplete => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -189,12 +189,11 @@ end IsFractions
 
 /-- Leg Side: one byte code -/
 def LegSide.codes : List UInt8 :=
-  [0x42, 0x43, 0x32]
+  [0x42, 0x43]
 
 inductive LegSide where
   | asDefined -- As Defined
   | opposite -- Opposite
-  | netValue -- Net Value
   | unlisted (byte : { byte : UInt8 // byte ∉ LegSide.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -203,14 +202,12 @@ namespace LegSide
 def toByte : LegSide → UInt8
   | .asDefined => 0x42
   | .opposite => 0x43
-  | .netValue => 0x32
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : LegSide :=
   if byte = 0x42 then .asDefined
-  else if byte = 0x43 then .opposite
-  else .netValue
+  else .opposite
 
 def ofByte (byte : UInt8) : LegSide :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -219,7 +216,6 @@ theorem ofByte_toByte (value : LegSide) : ofByte value.toByte = value := by
   cases value with
   | asDefined => decide
   | opposite => decide
-  | netValue => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : LegSide) : List UInt8 :=

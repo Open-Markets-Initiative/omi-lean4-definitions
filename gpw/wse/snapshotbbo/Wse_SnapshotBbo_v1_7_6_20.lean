@@ -32,26 +32,58 @@ License: MIT No Attribution
 
 namespace Omi.GpwWseSnapshotbboWatsV17620
 
+/-- Weekdays: 1 bytes -/
+structure WeekdaysEntry where
+  weekdays : BitVec 8
+  deriving DecidableEq, Repr
+
+namespace WeekdaysEntry
+
+def encode (message : WeekdaysEntry) : List UInt8 :=
+  encodeUIntLE 1 message.weekdays
+
+def decode (bytes : List UInt8) : Option (WeekdaysEntry × List UInt8) := do
+  let (weekdays, bytes) ← decodeUIntLE 1 bytes
+  pure ({ weekdays }, bytes)
+
+@[simp] theorem encode_length (message : WeekdaysEntry) : (encode message).length = 1 := by
+  unfold encode
+  simp only [encodeUIntLE_length]
+
+theorem encode_length_pos (message : WeekdaysEntry) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : WeekdaysEntry) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end WeekdaysEntry
+
 /-- Week Plan: 11 bytes -/
 structure WeekPlan where
   calendarId : BitVec 32
-  weekdays : BitVec 56
+  weekdays : Exact 7 WeekdaysEntry
   deriving DecidableEq, Repr
 
 namespace WeekPlan
 
 def encode (message : WeekPlan) : List UInt8 :=
   encodeUIntLE 4 message.calendarId
-    ++ (encodeUIntLE 7 message.weekdays)
+    ++ (encodeMany WeekdaysEntry.encode message.weekdays.val)
 
 def decode (bytes : List UInt8) : Option (WeekPlan × List UInt8) := do
   let (calendarId, bytes) ← decodeUIntLE 4 bytes
-  let (weekdays, bytes) ← decodeUIntLE 7 bytes
-  pure ({ calendarId, weekdays }, bytes)
+  let (weekdays_, bytes) ← decodeMany WeekdaysEntry.decode 7 bytes
+  if fits_weekdays : weekdays_.length = 7 then
+    pure ({ calendarId, weekdays := ⟨weekdays_, fits_weekdays⟩ }, bytes)
+  else none
 
 @[simp] theorem encode_length (message : WeekPlan) : (encode message).length = 11 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeMany_length_const WeekdaysEntry.encode 1 WeekdaysEntry.encode_length, message.weekdays.length_eq]
 
 theorem encode_length_pos (message : WeekPlan) : (encode message).length > 0 := by
   rw [encode_length]
@@ -62,7 +94,9 @@ theorem encode_length_pos (message : WeekPlan) : (encode message).length > 0 := 
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeMany_exact 7 WeekdaysEntry.encode WeekdaysEntry.decode WeekdaysEntry.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.weekdays.length_eq]
   rfl
 
 end WeekPlan
@@ -3137,26 +3171,58 @@ theorem encode_length_pos (message : TestEvent) : (encode message).length > 0 :=
 
 end TestEvent
 
+/-- Secret Key: 1 bytes -/
+structure SecretKeyEntry where
+  secretKey : BitVec 8
+  deriving DecidableEq, Repr
+
+namespace SecretKeyEntry
+
+def encode (message : SecretKeyEntry) : List UInt8 :=
+  encodeUIntLE 1 message.secretKey
+
+def decode (bytes : List UInt8) : Option (SecretKeyEntry × List UInt8) := do
+  let (secretKey, bytes) ← decodeUIntLE 1 bytes
+  pure ({ secretKey }, bytes)
+
+@[simp] theorem encode_length (message : SecretKeyEntry) : (encode message).length = 1 := by
+  unfold encode
+  simp only [encodeUIntLE_length]
+
+theorem encode_length_pos (message : SecretKeyEntry) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : SecretKeyEntry) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end SecretKeyEntry
+
 /-- Encryption Key: 36 bytes -/
 structure EncryptionKey where
   id : BitVec 32
-  secretKey : BitVec 256
+  secretKey : Exact 32 SecretKeyEntry
   deriving DecidableEq, Repr
 
 namespace EncryptionKey
 
 def encode (message : EncryptionKey) : List UInt8 :=
   encodeUIntLE 4 message.id
-    ++ (encodeUIntLE 32 message.secretKey)
+    ++ (encodeMany SecretKeyEntry.encode message.secretKey.val)
 
 def decode (bytes : List UInt8) : Option (EncryptionKey × List UInt8) := do
   let (id, bytes) ← decodeUIntLE 4 bytes
-  let (secretKey, bytes) ← decodeUIntLE 32 bytes
-  pure ({ id, secretKey }, bytes)
+  let (secretKey_, bytes) ← decodeMany SecretKeyEntry.decode 32 bytes
+  if fits_secretKey : secretKey_.length = 32 then
+    pure ({ id, secretKey := ⟨secretKey_, fits_secretKey⟩ }, bytes)
+  else none
 
 @[simp] theorem encode_length (message : EncryptionKey) : (encode message).length = 36 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeMany_length_const SecretKeyEntry.encode 1 SecretKeyEntry.encode_length, message.secretKey.length_eq]
 
 theorem encode_length_pos (message : EncryptionKey) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3167,7 +3233,9 @@ theorem encode_length_pos (message : EncryptionKey) : (encode message).length > 
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeMany_exact 32 SecretKeyEntry.encode SecretKeyEntry.decode SecretKeyEntry.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.secretKey.length_eq]
   rfl
 
 end EncryptionKey

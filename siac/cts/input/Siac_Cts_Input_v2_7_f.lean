@@ -29,7 +29,7 @@ def MessageCategory.codes : List UInt8 :=
 inductive MessageCategory where
   | administrative -- Administrative
   | control -- Control
-  | index -- Index
+  | indices -- Indices
   | marketStatus -- Market Status
   | priorDay -- Prior Day
   | trade -- Trade
@@ -41,7 +41,7 @@ namespace MessageCategory
 def toByte : MessageCategory → UInt8
   | .administrative => 0x41
   | .control => 0x43
-  | .index => 0x49
+  | .indices => 0x49
   | .marketStatus => 0x4D
   | .priorDay => 0x50
   | .trade => 0x54
@@ -51,7 +51,7 @@ def toByte : MessageCategory → UInt8
 def listed (byte : UInt8) : MessageCategory :=
   if byte = 0x41 then .administrative
   else if byte = 0x43 then .control
-  else if byte = 0x49 then .index
+  else if byte = 0x49 then .indices
   else if byte = 0x4D then .marketStatus
   else if byte = 0x50 then .priorDay
   else .trade
@@ -63,7 +63,7 @@ theorem ofByte_toByte (value : MessageCategory) : ofByte value.toByte = value :=
   cases value with
   | administrative => decide
   | control => decide
-  | index => decide
+  | indices => decide
   | marketStatus => decide
   | priorDay => decide
   | trade => decide

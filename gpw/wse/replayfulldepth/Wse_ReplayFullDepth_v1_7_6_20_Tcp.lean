@@ -30,26 +30,58 @@ License: MIT No Attribution
 
 namespace Omi.GpwWseReplayfulldepthWatsV17620Tcp
 
+/-- Weekdays: 1 bytes -/
+structure WeekdaysEntry where
+  weekdays : BitVec 8
+  deriving DecidableEq, Repr
+
+namespace WeekdaysEntry
+
+def encode (message : WeekdaysEntry) : List UInt8 :=
+  encodeUIntLE 1 message.weekdays
+
+def decode (bytes : List UInt8) : Option (WeekdaysEntry × List UInt8) := do
+  let (weekdays, bytes) ← decodeUIntLE 1 bytes
+  pure ({ weekdays }, bytes)
+
+@[simp] theorem encode_length (message : WeekdaysEntry) : (encode message).length = 1 := by
+  unfold encode
+  simp only [encodeUIntLE_length]
+
+theorem encode_length_pos (message : WeekdaysEntry) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : WeekdaysEntry) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end WeekdaysEntry
+
 /-- Week Plan: 11 bytes -/
 structure WeekPlan where
   calendarId : BitVec 32
-  weekdays : BitVec 56
+  weekdays : Exact 7 WeekdaysEntry
   deriving DecidableEq, Repr
 
 namespace WeekPlan
 
 def encode (message : WeekPlan) : List UInt8 :=
   encodeUIntLE 4 message.calendarId
-    ++ (encodeUIntLE 7 message.weekdays)
+    ++ (encodeMany WeekdaysEntry.encode message.weekdays.val)
 
 def decode (bytes : List UInt8) : Option (WeekPlan × List UInt8) := do
   let (calendarId, bytes) ← decodeUIntLE 4 bytes
-  let (weekdays, bytes) ← decodeUIntLE 7 bytes
-  pure ({ calendarId, weekdays }, bytes)
+  let (weekdays_, bytes) ← decodeMany WeekdaysEntry.decode 7 bytes
+  if fits_weekdays : weekdays_.length = 7 then
+    pure ({ calendarId, weekdays := ⟨weekdays_, fits_weekdays⟩ }, bytes)
+  else none
 
 @[simp] theorem encode_length (message : WeekPlan) : (encode message).length = 11 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeMany_length_const WeekdaysEntry.encode 1 WeekdaysEntry.encode_length, message.weekdays.length_eq]
 
 theorem encode_length_pos (message : WeekPlan) : (encode message).length > 0 := by
   rw [encode_length]
@@ -60,7 +92,9 @@ theorem encode_length_pos (message : WeekPlan) : (encode message).length > 0 := 
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeMany_exact 7 WeekdaysEntry.encode WeekdaysEntry.decode WeekdaysEntry.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.weekdays.length_eq]
   rfl
 
 end WeekPlan

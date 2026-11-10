@@ -2033,8 +2033,8 @@ theorem encode_length_pos (message : Timestamp1) : (encode message).length > 0 :
 
 end Timestamp1
 
-/-- Start Of End Of Day Message: 22 bytes -/
-structure StartOfEndOfDayMessage where
+/-- Start Of End Of Day Summary Message: 22 bytes -/
+structure StartOfEndOfDaySummaryMessage where
   participantId : ParticipantId
   timestamp1 : Timestamp1
   messageId : BitVec 8
@@ -2042,16 +2042,16 @@ structure StartOfEndOfDayMessage where
   participantReferenceNumber : BitVec 64
   deriving DecidableEq, Repr
 
-namespace StartOfEndOfDayMessage
+namespace StartOfEndOfDaySummaryMessage
 
-def encode (message : StartOfEndOfDayMessage) : List UInt8 :=
+def encode (message : StartOfEndOfDaySummaryMessage) : List UInt8 :=
   ParticipantId.encode message.participantId
     ++ (Timestamp1.encode message.timestamp1
     ++ (encodeUInt 1 message.messageId
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber))))
 
-def decode (bytes : List UInt8) : Option (StartOfEndOfDayMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (StartOfEndOfDaySummaryMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
   let (timestamp1, bytes) ← Timestamp1.decode bytes
   let (messageId, bytes) ← decodeUInt 1 bytes
@@ -2059,15 +2059,15 @@ def decode (bytes : List UInt8) : Option (StartOfEndOfDayMessage × List UInt8) 
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
   pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber }, bytes)
 
-@[simp] theorem encode_length (message : StartOfEndOfDayMessage) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : StartOfEndOfDaySummaryMessage) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, ParticipantId.encode_length, Timestamp1.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : StartOfEndOfDayMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : StartOfEndOfDaySummaryMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : StartOfEndOfDayMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : StartOfEndOfDaySummaryMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
@@ -2081,10 +2081,10 @@ theorem encode_length_pos (message : StartOfEndOfDayMessage) : (encode message).
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end StartOfEndOfDayMessage
+end StartOfEndOfDaySummaryMessage
 
-/-- End Of End Of Day Message: 22 bytes -/
-structure EndOfEndOfDayMessage where
+/-- End Of End Of Day Summary Message: 22 bytes -/
+structure EndOfEndOfDaySummaryMessage where
   participantId : ParticipantId
   timestamp1 : Timestamp1
   messageId : BitVec 8
@@ -2092,16 +2092,16 @@ structure EndOfEndOfDayMessage where
   participantReferenceNumber : BitVec 64
   deriving DecidableEq, Repr
 
-namespace EndOfEndOfDayMessage
+namespace EndOfEndOfDaySummaryMessage
 
-def encode (message : EndOfEndOfDayMessage) : List UInt8 :=
+def encode (message : EndOfEndOfDaySummaryMessage) : List UInt8 :=
   ParticipantId.encode message.participantId
     ++ (Timestamp1.encode message.timestamp1
     ++ (encodeUInt 1 message.messageId
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber))))
 
-def decode (bytes : List UInt8) : Option (EndOfEndOfDayMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (EndOfEndOfDaySummaryMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
   let (timestamp1, bytes) ← Timestamp1.decode bytes
   let (messageId, bytes) ← decodeUInt 1 bytes
@@ -2109,15 +2109,15 @@ def decode (bytes : List UInt8) : Option (EndOfEndOfDayMessage × List UInt8) :=
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
   pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber }, bytes)
 
-@[simp] theorem encode_length (message : EndOfEndOfDayMessage) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : EndOfEndOfDaySummaryMessage) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, ParticipantId.encode_length, Timestamp1.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : EndOfEndOfDayMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : EndOfEndOfDaySummaryMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : EndOfEndOfDayMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : EndOfEndOfDaySummaryMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
@@ -2131,10 +2131,10 @@ theorem encode_length_pos (message : EndOfEndOfDayMessage) : (encode message).le
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end EndOfEndOfDayMessage
+end EndOfEndOfDaySummaryMessage
 
-/-- Start Of Start Of Day Message: 22 bytes -/
-structure StartOfStartOfDayMessage where
+/-- Start Of Start Of Day Summary Message: 22 bytes -/
+structure StartOfStartOfDaySummaryMessage where
   participantId : ParticipantId
   timestamp1 : Timestamp1
   messageId : BitVec 8
@@ -2142,16 +2142,16 @@ structure StartOfStartOfDayMessage where
   participantReferenceNumber : BitVec 64
   deriving DecidableEq, Repr
 
-namespace StartOfStartOfDayMessage
+namespace StartOfStartOfDaySummaryMessage
 
-def encode (message : StartOfStartOfDayMessage) : List UInt8 :=
+def encode (message : StartOfStartOfDaySummaryMessage) : List UInt8 :=
   ParticipantId.encode message.participantId
     ++ (Timestamp1.encode message.timestamp1
     ++ (encodeUInt 1 message.messageId
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber))))
 
-def decode (bytes : List UInt8) : Option (StartOfStartOfDayMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (StartOfStartOfDaySummaryMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
   let (timestamp1, bytes) ← Timestamp1.decode bytes
   let (messageId, bytes) ← decodeUInt 1 bytes
@@ -2159,15 +2159,15 @@ def decode (bytes : List UInt8) : Option (StartOfStartOfDayMessage × List UInt8
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
   pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber }, bytes)
 
-@[simp] theorem encode_length (message : StartOfStartOfDayMessage) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : StartOfStartOfDaySummaryMessage) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, ParticipantId.encode_length, Timestamp1.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : StartOfStartOfDayMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : StartOfStartOfDaySummaryMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : StartOfStartOfDayMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : StartOfStartOfDaySummaryMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
@@ -2181,10 +2181,10 @@ theorem encode_length_pos (message : StartOfStartOfDayMessage) : (encode message
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end StartOfStartOfDayMessage
+end StartOfStartOfDaySummaryMessage
 
-/-- End Of Start Of Day Message: 22 bytes -/
-structure EndOfStartOfDayMessage where
+/-- End Of Start Of Day Summary Message: 22 bytes -/
+structure EndOfStartOfDaySummaryMessage where
   participantId : ParticipantId
   timestamp1 : Timestamp1
   messageId : BitVec 8
@@ -2192,16 +2192,16 @@ structure EndOfStartOfDayMessage where
   participantReferenceNumber : BitVec 64
   deriving DecidableEq, Repr
 
-namespace EndOfStartOfDayMessage
+namespace EndOfStartOfDaySummaryMessage
 
-def encode (message : EndOfStartOfDayMessage) : List UInt8 :=
+def encode (message : EndOfStartOfDaySummaryMessage) : List UInt8 :=
   ParticipantId.encode message.participantId
     ++ (Timestamp1.encode message.timestamp1
     ++ (encodeUInt 1 message.messageId
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber))))
 
-def decode (bytes : List UInt8) : Option (EndOfStartOfDayMessage × List UInt8) := do
+def decode (bytes : List UInt8) : Option (EndOfStartOfDaySummaryMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
   let (timestamp1, bytes) ← Timestamp1.decode bytes
   let (messageId, bytes) ← decodeUInt 1 bytes
@@ -2209,15 +2209,15 @@ def decode (bytes : List UInt8) : Option (EndOfStartOfDayMessage × List UInt8) 
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
   pure ({ participantId, timestamp1, messageId, transactionId, participantReferenceNumber }, bytes)
 
-@[simp] theorem encode_length (message : EndOfStartOfDayMessage) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : EndOfStartOfDaySummaryMessage) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, ParticipantId.encode_length, Timestamp1.encode_length, encodeUInt_length]
 
-theorem encode_length_pos (message : EndOfStartOfDayMessage) : (encode message).length > 0 := by
+theorem encode_length_pos (message : EndOfStartOfDaySummaryMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : EndOfStartOfDayMessage) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : EndOfStartOfDaySummaryMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, ParticipantId.decode_encode, some_bind]
@@ -2231,7 +2231,7 @@ theorem encode_length_pos (message : EndOfStartOfDayMessage) : (encode message).
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end EndOfStartOfDayMessage
+end EndOfStartOfDaySummaryMessage
 
 /-- Administrative Unformatted Message: 26 bytes -/
 structure AdministrativeUnformattedMessage where
@@ -2290,10 +2290,10 @@ end AdministrativeUnformattedMessage
 
 /-- Any Administrative Message Payload, selected by Administrative Message Type -/
 inductive AdministrativeMessagePayload where
-  | startOfEndOfDayMessage (message : StartOfEndOfDayMessage) -- "A" 0x41
-  | endOfEndOfDayMessage (message : EndOfEndOfDayMessage) -- "B" 0x42
-  | startOfStartOfDayMessage (message : StartOfStartOfDayMessage) -- "C" 0x43
-  | endOfStartOfDayMessage (message : EndOfStartOfDayMessage) -- "D" 0x44
+  | startOfEndOfDaySummaryMessage (message : StartOfEndOfDaySummaryMessage) -- "A" 0x41
+  | endOfEndOfDaySummaryMessage (message : EndOfEndOfDaySummaryMessage) -- "B" 0x42
+  | startOfStartOfDaySummaryMessage (message : StartOfStartOfDaySummaryMessage) -- "C" 0x43
+  | endOfStartOfDaySummaryMessage (message : EndOfStartOfDaySummaryMessage) -- "D" 0x44
   | administrativeUnformattedMessage (message : AdministrativeUnformattedMessage) -- "H" 0x48
   deriving DecidableEq, Repr
 
@@ -2301,43 +2301,43 @@ namespace AdministrativeMessagePayload
 
 /-- The Administrative Message Type each message is sent under -/
 def tag : AdministrativeMessagePayload → BitVec 8
-  | .startOfEndOfDayMessage _ => 65
-  | .endOfEndOfDayMessage _ => 66
-  | .startOfStartOfDayMessage _ => 67
-  | .endOfStartOfDayMessage _ => 68
+  | .startOfEndOfDaySummaryMessage _ => 65
+  | .endOfEndOfDaySummaryMessage _ => 66
+  | .startOfStartOfDaySummaryMessage _ => 67
+  | .endOfStartOfDaySummaryMessage _ => 68
   | .administrativeUnformattedMessage _ => 72
 
 def encode : AdministrativeMessagePayload → List UInt8
-  | .startOfEndOfDayMessage message => StartOfEndOfDayMessage.encode message
-  | .endOfEndOfDayMessage message => EndOfEndOfDayMessage.encode message
-  | .startOfStartOfDayMessage message => StartOfStartOfDayMessage.encode message
-  | .endOfStartOfDayMessage message => EndOfStartOfDayMessage.encode message
+  | .startOfEndOfDaySummaryMessage message => StartOfEndOfDaySummaryMessage.encode message
+  | .endOfEndOfDaySummaryMessage message => EndOfEndOfDaySummaryMessage.encode message
+  | .startOfStartOfDaySummaryMessage message => StartOfStartOfDaySummaryMessage.encode message
+  | .endOfStartOfDaySummaryMessage message => EndOfStartOfDaySummaryMessage.encode message
   | .administrativeUnformattedMessage message => AdministrativeUnformattedMessage.encode message
 
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : AdministrativeMessagePayload) : (encode message).length ≤ 26 := by
   cases message with
-  | startOfEndOfDayMessage inner =>
-    simp only [encode, StartOfEndOfDayMessage.encode_length]
+  | startOfEndOfDaySummaryMessage inner =>
+    simp only [encode, StartOfEndOfDaySummaryMessage.encode_length]
     omega
-  | endOfEndOfDayMessage inner =>
-    simp only [encode, EndOfEndOfDayMessage.encode_length]
+  | endOfEndOfDaySummaryMessage inner =>
+    simp only [encode, EndOfEndOfDaySummaryMessage.encode_length]
     omega
-  | startOfStartOfDayMessage inner =>
-    simp only [encode, StartOfStartOfDayMessage.encode_length]
+  | startOfStartOfDaySummaryMessage inner =>
+    simp only [encode, StartOfStartOfDaySummaryMessage.encode_length]
     omega
-  | endOfStartOfDayMessage inner =>
-    simp only [encode, EndOfStartOfDayMessage.encode_length]
+  | endOfStartOfDaySummaryMessage inner =>
+    simp only [encode, EndOfStartOfDaySummaryMessage.encode_length]
     omega
   | administrativeUnformattedMessage inner =>
     simp only [encode, AdministrativeUnformattedMessage.encode_length]
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (AdministrativeMessagePayload × List UInt8) :=
-  if tag = 65 then (StartOfEndOfDayMessage.decode bytes).map fun (message, rest) => (.startOfEndOfDayMessage message, rest)
-  else if tag = 66 then (EndOfEndOfDayMessage.decode bytes).map fun (message, rest) => (.endOfEndOfDayMessage message, rest)
-  else if tag = 67 then (StartOfStartOfDayMessage.decode bytes).map fun (message, rest) => (.startOfStartOfDayMessage message, rest)
-  else if tag = 68 then (EndOfStartOfDayMessage.decode bytes).map fun (message, rest) => (.endOfStartOfDayMessage message, rest)
+  if tag = 65 then (StartOfEndOfDaySummaryMessage.decode bytes).map fun (message, rest) => (.startOfEndOfDaySummaryMessage message, rest)
+  else if tag = 66 then (EndOfEndOfDaySummaryMessage.decode bytes).map fun (message, rest) => (.endOfEndOfDaySummaryMessage message, rest)
+  else if tag = 67 then (StartOfStartOfDaySummaryMessage.decode bytes).map fun (message, rest) => (.startOfStartOfDaySummaryMessage message, rest)
+  else if tag = 68 then (EndOfStartOfDaySummaryMessage.decode bytes).map fun (message, rest) => (.endOfStartOfDaySummaryMessage message, rest)
   else if tag = 72 then (AdministrativeUnformattedMessage.decode bytes).map fun (message, rest) => (.administrativeUnformattedMessage message, rest)
   else none
 
@@ -2372,17 +2372,17 @@ theorem encode_length_pos (message : AdministrativeMessage) : (encode message).l
 theorem encode_length_le (message : AdministrativeMessage) : (encode message).length ≤ 27 := by
   unfold encode
   cases message.administrativeMessagePayload with
-  | startOfEndOfDayMessage inner =>
-    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, StartOfEndOfDayMessage.encode_length]
+  | startOfEndOfDaySummaryMessage inner =>
+    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, StartOfEndOfDaySummaryMessage.encode_length]
     omega
-  | endOfEndOfDayMessage inner =>
-    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, EndOfEndOfDayMessage.encode_length]
+  | endOfEndOfDaySummaryMessage inner =>
+    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, EndOfEndOfDaySummaryMessage.encode_length]
     omega
-  | startOfStartOfDayMessage inner =>
-    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, StartOfStartOfDayMessage.encode_length]
+  | startOfStartOfDaySummaryMessage inner =>
+    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, StartOfStartOfDaySummaryMessage.encode_length]
     omega
-  | endOfStartOfDayMessage inner =>
-    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, EndOfStartOfDayMessage.encode_length]
+  | endOfStartOfDaySummaryMessage inner =>
+    simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, EndOfStartOfDaySummaryMessage.encode_length]
     omega
   | administrativeUnformattedMessage inner =>
     simp only [AdministrativeMessagePayload.encode, List.length_append, encodeUInt_length, AdministrativeUnformattedMessage.encode_length]

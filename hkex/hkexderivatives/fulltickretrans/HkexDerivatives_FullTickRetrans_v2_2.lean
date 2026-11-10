@@ -197,6 +197,81 @@ theorem encode_length_pos (value : UnderlyingType) : (encode value).length > 0 :
 
 end UnderlyingType
 
+/-- Financial Product: one byte code -/
+def FinancialProduct.codes : List UInt8 :=
+  [0x4F, 0x46, 0x55, 0x41, 0x43, 0x50, 0x45, 0x53]
+
+inductive FinancialProduct where
+  | options -- Options
+  | forward -- Forward
+  | futures -- Futures
+  | fra -- Fra
+  | cash -- Cash
+  | payment -- Payment
+  | exchangeRate -- Exchange Rate
+  | interestRateSwap -- Interest Rate Swap
+  | unlisted (byte : { byte : UInt8 // byte ∉ FinancialProduct.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace FinancialProduct
+
+def toByte : FinancialProduct → UInt8
+  | .options => 0x4F
+  | .forward => 0x46
+  | .futures => 0x55
+  | .fra => 0x41
+  | .cash => 0x43
+  | .payment => 0x50
+  | .exchangeRate => 0x45
+  | .interestRateSwap => 0x53
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : FinancialProduct :=
+  if byte = 0x4F then .options
+  else if byte = 0x46 then .forward
+  else if byte = 0x55 then .futures
+  else if byte = 0x41 then .fra
+  else if byte = 0x43 then .cash
+  else if byte = 0x50 then .payment
+  else if byte = 0x45 then .exchangeRate
+  else .interestRateSwap
+
+def ofByte (byte : UInt8) : FinancialProduct :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : FinancialProduct) : ofByte value.toByte = value := by
+  cases value with
+  | options => decide
+  | forward => decide
+  | futures => decide
+  | fra => decide
+  | cash => decide
+  | payment => decide
+  | exchangeRate => decide
+  | interestRateSwap => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : FinancialProduct) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (FinancialProduct × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : FinancialProduct) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : FinancialProduct) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : FinancialProduct) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end FinancialProduct
+
 /-- Leg Side: one byte code -/
 def LegSide.codes : List UInt8 :=
   [0x42, 0x43]
@@ -1113,7 +1188,7 @@ structure InstrumentDefinition where
   instrumentStatusCode : BitVec 8
   decimalInStrikePrice : BitVec 8
   decimalInPrice : BitVec 8
-  financialProduct : Alpha 1
+  financialProduct : FinancialProduct
   putOrCall : BitVec 8
   instrumentContractSize : BitVec 32
   instrumentPriceQuotationFactor : BitVec 32
@@ -1144,7 +1219,7 @@ def encode (message : InstrumentDefinition) : List UInt8 :=
     ++ (encodeUIntLE 1 message.instrumentStatusCode
     ++ (encodeUIntLE 1 message.decimalInStrikePrice
     ++ (encodeUIntLE 1 message.decimalInPrice
-    ++ (Alpha.encode message.financialProduct
+    ++ (FinancialProduct.encode message.financialProduct
     ++ (encodeUIntLE 1 message.putOrCall
     ++ (encodeUIntLE 4 message.instrumentContractSize
     ++ (encodeUIntLE 4 message.instrumentPriceQuotationFactor
@@ -1174,7 +1249,7 @@ def decode (bytes : List UInt8) : Option (InstrumentDefinition × List UInt8) :=
   let (instrumentStatusCode, bytes) ← decodeUIntLE 1 bytes
   let (decimalInStrikePrice, bytes) ← decodeUIntLE 1 bytes
   let (decimalInPrice, bytes) ← decodeUIntLE 1 bytes
-  let (financialProduct, bytes) ← Alpha.decode 1 bytes
+  let (financialProduct, bytes) ← FinancialProduct.decode bytes
   let (putOrCall, bytes) ← decodeUIntLE 1 bytes
   let (instrumentContractSize, bytes) ← decodeUIntLE 4 bytes
   let (instrumentPriceQuotationFactor, bytes) ← decodeUIntLE 4 bytes
@@ -1187,7 +1262,7 @@ def decode (bytes : List UInt8) : Option (InstrumentDefinition × List UInt8) :=
 
 @[simp] theorem encode_length (message : InstrumentDefinition) : (encode message).length = 118 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, FinancialProduct.encode_length]
 
 theorem encode_length_pos (message : InstrumentDefinition) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1231,7 +1306,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, FinancialProduct.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
