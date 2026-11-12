@@ -948,6 +948,643 @@ theorem decodeFallback_encode (w : Nat) (listed : List Nat) (encode : α → Lis
   simp only [Bind.bind, Option.bind_some, whole]
   simp [guard, fallback.property]
 
+/-! ## Peeked messages -/
+
+/- A message told apart by a byte inside its own encoding rather than a tag ahead of it: xmt's packet body
+    is a heartbeat when the third byte of its first body is the heartbeat's message type, and business
+    bodies otherwise, the length that frames each body leading that byte. The byte is read without
+    taking it, and each arm carries the proof of what its encoding holds there, so the arm read is the
+    arm written -/
+
+/-- A value whose encoding holds `key` at `offset`: the arm a peeked dispatch takes on that key -/
+abbrev Keyed (encode : α → List UInt8) (offset : Nat) (key : UInt8) := { item : α // (encode item)[offset]? = some key }
+
+/-- A value whose encoding holds a byte other than `key` at `offset`: the arm a peeked dispatch takes on any other -/
+abbrev Unkeyed (encode : α → List UInt8) (offset : Nat) (key : UInt8) := { item : α // ((encode item)[offset]?.any (· ≠ key)) = true }
+
+instance [DecidableEq α] {encode : α → List UInt8} : DecidableEq (Keyed encode offset key) :=
+  fun a b => decidable_of_iff (a.val = b.val) Subtype.ext_iff.symm
+
+instance [DecidableEq α] {encode : α → List UInt8} : DecidableEq (Unkeyed encode offset key) :=
+  fun a b => decidable_of_iff (a.val = b.val) Subtype.ext_iff.symm
+
+instance [Repr α] {encode : α → List UInt8} : Repr (Keyed encode offset key) where
+  reprPrec item prec := reprPrec item.val prec
+
+instance [Repr α] {encode : α → List UInt8} : Repr (Unkeyed encode offset key) where
+  reprPrec item prec := reprPrec item.val prec
+
+/-- A message told by the byte at `offset` of its own encoding, read without taking it: `key` there is the keyed arm, any other byte the other -/
+abbrev Peeked (α β : Type) (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt8) (offset : Nat) (key : UInt8) :=
+  Keyed encodeKeyed offset key ⊕ Unkeyed encodeOther offset key
+
+def decodeKeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+    (bytes : List UInt8) : Option (Keyed encode offset key × List UInt8) :=
+  match decode bytes with
+  | some (item, rest) => if keyed : (encode item)[offset]? = some key then some (⟨item, keyed⟩, rest) else none
+  | none => none
+
+def decodeUnkeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+    (bytes : List UInt8) : Option (Unkeyed encode offset key × List UInt8) :=
+  match decode bytes with
+  | some (item, rest) => if other : ((encode item)[offset]?.any (· ≠ key)) = true then some (⟨item, other⟩, rest) else none
+  | none => none
+
+def encodePeek (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt8) :
+    Peeked α β encodeKeyed encodeOther offset key → List UInt8
+  | .inl item => encodeKeyed item.val
+  | .inr item => encodeOther item.val
+
+def decodePeek (offset : Nat) (key : UInt8)
+    (keyed : List UInt8 → Option (α × List UInt8)) (other : List UInt8 → Option (β × List UInt8))
+    (bytes : List UInt8) : Option ((α ⊕ β) × List UInt8) :=
+  if bytes[offset]? = some key then
+    match keyed bytes with
+    | some (item, rest) => some (.inl item, rest)
+    | none => none
+  else
+    match other bytes with
+    | some (item, rest) => some (.inr item, rest)
+    | none => none
+
+theorem decodeKeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+    (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest))
+    (item : Keyed encode offset key) (rest : List UInt8) :
+    decodeKeyed encode decode offset key (encode item.val ++ rest) = some (item, rest) := by
+  unfold decodeKeyed
+  rw [roundTrip]
+  dsimp only
+  rw [dite_eq_left item.property]
+
+theorem decodeUnkeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+    (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest))
+    (item : Unkeyed encode offset key) (rest : List UInt8) :
+    decodeUnkeyed encode decode offset key (encode item.val ++ rest) = some (item, rest) := by
+  unfold decodeUnkeyed
+  rw [roundTrip]
+  dsimp only
+  rw [dite_eq_left item.property]
+
+/-- The byte at `offset` of a keyed arm's encoding is its key, and something else for the other arm: either way, the offset lies inside the encoding -/
+theorem Keyed.within {encode : α → List UInt8} (item : Keyed encode offset key) : offset < (encode item.val).length := by
+  have h := item.property
+  rw [List.getElem?_eq_some_iff] at h
+  exact h.1
+
+theorem Unkeyed.within {encode : α → List UInt8} (item : Unkeyed encode offset key) : offset < (encode item.val).length := by
+  have h := item.property
+  cases e : (encode item.val)[offset]? with
+  | none => rw [e] at h; simp at h
+  | some _ => rw [List.getElem?_eq_some_iff] at e; exact e.1
+
+/-- A peeked message decodes to what it was encoded from: the byte its arm holds at the offset is the one the dispatch reads, whatever follows it -/
+theorem decodePeek_encodePeek (encodeKeyed : α → List UInt8) (decodeKeyed' : List UInt8 → Option (α × List UInt8))
+    (encodeOther : β → List UInt8) (decodeOther : List UInt8 → Option (β × List UInt8)) (offset : Nat) (key : UInt8)
+    (keyedTrip : ∀ item rest, decodeKeyed' (encodeKeyed item ++ rest) = some (item, rest))
+    (otherTrip : ∀ item rest, decodeOther (encodeOther item ++ rest) = some (item, rest))
+    (message : Peeked α β encodeKeyed encodeOther offset key) (rest : List UInt8) :
+    decodePeek offset key (decodeKeyed encodeKeyed decodeKeyed' offset key) (decodeUnkeyed encodeOther decodeOther offset key)
+      (encodePeek encodeKeyed encodeOther message ++ rest) = some (message, rest) := by
+  cases message with
+  | inl item =>
+    have read : (encodeKeyed item.val ++ rest)[offset]? = some key := by
+      rw [List.getElem?_append_left item.within]; exact item.property
+    unfold decodePeek encodePeek
+    rw [ite_eq_left read, decodeKeyed_encode encodeKeyed decodeKeyed' offset key keyedTrip item rest]
+  | inr item =>
+    have read : ¬ (encodeOther item.val ++ rest)[offset]? = some key := by
+      rw [List.getElem?_append_left item.within]
+      intro same
+      have h := item.property
+      rw [same] at h
+      simp at h
+    unfold decodePeek encodePeek
+    rw [ite_eq_right read, decodeUnkeyed_encode encodeOther decodeOther offset key otherTrip item rest]
+
+/-- A peeked message's encoding is at least a byte: it holds one at the offset -/
+theorem encodePeek_length_pos {encodeKeyed : α → List UInt8} {encodeOther : β → List UInt8} {offset : Nat} {key : UInt8}
+    (message : Peeked α β encodeKeyed encodeOther offset key) : (encodePeek encodeKeyed encodeOther message).length > 0 := by
+  cases message with
+  | inl item => exact Nat.lt_of_le_of_lt (Nat.zero_le offset) item.within
+  | inr item => exact Nat.lt_of_le_of_lt (Nat.zero_le offset) item.within
+
+/-! ## Fix tag=value fields: a tag, its value, and the separator that ends it -/
+
+/-- The bytes after a known lead, or nothing where they do not start with it -/
+def stripPrefix (lead : List UInt8) (bytes : List UInt8) : Option (List UInt8) :=
+  if lead.isPrefixOf bytes then some (bytes.drop lead.length) else none
+
+theorem stripPrefix_append (lead rest : List UInt8) : stripPrefix lead (lead ++ rest) = some rest := by
+  simp [stripPrefix, List.isPrefixOf_iff_prefix]
+
+/-- A tagged field: its tag, then its value, then the separator that ends it -/
+def encodeTagged (tag : List UInt8) (value : Terminated 1) : List UInt8 :=
+  tag ++ encodeTerminated 1 value
+
+def decodeTagged (tag : List UInt8) (bytes : List UInt8) : Option (Terminated 1 × List UInt8) :=
+  (stripPrefix tag bytes).bind (decodeTerminated 1)
+
+theorem decodeTagged_encodeTagged (tag : List UInt8) (value : Terminated 1) (rest : List UInt8) :
+    decodeTagged tag (encodeTagged tag value ++ rest) = some (value, rest) := by
+  unfold decodeTagged encodeTagged
+  rw [List.append_assoc, stripPrefix_append]
+  exact decodeTerminated_encodeTerminated 1 value rest
+
+/-! ## Fix numbers: a count or a length, its decimal digits up to the separator -/
+
+/-- The decimal digits of a number, most significant first, with no leading zero: what a venue writes -/
+def encodeDecimal (value : Nat) : List UInt8 :=
+  if value < 10 then [UInt8.ofNat (48 + value)] else encodeDecimal (value / 10) ++ [UInt8.ofNat (48 + value % 10)]
+termination_by value
+decreasing_by omega
+
+/-- The number decimal digits make, or nothing where a byte is not a digit or there are none -/
+def decodeDecimal (digits : List UInt8) : Option Nat :=
+  if digits.isEmpty then none else
+  digits.foldl (fun acc byte => acc.bind fun n => if 48 ≤ byte.toNat ∧ byte.toNat ≤ 57 then some (10 * n + (byte.toNat - 48)) else none) (some 0)
+
+theorem encodeDecimal_digits (value : Nat) : ∀ byte ∈ encodeDecimal value, 48 ≤ byte.toNat ∧ byte.toNat ≤ 57 := by
+  unfold encodeDecimal
+  split
+  · intro byte inside
+    simp at inside
+    subst inside
+    simp [UInt8.toNat_ofNat]; omega
+  · intro byte inside
+    simp only [List.mem_append, List.mem_singleton] at inside
+    rcases inside with left | right
+    · exact encodeDecimal_digits (value / 10) byte left
+    · subst right; simp [UInt8.toNat_ofNat]; omega
+termination_by value
+decreasing_by omega
+
+theorem encodeDecimal_ne_nil (value : Nat) : encodeDecimal value ≠ [] := by
+  unfold encodeDecimal; split <;> simp
+
+theorem foldl_decimalDigits (digits : List UInt8) (start : Nat) (all : ∀ byte ∈ digits, 48 ≤ byte.toNat ∧ byte.toNat ≤ 57) :
+    digits.foldl (fun acc byte => acc.bind fun n => if 48 ≤ byte.toNat ∧ byte.toNat ≤ 57 then some (10 * n + (byte.toNat - 48)) else none) (some start)
+      = some (digits.foldl (fun n byte => 10 * n + (byte.toNat - 48)) start) := by
+  induction digits generalizing start with
+  | nil => rfl
+  | cons byte others ih =>
+    have this := all byte (by simp)
+    simp only [List.foldl_cons, Option.bind_some, this, and_self, ite_true]
+    exact ih _ (fun b inside => all b (by simp [inside]))
+
+theorem foldl_encodeDecimal (value : Nat) : (encodeDecimal value).foldl (fun n byte => 10 * n + (byte.toNat - 48)) 0 = value := by
+  unfold encodeDecimal
+  split
+  · simp [UInt8.toNat_ofNat]; omega
+  · rw [List.foldl_append, foldl_encodeDecimal (value / 10)]
+    simp [UInt8.toNat_ofNat]; omega
+termination_by value
+decreasing_by omega
+
+theorem decodeDecimal_encodeDecimal (value : Nat) : decodeDecimal (encodeDecimal value) = some value := by
+  unfold decodeDecimal
+  rw [ite_eq_right (by simp [encodeDecimal_ne_nil]), foldl_decimalDigits _ 0 (encodeDecimal_digits value), foldl_encodeDecimal]
+
+/-- A number tagged on the wire: its tag, its digits, the separator -/
+def encodeTaggedNumber (tag : List UInt8) (value : Nat) : List UInt8 :=
+  tag ++ encodeDecimal value ++ [1]
+
+def decodeTaggedNumber (tag : List UInt8) (bytes : List UInt8) : Option (Nat × List UInt8) := do
+  let (digits, rest) ← decodeTagged tag bytes
+  let value ← decodeDecimal digits.val
+  pure (value, rest)
+
+theorem encodeDecimal_free (value : Nat) : (1 : UInt8) ∉ encodeDecimal value := by
+  intro inside
+  have := encodeDecimal_digits value 1 inside
+  simp at this
+
+theorem decodeTaggedNumber_encode (tag : List UInt8) (value : Nat) (rest : List UInt8) :
+    decodeTaggedNumber tag (encodeTaggedNumber tag value ++ rest) = some (value, rest) := by
+  have as_tagged : encodeTaggedNumber tag value = encodeTagged tag ⟨encodeDecimal value, encodeDecimal_free value⟩ := by
+    simp [encodeTaggedNumber, encodeTagged, encodeTerminated]
+  unfold decodeTaggedNumber
+  rw [as_tagged, decodeTagged_encodeTagged, some_bind]
+  simp only [decodeDecimal_encodeDecimal]
+  rfl
+
+/-! ## The Fix frame: BeginString, BodyLength written from the body, the body, CheckSum written from all before it -/
+
+/-- The byte sum the CheckSum field states: every byte ahead of it, modulo 256 -/
+def fixChecksum (bytes : List UInt8) : Nat := (bytes.map UInt8.toNat).sum % 256
+
+def fixBodyLengthTag : List UInt8 := [57, 61]
+def fixCheckSumTag : List UInt8 := [49, 48, 61]
+
+/-- What the CheckSum is summed over: BeginString (its tag, value and separator, as the venue fixes it),
+    the BodyLength the body is counted by, and the body -/
+def fixHead (begin : List UInt8) (body : List UInt8) : List UInt8 :=
+  begin ++ (encodeTaggedNumber fixBodyLengthTag body.length ++ body)
+
+def encodeFix (begin : List UInt8) (encodeBody : α → List UInt8) (message : α) : List UInt8 :=
+  fixHead begin (encodeBody message) ++ (fixCheckSumTag ++ (encodeDigits 3 (fixChecksum (fixHead begin (encodeBody message))) ++ [1]))
+
+/-- A frame read: BeginString as fixed, the length, that many bytes of body, and a CheckSum that sums
+    what came before it; the body read whole -/
+def decodeFix (begin : List UInt8) (decodeBody : List UInt8 → Option α) (bytes : List UInt8) : Option (α × List UInt8) := do
+  let afterBegin ← stripPrefix begin bytes
+  let (length, afterLength) ← decodeTaggedNumber fixBodyLengthTag afterBegin
+  let (body, afterBody) ← take? length afterLength
+  let afterTag ← stripPrefix fixCheckSumTag afterBody
+  let (sum, afterSum) ← decodeDigits 3 afterTag
+  let rest ← stripPrefix [1] afterSum
+  if sum = fixChecksum (fixHead begin body) then
+    let message ← decodeBody body
+    pure (message, rest)
+  else none
+
+theorem decodeFix_encodeFix (begin : List UInt8) (encodeBody : α → List UInt8) (decodeBody : List UInt8 → Option α)
+    (roundtrip : ∀ message, decodeBody (encodeBody message) = some message) (message : α) (rest : List UInt8) :
+    decodeFix begin decodeBody (encodeFix begin encodeBody message ++ rest) = some (message, rest) := by
+  have small : fixChecksum (fixHead begin (encodeBody message)) < 10 ^ 3 := by
+    unfold fixChecksum; have := Nat.mod_lt ((List.map UInt8.toNat (fixHead begin (encodeBody message))).sum) (show 256 > 0 by decide); omega
+  unfold decodeFix encodeFix fixHead
+  simp only [List.append_assoc]
+  rw [stripPrefix_append, some_bind]; try dsimp only
+  rw [decodeTaggedNumber_encode, some_bind]; try dsimp only
+  rw [take?_append rfl, some_bind]; try dsimp only
+  rw [stripPrefix_append, some_bind]; try dsimp only
+  unfold fixHead at small
+  rw [decodeDigits_encodeDigits 3 _ (by simpa [List.append_assoc] using small), some_bind]; try dsimp only
+  rw [stripPrefix_append, some_bind]
+  simp only [ite_true, roundtrip]
+  rfl
+
+/-! ## Fix fields in any order
+
+A Fix message's fields may come in any order between MsgType and CheckSum: the standard fixes only
+BeginString, BodyLength and MsgType at its start, CheckSum at its end, and the order inside a repeating
+group's entry. So a body is read as the tokens it is, `tag=value` each, and a record takes from them the
+tokens of its own tags wherever they stand. Its encoder writes them in the order the specification lists
+them, which is one of the orders a decoder accepts. -/
+
+/-- A Fix field as the wire carries it: the digits of its tag, and its value up to the separator -/
+structure Token where
+  tag : List UInt8
+  value : Terminated 1
+
+def Token.encode (token : Token) : List UInt8 :=
+  token.tag ++ (61 :: (token.value.val ++ [1]))
+
+/-- A token: its tag up to the equals sign, then its value up to the separator -/
+def decodeToken (bytes : List UInt8) : Option (Token × List UInt8) := do
+  let (tag, afterTag) ← decodeTerminated 61 bytes
+  let (value, rest) ← decodeTerminated 1 afterTag
+  pure (⟨tag.val, value⟩, rest)
+
+theorem decodeToken_encode (token : Token) (clean : (61 : UInt8) ∉ token.tag) (rest : List UInt8) :
+    decodeToken (token.encode ++ rest) = some (token, rest) := by
+  have tag := decodeTerminated_encodeTerminated 61 ⟨token.tag, clean⟩ (token.value.val ++ [1] ++ rest)
+  have value := decodeTerminated_encodeTerminated 1 token.value rest
+  simp only [encodeTerminated, List.append_assoc, List.singleton_append] at tag value
+  simp only [decodeToken, Token.encode, List.append_assoc, List.cons_append, List.nil_append]
+  rw [tag, some_bind]
+  dsimp only
+  rw [value, some_bind]
+  rfl
+
+/-- Every token of a body, read until no byte is left; at most one token per byte -/
+def decodeTokens : Nat → List UInt8 → Option (List Token)
+  | 0, bytes => if bytes.isEmpty then some [] else none
+  | fuel + 1, bytes =>
+    if bytes.isEmpty then some [] else do
+      let (token, rest) ← decodeToken bytes
+      let more ← decodeTokens fuel rest
+      pure (token :: more)
+
+def encodeTokens (tokens : List Token) : List UInt8 :=
+  tokens.flatMap Token.encode
+
+theorem decodeTokens_encodeTokens (tokens : List Token) (clean : ∀ token ∈ tokens, (61 : UInt8) ∉ token.tag)
+    (fuel : Nat) (enough : tokens.length ≤ fuel) :
+    decodeTokens fuel (encodeTokens tokens) = some tokens := by
+  induction tokens generalizing fuel with
+  | nil => cases fuel <;> simp [decodeTokens, encodeTokens]
+  | cons token others ih =>
+    cases fuel with
+    | zero => simp at enough
+    | succ fuel =>
+      have filled : (encodeTokens (token :: others)).isEmpty = false := by
+        simp [encodeTokens, Token.encode]
+      have first := decodeToken_encode token (clean token (by simp)) (encodeTokens others)
+      have more := ih (fun item inside => clean item (by simp [inside])) fuel (by simp at enough; omega)
+      simp only [decodeTokens, filled, Bool.false_eq_true, ite_false]
+      rw [show encodeTokens (token :: others) = token.encode ++ encodeTokens others by simp [encodeTokens], first,
+        some_bind]
+      dsimp only
+      rw [more, some_bind]
+      rfl
+
+/-- The tokens whose tags are among some, in the order they came -/
+def select (tags : List (List UInt8)) (tokens : List Token) : List Token :=
+  tokens.filter fun token => decide (token.tag ∈ tags)
+
+theorem select_append (tags : List (List UInt8)) (front back : List Token) :
+    select tags (front ++ back) = select tags front ++ select tags back := by
+  simp [select, List.filter_append]
+
+/-- Part of a record: the tags it may write, and the tokens it wrote, which carry only those tags -/
+structure Part where
+  tags : List (List UInt8)
+  tokens : List Token
+  within : ∀ token ∈ tokens, token.tag ∈ tags
+
+/-- The tokens of a record's parts, in the order the specification lists them -/
+def encodeParts (parts : List Part) : List Token :=
+  parts.flatMap Part.tokens
+
+theorem encodeParts_within (parts : List Part) :
+    ∀ token ∈ encodeParts parts, token.tag ∈ (parts.map Part.tags).flatten := by
+  intro token inside
+  simp only [encodeParts, List.mem_flatMap] at inside
+  rcases inside with ⟨part, member, holds⟩
+  simp only [List.mem_flatten, List.mem_map]
+  exact ⟨part.tags, ⟨part, member, rfl⟩, part.within token holds⟩
+
+/-- Tags no part writes select nothing of the parts' tokens -/
+theorem select_apart (tags : List (List UInt8)) (parts : List Part)
+    (apart : ∀ tag ∈ tags, tag ∉ (parts.map Part.tags).flatten) :
+    select tags (encodeParts parts) = [] := by
+  simp only [select, List.filter_eq_nil_iff, decide_eq_true_eq]
+  intro token inside mem
+  exact apart token.tag mem (encodeParts_within parts token inside)
+
+/-- Selecting one part's tags from the tokens of parts whose tags are all distinct gives that part's tokens -/
+theorem select_part (parts : List Part) (tagged : List (List (List UInt8))) (shape : parts.map Part.tags = tagged)
+    (distinct : tagged.flatten.Nodup) (k : Nat) (bound : k < tagged.length) :
+    select tagged[k] (encodeParts parts) = (parts[k]'(by rw [← shape] at bound; simpa using bound)).tokens := by
+  subst shape
+  induction parts generalizing k with
+  | nil => simp at bound
+  | cons part others ih =>
+    simp only [List.map_cons, List.flatten_cons, List.nodup_append] at distinct
+    rcases distinct with ⟨own, rest, disjoint⟩
+    simp only [encodeParts, List.flatMap_cons] at *
+    rw [select_append]
+    cases k with
+    | zero =>
+      simp only [List.getElem_cons_zero, List.map_cons]
+      have whole : select part.tags part.tokens = part.tokens := by
+        simp only [select, List.filter_eq_self, decide_eq_true_eq]
+        exact part.within
+      have none : select part.tags (others.flatMap Part.tokens) = [] := by
+        have := select_apart part.tags others (fun tag mem later => disjoint tag mem tag later rfl)
+        simpa [encodeParts] using this
+      rw [whole, none, List.append_nil]
+    | succ k =>
+      have inner : k < (others.map Part.tags).length := by simp at bound ⊢; omega
+      simp only [List.getElem_cons_succ, List.map_cons]
+      have none : select ((others.map Part.tags)[k]'inner) part.tokens = [] := by
+        simp only [select, List.filter_eq_nil_iff, decide_eq_true_eq]
+        intro token inside mem
+        have later : token.tag ∈ (others.map Part.tags).flatten :=
+          List.mem_flatten.mpr ⟨_, List.getElem_mem _, mem⟩
+        exact disjoint token.tag (part.within token inside) token.tag later rfl
+      rw [none, List.nil_append]
+      exact ih k rest inner
+
+/-- A field the venue requires: one token of its tag -/
+def Part.required (tag : List UInt8) (value : Terminated 1) : Part :=
+  ⟨[tag], [⟨tag, value⟩], by simp⟩
+
+/-- A field the venue does not require: one token of its tag, or none -/
+def Part.optional (tag : List UInt8) (value : Option (Terminated 1)) : Part :=
+  ⟨[tag], (value.map fun item => (⟨tag, item⟩ : Token)).toList, by cases value <;> simp⟩
+
+/-- A required field read: exactly one token of its tag -/
+def readRequired (tag : List UInt8) (tokens : List Token) : Option (Terminated 1) :=
+  match select [tag] tokens with
+  | [token] => some token.value
+  | _ => none
+
+/-- An optional field read: no token of its tag, or exactly one -/
+def readOptional (tag : List UInt8) (tokens : List Token) : Option (Option (Terminated 1)) :=
+  match select [tag] tokens with
+  | [] => some none
+  | [token] => some (some token.value)
+  | _ => none
+
+theorem readRequired_part (tag : List UInt8) (value : Terminated 1) (tokens : List Token)
+    (agrees : select [tag] tokens = (Part.required tag value).tokens) : readRequired tag tokens = some value := by
+  simp [readRequired, agrees, Part.required]
+
+theorem readOptional_part (tag : List UInt8) (value : Option (Terminated 1)) (tokens : List Token)
+    (agrees : select [tag] tokens = (Part.optional tag value).tokens) : readOptional tag tokens = some value := by
+  cases value <;> simp [readOptional, agrees, Part.optional]
+
+/-! ## Repeating groups in any order: the count, then entries each led by the delimiter -/
+
+/-- The tokens up to the next that carries the delimiter's tag, and the rest from it -/
+def splitBefore (delimiter : List UInt8) : List Token → List Token × List Token
+  | [] => ([], [])
+  | token :: rest =>
+    if token.tag = delimiter then ([], token :: rest)
+    else ((token :: (splitBefore delimiter rest).1), (splitBefore delimiter rest).2)
+
+/-- Entries cut where each delimiter stands: every entry leads with it, and holds what follows up to the next -/
+def chunks (delimiter : List UInt8) : Nat → List Token → Option (List (List Token))
+  | _, [] => some []
+  | 0, _ :: _ => none
+  | fuel + 1, token :: rest =>
+    if token.tag = delimiter then
+      (chunks delimiter fuel (splitBefore delimiter rest).2).map ((token :: (splitBefore delimiter rest).1) :: ·)
+    else none
+
+theorem splitBefore_apart (delimiter : List UInt8) (body more : List Token)
+    (apart : ∀ token ∈ body, token.tag ≠ delimiter) (next : ∀ token, more.head? = some token → token.tag = delimiter) :
+    splitBefore delimiter (body ++ more) = (body, more) := by
+  induction body with
+  | nil =>
+    cases more with
+    | nil => rfl
+    | cons token rest =>
+      have := next token rfl
+      simp [splitBefore, this]
+  | cons token others ih =>
+    have own := apart token (by simp)
+    have tail := ih (fun item inside => apart item (by simp [inside]))
+    simp [splitBefore, own, tail]
+
+/-- An entry as written: its delimiter, then tokens none of which carries the delimiter's tag -/
+def Lead (delimiter : List UInt8) (tokens : List Token) : Prop :=
+  ∃ value others, tokens = ⟨delimiter, value⟩ :: others ∧ ∀ token ∈ others, token.tag ≠ delimiter
+
+theorem chunks_entries (delimiter : List UInt8) (entries : List (List Token))
+    (led : ∀ entry ∈ entries, Lead delimiter entry) (fuel : Nat) (enough : entries.length ≤ fuel) :
+    chunks delimiter fuel entries.flatten = some entries := by
+  induction entries generalizing fuel with
+  | nil => cases fuel <;> rfl
+  | cons entry others ih =>
+    rcases led entry (by simp) with ⟨value, body, shaped, apart⟩
+    cases fuel with
+    | zero => simp at enough
+    | succ fuel =>
+      have next : ∀ token, others.flatten.head? = some token → token.tag = delimiter := by
+        intro token first
+        cases others with
+        | nil => simp at first
+        | cons entry' more =>
+          rcases led entry' (by simp) with ⟨value', body', shaped', _⟩
+          subst shaped'
+          simp at first
+          rw [← first]
+      have tail := ih (fun item inside => led item (by simp [inside])) fuel (by simp at enough; omega)
+      subst shaped
+      have split := splitBefore_apart delimiter body others.flatten apart next
+      simp [chunks, split, tail]
+
+/-- A group: its count token, then its entries, or nothing at all where it has none -/
+def Part.group (count : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members) (items : List α) : Part :=
+  ⟨count :: members,
+   (if items.isEmpty then [] else ⟨count, ⟨encodeDecimal items.length, encodeDecimal_free items.length⟩⟩ :: items.flatMap encode),
+   by
+     intro token inside
+     split at inside
+     · simp at inside
+     · simp only [List.mem_cons, List.mem_flatMap] at inside
+       rcases inside with first | ⟨item, _, holds⟩
+       · subst first; simp
+       · exact List.mem_cons_of_mem _ (within item token holds)⟩
+
+/-- A group read from its own tokens: none, or the count and exactly that many entries -/
+def decodeGroup (count : List UInt8) (delimiter : List UInt8) (decode : List Token → Option α) :
+    List Token → Option (List α)
+  | [] => some []
+  | token :: rest =>
+    if token.tag = count then do
+      let number ← decodeDecimal token.value.val
+      let entries ← chunks delimiter rest.length rest
+      if entries.length = number then entries.mapM decode else none
+    else none
+
+def readGroup (count : List UInt8) (delimiter : List UInt8) (members : List (List UInt8))
+    (decode : List Token → Option α) (tokens : List Token) : Option (List α) :=
+  decodeGroup count delimiter decode (select (count :: members) tokens)
+
+theorem mapM_map (encode : α → List Token) (decode : List Token → Option α)
+    (roundtrip : ∀ item, decode (encode item) = some item) (items : List α) :
+    (items.map encode).mapM decode = some items := by
+  induction items with
+  | nil => rfl
+  | cons item others ih => simp [List.mapM_cons, roundtrip, ih]
+
+theorem flatMap_length_ge (encode : α → List Token) (nonempty : ∀ item, encode item ≠ []) (items : List α) :
+    items.length ≤ (items.flatMap encode).length := by
+  induction items with
+  | nil => simp
+  | cons item others ih =>
+    have := List.length_pos_iff.mpr (nonempty item)
+    simp only [List.flatMap_cons, List.length_append, List.length_cons]
+    omega
+
+theorem readGroup_part (count delimiter : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members)
+    (decode : List Token → Option α) (roundtrip : ∀ item, decode (encode item) = some item)
+    (led : ∀ item, Lead delimiter (encode item))
+    (items : List α) (tokens : List Token)
+    (agrees : select (count :: members) tokens = (Part.group count members encode within items).tokens) :
+    readGroup count delimiter members decode tokens = some items := by
+  unfold readGroup
+  rw [agrees]
+  simp only [Part.group]
+  cases items with
+  | nil => rfl
+  | cons item others =>
+    have nonempty : ∀ item, encode item ≠ [] := by
+      intro item; rcases led item with ⟨_, _, shaped, _⟩; rw [shaped]; simp
+    have cut := chunks_entries delimiter ((item :: others).map encode)
+      (by intro entry inside; simp only [List.mem_map] at inside; rcases inside with ⟨it, _, rfl⟩; exact led it)
+      ((item :: others).flatMap encode).length
+      (by rw [List.length_map]; exact flatMap_length_ge encode nonempty _)
+    rw [← List.flatMap_def] at cut
+    simp only [List.isEmpty_cons, Bool.false_eq_true, ite_false, decodeGroup, ite_true, decodeDecimal_encodeDecimal,
+      some_bind, cut, List.length_map, mapM_map encode decode roundtrip]
+
+/-- An entry's tokens lead with its delimiter, where its first part is the delimiter and no later part writes that tag -/
+theorem lead_parts (delimiter : List UInt8) (value : Terminated 1) (others : List Part) (tagged : List (List (List UInt8)))
+    (shape : others.map Part.tags = tagged) (apart : delimiter ∉ tagged.flatten) :
+    Lead delimiter (encodeParts (Part.required delimiter value :: others)) := by
+  refine ⟨value, encodeParts others, rfl, ?_⟩
+  intro token inside same
+  have := encodeParts_within others token inside
+  rw [shape, same] at this
+  exact apart this
+
+/-! ## A message: MsgType, then the header's parts and the body's, read by tag wherever they stand -/
+
+/-- Is every token one of the record's tags? A message carrying a field its model does not list is not read -/
+def known (tagged : List (List (List UInt8))) (tokens : List Token) : Bool :=
+  tokens.all fun token => decide (token.tag ∈ tagged.flatten)
+
+theorem known_parts (parts : List Part) (tagged : List (List (List UInt8))) (shape : parts.map Part.tags = tagged) :
+    known tagged (encodeParts parts) = true := by
+  simp only [known, List.all_eq_true, decide_eq_true_eq]
+  intro token inside
+  have := encodeParts_within parts token inside
+  rwa [shape] at this
+
+/-- The header reads the same from a message's tokens as from its own, where the body writes none of its tags -/
+theorem agrees_left (front back : List Part) (frontTags backTags : List (List (List UInt8)))
+    (backShape : back.map Part.tags = backTags)
+    (apart : ∀ tags ∈ frontTags, ∀ tag ∈ tags, tag ∉ backTags.flatten) :
+    ∀ tags ∈ frontTags, select tags (encodeParts (front ++ back)) = select tags (encodeParts front) := by
+  intro tags member
+  have none := select_apart tags back (by rw [backShape]; exact apart tags member)
+  simp only [encodeParts, List.flatMap_append, select_append] at none ⊢
+  rw [none, List.append_nil]
+
+/-- The body reads the same from a message's tokens as from its own, where the header writes none of its tags -/
+theorem agrees_right (front back : List Part) (frontTags backTags : List (List (List UInt8)))
+    (frontShape : front.map Part.tags = frontTags)
+    (apart : ∀ tags ∈ backTags, ∀ tag ∈ tags, tag ∉ frontTags.flatten) :
+    ∀ tags ∈ backTags, select tags (encodeParts (front ++ back)) = select tags (encodeParts back) := by
+  intro tags member
+  have none := select_apart tags front (by rw [frontShape]; exact apart tags member)
+  simp only [encodeParts, List.flatMap_append, select_append] at none ⊢
+  rw [none, List.nil_append]
+
+theorem Token.encode_length (token : Token) : 2 ≤ token.encode.length := by
+  simp [Token.encode]; omega
+
+theorem encodeTokens_length_ge (tokens : List Token) : tokens.length ≤ (encodeTokens tokens).length := by
+  induction tokens with
+  | nil => simp [encodeTokens]
+  | cons token others ih =>
+    have := Token.encode_length token
+    simp only [encodeTokens, List.flatMap_cons, List.length_append, List.length_cons] at ih ⊢
+    omega
+
+/-- A message's bytes: its tokens, each written tag=value and closed by the separator -/
+theorem decodeTokens_message (lead : Token) (parts : List Part) (tagged : List (List (List UInt8)))
+    (shape : parts.map Part.tags = tagged) (cleanLead : (61 : UInt8) ∉ lead.tag)
+    (clean : ∀ tag ∈ tagged.flatten, (61 : UInt8) ∉ tag) :
+    decodeTokens (encodeTokens (lead :: encodeParts parts)).length (encodeTokens (lead :: encodeParts parts))
+      = some (lead :: encodeParts parts) := by
+  apply decodeTokens_encodeTokens _ _ _ (encodeTokens_length_ge _)
+  intro token inside
+  simp only [List.mem_cons] at inside
+  rcases inside with first | later
+  · subst first; exact cleanLead
+  · have := encodeParts_within parts token later
+    rw [shape] at this
+    exact clean _ this
+
+/-- A component reads the same from a message's tokens as from its own, where nothing around it writes its tags -/
+theorem agrees_slice (front middle back : List Part) (frontTags middleTags backTags : List (List (List UInt8)))
+    (frontShape : front.map Part.tags = frontTags) (backShape : back.map Part.tags = backTags)
+    (apart : ∀ tags ∈ middleTags, ∀ tag ∈ tags, tag ∉ frontTags.flatten ∧ tag ∉ backTags.flatten) :
+    ∀ tags ∈ middleTags, select tags (encodeParts (front ++ middle ++ back)) = select tags (encodeParts middle) := by
+  intro tags member
+  have before := select_apart tags front (by rw [frontShape]; exact fun tag mem => (apart tags member tag mem).1)
+  have after := select_apart tags back (by rw [backShape]; exact fun tag mem => (apart tags member tag mem).2)
+  simp only [encodeParts, List.flatMap_append, select_append] at before after ⊢
+  rw [before, after, List.nil_append, List.append_nil]
+
 /-! ## Session ends -/
 
 /-- Does an item that ends the session stand only last? Nothing in a packet follows the item that

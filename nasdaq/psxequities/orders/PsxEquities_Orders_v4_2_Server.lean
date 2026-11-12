@@ -1313,7 +1313,7 @@ theorem encode_length_pos (message : CanceledMessage) : (encode message).length 
 
 end CanceledMessage
 
-/-- Aiq Canceled Message: 36 bytes -/
+/-- Aiq Canceled Message: 37 bytes -/
 structure AiqCanceledMessage where
   timestamp : BitVec 64
   orderToken : Alpha 14
@@ -1322,6 +1322,7 @@ structure AiqCanceledMessage where
   quantityPreventedFromTrading : BitVec 32
   executionPrice : BitVec 32
   liquidityFlag : LiquidityFlag
+  aiqStrategy : Alpha 1
   deriving DecidableEq, Repr
 
 namespace AiqCanceledMessage
@@ -1333,7 +1334,8 @@ def encode (message : AiqCanceledMessage) : List UInt8 :=
     ++ (Alpha.encode message.aiqCanceledReason
     ++ (encodeUInt 4 message.quantityPreventedFromTrading
     ++ (encodeUInt 4 message.executionPrice
-    ++ (LiquidityFlag.encode message.liquidityFlag))))))
+    ++ (LiquidityFlag.encode message.liquidityFlag
+    ++ (Alpha.encode message.aiqStrategy)))))))
 
 def decode (bytes : List UInt8) : Option (AiqCanceledMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUInt 8 bytes
@@ -1343,9 +1345,10 @@ def decode (bytes : List UInt8) : Option (AiqCanceledMessage × List UInt8) := d
   let (quantityPreventedFromTrading, bytes) ← decodeUInt 4 bytes
   let (executionPrice, bytes) ← decodeUInt 4 bytes
   let (liquidityFlag, bytes) ← LiquidityFlag.decode bytes
-  pure ({ timestamp, orderToken, decrementShares, aiqCanceledReason, quantityPreventedFromTrading, executionPrice, liquidityFlag }, bytes)
+  let (aiqStrategy, bytes) ← Alpha.decode 1 bytes
+  pure ({ timestamp, orderToken, decrementShares, aiqCanceledReason, quantityPreventedFromTrading, executionPrice, liquidityFlag, aiqStrategy }, bytes)
 
-@[simp] theorem encode_length (message : AiqCanceledMessage) : (encode message).length = 36 := by
+@[simp] theorem encode_length (message : AiqCanceledMessage) : (encode message).length = 37 := by
   unfold encode
   simp only [List.length_append, encodeUInt_length, Alpha.encode_length, LiquidityFlag.encode_length]
 
@@ -1368,7 +1371,9 @@ theorem encode_length_pos (message : AiqCanceledMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [LiquidityFlag.decode_encode, some_bind]
+  rw [List.append_assoc, LiquidityFlag.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end AiqCanceledMessage

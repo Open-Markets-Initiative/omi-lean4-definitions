@@ -198,20 +198,20 @@ end HeaderTime
 
 /-- Wake Up Call Message: 5 bytes -/
 structure WakeUpCallMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   startInBoundNum : BitVec 32
   deriving DecidableEq, Repr
 
 namespace WakeUpCallMessage
 
 def encode (message : WakeUpCallMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (encodeUInt 4 message.startInBoundNum)
 
 def decode (bytes : List UInt8) : Option (WakeUpCallMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (startInBoundNum, bytes) ← decodeUInt 4 bytes
-  pure ({ statusCodeUint81, startInBoundNum }, bytes)
+  pure ({ statusCode, startInBoundNum }, bytes)
 
 @[simp] theorem encode_length (message : WakeUpCallMessage) : (encode message).length = 5 := by
   unfold encode
@@ -263,7 +263,7 @@ end WakeUpCallConfirmedMessage
 
 /-- Logon Notice Message: 9 bytes -/
 structure LogonNoticeMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   appendNo : BitVec 16
   endOutBoundNum : BitVec 32
   systemType : BitVec 8
@@ -273,19 +273,19 @@ structure LogonNoticeMessage where
 namespace LogonNoticeMessage
 
 def encode (message : LogonNoticeMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (encodeUInt 2 message.appendNo
     ++ (encodeUInt 4 message.endOutBoundNum
     ++ (encodeUInt 1 message.systemType
     ++ (encodeUInt 1 message.encryptMethod))))
 
 def decode (bytes : List UInt8) : Option (LogonNoticeMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (appendNo, bytes) ← decodeUInt 2 bytes
   let (endOutBoundNum, bytes) ← decodeUInt 4 bytes
   let (systemType, bytes) ← decodeUInt 1 bytes
   let (encryptMethod, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81, appendNo, endOutBoundNum, systemType, encryptMethod }, bytes)
+  pure ({ statusCode, appendNo, endOutBoundNum, systemType, encryptMethod }, bytes)
 
 @[simp] theorem encode_length (message : LogonNoticeMessage) : (encode message).length = 9 := by
   unfold encode
@@ -354,7 +354,7 @@ end SubHdr
 /-- Final Sequential Number Notification For Group Message: 21 bytes -/
 structure FinalSequentialNumberNotificationForGroupMessage where
   subHdr : SubHdr
-  statusCodeUint162 : BitVec 16
+  wideStatusCode : BitVec 16
   partId : BitVec 8
   endOutBoundNum : BitVec 32
   reserved8 : Alpha 8
@@ -364,18 +364,18 @@ namespace FinalSequentialNumberNotificationForGroupMessage
 
 def encode (message : FinalSequentialNumberNotificationForGroupMessage) : List UInt8 :=
   SubHdr.encode message.subHdr
-    ++ (encodeUInt 2 message.statusCodeUint162
+    ++ (encodeUInt 2 message.wideStatusCode
     ++ (encodeUInt 1 message.partId
     ++ (encodeUInt 4 message.endOutBoundNum
     ++ (Alpha.encode message.reserved8))))
 
 def decode (bytes : List UInt8) : Option (FinalSequentialNumberNotificationForGroupMessage × List UInt8) := do
   let (subHdr, bytes) ← SubHdr.decode bytes
-  let (statusCodeUint162, bytes) ← decodeUInt 2 bytes
+  let (wideStatusCode, bytes) ← decodeUInt 2 bytes
   let (partId, bytes) ← decodeUInt 1 bytes
   let (endOutBoundNum, bytes) ← decodeUInt 4 bytes
   let (reserved8, bytes) ← Alpha.decode 8 bytes
-  pure ({ subHdr, statusCodeUint162, partId, endOutBoundNum, reserved8 }, bytes)
+  pure ({ subHdr, wideStatusCode, partId, endOutBoundNum, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : FinalSequentialNumberNotificationForGroupMessage) : (encode message).length = 21 := by
   unfold encode
@@ -403,7 +403,7 @@ end FinalSequentialNumberNotificationForGroupMessage
 
 /-- Request Logon Message: 15 bytes -/
 structure RequestLogonMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   appendNo : BitVec 16
   fcmId : BitVec 16
   sessionId : BitVec 16
@@ -417,7 +417,7 @@ structure RequestLogonMessage where
 namespace RequestLogonMessage
 
 def encode (message : RequestLogonMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (encodeUInt 2 message.appendNo
     ++ (encodeUInt 2 message.fcmId
     ++ (encodeUInt 2 message.sessionId
@@ -428,7 +428,7 @@ def encode (message : RequestLogonMessage) : List UInt8 :=
     ++ (encodeUInt 1 message.cancelOrderSec))))))))
 
 def decode (bytes : List UInt8) : Option (RequestLogonMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (appendNo, bytes) ← decodeUInt 2 bytes
   let (fcmId, bytes) ← decodeUInt 2 bytes
   let (sessionId, bytes) ← decodeUInt 2 bytes
@@ -437,7 +437,7 @@ def decode (bytes : List UInt8) : Option (RequestLogonMessage × List UInt8) := 
   let (keyValue, bytes) ← decodeUInt 1 bytes
   let (requestStartSeq, bytes) ← decodeUInt 4 bytes
   let (cancelOrderSec, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81, appendNo, fcmId, sessionId, systemType, apCode, keyValue, requestStartSeq, cancelOrderSec }, bytes)
+  pure ({ statusCode, appendNo, fcmId, sessionId, systemType, apCode, keyValue, requestStartSeq, cancelOrderSec }, bytes)
 
 @[simp] theorem encode_length (message : RequestLogonMessage) : (encode message).length = 15 := by
   unfold encode
@@ -473,7 +473,7 @@ end RequestLogonMessage
 
 /-- Activate Application System Message: 4 bytes -/
 structure ActivateApplicationSystemMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   heartBtInt : BitVec 8
   maxFlowCtrlCnt : BitVec 16
   deriving DecidableEq, Repr
@@ -481,15 +481,15 @@ structure ActivateApplicationSystemMessage where
 namespace ActivateApplicationSystemMessage
 
 def encode (message : ActivateApplicationSystemMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (encodeUInt 1 message.heartBtInt
     ++ (encodeUInt 2 message.maxFlowCtrlCnt))
 
 def decode (bytes : List UInt8) : Option (ActivateApplicationSystemMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (heartBtInt, bytes) ← decodeUInt 1 bytes
   let (maxFlowCtrlCnt, bytes) ← decodeUInt 2 bytes
-  pure ({ statusCodeUint81, heartBtInt, maxFlowCtrlCnt }, bytes)
+  pure ({ statusCode, heartBtInt, maxFlowCtrlCnt }, bytes)
 
 @[simp] theorem encode_length (message : ActivateApplicationSystemMessage) : (encode message).length = 4 := by
   unfold encode
@@ -513,17 +513,17 @@ end ActivateApplicationSystemMessage
 
 /-- Activate Application System Confirmed Message: 1 bytes -/
 structure ActivateApplicationSystemConfirmedMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   deriving DecidableEq, Repr
 
 namespace ActivateApplicationSystemConfirmedMessage
 
 def encode (message : ActivateApplicationSystemConfirmedMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
 
 def decode (bytes : List UInt8) : Option (ActivateApplicationSystemConfirmedMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81 }, bytes)
+  let (statusCode, bytes) ← decodeUInt 1 bytes
+  pure ({ statusCode }, bytes)
 
 @[simp] theorem encode_length (message : ActivateApplicationSystemConfirmedMessage) : (encode message).length = 1 := by
   unfold encode
@@ -564,17 +564,17 @@ end LogoutMessage
 
 /-- Logout Confirmed Message: 1 bytes -/
 structure LogoutConfirmedMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   deriving DecidableEq, Repr
 
 namespace LogoutConfirmedMessage
 
 def encode (message : LogoutConfirmedMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
 
 def decode (bytes : List UInt8) : Option (LogoutConfirmedMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81 }, bytes)
+  let (statusCode, bytes) ← decodeUInt 1 bytes
+  pure ({ statusCode }, bytes)
 
 @[simp] theorem encode_length (message : LogoutConfirmedMessage) : (encode message).length = 1 := by
   unfold encode
@@ -594,17 +594,17 @@ end LogoutConfirmedMessage
 
 /-- Confirm Connection Message: 1 bytes -/
 structure ConfirmConnectionMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   deriving DecidableEq, Repr
 
 namespace ConfirmConnectionMessage
 
 def encode (message : ConfirmConnectionMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
 
 def decode (bytes : List UInt8) : Option (ConfirmConnectionMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81 }, bytes)
+  let (statusCode, bytes) ← decodeUInt 1 bytes
+  pure ({ statusCode }, bytes)
 
 @[simp] theorem encode_length (message : ConfirmConnectionMessage) : (encode message).length = 1 := by
   unfold encode
@@ -624,17 +624,17 @@ end ConfirmConnectionMessage
 
 /-- Connection Confirmed Message: 1 bytes -/
 structure ConnectionConfirmedMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   deriving DecidableEq, Repr
 
 namespace ConnectionConfirmedMessage
 
 def encode (message : ConnectionConfirmedMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
 
 def decode (bytes : List UInt8) : Option (ConnectionConfirmedMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
-  pure ({ statusCodeUint81 }, bytes)
+  let (statusCode, bytes) ← decodeUInt 1 bytes
+  pure ({ statusCode }, bytes)
 
 @[simp] theorem encode_length (message : ConnectionConfirmedMessage) : (encode message).length = 1 := by
   unfold encode
@@ -652,41 +652,41 @@ theorem encode_length_pos (message : ConnectionConfirmedMessage) : (encode messa
 
 end ConnectionConfirmedMessage
 
-/-- Leg Side Uint 822: 1 bytes -/
-structure LegSideUint822Entry where
-  legSideUint822 : BitVec 8
+/-- Both Leg Sides: 1 bytes -/
+structure BothLegSidesEntry where
+  bothLegSides : BitVec 8
   deriving DecidableEq, Repr
 
-namespace LegSideUint822Entry
+namespace BothLegSidesEntry
 
-def encode (message : LegSideUint822Entry) : List UInt8 :=
-  encodeUInt 1 message.legSideUint822
+def encode (message : BothLegSidesEntry) : List UInt8 :=
+  encodeUInt 1 message.bothLegSides
 
-def decode (bytes : List UInt8) : Option (LegSideUint822Entry × List UInt8) := do
-  let (legSideUint822, bytes) ← decodeUInt 1 bytes
-  pure ({ legSideUint822 }, bytes)
+def decode (bytes : List UInt8) : Option (BothLegSidesEntry × List UInt8) := do
+  let (bothLegSides, bytes) ← decodeUInt 1 bytes
+  pure ({ bothLegSides }, bytes)
 
-@[simp] theorem encode_length (message : LegSideUint822Entry) : (encode message).length = 1 := by
+@[simp] theorem encode_length (message : BothLegSidesEntry) : (encode message).length = 1 := by
   unfold encode
   simp only [encodeUInt_length]
 
-theorem encode_length_pos (message : LegSideUint822Entry) : (encode message).length > 0 := by
+theorem encode_length_pos (message : BothLegSidesEntry) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : LegSideUint822Entry) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : BothLegSidesEntry) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end LegSideUint822Entry
+end BothLegSidesEntry
 
 /-- Symbol Num: 20 bytes -/
 structure SymbolNum where
   pseq1 : BitVec 16
   pseq2 : BitVec 16
-  legSideUint822 : Exact 2 LegSideUint822Entry
+  bothLegSides : Exact 2 BothLegSidesEntry
   combOp : BitVec 8
   reserved13 : Alpha 13
   deriving DecidableEq, Repr
@@ -696,23 +696,23 @@ namespace SymbolNum
 def encode (message : SymbolNum) : List UInt8 :=
   encodeUInt 2 message.pseq1
     ++ (encodeUInt 2 message.pseq2
-    ++ (encodeMany LegSideUint822Entry.encode message.legSideUint822.val
+    ++ (encodeMany BothLegSidesEntry.encode message.bothLegSides.val
     ++ (encodeUInt 1 message.combOp
     ++ (Alpha.encode message.reserved13))))
 
 def decode (bytes : List UInt8) : Option (SymbolNum × List UInt8) := do
   let (pseq1, bytes) ← decodeUInt 2 bytes
   let (pseq2, bytes) ← decodeUInt 2 bytes
-  let (legSideUint822_, bytes) ← decodeMany LegSideUint822Entry.decode 2 bytes
+  let (bothLegSides_, bytes) ← decodeMany BothLegSidesEntry.decode 2 bytes
   let (combOp, bytes) ← decodeUInt 1 bytes
   let (reserved13, bytes) ← Alpha.decode 13 bytes
-  if fits_legSideUint822 : legSideUint822_.length = 2 then
-    pure ({ pseq1, pseq2, legSideUint822 := ⟨legSideUint822_, fits_legSideUint822⟩, combOp, reserved13 }, bytes)
+  if fits_bothLegSides : bothLegSides_.length = 2 then
+    pure ({ pseq1, pseq2, bothLegSides := ⟨bothLegSides_, fits_bothLegSides⟩, combOp, reserved13 }, bytes)
   else none
 
 @[simp] theorem encode_length (message : SymbolNum) : (encode message).length = 20 := by
   unfold encode
-  simp only [List.length_append, encodeUInt_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, message.legSideUint822.length_eq, Alpha.encode_length]
+  simp only [List.length_append, encodeUInt_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, message.bothLegSides.length_eq, Alpha.encode_length]
 
 theorem encode_length_pos (message : SymbolNum) : (encode message).length > 0 := by
   rw [encode_length]
@@ -725,30 +725,30 @@ theorem encode_length_pos (message : SymbolNum) : (encode message).length > 0 :=
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegSideUint822Entry.encode LegSideUint822Entry.decode LegSideUint822Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegSidesEntry.encode BothLegSidesEntry.decode BothLegSidesEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.legSideUint822.length_eq]
+  rw [dite_eq_left message.bothLegSides.length_eq]
   rfl
 
 end SymbolNum
 
 /-- Symbol Text: 20 bytes -/
 structure SymbolText where
-  symbolChar2020 : Alpha 20
+  symbol : Alpha 20
   deriving DecidableEq, Repr
 
 namespace SymbolText
 
 def encode (message : SymbolText) : List UInt8 :=
-  Alpha.encode message.symbolChar2020
+  Alpha.encode message.symbol
 
 def decode (bytes : List UInt8) : Option (SymbolText × List UInt8) := do
-  let (symbolChar2020, bytes) ← Alpha.decode 20 bytes
-  pure ({ symbolChar2020 }, bytes)
+  let (symbol, bytes) ← Alpha.decode 20 bytes
+  pure ({ symbol }, bytes)
 
 @[simp] theorem encode_length (message : SymbolText) : (encode message).length = 20 := by
   unfold encode
@@ -834,52 +834,52 @@ theorem encode_length_pos (message : LegPxEntry) : (encode message).length > 0 :
 
 end LegPxEntry
 
-/-- Leg Qty Uint 1624: 2 bytes -/
-structure LegQtyUint1624Entry where
-  legQtyUint1624 : BitVec 16
+/-- Both Leg Qtys: 2 bytes -/
+structure BothLegQtysEntry where
+  bothLegQtys : BitVec 16
   deriving DecidableEq, Repr
 
-namespace LegQtyUint1624Entry
+namespace BothLegQtysEntry
 
-def encode (message : LegQtyUint1624Entry) : List UInt8 :=
-  encodeUInt 2 message.legQtyUint1624
+def encode (message : BothLegQtysEntry) : List UInt8 :=
+  encodeUInt 2 message.bothLegQtys
 
-def decode (bytes : List UInt8) : Option (LegQtyUint1624Entry × List UInt8) := do
-  let (legQtyUint1624, bytes) ← decodeUInt 2 bytes
-  pure ({ legQtyUint1624 }, bytes)
+def decode (bytes : List UInt8) : Option (BothLegQtysEntry × List UInt8) := do
+  let (bothLegQtys, bytes) ← decodeUInt 2 bytes
+  pure ({ bothLegQtys }, bytes)
 
-@[simp] theorem encode_length (message : LegQtyUint1624Entry) : (encode message).length = 2 := by
+@[simp] theorem encode_length (message : BothLegQtysEntry) : (encode message).length = 2 := by
   unfold encode
   simp only [encodeUInt_length]
 
-theorem encode_length_pos (message : LegQtyUint1624Entry) : (encode message).length > 0 := by
+theorem encode_length_pos (message : BothLegQtysEntry) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : LegQtyUint1624Entry) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : BothLegQtysEntry) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
-end LegQtyUint1624Entry
+end BothLegQtysEntry
 
 /-- Org Trans Time Msg Time: 6 bytes -/
 structure OrgTransTimeMsgTime where
-  epochSInt324 : BitVec 32
+  msgTimeEpochS : BitVec 32
   ms : BitVec 16
   deriving DecidableEq, Repr
 
 namespace OrgTransTimeMsgTime
 
 def encode (message : OrgTransTimeMsgTime) : List UInt8 :=
-  encodeUInt 4 message.epochSInt324
+  encodeUInt 4 message.msgTimeEpochS
     ++ (encodeUInt 2 message.ms)
 
 def decode (bytes : List UInt8) : Option (OrgTransTimeMsgTime × List UInt8) := do
-  let (epochSInt324, bytes) ← decodeUInt 4 bytes
+  let (msgTimeEpochS, bytes) ← decodeUInt 4 bytes
   let (ms, bytes) ← decodeUInt 2 bytes
-  pure ({ epochSInt324, ms }, bytes)
+  pure ({ msgTimeEpochS, ms }, bytes)
 
 @[simp] theorem encode_length (message : OrgTransTimeMsgTime) : (encode message).length = 6 := by
   unfold encode
@@ -901,20 +901,20 @@ end OrgTransTimeMsgTime
 
 /-- Transact Time Msg Time: 6 bytes -/
 structure TransactTimeMsgTime where
-  epochSInt324 : BitVec 32
+  msgTimeEpochS : BitVec 32
   ms : BitVec 16
   deriving DecidableEq, Repr
 
 namespace TransactTimeMsgTime
 
 def encode (message : TransactTimeMsgTime) : List UInt8 :=
-  encodeUInt 4 message.epochSInt324
+  encodeUInt 4 message.msgTimeEpochS
     ++ (encodeUInt 2 message.ms)
 
 def decode (bytes : List UInt8) : Option (TransactTimeMsgTime × List UInt8) := do
-  let (epochSInt324, bytes) ← decodeUInt 4 bytes
+  let (msgTimeEpochS, bytes) ← decodeUInt 4 bytes
   let (ms, bytes) ← decodeUInt 2 bytes
-  pure ({ epochSInt324, ms }, bytes)
+  pure ({ msgTimeEpochS, ms }, bytes)
 
 @[simp] theorem encode_length (message : TransactTimeMsgTime) : (encode message).length = 6 := by
   unfold encode
@@ -936,7 +936,7 @@ end TransactTimeMsgTime
 
 /-- Order Status Report Message -/
 structure OrderStatusReportMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   execType : ExecType
   cmId : BitVec 16
   fcmId : BitVec 16
@@ -958,9 +958,9 @@ structure OrderStatusReportMessage where
   cumQty : BitVec 16
   leavesQty : BitVec 16
   beforeQty : BitVec 16
-  legSideUint822 : Exact 2 LegSideUint822Entry
+  bothLegSides : Exact 2 BothLegSidesEntry
   legPx : Exact 2 LegPxEntry
-  legQtyUint1624 : Exact 2 LegQtyUint1624Entry
+  bothLegQtys : Exact 2 BothLegQtysEntry
   orgTransTimeMsgTime : OrgTransTimeMsgTime
   transactTimeMsgTime : TransactTimeMsgTime
   targetId : BitVec 8
@@ -972,7 +972,7 @@ structure OrderStatusReportMessage where
 namespace OrderStatusReportMessage
 
 def encode (message : OrderStatusReportMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (ExecType.encode message.execType
     ++ (encodeUInt 2 message.cmId
     ++ (encodeUInt 2 message.fcmId
@@ -995,9 +995,9 @@ def encode (message : OrderStatusReportMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.cumQty
     ++ (encodeUInt 2 message.leavesQty
     ++ (encodeUInt 2 message.beforeQty
-    ++ (encodeMany LegSideUint822Entry.encode message.legSideUint822.val
+    ++ (encodeMany BothLegSidesEntry.encode message.bothLegSides.val
     ++ (encodeMany LegPxEntry.encode message.legPx.val
-    ++ (encodeMany LegQtyUint1624Entry.encode message.legQtyUint1624.val
+    ++ (encodeMany BothLegQtysEntry.encode message.bothLegQtys.val
     ++ (OrgTransTimeMsgTime.encode message.orgTransTimeMsgTime
     ++ (TransactTimeMsgTime.encode message.transactTimeMsgTime
     ++ (encodeUInt 1 message.targetId
@@ -1008,7 +1008,7 @@ def encode (message : OrderStatusReportMessage) : List UInt8 :=
 -- a long run of fields nests deeper than the elaborator's default limit
 set_option maxRecDepth 4096 in
 def decode (bytes : List UInt8) : Option (OrderStatusReportMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (execType, bytes) ← ExecType.decode bytes
   let (cmId, bytes) ← decodeUInt 2 bytes
   let (fcmId, bytes) ← decodeUInt 2 bytes
@@ -1031,19 +1031,19 @@ def decode (bytes : List UInt8) : Option (OrderStatusReportMessage × List UInt8
   let (cumQty, bytes) ← decodeUInt 2 bytes
   let (leavesQty, bytes) ← decodeUInt 2 bytes
   let (beforeQty, bytes) ← decodeUInt 2 bytes
-  let (legSideUint822_, bytes) ← decodeMany LegSideUint822Entry.decode 2 bytes
+  let (bothLegSides_, bytes) ← decodeMany BothLegSidesEntry.decode 2 bytes
   let (legPx_, bytes) ← decodeMany LegPxEntry.decode 2 bytes
-  let (legQtyUint1624_, bytes) ← decodeMany LegQtyUint1624Entry.decode 2 bytes
+  let (bothLegQtys_, bytes) ← decodeMany BothLegQtysEntry.decode 2 bytes
   let (orgTransTimeMsgTime, bytes) ← OrgTransTimeMsgTime.decode bytes
   let (transactTimeMsgTime, bytes) ← TransactTimeMsgTime.decode bytes
   let (targetId, bytes) ← decodeUInt 1 bytes
   let (uniqId, bytes) ← decodeUInt 4 bytes
   let (rptSeq, bytes) ← decodeUInt 4 bytes
   let (protocolType, bytes) ← decodeUInt 1 bytes
-  if fits_legSideUint822 : legSideUint822_.length = 2 then
+  if fits_bothLegSides : bothLegSides_.length = 2 then
     if fits_legPx : legPx_.length = 2 then
-      if fits_legQtyUint1624 : legQtyUint1624_.length = 2 then
-        pure ({ statusCodeUint81, execType, cmId, fcmId, orderNo, ordId, userDefine, symSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, legSideUint822 := ⟨legSideUint822_, fits_legSideUint822⟩, legPx := ⟨legPx_, fits_legPx⟩, legQtyUint1624 := ⟨legQtyUint1624_, fits_legQtyUint1624⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType }, bytes)
+      if fits_bothLegQtys : bothLegQtys_.length = 2 then
+        pure ({ statusCode, execType, cmId, fcmId, orderNo, ordId, userDefine, symSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, bothLegSides := ⟨bothLegSides_, fits_bothLegSides⟩, legPx := ⟨legPx_, fits_legPx⟩, bothLegQtys := ⟨bothLegQtys_, fits_bothLegQtys⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType }, bytes)
       else none
     else none
   else none
@@ -1055,16 +1055,16 @@ theorem encode_length_pos (message : OrderStatusReportMessage) : (encode message
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : OrderStatusReportMessage) : (encode message).length ≤ 115 := by
-  have bound_legSideUint822 := message.legSideUint822.length_eq
+  have bound_bothLegSides := message.bothLegSides.length_eq
   have bound_legPx := message.legPx.length_eq
-  have bound_legQtyUint1624 := message.legQtyUint1624.length_eq
+  have bound_bothLegQtys := message.bothLegQtys.length_eq
   unfold encode
   cases message.symSymbolX with
   | symbolNum inner =>
-    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolNum.encode_length]
+    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolNum.encode_length]
     omega
   | symbolText inner =>
-    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolText.encode_length]
+    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolText.encode_length]
     omega
 
 set_option maxRecDepth 4096 in
@@ -1117,11 +1117,11 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegSideUint822Entry.encode LegSideUint822Entry.decode LegSideUint822Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegSidesEntry.encode BothLegSidesEntry.decode BothLegSidesEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeMany_exact 2 LegPxEntry.encode LegPxEntry.decode LegPxEntry.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegQtyUint1624Entry.encode LegQtyUint1624Entry.decode LegQtyUint1624Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegQtysEntry.encode BothLegQtysEntry.decode BothLegQtysEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, OrgTransTimeMsgTime.decode_encode, some_bind]
   dsimp only
@@ -1135,7 +1135,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [dite_eq_left message.legSideUint822.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.legQtyUint1624.length_eq]
+  rw [dite_eq_left message.bothLegSides.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.bothLegQtys.length_eq]
   rfl
 
 end OrderStatusReportMessage
@@ -1144,7 +1144,7 @@ end OrderStatusReportMessage
 structure LongSymbolNum where
   pseq1 : BitVec 16
   pseq2 : BitVec 16
-  legSideUint822 : Exact 2 LegSideUint822Entry
+  bothLegSides : Exact 2 BothLegSidesEntry
   combOp : BitVec 8
   reserved33 : Alpha 33
   deriving DecidableEq, Repr
@@ -1154,23 +1154,23 @@ namespace LongSymbolNum
 def encode (message : LongSymbolNum) : List UInt8 :=
   encodeUInt 2 message.pseq1
     ++ (encodeUInt 2 message.pseq2
-    ++ (encodeMany LegSideUint822Entry.encode message.legSideUint822.val
+    ++ (encodeMany BothLegSidesEntry.encode message.bothLegSides.val
     ++ (encodeUInt 1 message.combOp
     ++ (Alpha.encode message.reserved33))))
 
 def decode (bytes : List UInt8) : Option (LongSymbolNum × List UInt8) := do
   let (pseq1, bytes) ← decodeUInt 2 bytes
   let (pseq2, bytes) ← decodeUInt 2 bytes
-  let (legSideUint822_, bytes) ← decodeMany LegSideUint822Entry.decode 2 bytes
+  let (bothLegSides_, bytes) ← decodeMany BothLegSidesEntry.decode 2 bytes
   let (combOp, bytes) ← decodeUInt 1 bytes
   let (reserved33, bytes) ← Alpha.decode 33 bytes
-  if fits_legSideUint822 : legSideUint822_.length = 2 then
-    pure ({ pseq1, pseq2, legSideUint822 := ⟨legSideUint822_, fits_legSideUint822⟩, combOp, reserved33 }, bytes)
+  if fits_bothLegSides : bothLegSides_.length = 2 then
+    pure ({ pseq1, pseq2, bothLegSides := ⟨bothLegSides_, fits_bothLegSides⟩, combOp, reserved33 }, bytes)
   else none
 
 @[simp] theorem encode_length (message : LongSymbolNum) : (encode message).length = 40 := by
   unfold encode
-  simp only [List.length_append, encodeUInt_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, message.legSideUint822.length_eq, Alpha.encode_length]
+  simp only [List.length_append, encodeUInt_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, message.bothLegSides.length_eq, Alpha.encode_length]
 
 theorem encode_length_pos (message : LongSymbolNum) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1183,30 +1183,30 @@ theorem encode_length_pos (message : LongSymbolNum) : (encode message).length > 
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegSideUint822Entry.encode LegSideUint822Entry.decode LegSideUint822Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegSidesEntry.encode BothLegSidesEntry.decode BothLegSidesEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.legSideUint822.length_eq]
+  rw [dite_eq_left message.bothLegSides.length_eq]
   rfl
 
 end LongSymbolNum
 
 /-- Long Symbol Text: 40 bytes -/
 structure LongSymbolText where
-  symbolChar4040 : Alpha 40
+  longSymbol : Alpha 40
   deriving DecidableEq, Repr
 
 namespace LongSymbolText
 
 def encode (message : LongSymbolText) : List UInt8 :=
-  Alpha.encode message.symbolChar4040
+  Alpha.encode message.longSymbol
 
 def decode (bytes : List UInt8) : Option (LongSymbolText × List UInt8) := do
-  let (symbolChar4040, bytes) ← Alpha.decode 40 bytes
-  pure ({ symbolChar4040 }, bytes)
+  let (longSymbol, bytes) ← Alpha.decode 40 bytes
+  pure ({ longSymbol }, bytes)
 
 @[simp] theorem encode_length (message : LongSymbolText) : (encode message).length = 40 := by
   unfold encode
@@ -1264,7 +1264,7 @@ end SymLongSymbolX
 
 /-- Order Status Report Long Format Message -/
 structure OrderStatusReportLongFormatMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   execType : ExecType
   cmId : BitVec 16
   fcmId : BitVec 16
@@ -1286,9 +1286,9 @@ structure OrderStatusReportLongFormatMessage where
   cumQty : BitVec 16
   leavesQty : BitVec 16
   beforeQty : BitVec 16
-  legSideUint822 : Exact 2 LegSideUint822Entry
+  bothLegSides : Exact 2 BothLegSidesEntry
   legPx : Exact 2 LegPxEntry
-  legQtyUint1624 : Exact 2 LegQtyUint1624Entry
+  bothLegQtys : Exact 2 BothLegQtysEntry
   orgTransTimeMsgTime : OrgTransTimeMsgTime
   transactTimeMsgTime : TransactTimeMsgTime
   targetId : BitVec 8
@@ -1300,7 +1300,7 @@ structure OrderStatusReportLongFormatMessage where
 namespace OrderStatusReportLongFormatMessage
 
 def encode (message : OrderStatusReportLongFormatMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (ExecType.encode message.execType
     ++ (encodeUInt 2 message.cmId
     ++ (encodeUInt 2 message.fcmId
@@ -1323,9 +1323,9 @@ def encode (message : OrderStatusReportLongFormatMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.cumQty
     ++ (encodeUInt 2 message.leavesQty
     ++ (encodeUInt 2 message.beforeQty
-    ++ (encodeMany LegSideUint822Entry.encode message.legSideUint822.val
+    ++ (encodeMany BothLegSidesEntry.encode message.bothLegSides.val
     ++ (encodeMany LegPxEntry.encode message.legPx.val
-    ++ (encodeMany LegQtyUint1624Entry.encode message.legQtyUint1624.val
+    ++ (encodeMany BothLegQtysEntry.encode message.bothLegQtys.val
     ++ (OrgTransTimeMsgTime.encode message.orgTransTimeMsgTime
     ++ (TransactTimeMsgTime.encode message.transactTimeMsgTime
     ++ (encodeUInt 1 message.targetId
@@ -1336,7 +1336,7 @@ def encode (message : OrderStatusReportLongFormatMessage) : List UInt8 :=
 -- a long run of fields nests deeper than the elaborator's default limit
 set_option maxRecDepth 4096 in
 def decode (bytes : List UInt8) : Option (OrderStatusReportLongFormatMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (execType, bytes) ← ExecType.decode bytes
   let (cmId, bytes) ← decodeUInt 2 bytes
   let (fcmId, bytes) ← decodeUInt 2 bytes
@@ -1359,19 +1359,19 @@ def decode (bytes : List UInt8) : Option (OrderStatusReportLongFormatMessage × 
   let (cumQty, bytes) ← decodeUInt 2 bytes
   let (leavesQty, bytes) ← decodeUInt 2 bytes
   let (beforeQty, bytes) ← decodeUInt 2 bytes
-  let (legSideUint822_, bytes) ← decodeMany LegSideUint822Entry.decode 2 bytes
+  let (bothLegSides_, bytes) ← decodeMany BothLegSidesEntry.decode 2 bytes
   let (legPx_, bytes) ← decodeMany LegPxEntry.decode 2 bytes
-  let (legQtyUint1624_, bytes) ← decodeMany LegQtyUint1624Entry.decode 2 bytes
+  let (bothLegQtys_, bytes) ← decodeMany BothLegQtysEntry.decode 2 bytes
   let (orgTransTimeMsgTime, bytes) ← OrgTransTimeMsgTime.decode bytes
   let (transactTimeMsgTime, bytes) ← TransactTimeMsgTime.decode bytes
   let (targetId, bytes) ← decodeUInt 1 bytes
   let (uniqId, bytes) ← decodeUInt 4 bytes
   let (rptSeq, bytes) ← decodeUInt 4 bytes
   let (protocolType, bytes) ← decodeUInt 1 bytes
-  if fits_legSideUint822 : legSideUint822_.length = 2 then
+  if fits_bothLegSides : bothLegSides_.length = 2 then
     if fits_legPx : legPx_.length = 2 then
-      if fits_legQtyUint1624 : legQtyUint1624_.length = 2 then
-        pure ({ statusCodeUint81, execType, cmId, fcmId, orderNo, ordId, userDefine, symLongSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, legSideUint822 := ⟨legSideUint822_, fits_legSideUint822⟩, legPx := ⟨legPx_, fits_legPx⟩, legQtyUint1624 := ⟨legQtyUint1624_, fits_legQtyUint1624⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType }, bytes)
+      if fits_bothLegQtys : bothLegQtys_.length = 2 then
+        pure ({ statusCode, execType, cmId, fcmId, orderNo, ordId, userDefine, symLongSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, bothLegSides := ⟨bothLegSides_, fits_bothLegSides⟩, legPx := ⟨legPx_, fits_legPx⟩, bothLegQtys := ⟨bothLegQtys_, fits_bothLegQtys⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType }, bytes)
       else none
     else none
   else none
@@ -1383,16 +1383,16 @@ theorem encode_length_pos (message : OrderStatusReportLongFormatMessage) : (enco
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : OrderStatusReportLongFormatMessage) : (encode message).length ≤ 135 := by
-  have bound_legSideUint822 := message.legSideUint822.length_eq
+  have bound_bothLegSides := message.bothLegSides.length_eq
   have bound_legPx := message.legPx.length_eq
-  have bound_legQtyUint1624 := message.legQtyUint1624.length_eq
+  have bound_bothLegQtys := message.bothLegQtys.length_eq
   unfold encode
   cases message.symLongSymbolX with
   | longSymbolNum inner =>
-    simp only [SymLongSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, LongSymbolNum.encode_length]
+    simp only [SymLongSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, LongSymbolNum.encode_length]
     omega
   | longSymbolText inner =>
-    simp only [SymLongSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, LongSymbolText.encode_length]
+    simp only [SymLongSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, LongSymbolText.encode_length]
     omega
 
 set_option maxRecDepth 4096 in
@@ -1445,11 +1445,11 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegSideUint822Entry.encode LegSideUint822Entry.decode LegSideUint822Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegSidesEntry.encode BothLegSidesEntry.decode BothLegSidesEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeMany_exact 2 LegPxEntry.encode LegPxEntry.decode LegPxEntry.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegQtyUint1624Entry.encode LegQtyUint1624Entry.decode LegQtyUint1624Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegQtysEntry.encode BothLegQtysEntry.decode BothLegQtysEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, OrgTransTimeMsgTime.decode_encode, some_bind]
   dsimp only
@@ -1463,14 +1463,14 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [dite_eq_left message.legSideUint822.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.legQtyUint1624.length_eq]
+  rw [dite_eq_left message.bothLegSides.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.bothLegQtys.length_eq]
   rfl
 
 end OrderStatusReportLongFormatMessage
 
 /-- Execution Report Including Head Office And Branch Offices Message -/
 structure ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   execType : ExecType
   cmId : BitVec 16
   fcmId : BitVec 16
@@ -1492,9 +1492,9 @@ structure ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage where
   cumQty : BitVec 16
   leavesQty : BitVec 16
   beforeQty : BitVec 16
-  legSideUint822 : Exact 2 LegSideUint822Entry
+  bothLegSides : Exact 2 BothLegSidesEntry
   legPx : Exact 2 LegPxEntry
-  legQtyUint1624 : Exact 2 LegQtyUint1624Entry
+  bothLegQtys : Exact 2 BothLegQtysEntry
   orgTransTimeMsgTime : OrgTransTimeMsgTime
   transactTimeMsgTime : TransactTimeMsgTime
   targetId : BitVec 8
@@ -1507,7 +1507,7 @@ structure ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage where
 namespace ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage
 
 def encode (message : ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (ExecType.encode message.execType
     ++ (encodeUInt 2 message.cmId
     ++ (encodeUInt 2 message.fcmId
@@ -1530,9 +1530,9 @@ def encode (message : ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage)
     ++ (encodeUInt 2 message.cumQty
     ++ (encodeUInt 2 message.leavesQty
     ++ (encodeUInt 2 message.beforeQty
-    ++ (encodeMany LegSideUint822Entry.encode message.legSideUint822.val
+    ++ (encodeMany BothLegSidesEntry.encode message.bothLegSides.val
     ++ (encodeMany LegPxEntry.encode message.legPx.val
-    ++ (encodeMany LegQtyUint1624Entry.encode message.legQtyUint1624.val
+    ++ (encodeMany BothLegQtysEntry.encode message.bothLegQtys.val
     ++ (OrgTransTimeMsgTime.encode message.orgTransTimeMsgTime
     ++ (TransactTimeMsgTime.encode message.transactTimeMsgTime
     ++ (encodeUInt 1 message.targetId
@@ -1544,7 +1544,7 @@ def encode (message : ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage)
 -- a long run of fields nests deeper than the elaborator's default limit
 set_option maxRecDepth 4096 in
 def decode (bytes : List UInt8) : Option (ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (execType, bytes) ← ExecType.decode bytes
   let (cmId, bytes) ← decodeUInt 2 bytes
   let (fcmId, bytes) ← decodeUInt 2 bytes
@@ -1567,9 +1567,9 @@ def decode (bytes : List UInt8) : Option (ExecutionReportIncludingHeadOfficeAndB
   let (cumQty, bytes) ← decodeUInt 2 bytes
   let (leavesQty, bytes) ← decodeUInt 2 bytes
   let (beforeQty, bytes) ← decodeUInt 2 bytes
-  let (legSideUint822_, bytes) ← decodeMany LegSideUint822Entry.decode 2 bytes
+  let (bothLegSides_, bytes) ← decodeMany BothLegSidesEntry.decode 2 bytes
   let (legPx_, bytes) ← decodeMany LegPxEntry.decode 2 bytes
-  let (legQtyUint1624_, bytes) ← decodeMany LegQtyUint1624Entry.decode 2 bytes
+  let (bothLegQtys_, bytes) ← decodeMany BothLegQtysEntry.decode 2 bytes
   let (orgTransTimeMsgTime, bytes) ← OrgTransTimeMsgTime.decode bytes
   let (transactTimeMsgTime, bytes) ← TransactTimeMsgTime.decode bytes
   let (targetId, bytes) ← decodeUInt 1 bytes
@@ -1577,10 +1577,10 @@ def decode (bytes : List UInt8) : Option (ExecutionReportIncludingHeadOfficeAndB
   let (rptSeq, bytes) ← decodeUInt 4 bytes
   let (protocolType, bytes) ← decodeUInt 1 bytes
   let (rptSessionId, bytes) ← decodeUInt 2 bytes
-  if fits_legSideUint822 : legSideUint822_.length = 2 then
+  if fits_bothLegSides : bothLegSides_.length = 2 then
     if fits_legPx : legPx_.length = 2 then
-      if fits_legQtyUint1624 : legQtyUint1624_.length = 2 then
-        pure ({ statusCodeUint81, execType, cmId, fcmId, orderNo, ordId, userDefine, symSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, legSideUint822 := ⟨legSideUint822_, fits_legSideUint822⟩, legPx := ⟨legPx_, fits_legPx⟩, legQtyUint1624 := ⟨legQtyUint1624_, fits_legQtyUint1624⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType, rptSessionId }, bytes)
+      if fits_bothLegQtys : bothLegQtys_.length = 2 then
+        pure ({ statusCode, execType, cmId, fcmId, orderNo, ordId, userDefine, symSymbolX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, bothLegSides := ⟨bothLegSides_, fits_bothLegSides⟩, legPx := ⟨legPx_, fits_legPx⟩, bothLegQtys := ⟨bothLegQtys_, fits_bothLegQtys⟩, orgTransTimeMsgTime, transactTimeMsgTime, targetId, uniqId, rptSeq, protocolType, rptSessionId }, bytes)
       else none
     else none
   else none
@@ -1592,16 +1592,16 @@ theorem encode_length_pos (message : ExecutionReportIncludingHeadOfficeAndBranch
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage) : (encode message).length ≤ 117 := by
-  have bound_legSideUint822 := message.legSideUint822.length_eq
+  have bound_bothLegSides := message.bothLegSides.length_eq
   have bound_legPx := message.legPx.length_eq
-  have bound_legQtyUint1624 := message.legQtyUint1624.length_eq
+  have bound_bothLegQtys := message.bothLegQtys.length_eq
   unfold encode
   cases message.symSymbolX with
   | symbolNum inner =>
-    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolNum.encode_length]
+    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolNum.encode_length]
     omega
   | symbolText inner =>
-    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const LegSideUint822Entry.encode 1 LegSideUint822Entry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const LegQtyUint1624Entry.encode 2 LegQtyUint1624Entry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolText.encode_length]
+    simp only [SymSymbolX.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, ExecType.encode_length, Alpha.encode_length, PositionEffect.encode_length, encodeMany_length_const BothLegSidesEntry.encode 1 BothLegSidesEntry.encode_length, encodeMany_length_const LegPxEntry.encode 4 LegPxEntry.encode_length, encodeMany_length_const BothLegQtysEntry.encode 2 BothLegQtysEntry.encode_length, OrgTransTimeMsgTime.encode_length, TransactTimeMsgTime.encode_length, SymbolText.encode_length]
     omega
 
 set_option maxRecDepth 4096 in
@@ -1654,11 +1654,11 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegSideUint822Entry.encode LegSideUint822Entry.decode LegSideUint822Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegSidesEntry.encode BothLegSidesEntry.decode BothLegSidesEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeMany_exact 2 LegPxEntry.encode LegPxEntry.decode LegPxEntry.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeMany_exact 2 LegQtyUint1624Entry.encode LegQtyUint1624Entry.decode LegQtyUint1624Entry.decode_encode, some_bind]
+  rw [List.append_assoc, decodeMany_exact 2 BothLegQtysEntry.encode BothLegQtysEntry.decode BothLegQtysEntry.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, OrgTransTimeMsgTime.decode_encode, some_bind]
   dsimp only
@@ -1674,7 +1674,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [dite_eq_left message.legSideUint822.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.legQtyUint1624.length_eq]
+  rw [dite_eq_left message.bothLegSides.length_eq, dite_eq_left message.legPx.length_eq, dite_eq_left message.bothLegQtys.length_eq]
   rfl
 
 end ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage
@@ -1772,22 +1772,22 @@ end LegSymSymbolNumX
 /-- Leg Entry Num: 7 bytes -/
 structure LegEntryNum where
   legSymSymbolNumX : LegSymSymbolNumX
-  legSideUint81 : BitVec 8
-  legQtyUint162 : BitVec 16
+  legSide : BitVec 8
+  legQty : BitVec 16
   deriving DecidableEq, Repr
 
 namespace LegEntryNum
 
 def encode (message : LegEntryNum) : List UInt8 :=
   LegSymSymbolNumX.encode message.legSymSymbolNumX
-    ++ (encodeUInt 1 message.legSideUint81
-    ++ (encodeUInt 2 message.legQtyUint162))
+    ++ (encodeUInt 1 message.legSide
+    ++ (encodeUInt 2 message.legQty))
 
 def decode (bytes : List UInt8) : Option (LegEntryNum × List UInt8) := do
   let (legSymSymbolNumX, bytes) ← LegSymSymbolNumX.decode bytes
-  let (legSideUint81, bytes) ← decodeUInt 1 bytes
-  let (legQtyUint162, bytes) ← decodeUInt 2 bytes
-  pure ({ legSymSymbolNumX, legSideUint81, legQtyUint162 }, bytes)
+  let (legSide, bytes) ← decodeUInt 1 bytes
+  let (legQty, bytes) ← decodeUInt 2 bytes
+  pure ({ legSymSymbolNumX, legSide, legQty }, bytes)
 
 @[simp] theorem encode_length (message : LegEntryNum) : (encode message).length = 7 := by
   unfold encode
@@ -1889,22 +1889,22 @@ end LegSymSymbolTxtX
 /-- Leg Entry Txt: 23 bytes -/
 structure LegEntryTxt where
   legSymSymbolTxtX : LegSymSymbolTxtX
-  legSideUint81 : BitVec 8
-  legQtyUint162 : BitVec 16
+  legSide : BitVec 8
+  legQty : BitVec 16
   deriving DecidableEq, Repr
 
 namespace LegEntryTxt
 
 def encode (message : LegEntryTxt) : List UInt8 :=
   LegSymSymbolTxtX.encode message.legSymSymbolTxtX
-    ++ (encodeUInt 1 message.legSideUint81
-    ++ (encodeUInt 2 message.legQtyUint162))
+    ++ (encodeUInt 1 message.legSide
+    ++ (encodeUInt 2 message.legQty))
 
 def decode (bytes : List UInt8) : Option (LegEntryTxt × List UInt8) := do
   let (legSymSymbolTxtX, bytes) ← LegSymSymbolTxtX.decode bytes
-  let (legSideUint81, bytes) ← decodeUInt 1 bytes
-  let (legQtyUint162, bytes) ← decodeUInt 2 bytes
-  pure ({ legSymSymbolTxtX, legSideUint81, legQtyUint162 }, bytes)
+  let (legSide, bytes) ← decodeUInt 1 bytes
+  let (legQty, bytes) ← decodeUInt 2 bytes
+  pure ({ legSymSymbolTxtX, legSide, legQty }, bytes)
 
 @[simp] theorem encode_length (message : LegEntryTxt) : (encode message).length = 23 := by
   unfold encode
@@ -2029,20 +2029,20 @@ end SymFlexProductX
 
 /-- Org Trans Time Msg Time X: 8 bytes -/
 structure OrgTransTimeMsgTimeX where
-  epochSUint324 : BitVec 32
+  msgTimeXEpochS : BitVec 32
   nanosecond : BitVec 32
   deriving DecidableEq, Repr
 
 namespace OrgTransTimeMsgTimeX
 
 def encode (message : OrgTransTimeMsgTimeX) : List UInt8 :=
-  encodeUInt 4 message.epochSUint324
+  encodeUInt 4 message.msgTimeXEpochS
     ++ (encodeUInt 4 message.nanosecond)
 
 def decode (bytes : List UInt8) : Option (OrgTransTimeMsgTimeX × List UInt8) := do
-  let (epochSUint324, bytes) ← decodeUInt 4 bytes
+  let (msgTimeXEpochS, bytes) ← decodeUInt 4 bytes
   let (nanosecond, bytes) ← decodeUInt 4 bytes
-  pure ({ epochSUint324, nanosecond }, bytes)
+  pure ({ msgTimeXEpochS, nanosecond }, bytes)
 
 @[simp] theorem encode_length (message : OrgTransTimeMsgTimeX) : (encode message).length = 8 := by
   unfold encode
@@ -2064,20 +2064,20 @@ end OrgTransTimeMsgTimeX
 
 /-- Transact Time Msg Time X: 8 bytes -/
 structure TransactTimeMsgTimeX where
-  epochSUint324 : BitVec 32
+  msgTimeXEpochS : BitVec 32
   nanosecond : BitVec 32
   deriving DecidableEq, Repr
 
 namespace TransactTimeMsgTimeX
 
 def encode (message : TransactTimeMsgTimeX) : List UInt8 :=
-  encodeUInt 4 message.epochSUint324
+  encodeUInt 4 message.msgTimeXEpochS
     ++ (encodeUInt 4 message.nanosecond)
 
 def decode (bytes : List UInt8) : Option (TransactTimeMsgTimeX × List UInt8) := do
-  let (epochSUint324, bytes) ← decodeUInt 4 bytes
+  let (msgTimeXEpochS, bytes) ← decodeUInt 4 bytes
   let (nanosecond, bytes) ← decodeUInt 4 bytes
-  pure ({ epochSUint324, nanosecond }, bytes)
+  pure ({ msgTimeXEpochS, nanosecond }, bytes)
 
 @[simp] theorem encode_length (message : TransactTimeMsgTimeX) : (encode message).length = 8 := by
   unfold encode
@@ -2103,7 +2103,7 @@ structure FlexOrderStatusReportMessage where
   msgTimeNs : BitVec 32
   partId : BitVec 8
   noLeg : BitVec 8
-  statusCodeUint162 : BitVec 16
+  wideStatusCode : BitVec 16
   execType : ExecType
   cmId : BitVec 16
   fcmId : BitVec 16
@@ -2143,7 +2143,7 @@ def encode (message : FlexOrderStatusReportMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.msgTimeNs
     ++ (encodeUInt 1 message.partId
     ++ (encodeUInt 1 message.noLeg
-    ++ (encodeUInt 2 message.statusCodeUint162
+    ++ (encodeUInt 2 message.wideStatusCode
     ++ (ExecType.encode message.execType
     ++ (encodeUInt 2 message.cmId
     ++ (encodeUInt 2 message.fcmId
@@ -2182,7 +2182,7 @@ def decode (bytes : List UInt8) : Option (FlexOrderStatusReportMessage × List U
   let (msgTimeNs, bytes) ← decodeUInt 4 bytes
   let (partId, bytes) ← decodeUInt 1 bytes
   let (noLeg, bytes) ← decodeUInt 1 bytes
-  let (statusCodeUint162, bytes) ← decodeUInt 2 bytes
+  let (wideStatusCode, bytes) ← decodeUInt 2 bytes
   let (execType, bytes) ← ExecType.decode bytes
   let (cmId, bytes) ← decodeUInt 2 bytes
   let (fcmId, bytes) ← decodeUInt 2 bytes
@@ -2212,7 +2212,7 @@ def decode (bytes : List UInt8) : Option (FlexOrderStatusReportMessage × List U
   let (rptSessionId, bytes) ← decodeUInt 2 bytes
   let (rptSessionSeq, bytes) ← decodeUInt 4 bytes
   let (reserved12, bytes) ← Alpha.decode 12 bytes
-  pure ({ preserve, msgTimeNs, partId, noLeg, statusCodeUint162, execType, cmId, fcmId, orderNo, ordId, userDefine, symFlexProductX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, orgTransTimeMsgTimeX, transactTimeMsgTimeX, targetId, uniqId, rptSeq, rptSessionId, rptSessionSeq, reserved12 }, bytes)
+  pure ({ preserve, msgTimeNs, partId, noLeg, wideStatusCode, execType, cmId, fcmId, orderNo, ordId, userDefine, symFlexProductX, price, qty, investorAcno, investorFlag, side, ordType, timeInForce, positionEffect, lastPx, lastQty, pxSubtotal, cumQty, leavesQty, beforeQty, orgTransTimeMsgTimeX, transactTimeMsgTimeX, targetId, uniqId, rptSeq, rptSessionId, rptSessionSeq, reserved12 }, bytes)
 
 theorem encode_length_pos (message : FlexOrderStatusReportMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2357,7 +2357,7 @@ end ClearingMemberInitiateOperationMessage
 
 /-- Clearing Member Initiate Operation Confirmed Message: 8 bytes -/
 structure ClearingMemberInitiateOperationConfirmedMessage where
-  statusCodeUint81 : BitVec 8
+  statusCode : BitVec 8
   memberId : BitVec 16
   targetId : BitVec 8
   reqCmSeq : BitVec 32
@@ -2366,17 +2366,17 @@ structure ClearingMemberInitiateOperationConfirmedMessage where
 namespace ClearingMemberInitiateOperationConfirmedMessage
 
 def encode (message : ClearingMemberInitiateOperationConfirmedMessage) : List UInt8 :=
-  encodeUInt 1 message.statusCodeUint81
+  encodeUInt 1 message.statusCode
     ++ (encodeUInt 2 message.memberId
     ++ (encodeUInt 1 message.targetId
     ++ (encodeUInt 4 message.reqCmSeq)))
 
 def decode (bytes : List UInt8) : Option (ClearingMemberInitiateOperationConfirmedMessage × List UInt8) := do
-  let (statusCodeUint81, bytes) ← decodeUInt 1 bytes
+  let (statusCode, bytes) ← decodeUInt 1 bytes
   let (memberId, bytes) ← decodeUInt 2 bytes
   let (targetId, bytes) ← decodeUInt 1 bytes
   let (reqCmSeq, bytes) ← decodeUInt 4 bytes
-  pure ({ statusCodeUint81, memberId, targetId, reqCmSeq }, bytes)
+  pure ({ statusCode, memberId, targetId, reqCmSeq }, bytes)
 
 @[simp] theorem encode_length (message : ClearingMemberInitiateOperationConfirmedMessage) : (encode message).length = 8 := by
   unfold encode
@@ -2454,7 +2454,7 @@ end FlexClearingMemberInitiateOperationMessage
 structure FlexClearingMemberInitiateOperationConfirmedMessage where
   subHdr : SubHdr
   partId : BitVec 8
-  statusCodeUint162 : BitVec 16
+  wideStatusCode : BitVec 16
   memberId : BitVec 16
   targetId : BitVec 8
   reqCmSeq : BitVec 32
@@ -2466,7 +2466,7 @@ namespace FlexClearingMemberInitiateOperationConfirmedMessage
 def encode (message : FlexClearingMemberInitiateOperationConfirmedMessage) : List UInt8 :=
   SubHdr.encode message.subHdr
     ++ (encodeUInt 1 message.partId
-    ++ (encodeUInt 2 message.statusCodeUint162
+    ++ (encodeUInt 2 message.wideStatusCode
     ++ (encodeUInt 2 message.memberId
     ++ (encodeUInt 1 message.targetId
     ++ (encodeUInt 4 message.reqCmSeq
@@ -2475,12 +2475,12 @@ def encode (message : FlexClearingMemberInitiateOperationConfirmedMessage) : Lis
 def decode (bytes : List UInt8) : Option (FlexClearingMemberInitiateOperationConfirmedMessage × List UInt8) := do
   let (subHdr, bytes) ← SubHdr.decode bytes
   let (partId, bytes) ← decodeUInt 1 bytes
-  let (statusCodeUint162, bytes) ← decodeUInt 2 bytes
+  let (wideStatusCode, bytes) ← decodeUInt 2 bytes
   let (memberId, bytes) ← decodeUInt 2 bytes
   let (targetId, bytes) ← decodeUInt 1 bytes
   let (reqCmSeq, bytes) ← decodeUInt 4 bytes
   let (reserved16, bytes) ← Alpha.decode 16 bytes
-  pure ({ subHdr, partId, statusCodeUint162, memberId, targetId, reqCmSeq, reserved16 }, bytes)
+  pure ({ subHdr, partId, wideStatusCode, memberId, targetId, reqCmSeq, reserved16 }, bytes)
 
 @[simp] theorem encode_length (message : FlexClearingMemberInitiateOperationConfirmedMessage) : (encode message).length = 32 := by
   unfold encode

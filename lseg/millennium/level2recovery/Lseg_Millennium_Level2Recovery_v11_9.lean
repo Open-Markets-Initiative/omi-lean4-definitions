@@ -556,6 +556,36 @@ def decode (bytes : List UInt8) : Option (LogoutRequestMessage × List UInt8) :=
 
 end LogoutRequestMessage
 
+/-- Time Message: 4 bytes -/
+structure TimeMessage where
+  seconds : BitVec 32
+  deriving DecidableEq, Repr
+
+namespace TimeMessage
+
+def encode (message : TimeMessage) : List UInt8 :=
+  encodeUIntLE 4 message.seconds
+
+def decode (bytes : List UInt8) : Option (TimeMessage × List UInt8) := do
+  let (seconds, bytes) ← decodeUIntLE 4 bytes
+  pure ({ seconds }, bytes)
+
+@[simp] theorem encode_length (message : TimeMessage) : (encode message).length = 4 := by
+  unfold encode
+  simp only [encodeUIntLE_length]
+
+theorem encode_length_pos (message : TimeMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : TimeMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end TimeMessage
+
 /-- Symbol Status Message: 26 bytes -/
 structure SymbolStatusMessage where
   nanosecond : BitVec 32
@@ -789,6 +819,7 @@ inductive Payload where
   | snapshotResponseMessage (message : SnapshotResponseMessage) -- 130
   | snapshotCompleteMessage (message : SnapshotCompleteMessage) -- 131
   | logoutRequestMessage (message : LogoutRequestMessage) -- 5
+  | timeMessage (message : TimeMessage) -- 84
   | symbolStatusMessage (message : SymbolStatusMessage) -- 72
   | addOrderMessage (message : AddOrderMessage) -- 65
   | addAttributedOrderMessage (message : AddAttributedOrderMessage) -- 70
@@ -804,6 +835,7 @@ def tag : Payload → BitVec 8
   | .snapshotResponseMessage _ => 130
   | .snapshotCompleteMessage _ => 131
   | .logoutRequestMessage _ => 5
+  | .timeMessage _ => 84
   | .symbolStatusMessage _ => 72
   | .addOrderMessage _ => 65
   | .addAttributedOrderMessage _ => 70
@@ -815,6 +847,7 @@ def encode : Payload → List UInt8
   | .snapshotResponseMessage message => SnapshotResponseMessage.encode message
   | .snapshotCompleteMessage message => SnapshotCompleteMessage.encode message
   | .logoutRequestMessage message => LogoutRequestMessage.encode message
+  | .timeMessage message => TimeMessage.encode message
   | .symbolStatusMessage message => SymbolStatusMessage.encode message
   | .addOrderMessage message => AddOrderMessage.encode message
   | .addAttributedOrderMessage message => AddAttributedOrderMessage.encode message
@@ -840,6 +873,9 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 43 :=
   | logoutRequestMessage inner =>
     simp only [encode, LogoutRequestMessage.encode_length]
     omega
+  | timeMessage inner =>
+    simp only [encode, TimeMessage.encode_length]
+    omega
   | symbolStatusMessage inner =>
     simp only [encode, SymbolStatusMessage.encode_length]
     omega
@@ -857,6 +893,7 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8
   else if tag = 130 then (SnapshotResponseMessage.decode bytes).map fun (message, rest) => (.snapshotResponseMessage message, rest)
   else if tag = 131 then (SnapshotCompleteMessage.decode bytes).map fun (message, rest) => (.snapshotCompleteMessage message, rest)
   else if tag = 5 then (LogoutRequestMessage.decode bytes).map fun (message, rest) => (.logoutRequestMessage message, rest)
+  else if tag = 84 then (TimeMessage.decode bytes).map fun (message, rest) => (.timeMessage message, rest)
   else if tag = 72 then (SymbolStatusMessage.decode bytes).map fun (message, rest) => (.symbolStatusMessage message, rest)
   else if tag = 65 then (AddOrderMessage.decode bytes).map fun (message, rest) => (.addOrderMessage message, rest)
   else if tag = 70 then (AddAttributedOrderMessage.decode bytes).map fun (message, rest) => (.addAttributedOrderMessage message, rest)
@@ -913,6 +950,9 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
   | logoutRequestMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, LogoutRequestMessage.encode_length]
+    omega
+  | timeMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, TimeMessage.encode_length]
     omega
   | symbolStatusMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, SymbolStatusMessage.encode_length]
