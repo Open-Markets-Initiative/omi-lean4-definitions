@@ -66,20 +66,20 @@ def encode (message : RetransmissionRequestMessage) : List UInt8 :=
   encodeUIntLE 4 message.beginSeqNum
     ++ (encodeUIntLE 4 message.endSeqNum
     ++ (Alpha.encode message.sourceId
-    ++ (encodeUIntLE 1 message.productId
-    ++ (encodeUIntLE 1 message.channelId))))
+    ++ (encodeUInt 1 message.productId
+    ++ (encodeUInt 1 message.channelId))))
 
 def decode (bytes : List UInt8) : Option (RetransmissionRequestMessage × List UInt8) := do
   let (beginSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (endSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (sourceId, bytes) ← Alpha.decode 10 bytes
-  let (productId, bytes) ← decodeUIntLE 1 bytes
-  let (channelId, bytes) ← decodeUIntLE 1 bytes
+  let (productId, bytes) ← decodeUInt 1 bytes
+  let (channelId, bytes) ← decodeUInt 1 bytes
   pure ({ beginSeqNum, endSeqNum, sourceId, productId, channelId }, bytes)
 
 @[simp] theorem encode_length (message : RetransmissionRequestMessage) : (encode message).length = 20 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : RetransmissionRequestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -94,9 +94,9 @@ theorem encode_length_pos (message : RetransmissionRequestMessage) : (encode mes
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end RetransmissionRequestMessage
@@ -145,21 +145,21 @@ namespace SymbolIndexMappingRequestMessage
 def encode (message : SymbolIndexMappingRequestMessage) : List UInt8 :=
   encodeUIntLE 4 message.symbolIndex
     ++ (Alpha.encode message.sourceId
-    ++ (encodeUIntLE 1 message.productId
-    ++ (encodeUIntLE 1 message.channelId
-    ++ (encodeUIntLE 1 message.retransmitMethod))))
+    ++ (encodeUInt 1 message.productId
+    ++ (encodeUInt 1 message.channelId
+    ++ (encodeUInt 1 message.retransmitMethod))))
 
 def decode (bytes : List UInt8) : Option (SymbolIndexMappingRequestMessage × List UInt8) := do
   let (symbolIndex, bytes) ← decodeUIntLE 4 bytes
   let (sourceId, bytes) ← Alpha.decode 10 bytes
-  let (productId, bytes) ← decodeUIntLE 1 bytes
-  let (channelId, bytes) ← decodeUIntLE 1 bytes
-  let (retransmitMethod, bytes) ← decodeUIntLE 1 bytes
+  let (productId, bytes) ← decodeUInt 1 bytes
+  let (channelId, bytes) ← decodeUInt 1 bytes
+  let (retransmitMethod, bytes) ← decodeUInt 1 bytes
   pure ({ symbolIndex, sourceId, productId, channelId, retransmitMethod }, bytes)
 
 @[simp] theorem encode_length (message : SymbolIndexMappingRequestMessage) : (encode message).length = 17 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : SymbolIndexMappingRequestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -172,11 +172,11 @@ theorem encode_length_pos (message : SymbolIndexMappingRequestMessage) : (encode
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end SymbolIndexMappingRequestMessage
@@ -194,19 +194,19 @@ namespace RefreshRequestMessage
 def encode (message : RefreshRequestMessage) : List UInt8 :=
   encodeUIntLE 4 message.symbolIndex
     ++ (Alpha.encode message.sourceId
-    ++ (encodeUIntLE 1 message.productId
-    ++ (encodeUIntLE 1 message.channelId)))
+    ++ (encodeUInt 1 message.productId
+    ++ (encodeUInt 1 message.channelId)))
 
 def decode (bytes : List UInt8) : Option (RefreshRequestMessage × List UInt8) := do
   let (symbolIndex, bytes) ← decodeUIntLE 4 bytes
   let (sourceId, bytes) ← Alpha.decode 10 bytes
-  let (productId, bytes) ← decodeUIntLE 1 bytes
-  let (channelId, bytes) ← decodeUIntLE 1 bytes
+  let (productId, bytes) ← decodeUInt 1 bytes
+  let (channelId, bytes) ← decodeUInt 1 bytes
   pure ({ symbolIndex, sourceId, productId, channelId }, bytes)
 
 @[simp] theorem encode_length (message : RefreshRequestMessage) : (encode message).length = 16 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : RefreshRequestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -219,9 +219,9 @@ theorem encode_length_pos (message : RefreshRequestMessage) : (encode message).l
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end RefreshRequestMessage
@@ -350,16 +350,16 @@ namespace ClientPacket
 
 def encode (message : ClientPacket) : List UInt8 :=
   encodeUIntLE 2 message.pktSize
-    ++ (encodeUIntLE 1 message.deliveryFlag
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.clientMessage.val.length)
+    ++ (encodeUInt 1 message.deliveryFlag
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.clientMessage.val.length)
     ++ (encodeUIntLE 4 message.seqNum
     ++ (SendTime.encode message.sendTime
     ++ (encodeMany ClientMessage.encode message.clientMessage.val)))))
 
 def decode (bytes : List UInt8) : Option (ClientPacket × List UInt8) := do
   let (pktSize, bytes) ← decodeUIntLE 2 bytes
-  let (deliveryFlag, bytes) ← decodeUIntLE 1 bytes
-  let (numberMsgs, bytes) ← decodeUIntLE 1 bytes
+  let (deliveryFlag, bytes) ← decodeUInt 1 bytes
+  let (numberMsgs, bytes) ← decodeUInt 1 bytes
   let (seqNum, bytes) ← decodeUIntLE 4 bytes
   let (sendTime, bytes) ← SendTime.decode bytes
   let (clientMessage_, bytes) ← decodeMany ClientMessage.decode numberMsgs.toNat bytes
@@ -377,9 +377,9 @@ theorem encode_length_pos (message : ClientPacket) : (encode message).length > 0
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

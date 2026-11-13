@@ -611,23 +611,23 @@ def encode (message : InstrumentStatusMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.instrument
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (TradingStatus.encode message.tradingStatus
-    ++ (encodeUIntLE 1 message.sessionChangeReason
+    ++ (encodeUInt 1 message.sessionChangeReason
     ++ (Alpha.encode message.newEndTime
-    ++ (encodeUIntLE 1 message.orderBookType))))))
+    ++ (encodeUInt 1 message.orderBookType))))))
 
 def decode (bytes : List UInt8) : Option (InstrumentStatusMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (tradingStatus, bytes) ← TradingStatus.decode bytes
-  let (sessionChangeReason, bytes) ← decodeUIntLE 1 bytes
+  let (sessionChangeReason, bytes) ← decodeUInt 1 bytes
   let (newEndTime, bytes) ← Alpha.decode 6 bytes
-  let (orderBookType, bytes) ← decodeUIntLE 1 bytes
+  let (orderBookType, bytes) ← decodeUInt 1 bytes
   pure ({ timestamp, instrument, sourceVenue, tradingStatus, sessionChangeReason, newEndTime, orderBookType }, bytes)
 
 @[simp] theorem encode_length (message : InstrumentStatusMessage) : (encode message).length = 27 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, TradingStatus.encode_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, TradingStatus.encode_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : InstrumentStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -644,11 +644,11 @@ theorem encode_length_pos (message : InstrumentStatusMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, TradingStatus.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end InstrumentStatusMessage
@@ -680,9 +680,9 @@ def encode (message : AddOrderIncrementalMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 8 message.transactionTime
     ++ (encodeUIntLE 2 message.sourceVenue
-    ++ (encodeUIntLE 1 message.orderBookType
+    ++ (encodeUInt 1 message.orderBookType
     ++ (Alpha.encode message.participant
-    ++ (encodeUIntLE 1 message.orderType
+    ++ (encodeUInt 1 message.orderType
     ++ (Alpha.encode message.rfqId)))))))))))
 
 def decode (bytes : List UInt8) : Option (AddOrderIncrementalMessage × List UInt8) := do
@@ -694,15 +694,15 @@ def decode (bytes : List UInt8) : Option (AddOrderIncrementalMessage × List UIn
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (transactionTime, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
-  let (orderBookType, bytes) ← decodeUIntLE 1 bytes
+  let (orderBookType, bytes) ← decodeUInt 1 bytes
   let (participant, bytes) ← Alpha.decode 11 bytes
-  let (orderType, bytes) ← decodeUIntLE 1 bytes
+  let (orderType, bytes) ← decodeUInt 1 bytes
   let (rfqId, bytes) ← Alpha.decode 10 bytes
   pure ({ timestamp, orderId, side, size, instrument, price, transactionTime, sourceVenue, orderBookType, participant, orderType, rfqId }, bytes)
 
 @[simp] theorem encode_length (message : AddOrderIncrementalMessage) : (encode message).length = 74 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : AddOrderIncrementalMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -727,11 +727,11 @@ theorem encode_length_pos (message : AddOrderIncrementalMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -763,7 +763,7 @@ def encode (message : ModifyOrderMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.instrument
     ++ (Side.encode message.side
     ++ (encodeUIntLE 1 message.orderModifyFlags
-    ++ (encodeUIntLE 1 message.orderBookType
+    ++ (encodeUInt 1 message.orderBookType
     ++ (encodeUIntLE 8 message.newQuantity
     ++ (encodeUIntLE 8 message.newPrice
     ++ (Alpha.encode message.reserved8
@@ -778,7 +778,7 @@ def decode (bytes : List UInt8) : Option (ModifyOrderMessage × List UInt8) := d
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (side, bytes) ← Side.decode bytes
   let (orderModifyFlags, bytes) ← decodeUIntLE 1 bytes
-  let (orderBookType, bytes) ← decodeUIntLE 1 bytes
+  let (orderBookType, bytes) ← decodeUInt 1 bytes
   let (newQuantity, bytes) ← decodeUIntLE 8 bytes
   let (newPrice, bytes) ← decodeUIntLE 8 bytes
   let (reserved8, bytes) ← Alpha.decode 8 bytes
@@ -790,7 +790,7 @@ def decode (bytes : List UInt8) : Option (ModifyOrderMessage × List UInt8) := d
 
 @[simp] theorem encode_length (message : ModifyOrderMessage) : (encode message).length = 77 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : ModifyOrderMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -809,7 +809,7 @@ theorem encode_length_pos (message : ModifyOrderMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -848,7 +848,7 @@ def encode (message : DeleteOrderMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.instrument
     ++ (Side.encode message.side
-    ++ (encodeUIntLE 1 message.orderBookType
+    ++ (encodeUInt 1 message.orderBookType
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (encodeUIntLE 8 message.previousPrice
     ++ (encodeUIntLE 8 message.previousQuantity
@@ -859,7 +859,7 @@ def decode (bytes : List UInt8) : Option (DeleteOrderMessage × List UInt8) := d
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (side, bytes) ← Side.decode bytes
-  let (orderBookType, bytes) ← decodeUIntLE 1 bytes
+  let (orderBookType, bytes) ← decodeUInt 1 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (previousPrice, bytes) ← decodeUIntLE 8 bytes
   let (previousQuantity, bytes) ← decodeUIntLE 8 bytes
@@ -868,7 +868,7 @@ def decode (bytes : List UInt8) : Option (DeleteOrderMessage × List UInt8) := d
 
 @[simp] theorem encode_length (message : DeleteOrderMessage) : (encode message).length = 52 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Side.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : DeleteOrderMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -885,7 +885,7 @@ theorem encode_length_pos (message : DeleteOrderMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, Side.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -912,18 +912,18 @@ def encode (message : OrderBookClearMessage) : List UInt8 :=
   encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 2 message.sourceVenue
     ++ (encodeUIntLE 8 message.instrument
-    ++ (encodeUIntLE 1 message.orderBookType)))
+    ++ (encodeUInt 1 message.orderBookType)))
 
 def decode (bytes : List UInt8) : Option (OrderBookClearMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (sourceVenue, bytes) ← decodeUIntLE 2 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
-  let (orderBookType, bytes) ← decodeUIntLE 1 bytes
+  let (orderBookType, bytes) ← decodeUInt 1 bytes
   pure ({ timestamp, sourceVenue, instrument, orderBookType }, bytes)
 
 @[simp] theorem encode_length (message : OrderBookClearMessage) : (encode message).length = 19 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : OrderBookClearMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -938,7 +938,7 @@ theorem encode_length_pos (message : OrderBookClearMessage) : (encode message).l
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end OrderBookClearMessage
@@ -972,15 +972,15 @@ def encode (message : TradeMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.executedSize
     ++ (encodeUIntLE 8 message.instrument
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 1 message.venueOfExecution
+    ++ (encodeUInt 1 message.venueOfExecution
     ++ (Alpha.encode message.reserved1
     ++ (Alpha.encode message.reserved2
     ++ (Alpha.encode message.reserved4
     ++ (encodeUIntLE 8 message.tradeId
-    ++ (encodeUIntLE 1 message.tradeType
+    ++ (encodeUInt 1 message.tradeType
     ++ (AuctionType.encode message.auctionType
     ++ (encodeUIntLE 1 message.tradeFlags
-    ++ (encodeUIntLE 1 message.hiddenExecutionIndicator
+    ++ (encodeUInt 1 message.hiddenExecutionIndicator
     ++ (TradeQualifier.encode message.tradeQualifier)))))))))))))))
 
 def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
@@ -990,21 +990,21 @@ def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (executedSize, bytes) ← decodeUIntLE 8 bytes
   let (instrument, bytes) ← decodeUIntLE 8 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
-  let (venueOfExecution, bytes) ← decodeUIntLE 1 bytes
+  let (venueOfExecution, bytes) ← decodeUInt 1 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (reserved4, bytes) ← Alpha.decode 4 bytes
   let (tradeId, bytes) ← decodeUIntLE 8 bytes
-  let (tradeType, bytes) ← decodeUIntLE 1 bytes
+  let (tradeType, bytes) ← decodeUInt 1 bytes
   let (auctionType, bytes) ← AuctionType.decode bytes
   let (tradeFlags, bytes) ← decodeUIntLE 1 bytes
-  let (hiddenExecutionIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (hiddenExecutionIndicator, bytes) ← decodeUInt 1 bytes
   let (tradeQualifier, bytes) ← TradeQualifier.decode bytes
   pure ({ timestamp, transactionTime, sourceVenue, executedSize, instrument, price, venueOfExecution, reserved1, reserved2, reserved4, tradeId, tradeType, auctionType, tradeFlags, hiddenExecutionIndicator, tradeQualifier }, bytes)
 
 @[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 63 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, AuctionType.encode_length, TradeQualifier.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, AuctionType.encode_length, TradeQualifier.encode_length]
 
 theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1025,7 +1025,7 @@ theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1035,13 +1035,13 @@ theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, AuctionType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [TradeQualifier.decode_encode, some_bind]
   rfl
@@ -1075,7 +1075,7 @@ def encode (message : TradeCrossMessage) : List UInt8 :=
     ++ (Alpha.encode message.reserved8
     ++ (encodeUIntLE 8 message.tradeId
     ++ (Alpha.encode message.crossId
-    ++ (encodeUIntLE 1 message.crossType
+    ++ (encodeUInt 1 message.crossType
     ++ (encodeUIntLE 1 message.tradeFlags))))))))))
 
 def decode (bytes : List UInt8) : Option (TradeCrossMessage × List UInt8) := do
@@ -1088,13 +1088,13 @@ def decode (bytes : List UInt8) : Option (TradeCrossMessage × List UInt8) := do
   let (reserved8, bytes) ← Alpha.decode 8 bytes
   let (tradeId, bytes) ← decodeUIntLE 8 bytes
   let (crossId, bytes) ← Alpha.decode 20 bytes
-  let (crossType, bytes) ← decodeUIntLE 1 bytes
+  let (crossType, bytes) ← decodeUInt 1 bytes
   let (tradeFlags, bytes) ← decodeUIntLE 1 bytes
   pure ({ timestamp, transactionTime, sourceVenue, executedSize, instrument, price, reserved8, tradeId, crossId, crossType, tradeFlags }, bytes)
 
 @[simp] theorem encode_length (message : TradeCrossMessage) : (encode message).length = 80 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : TradeCrossMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1121,7 +1121,7 @@ theorem encode_length_pos (message : TradeCrossMessage) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -1576,14 +1576,14 @@ namespace Packet
 
 def encode (message : Packet) : List UInt8 :=
   encodeUIntLE 2 message.length
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.message.val.length)
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
     ++ (Alpha.encode message.marketDataGroup
     ++ (encodeUIntLE 4 message.sequenceNumber
     ++ (encodeMany Message.encode message.message.val))))
 
 def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
   let (length, bytes) ← decodeUIntLE 2 bytes
-  let (messageCount, bytes) ← decodeUIntLE 1 bytes
+  let (messageCount, bytes) ← decodeUInt 1 bytes
   let (marketDataGroup, bytes) ← Alpha.decode 1 bytes
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (message_, bytes) ← decodeMany Message.decode messageCount.toNat bytes
@@ -1601,7 +1601,7 @@ theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

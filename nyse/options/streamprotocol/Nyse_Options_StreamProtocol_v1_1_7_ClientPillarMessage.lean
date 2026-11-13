@@ -302,7 +302,7 @@ end SeqMsgId
 /-- Client Seq Msg -/
 structure ClientSeqMsg where
   seqMsgId : SeqMsgId
-  reserved4 : BitVec 32
+  reserved4 : Alpha 4
   timestamp : BitVec 64
   seqMsgType : BitVec 16
   clientSequencedMessage : Counting 2 4 UInt8
@@ -312,7 +312,7 @@ namespace ClientSeqMsg
 
 def encodeBody (message : ClientSeqMsg) : List UInt8 :=
   SeqMsgId.encode message.seqMsgId
-    ++ (encodeUIntLE 4 message.reserved4
+    ++ (Alpha.encode message.reserved4
     ++ (encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 2 message.seqMsgType
     ++ (encodeUIntLE 2 (BitVec.ofNat (8 * 2) (message.clientSequencedMessage.val.length + 4))
@@ -320,7 +320,7 @@ def encodeBody (message : ClientSeqMsg) : List UInt8 :=
 
 def decodeBody (bytes : List UInt8) : Option (ClientSeqMsg × List UInt8) := do
   let (seqMsgId, bytes) ← SeqMsgId.decode bytes
-  let (reserved4, bytes) ← decodeUIntLE 4 bytes
+  let (reserved4, bytes) ← Alpha.decode 4 bytes
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (seqMsgType, bytes) ← decodeUIntLE 2 bytes
   let (seqMsgLength, bytes) ← decodeUIntLE 2 bytes
@@ -334,7 +334,7 @@ theorem decodeBody_encodeBody (message : ClientSeqMsg) (rest : List UInt8) :
   unfold decodeBody encodeBody
   rw [List.append_assoc, SeqMsgId.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

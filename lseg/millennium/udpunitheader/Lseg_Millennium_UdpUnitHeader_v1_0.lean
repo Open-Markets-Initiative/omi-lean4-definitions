@@ -51,18 +51,18 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
 
 /-- Size rule: Message Length counts the bytes after it plus 1, so it is written from the body and checked on decode -/
 def encode : Message → List UInt8 :=
-  encodeFramedLE 1 1 encodeBody
+  encodeFramed 1 1 encodeBody
 
 def decode : List UInt8 → Option (Message × List UInt8) :=
-  decodeFramedAllLE 1 1 decodeBody
+  decodeFramedAll 1 1 decodeBody
 
 @[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) :=
-  decodeFramedAllLE_encodeFramedLE 1 1 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
+  decodeFramedAll_encodeFramed 1 1 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
 theorem encode_length_pos (message : Message) : (encode message).length > 0 := by
   unfold encode
-  rw [encodeFramedLE_length]
+  rw [encodeFramed_length]
   omega
 
 end Message
@@ -79,14 +79,14 @@ namespace Packet
 
 def encode (message : Packet) : List UInt8 :=
   encodeUIntLE 2 message.length
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.message.val.length)
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
     ++ (Alpha.encode message.marketDataGroup
     ++ (encodeUIntLE 4 message.sequenceNumber
     ++ (encodeMany Message.encode message.message.val))))
 
 def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
   let (length, bytes) ← decodeUIntLE 2 bytes
-  let (messageCount, bytes) ← decodeUIntLE 1 bytes
+  let (messageCount, bytes) ← decodeUInt 1 bytes
   let (marketDataGroup, bytes) ← Alpha.decode 1 bytes
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (message_, bytes) ← decodeMany Message.decode messageCount.toNat bytes
@@ -104,7 +104,7 @@ theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

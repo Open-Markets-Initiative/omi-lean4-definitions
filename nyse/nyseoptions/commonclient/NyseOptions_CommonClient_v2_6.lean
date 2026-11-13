@@ -118,16 +118,16 @@ namespace Packet
 
 def encode (message : Packet) : List UInt8 :=
   encodeUIntLE 2 message.pktSize
-    ++ (encodeUIntLE 1 message.deliveryFlag
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.message.val.length)
+    ++ (encodeUInt 1 message.deliveryFlag
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
     ++ (encodeUIntLE 4 message.seqNum
     ++ (SendTime.encode message.sendTime
     ++ (encodeMany Message.encode message.message.val)))))
 
 def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
   let (pktSize, bytes) ← decodeUIntLE 2 bytes
-  let (deliveryFlag, bytes) ← decodeUIntLE 1 bytes
-  let (numberMsgs, bytes) ← decodeUIntLE 1 bytes
+  let (deliveryFlag, bytes) ← decodeUInt 1 bytes
+  let (numberMsgs, bytes) ← decodeUInt 1 bytes
   let (seqNum, bytes) ← decodeUIntLE 4 bytes
   let (sendTime, bytes) ← SendTime.decode bytes
   let (message_, bytes) ← decodeMany Message.decode numberMsgs.toNat bytes
@@ -145,9 +145,9 @@ theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

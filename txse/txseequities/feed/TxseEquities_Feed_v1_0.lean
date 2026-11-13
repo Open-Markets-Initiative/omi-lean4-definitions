@@ -48,18 +48,18 @@ namespace TradingSessionStatusMessage
 def encode (message : TradingSessionStatusMessage) : List UInt8 :=
   encodeUIntLE 1 (message.tradingSessionStatusPresenceBits.val ||| presence (n := 8) 1 message.tradingSessionStatusOperationalHaltReason.isSome ||| presence (n := 8) 2 message.tradingSessionStatusRegulatoryHaltReason.isSome)
     ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.marketHoursState
-    ++ (encodeUIntLE 1 message.sessionTradingState
-    ++ (encodeOptional (encodeUIntLE 1) message.tradingSessionStatusOperationalHaltReason
-    ++ (encodeOptional (encodeUIntLE 1) message.tradingSessionStatusRegulatoryHaltReason)))))
+    ++ (encodeUInt 1 message.marketHoursState
+    ++ (encodeUInt 1 message.sessionTradingState
+    ++ (encodeOptional (encodeUInt 1) message.tradingSessionStatusOperationalHaltReason
+    ++ (encodeOptional (encodeUInt 1) message.tradingSessionStatusRegulatoryHaltReason)))))
 
 def decode (bytes : List UInt8) : Option (TradingSessionStatusMessage × List UInt8) := do
   let (tradingSessionStatusPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (marketHoursState, bytes) ← decodeUIntLE 1 bytes
-  let (sessionTradingState, bytes) ← decodeUIntLE 1 bytes
-  let (tradingSessionStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (tradingSessionStatusPresenceBits_ &&& 1 != 0) bytes
-  let (tradingSessionStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (tradingSessionStatusPresenceBits_ &&& 2 != 0) bytes
+  let (marketHoursState, bytes) ← decodeUInt 1 bytes
+  let (sessionTradingState, bytes) ← decodeUInt 1 bytes
+  let (tradingSessionStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUInt 1) (tradingSessionStatusPresenceBits_ &&& 1 != 0) bytes
+  let (tradingSessionStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUInt 1) (tradingSessionStatusPresenceBits_ &&& 2 != 0) bytes
   if fits_tradingSessionStatusPresenceBits : (tradingSessionStatusPresenceBits_ &&& 252) &&& 3 = 0 then
     pure ({ tradingSessionStatusPresenceBits := ⟨tradingSessionStatusPresenceBits_ &&& 252, fits_tradingSessionStatusPresenceBits⟩, transactTime, marketHoursState, sessionTradingState, tradingSessionStatusOperationalHaltReason, tradingSessionStatusRegulatoryHaltReason }, bytes)
   else none
@@ -92,15 +92,15 @@ theorem encode_length_pos (message : TradingSessionStatusMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_tradingSessionStatusOperationalHaltReason]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_tradingSessionStatusRegulatoryHaltReason]
-  rw [decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [dite_eq_left (by rw [carried_tradingSessionStatusPresenceBits]; exact message.tradingSessionStatusPresenceBits.property)]
   simp only [carried_tradingSessionStatusPresenceBits]
@@ -127,25 +127,25 @@ def encode (message : DefineSymbolMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.symbolId
     ++ (Alpha.encode message.symbol
     ++ (Alpha.encode message.suffix
-    ++ (encodeUIntLE 1 message.matchingEngineId
+    ++ (encodeUInt 1 message.matchingEngineId
     ++ (encodeUIntLE 1 message.defineSymbolBitFields
     ++ (encodeUIntLE 4 message.lotSize
-    ++ (encodeUIntLE 1 message.listingMarket)))))))
+    ++ (encodeUInt 1 message.listingMarket)))))))
 
 def decode (bytes : List UInt8) : Option (DefineSymbolMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
   let (symbol, bytes) ← Alpha.decode 8 bytes
   let (suffix, bytes) ← Alpha.decode 8 bytes
-  let (matchingEngineId, bytes) ← decodeUIntLE 1 bytes
+  let (matchingEngineId, bytes) ← decodeUInt 1 bytes
   let (defineSymbolBitFields, bytes) ← decodeUIntLE 1 bytes
   let (lotSize, bytes) ← decodeUIntLE 4 bytes
-  let (listingMarket, bytes) ← decodeUIntLE 1 bytes
+  let (listingMarket, bytes) ← decodeUInt 1 bytes
   pure ({ transactTime, symbolId, symbol, suffix, matchingEngineId, defineSymbolBitFields, lotSize, listingMarket }, bytes)
 
 @[simp] theorem encode_length (message : DefineSymbolMessage) : (encode message).length = 33 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : DefineSymbolMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -162,13 +162,13 @@ theorem encode_length_pos (message : DefineSymbolMessage) : (encode message).len
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end DefineSymbolMessage
@@ -190,19 +190,19 @@ def encode (message : SymbolStatusMessage) : List UInt8 :=
   encodeUIntLE 1 (message.symbolStatusPresenceBits.val ||| presence (n := 8) 1 message.symbolStatusOperationalHaltReason.isSome ||| presence (n := 8) 2 message.symbolStatusRegulatoryHaltReason.isSome)
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.symbolTradingState
-    ++ (encodeUIntLE 1 message.shortSaleRestrictionState
-    ++ (encodeOptional (encodeUIntLE 1) message.symbolStatusOperationalHaltReason
-    ++ (encodeOptional (encodeUIntLE 1) message.symbolStatusRegulatoryHaltReason))))))
+    ++ (encodeUInt 1 message.symbolTradingState
+    ++ (encodeUInt 1 message.shortSaleRestrictionState
+    ++ (encodeOptional (encodeUInt 1) message.symbolStatusOperationalHaltReason
+    ++ (encodeOptional (encodeUInt 1) message.symbolStatusRegulatoryHaltReason))))))
 
 def decode (bytes : List UInt8) : Option (SymbolStatusMessage × List UInt8) := do
   let (symbolStatusPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (symbolTradingState, bytes) ← decodeUIntLE 1 bytes
-  let (shortSaleRestrictionState, bytes) ← decodeUIntLE 1 bytes
-  let (symbolStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (symbolStatusPresenceBits_ &&& 1 != 0) bytes
-  let (symbolStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (symbolStatusPresenceBits_ &&& 2 != 0) bytes
+  let (symbolTradingState, bytes) ← decodeUInt 1 bytes
+  let (shortSaleRestrictionState, bytes) ← decodeUInt 1 bytes
+  let (symbolStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUInt 1) (symbolStatusPresenceBits_ &&& 1 != 0) bytes
+  let (symbolStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUInt 1) (symbolStatusPresenceBits_ &&& 2 != 0) bytes
   if fits_symbolStatusPresenceBits : (symbolStatusPresenceBits_ &&& 252) &&& 3 = 0 then
     pure ({ symbolStatusPresenceBits := ⟨symbolStatusPresenceBits_ &&& 252, fits_symbolStatusPresenceBits⟩, transactTime, symbolId, symbolTradingState, shortSaleRestrictionState, symbolStatusOperationalHaltReason, symbolStatusRegulatoryHaltReason }, bytes)
   else none
@@ -237,15 +237,15 @@ theorem encode_length_pos (message : SymbolStatusMessage) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_symbolStatusOperationalHaltReason]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_symbolStatusRegulatoryHaltReason]
-  rw [decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [dite_eq_left (by rw [carried_symbolStatusPresenceBits]; exact message.symbolStatusPresenceBits.property)]
   simp only [carried_symbolStatusPresenceBits]
@@ -664,25 +664,25 @@ namespace AuctionPreambleMessage
 def encode (message : AuctionPreambleMessage) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.auctionType
+    ++ (encodeUInt 1 message.auctionType
     ++ (encodeUIntLE 8 message.auctionStart
     ++ (encodeUIntLE 4 message.matchedShares
-    ++ (encodeUIntLE 1 message.excessAuctionSide
+    ++ (encodeUInt 1 message.excessAuctionSide
     ++ (encodeUIntLE 8 message.reserved8))))))
 
 def decode (bytes : List UInt8) : Option (AuctionPreambleMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (auctionType, bytes) ← decodeUIntLE 1 bytes
+  let (auctionType, bytes) ← decodeUInt 1 bytes
   let (auctionStart, bytes) ← decodeUIntLE 8 bytes
   let (matchedShares, bytes) ← decodeUIntLE 4 bytes
-  let (excessAuctionSide, bytes) ← decodeUIntLE 1 bytes
+  let (excessAuctionSide, bytes) ← decodeUInt 1 bytes
   let (reserved8, bytes) ← decodeUIntLE 8 bytes
   pure ({ transactTime, symbolId, auctionType, auctionStart, matchedShares, excessAuctionSide, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : AuctionPreambleMessage) : (encode message).length = 32 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : AuctionPreambleMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -695,13 +695,13 @@ theorem encode_length_pos (message : AuctionPreambleMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -729,9 +729,9 @@ namespace AuctionBandWindowMessage
 def encode (message : AuctionBandWindowMessage) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.auctionType
+    ++ (encodeUInt 1 message.auctionType
     ++ (encodeUIntLE 8 message.auctionStart
-    ++ (encodeUIntLE 1 message.extensionCycleCount
+    ++ (encodeUInt 1 message.extensionCycleCount
     ++ (encodeUIntLE 8 message.lowerParticipationBand
     ++ (encodeUIntLE 4 message.buySharesAtLower
     ++ (encodeUIntLE 4 message.sellSharesAtLower
@@ -743,9 +743,9 @@ def encode (message : AuctionBandWindowMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (AuctionBandWindowMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (auctionType, bytes) ← decodeUIntLE 1 bytes
+  let (auctionType, bytes) ← decodeUInt 1 bytes
   let (auctionStart, bytes) ← decodeUIntLE 8 bytes
-  let (extensionCycleCount, bytes) ← decodeUIntLE 1 bytes
+  let (extensionCycleCount, bytes) ← decodeUInt 1 bytes
   let (lowerParticipationBand, bytes) ← decodeUIntLE 8 bytes
   let (buySharesAtLower, bytes) ← decodeUIntLE 4 bytes
   let (sellSharesAtLower, bytes) ← decodeUIntLE 4 bytes
@@ -757,7 +757,7 @@ def decode (bytes : List UInt8) : Option (AuctionBandWindowMessage × List UInt8
 
 @[simp] theorem encode_length (message : AuctionBandWindowMessage) : (encode message).length = 60 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : AuctionBandWindowMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -770,11 +770,11 @@ theorem encode_length_pos (message : AuctionBandWindowMessage) : (encode message
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -808,7 +808,7 @@ namespace AuctionPrintMessage
 def encode (message : AuctionPrintMessage) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.auctionType
+    ++ (encodeUInt 1 message.auctionType
     ++ (encodeUIntLE 8 message.auctionPrice
     ++ (encodeUIntLE 4 message.matchedShares
     ++ (encodeUIntLE 8 message.execId)))))
@@ -816,7 +816,7 @@ def encode (message : AuctionPrintMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (AuctionPrintMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (auctionType, bytes) ← decodeUIntLE 1 bytes
+  let (auctionType, bytes) ← decodeUInt 1 bytes
   let (auctionPrice, bytes) ← decodeUIntLE 8 bytes
   let (matchedShares, bytes) ← decodeUIntLE 4 bytes
   let (execId, bytes) ← decodeUIntLE 8 bytes
@@ -824,7 +824,7 @@ def decode (bytes : List UInt8) : Option (AuctionPrintMessage × List UInt8) := 
 
 @[simp] theorem encode_length (message : AuctionPrintMessage) : (encode message).length = 31 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : AuctionPrintMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -837,7 +837,7 @@ theorem encode_length_pos (message : AuctionPrintMessage) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

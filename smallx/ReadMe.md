@@ -3,9 +3,11 @@
 
 ## The Small Exchange
 
-| [Protocol][Omi.SmallX.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.SmallX.Specifications] |
-| --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [OrderBookFeed][SmallX.SmallFutures.OrderBookFeed] | [Sbe][Omi.Encoding.Sbe] | [2.2][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Definition] | 10/12/2021 | 3,082 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Url] - [xml][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Xml] - [pdf][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Pdf] |
+| [Protocol][Omi.SmallX.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Transport | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.SmallX.Specifications] |
+| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [DropCopy][SmallX.SmallFutures.DropCopy] | [Fix][Omi.Encoding.Fix] | [2.1][SmallX.SmallFutures.DropCopy.Fix.v2.1.Client.Definition] | [Client][SmallX.SmallFutures.DropCopy.Fix.v2.1.Client.Definition] | 7/2/2021 | 415 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][SmallX.SmallFutures.DropCopy.Fix.v2.1.Url] - [pdf][SmallX.SmallFutures.DropCopy.Fix.v2.1.Pdf] |
+| [OrderBookFeed][SmallX.SmallFutures.OrderBookFeed] | [Sbe][Omi.Encoding.Sbe] | [2.2][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Definition] |  | 10/12/2021 | 3,082 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Url] - [xml][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Xml] - [pdf][SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Pdf] |
+| [OrderEntry][SmallX.SmallFutures.OrderEntry] | [Fix][Omi.Encoding.Fix] | [2.7][SmallX.SmallFutures.OrderEntry.Fix.v2.7.Client.Definition] | [Client][SmallX.SmallFutures.OrderEntry.Fix.v2.7.Client.Definition] | 7/2/2021 | 1,438 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][SmallX.SmallFutures.OrderEntry.Fix.v2.7.Url] - [pdf][SmallX.SmallFutures.OrderEntry.Fix.v2.7.Pdf] |
 
 
 <p align="center"><a href="https://smallexchange.com" title="The Small Exchange Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/the-small-exchange" title="The Small Exchange on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a></p>
@@ -27,11 +29,20 @@
 [Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
 [Omi.SmallX.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/SmallX/Protocols "SmallX Protocol Directory"
 [Omi.SmallX.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/SmallX/Specifications "SmallX Specifications Directory"
+[Omi.Encoding.Fix]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fix.md "Fix Encoding"
 [Omi.Encoding.Sbe]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Sbe.md "Sbe Encoding"
 [SmallFutures.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/SmallX/Protocols/SmallFutures "SmallX SmallFutures"
+[SmallX.SmallFutures.DropCopy]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Protocols/SmallFutures/DropCopy.md "Drop Copy"
 [SmallX.SmallFutures.OrderBookFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Protocols/SmallFutures/OrderBookFeed.md "Order Book Feed"
+[SmallX.SmallFutures.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Protocols/SmallFutures/OrderEntry.md "Order Entry"
 
+[SmallX.SmallFutures.DropCopy.Fix.v2.1.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/smallx/dropcopy/SmallFutures_DropCopy_v2_1_Client.lean "SmallX DropCopy Fix v2.1 Lean Definition"
+[SmallX.SmallFutures.DropCopy.Fix.v2.1.Url]: https://smallexchange.com/reference/info-hub "The Small Exchange 2.1 Url"
+[SmallX.SmallFutures.DropCopy.Fix.v2.1.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Specifications/Fix/SmallX.SmallFutures.DropCopy.Fix.v2.1.pdf "The Small Exchange 2.1 Pdf"
 [SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/smallx/orderbookfeed/SmallFutures_OrderBookFeed_v2_2.lean "SmallX OrderBookFeed Sbe v2.2 Lean Definition"
 [SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Url]: https://smallexchange.com/reference/info-hub "The Small Exchange 2.2 Url"
 [SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Specifications/OrderBookFeed/SmallX.SmallFutures.Sbe.v2.2.xml "The Small Exchange 2.2 Xml"
 [SmallX.SmallFutures.OrderBookFeed.Sbe.v2.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Specifications/Documentation/SmallX.SmallFutures.MarketData.Sbe.v2.2.pdf "The Small Exchange 2.2 Pdf"
+[SmallX.SmallFutures.OrderEntry.Fix.v2.7.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/smallx/orderentry/SmallFutures_OrderEntry_v2_7_Client.lean "SmallX OrderEntry Fix v2.7 Lean Definition"
+[SmallX.SmallFutures.OrderEntry.Fix.v2.7.Url]: https://smallexchange.com/reference/info-hub "The Small Exchange 2.7 Url"
+[SmallX.SmallFutures.OrderEntry.Fix.v2.7.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/SmallX/Specifications/Fix/SmallX.SmallFutures.OrderEntry.Fix.v2.7.pdf "The Small Exchange 2.7 Pdf"

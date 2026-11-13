@@ -292,7 +292,7 @@ structure InstrumentDirectoryMessage where
   symbol : Alpha 6
   symbolSfx : Alpha 6
   roundLot : BitVec 32
-  reserved : BitVec 8
+  reserved : Alpha 1
   isTestSymbol : BitVec 8
   mpv : BitVec 64
   deriving DecidableEq, Repr
@@ -305,7 +305,7 @@ def encode (message : InstrumentDirectoryMessage) : List UInt8 :=
     ++ (Alpha.encode message.symbol
     ++ (Alpha.encode message.symbolSfx
     ++ (encodeUInt 4 message.roundLot
-    ++ (encodeUInt 1 message.reserved
+    ++ (Alpha.encode message.reserved
     ++ (encodeUInt 1 message.isTestSymbol
     ++ (encodeUInt 8 message.mpv)))))))
 
@@ -315,7 +315,7 @@ def decode (bytes : List UInt8) : Option (InstrumentDirectoryMessage × List UIn
   let (symbol, bytes) ← Alpha.decode 6 bytes
   let (symbolSfx, bytes) ← Alpha.decode 6 bytes
   let (roundLot, bytes) ← decodeUInt 4 bytes
-  let (reserved, bytes) ← decodeUInt 1 bytes
+  let (reserved, bytes) ← Alpha.decode 1 bytes
   let (isTestSymbol, bytes) ← decodeUInt 1 bytes
   let (mpv, bytes) ← decodeUInt 8 bytes
   pure ({ timestamp, securityId, symbol, symbolSfx, roundLot, reserved, isTestSymbol, mpv }, bytes)
@@ -341,7 +341,7 @@ theorem encode_length_pos (message : InstrumentDirectoryMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only

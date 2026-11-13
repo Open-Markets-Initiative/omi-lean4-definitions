@@ -1767,7 +1767,7 @@ structure MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage where
   mwcbLevel1 : BitVec 64
   mwcbLevel2 : BitVec 64
   mwcbLevel3 : BitVec 64
-  reserved : BitVec 8
+  reserved : Alpha 1
   deriving DecidableEq, Repr
 
 namespace MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage
@@ -1777,19 +1777,19 @@ def encode (message : MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage)
     ++ (encodeUInt 8 message.mwcbLevel1
     ++ (encodeUInt 8 message.mwcbLevel2
     ++ (encodeUInt 8 message.mwcbLevel3
-    ++ (encodeUInt 1 message.reserved))))
+    ++ (Alpha.encode message.reserved))))
 
 def decode (bytes : List UInt8) : Option (MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
   let (mwcbLevel1, bytes) ← decodeUInt 8 bytes
   let (mwcbLevel2, bytes) ← decodeUInt 8 bytes
   let (mwcbLevel3, bytes) ← decodeUInt 8 bytes
-  let (reserved, bytes) ← decodeUInt 1 bytes
+  let (reserved, bytes) ← Alpha.decode 1 bytes
   pure ({ participantId, mwcbLevel1, mwcbLevel2, mwcbLevel3, reserved }, bytes)
 
 @[simp] theorem encode_length (message : MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage) : (encode message).length = 26 := by
   unfold encode
-  simp only [List.length_append, ParticipantId.encode_length, encodeUInt_length]
+  simp only [List.length_append, ParticipantId.encode_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1806,7 +1806,7 @@ theorem encode_length_pos (message : MarketWideCircuitBreakerDeclineLevelStatusS
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage
@@ -2352,9 +2352,9 @@ structure Packet where
   version : BitVec 8
   blockSize : BitVec 16
   blockSequenceNumber : BitVec 32
-  deliveryFlag : BitVec 8
-  lastSeqNum : Alpha 1
-  totPubSeqRollover : BitVec 8
+  deliveryflag : BitVec 8
+  lastseqnum : BitVec 32
+  totpubseqrollover : BitVec 8
   sipBlockTimestamp : SipBlockTimestamp
   blockChecksum : BitVec 16
   message : Bounded 1 Message
@@ -2368,9 +2368,9 @@ def encode (message : Packet) : List UInt8 :=
     ++ (encodeUInt 2 message.blockSize
     ++ (encodeUInt 4 message.blockSequenceNumber
     ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
-    ++ (encodeUInt 1 message.deliveryFlag
-    ++ (Alpha.encode message.lastSeqNum
-    ++ (encodeUInt 1 message.totPubSeqRollover
+    ++ (encodeUInt 1 message.deliveryflag
+    ++ (encodeUInt 4 message.lastseqnum
+    ++ (encodeUInt 1 message.totpubseqrollover
     ++ (SipBlockTimestamp.encode message.sipBlockTimestamp
     ++ (encodeUInt 2 message.blockChecksum
     ++ (encodeMany Message.encode message.message.val
@@ -2381,16 +2381,16 @@ def decode (bytes : List UInt8) : Option Packet := do
   let (blockSize, bytes) ← decodeUInt 2 bytes
   let (blockSequenceNumber, bytes) ← decodeUInt 4 bytes
   let (messagesInBlock, bytes) ← decodeUInt 1 bytes
-  let (deliveryFlag, bytes) ← decodeUInt 1 bytes
-  let (lastSeqNum, bytes) ← Alpha.decode 1 bytes
-  let (totPubSeqRollover, bytes) ← decodeUInt 1 bytes
+  let (deliveryflag, bytes) ← decodeUInt 1 bytes
+  let (lastseqnum, bytes) ← decodeUInt 4 bytes
+  let (totpubseqrollover, bytes) ← decodeUInt 1 bytes
   let (sipBlockTimestamp, bytes) ← SipBlockTimestamp.decode bytes
   let (blockChecksum, bytes) ← decodeUInt 2 bytes
   let (message_, bytes) ← decodeMany Message.decode messagesInBlock.toNat bytes
   let blockPadByte_ := bytes
   if fits_message : message_.length < 256 ^ 1 then
     if fits_blockPadByte : blockPadByte_.length ≤ 1 then
-      pure { version, blockSize, blockSequenceNumber, deliveryFlag, lastSeqNum, totPubSeqRollover, sipBlockTimestamp, blockChecksum, message := ⟨message_, fits_message⟩, blockPadByte := ⟨blockPadByte_, fits_blockPadByte⟩ }
+      pure { version, blockSize, blockSequenceNumber, deliveryflag, lastseqnum, totpubseqrollover, sipBlockTimestamp, blockChecksum, message := ⟨message_, fits_message⟩, blockPadByte := ⟨blockPadByte_, fits_blockPadByte⟩ }
     else none
   else none
 
@@ -2411,7 +2411,7 @@ theorem decode_encode (message : Packet) : decode (encode message) = some messag
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [Alpha.decode_encode, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only

@@ -611,19 +611,19 @@ namespace AdminBody
 def encode (message : AdminBody) : List UInt8 :=
   SourceId.encode message.sourceId
     ++ (encodeUIntLE 2 message.streamId
-    ++ (encodeUIntLE 1 message.sequence0
+    ++ (encodeUInt 1 message.sequence0
     ++ (encodeUIntLE 4 message.sequence1)))
 
 def decode (bytes : List UInt8) : Option (AdminBody × List UInt8) := do
   let (sourceId, bytes) ← SourceId.decode bytes
   let (streamId, bytes) ← decodeUIntLE 2 bytes
-  let (sequence0, bytes) ← decodeUIntLE 1 bytes
+  let (sequence0, bytes) ← decodeUInt 1 bytes
   let (sequence1, bytes) ← decodeUIntLE 4 bytes
   pure ({ sourceId, streamId, sequence0, sequence1 }, bytes)
 
 @[simp] theorem encode_length (message : AdminBody) : (encode message).length = 8 := by
   unfold encode
-  simp only [List.length_append, SourceId.encode_length, encodeUIntLE_length]
+  simp only [List.length_append, SourceId.encode_length, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : AdminBody) : (encode message).length > 0 := by
   rw [encode_length]
@@ -636,7 +636,7 @@ theorem encode_length_pos (message : AdminBody) : (encode message).length > 0 :=
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -718,14 +718,14 @@ def encode (message : BusinessHeader) : List UInt8 :=
   encodeUInt 1 message.msgVersion
     ++ (SourceId.encode message.sourceId
     ++ (encodeUIntLE 2 message.streamId
-    ++ (encodeUIntLE 1 message.sequence0
+    ++ (encodeUInt 1 message.sequence0
     ++ (encodeUIntLE 4 message.sequence1))))
 
 def decode (bytes : List UInt8) : Option (BusinessHeader × List UInt8) := do
   let (msgVersion, bytes) ← decodeUInt 1 bytes
   let (sourceId, bytes) ← SourceId.decode bytes
   let (streamId, bytes) ← decodeUIntLE 2 bytes
-  let (sequence0, bytes) ← decodeUIntLE 1 bytes
+  let (sequence0, bytes) ← decodeUInt 1 bytes
   let (sequence1, bytes) ← decodeUIntLE 4 bytes
   pure ({ msgVersion, sourceId, streamId, sequence0, sequence1 }, bytes)
 
@@ -746,7 +746,7 @@ theorem encode_length_pos (message : BusinessHeader) : (encode message).length >
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -773,7 +773,7 @@ namespace SymbolStatusMessage
 
 def encode (message : SymbolStatusMessage) : List UInt8 :=
   Alpha.encode message.symbol
-    ++ (encodeUIntLE 1 message.stockGroup
+    ++ (encodeUInt 1 message.stockGroup
     ++ (ListingMarket.encode message.listingMarket
     ++ (ProductType.encode message.productType
     ++ (Alpha.encode message.cusip
@@ -787,7 +787,7 @@ def encode (message : SymbolStatusMessage) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (SymbolStatusMessage × List UInt8) := do
   let (symbol, bytes) ← Alpha.decode 12 bytes
-  let (stockGroup, bytes) ← decodeUIntLE 1 bytes
+  let (stockGroup, bytes) ← decodeUInt 1 bytes
   let (listingMarket, bytes) ← ListingMarket.decode bytes
   let (productType, bytes) ← ProductType.decode bytes
   let (cusip, bytes) ← Alpha.decode 12 bytes
@@ -802,7 +802,7 @@ def decode (bytes : List UInt8) : Option (SymbolStatusMessage × List UInt8) := 
 
 @[simp] theorem encode_length (message : SymbolStatusMessage) : (encode message).length = 53 := by
   unfold encode
-  simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length, ListingMarket.encode_length, ProductType.encode_length, Currency.encode_length, TestSymbol.encode_length]
+  simp only [List.length_append, Alpha.encode_length, encodeUInt_length, ListingMarket.encode_length, ProductType.encode_length, encodeUIntLE_length, Currency.encode_length, TestSymbol.encode_length]
 
 theorem encode_length_pos (message : SymbolStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -813,7 +813,7 @@ theorem encode_length_pos (message : SymbolStatusMessage) : (encode message).len
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, ListingMarket.decode_encode, some_bind]
   dsimp only

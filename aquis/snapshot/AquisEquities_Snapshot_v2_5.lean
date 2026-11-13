@@ -73,7 +73,7 @@ namespace BookStatusMessage
 
 def encode (message : BookStatusMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 1 message.tradingStatus
+    ++ (encodeUInt 1 message.tradingStatus
     ++ (encodeUIntLE 1 message.marketFlags
     ++ (encodeUIntLE 2 message.entries
     ++ (encodeUIntLE 4 message.closingBuyQty
@@ -82,7 +82,7 @@ def encode (message : BookStatusMessage) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (BookStatusMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (tradingStatus, bytes) ← decodeUIntLE 1 bytes
+  let (tradingStatus, bytes) ← decodeUInt 1 bytes
   let (marketFlags, bytes) ← decodeUIntLE 1 bytes
   let (entries, bytes) ← decodeUIntLE 2 bytes
   let (closingBuyQty, bytes) ← decodeUIntLE 4 bytes
@@ -92,7 +92,7 @@ def decode (bytes : List UInt8) : Option (BookStatusMessage × List UInt8) := do
 
 @[simp] theorem encode_length (message : BookStatusMessage) : (encode message).length = 22 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : BookStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -103,7 +103,7 @@ theorem encode_length_pos (message : BookStatusMessage) : (encode message).lengt
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -131,14 +131,14 @@ namespace BookEntryMessage
 
 def encode (message : BookEntryMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 1 message.side
+    ++ (encodeUInt 1 message.side
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderRef))))
 
 def decode (bytes : List UInt8) : Option (BookEntryMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (side, bytes) ← decodeUIntLE 1 bytes
+  let (side, bytes) ← decodeUInt 1 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -146,7 +146,7 @@ def decode (bytes : List UInt8) : Option (BookEntryMessage × List UInt8) := do
 
 @[simp] theorem encode_length (message : BookEntryMessage) : (encode message).length = 19 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : BookEntryMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -157,7 +157,7 @@ theorem encode_length_pos (message : BookEntryMessage) : (encode message).length
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -181,14 +181,14 @@ namespace MacBookEntryMessage
 
 def encode (message : MacBookEntryMessage) : List UInt8 :=
   encodeUIntLE 2 message.securityId
-    ++ (encodeUIntLE 1 message.side
+    ++ (encodeUInt 1 message.side
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderRef))))
 
 def decode (bytes : List UInt8) : Option (MacBookEntryMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 2 bytes
-  let (side, bytes) ← decodeUIntLE 1 bytes
+  let (side, bytes) ← decodeUInt 1 bytes
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderRef, bytes) ← decodeUIntLE 4 bytes
@@ -196,7 +196,7 @@ def decode (bytes : List UInt8) : Option (MacBookEntryMessage × List UInt8) := 
 
 @[simp] theorem encode_length (message : MacBookEntryMessage) : (encode message).length = 19 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : MacBookEntryMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -207,7 +207,7 @@ theorem encode_length_pos (message : MacBookEntryMessage) : (encode message).len
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

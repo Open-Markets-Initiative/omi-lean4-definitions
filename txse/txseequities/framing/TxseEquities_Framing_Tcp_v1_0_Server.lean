@@ -243,17 +243,17 @@ structure ServerRakeTcpMessage where
 namespace ServerRakeTcpMessage
 
 def encodeBody (message : ServerRakeTcpMessage) : List UInt8 :=
-  encodeUIntLE 1 (ServerPayload.tag message.serverPayload)
+  encodeUInt 1 (ServerPayload.tag message.serverPayload)
     ++ (ServerPayload.encode message.serverPayload)
 
 def decodeBody (bytes : List UInt8) : Option ServerRakeTcpMessage := do
-  let (packetType, bytes) ← decodeUIntLE 1 bytes
+  let (packetType, bytes) ← decodeUInt 1 bytes
   let serverPayload ← ServerPayload.decode packetType bytes
   pure { serverPayload }
 
 theorem decodeBody_encodeBody (message : ServerRakeTcpMessage) : decodeBody (encodeBody message) = some message := by
   unfold decodeBody encodeBody
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [ServerPayload.decode_encode, some_bind]
   rfl
@@ -264,17 +264,17 @@ theorem encodeBody_length_lt (message : ServerRakeTcpMessage) : (encodeBody mess
   cases message.serverPayload with
   | debugMessage inner =>
     have bound_inner := DebugMessage.encode_length_le inner
-    simp only [ServerPayload.encode, List.length_append, encodeUIntLE_length]
+    simp only [ServerPayload.encode, List.length_append, encodeUInt_length]
     omega
   | endOfSessionMessage inner =>
-    simp only [ServerPayload.encode, List.length_append, encodeUIntLE_length, EndOfSessionMessage.encode_length]
+    simp only [ServerPayload.encode, List.length_append, encodeUInt_length, EndOfSessionMessage.encode_length]
     omega
   | logonResponseMessage inner =>
-    simp only [ServerPayload.encode, List.length_append, encodeUIntLE_length, LogonResponseMessage.encode_length]
+    simp only [ServerPayload.encode, List.length_append, encodeUInt_length, LogonResponseMessage.encode_length]
     omega
   | tcpSequencedMessage inner =>
     have bound_inner := TcpSequencedMessage.encode_length_le inner
-    simp only [ServerPayload.encode, List.length_append, encodeUIntLE_length]
+    simp only [ServerPayload.encode, List.length_append, encodeUInt_length]
     omega
 
 /-- Size rule: Message Length counts the bytes after it, so it is written from the body and checked on decode -/

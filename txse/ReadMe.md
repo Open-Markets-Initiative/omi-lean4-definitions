@@ -9,6 +9,7 @@
 | [TxseEquities][TxseEquities.Exchange] | [Feed][Txse.TxseEquities.Feed] | [Rake][Omi.Encoding.Rake] | [1.0][Txse.TxseEquities.Feed.Rake.v1.0.Definition] |  | 6/12/2026 | 1,027 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Txse.TxseEquities.Feed.Rake.v1.0.Url] - [pdf][Txse.TxseEquities.Feed.Rake.v1.0.Pdf] |
 | [TxseEquities][TxseEquities.Exchange] | [Framing][Txse.TxseEquities.Framing] | [Tcp][Omi.Encoding.Tcp] | 1.0 | [Client][Txse.TxseEquities.Framing.Tcp.v1.0.Client.Definition] [Server][Txse.TxseEquities.Framing.Tcp.v1.0.Server.Definition] | 6/12/2026 | 545 | [Header][Omi.Glossary.Deployment.Header] | [Untested][Omi.Glossary.Testing.Untested] | [url][Txse.TxseEquities.Framing.Tcp.v1.0.Url] - [pdf][Txse.TxseEquities.Framing.Tcp.v1.0.Pdf] |
 | [TxseEquities][TxseEquities.Exchange] | [Framing][Txse.TxseEquities.Framing] | [Udp][Omi.Encoding.Udp] | [1.0][Txse.TxseEquities.Framing.Udp.v1.0.Definition] |  | 6/12/2026 | 125 | [Header][Omi.Glossary.Deployment.Header] | [Untested][Omi.Glossary.Testing.Untested] | [url][Txse.TxseEquities.Framing.Udp.v1.0.Url] - [pdf][Txse.TxseEquities.Framing.Udp.v1.0.Pdf] |
+| [TxseEquities][TxseEquities.Exchange] | [OrderEntry][Txse.TxseEquities.OrderEntry] | [Fix][Omi.Encoding.Fix] | 0.28 | [Client][Txse.TxseEquities.OrderEntry.Fix.v0.28.Client.Definition] [Exchange][Txse.TxseEquities.OrderEntry.Fix.v0.28.Exchange.Definition] | 7/14/2026 | 2,633 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][Txse.TxseEquities.OrderEntry.Fix.v0.28.Url] - [pdf][Txse.TxseEquities.OrderEntry.Fix.v0.28.Pdf] |
 | [TxseEquities][TxseEquities.Exchange] | [Seed][Txse.TxseEquities.Seed] | [Rake][Omi.Encoding.Rake] | 1.0 | [Client][Txse.TxseEquities.Seed.Rake.v1.0.Client.Definition] [Server][Txse.TxseEquities.Seed.Rake.v1.0.Server.Definition] | 6/12/2026 | 3,513 | [Active][Omi.Glossary.Deployment.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Txse.TxseEquities.Seed.Rake.v1.0.Url] - [pdf][Txse.TxseEquities.Seed.Rake.v1.0.Pdf] |
 
 
@@ -34,10 +35,12 @@
 [Omi.Encoding.Rake]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Rake.md "Rake Encoding"
 [Omi.Encoding.Tcp]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Tcp.md "Tcp Encoding"
 [Omi.Encoding.Udp]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Udp.md "Udp Encoding"
+[Omi.Encoding.Fix]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fix.md "Fix Encoding"
 [TxseEquities.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Txse/Protocols/TxseEquities "Txse TxseEquities"
 [Txse.TxseEquities.Bale]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Protocols/TxseEquities/Bale.md "BALE Top-of-Book Market Data Feed"
 [Txse.TxseEquities.Feed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Protocols/TxseEquities/Feed.md "FEED Full-Depth Market Data"
 [Txse.TxseEquities.Framing]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Protocols/TxseEquities/Framing.md ""
+[Txse.TxseEquities.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Protocols/TxseEquities/OrderEntry.md "Order Entry"
 [Txse.TxseEquities.Seed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Protocols/TxseEquities/Seed.md "Session Enabled Entry Daemon"
 
 [Txse.TxseEquities.Bale.Rake.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/txse/txseequities/bale/TxseEquities_Bale_v1_0.lean "Txse TxseEquities Bale Rake v1.0 Lean Definition"
@@ -53,6 +56,10 @@
 [Txse.TxseEquities.Framing.Udp.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/txse/txseequities/framing/TxseEquities_Framing_Udp_v1_0.lean "Txse TxseEquities Framing Udp v1.0 Lean Definition"
 [Txse.TxseEquities.Framing.Udp.v1.0.Url]: https://www.txse.com "Texas Stock Exchange 1.0 Url"
 [Txse.TxseEquities.Framing.Udp.v1.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Specifications/Common/Headers/Txse.TxseEquities.Rake.v1.0.pdf "Texas Stock Exchange 1.0 Pdf"
+[Txse.TxseEquities.OrderEntry.Fix.v0.28.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/txse/txseequities/orderentry/TxseEquities_OrderEntry_v0_28_Client.lean "Txse TxseEquities OrderEntry Fix v0.28 Lean Definition"
+[Txse.TxseEquities.OrderEntry.Fix.v0.28.Url]: https://www.txse.com "Texas Stock Exchange 0.28 Url"
+[Txse.TxseEquities.OrderEntry.Fix.v0.28.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Specifications/OrderEntry/Txse.TxseEquities.OrderEntry.Fix.v0.28.pdf "Texas Stock Exchange 0.28 Pdf"
+[Txse.TxseEquities.OrderEntry.Fix.v0.28.Exchange.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/txse/txseequities/orderentry/TxseEquities_OrderEntry_v0_28_Exchange.lean "Txse TxseEquities OrderEntry Fix v0.28 Lean Definition"
 [Txse.TxseEquities.Seed.Rake.v1.0.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/txse/txseequities/seed/TxseEquities_Seed_v1_0_Client.lean "Txse TxseEquities Seed Rake v1.0 Lean Definition"
 [Txse.TxseEquities.Seed.Rake.v1.0.Url]: https://www.txse.com "Texas Stock Exchange 1.0 Url"
 [Txse.TxseEquities.Seed.Rake.v1.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Txse/Specifications/Seed/Txse.TxseEquities.OrderEntry.Seed.v1.0.pdf "Texas Stock Exchange 1.0 Pdf"

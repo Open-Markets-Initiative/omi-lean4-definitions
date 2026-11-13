@@ -157,17 +157,17 @@ structure ClientRakeTcpMessage where
 namespace ClientRakeTcpMessage
 
 def encodeBody (message : ClientRakeTcpMessage) : List UInt8 :=
-  encodeUIntLE 1 (ClientPayload.tag message.clientPayload)
+  encodeUInt 1 (ClientPayload.tag message.clientPayload)
     ++ (ClientPayload.encode message.clientPayload)
 
 def decodeBody (bytes : List UInt8) : Option ClientRakeTcpMessage := do
-  let (packetType, bytes) ← decodeUIntLE 1 bytes
+  let (packetType, bytes) ← decodeUInt 1 bytes
   let clientPayload ← ClientPayload.decode packetType bytes
   pure { clientPayload }
 
 theorem decodeBody_encodeBody (message : ClientRakeTcpMessage) : decodeBody (encodeBody message) = some message := by
   unfold decodeBody encodeBody
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [ClientPayload.decode_encode, some_bind]
   rfl
@@ -177,11 +177,11 @@ theorem encodeBody_length_lt (message : ClientRakeTcpMessage) : (encodeBody mess
   unfold encodeBody
   cases message.clientPayload with
   | logonRequestPacket inner =>
-    simp only [ClientPayload.encode, List.length_append, encodeUIntLE_length, LogonRequestPacket.encode_length]
+    simp only [ClientPayload.encode, List.length_append, encodeUInt_length, LogonRequestPacket.encode_length]
     omega
   | tcpUnsequencedMessage inner =>
     have bound_inner := TcpUnsequencedMessage.encode_length_le inner
-    simp only [ClientPayload.encode, List.length_append, encodeUIntLE_length]
+    simp only [ClientPayload.encode, List.length_append, encodeUInt_length]
     omega
 
 /-- Size rule: Message Length counts the bytes after it, so it is written from the body and checked on decode -/

@@ -28,17 +28,17 @@ namespace ReplayRequest
 def encode (message : ReplayRequest) : List UInt8 :=
   encodeUIntLE 4 message.seqNum
     ++ (encodeUIntLE 4 message.endSeqNum
-    ++ (encodeUIntLE 1 message.streamId))
+    ++ (encodeUInt 1 message.streamId))
 
 def decode (bytes : List UInt8) : Option (ReplayRequest × List UInt8) := do
   let (seqNum, bytes) ← decodeUIntLE 4 bytes
   let (endSeqNum, bytes) ← decodeUIntLE 4 bytes
-  let (streamId, bytes) ← decodeUIntLE 1 bytes
+  let (streamId, bytes) ← decodeUInt 1 bytes
   pure ({ seqNum, endSeqNum, streamId }, bytes)
 
 @[simp] theorem encode_length (message : ReplayRequest) : (encode message).length = 9 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : ReplayRequest) : (encode message).length > 0 := by
   rw [encode_length]
@@ -51,7 +51,7 @@ theorem encode_length_pos (message : ReplayRequest) : (encode message).length > 
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end ReplayRequest

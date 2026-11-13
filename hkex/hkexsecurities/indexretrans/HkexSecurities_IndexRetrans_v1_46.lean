@@ -472,17 +472,17 @@ structure LogonResponseMessage where
 namespace LogonResponseMessage
 
 def encode (message : LogonResponseMessage) : List UInt8 :=
-  encodeUIntLE 1 message.sessionStatus
+  encodeUInt 1 message.sessionStatus
     ++ (Alpha.encode message.filler3)
 
 def decode (bytes : List UInt8) : Option (LogonResponseMessage × List UInt8) := do
-  let (sessionStatus, bytes) ← decodeUIntLE 1 bytes
+  let (sessionStatus, bytes) ← decodeUInt 1 bytes
   let (filler3, bytes) ← Alpha.decode 3 bytes
   pure ({ sessionStatus, filler3 }, bytes)
 
 @[simp] theorem encode_length (message : LogonResponseMessage) : (encode message).length = 4 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : LogonResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -491,7 +491,7 @@ theorem encode_length_pos (message : LogonResponseMessage) : (encode message).le
 @[simp] theorem decode_encode (message : LogonResponseMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -556,14 +556,14 @@ namespace RetransmissionResponseMessage
 
 def encode (message : RetransmissionResponseMessage) : List UInt8 :=
   encodeUIntLE 2 message.channelId
-    ++ (encodeUIntLE 1 message.retransStatus
+    ++ (encodeUInt 1 message.retransStatus
     ++ (Alpha.encode message.filler1
     ++ (encodeUIntLE 4 message.beginSeqNum
     ++ (encodeUIntLE 4 message.endSeqNum))))
 
 def decode (bytes : List UInt8) : Option (RetransmissionResponseMessage × List UInt8) := do
   let (channelId, bytes) ← decodeUIntLE 2 bytes
-  let (retransStatus, bytes) ← decodeUIntLE 1 bytes
+  let (retransStatus, bytes) ← decodeUInt 1 bytes
   let (filler1, bytes) ← Alpha.decode 1 bytes
   let (beginSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (endSeqNum, bytes) ← decodeUIntLE 4 bytes
@@ -571,7 +571,7 @@ def decode (bytes : List UInt8) : Option (RetransmissionResponseMessage × List 
 
 @[simp] theorem encode_length (message : RetransmissionResponseMessage) : (encode message).length = 12 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : RetransmissionResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -582,7 +582,7 @@ theorem encode_length_pos (message : RetransmissionResponseMessage) : (encode me
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

@@ -2985,7 +2985,7 @@ namespace LogonResponseMessage
 
 def encode (message : LogonResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeUIntLE 1 message.heartBtInt
+    ++ (encodeUInt 1 message.heartBtInt
     ++ (Alpha.encode message.protocolVersion
     ++ (TestProductionInd.encode message.testProductionInd
     ++ (Alpha.encode message.environmentCode
@@ -2995,7 +2995,7 @@ def encode (message : LogonResponseMessage) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (LogonResponseMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (heartBtInt, bytes) ← decodeUIntLE 1 bytes
+  let (heartBtInt, bytes) ← decodeUInt 1 bytes
   let (protocolVersion, bytes) ← Alpha.decode 6 bytes
   let (testProductionInd, bytes) ← TestProductionInd.decode bytes
   let (environmentCode, bytes) ← Alpha.decode 2 bytes
@@ -3006,7 +3006,7 @@ def decode (bytes : List UInt8) : Option (LogonResponseMessage × List UInt8) :=
 
 @[simp] theorem encode_length (message : LogonResponseMessage) : (encode message).length = 26 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TestProductionInd.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, TestProductionInd.encode_length]
 
 theorem encode_length_pos (message : LogonResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3017,7 +3017,7 @@ theorem encode_length_pos (message : LogonResponseMessage) : (encode message).le
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -3044,16 +3044,16 @@ namespace LogoutResponseMessage
 
 def encode (message : LogoutResponseMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeUIntLE 1 message.logoutReason)
+    ++ (encodeUInt 1 message.logoutReason)
 
 def decode (bytes : List UInt8) : Option (LogoutResponseMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (logoutReason, bytes) ← decodeUIntLE 1 bytes
+  let (logoutReason, bytes) ← decodeUInt 1 bytes
   pure ({ sequenceNumber, logoutReason }, bytes)
 
 @[simp] theorem encode_length (message : LogoutResponseMessage) : (encode message).length = 5 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : LogoutResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3064,7 +3064,7 @@ theorem encode_length_pos (message : LogoutResponseMessage) : (encode message).l
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end LogoutResponseMessage
@@ -3109,16 +3109,16 @@ namespace NetworkStatusMessage
 
 def encode (message : NetworkStatusMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeUIntLE 1 message.networkStatusValue)
+    ++ (encodeUInt 1 message.networkStatusValue)
 
 def decode (bytes : List UInt8) : Option (NetworkStatusMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (networkStatusValue, bytes) ← decodeUIntLE 1 bytes
+  let (networkStatusValue, bytes) ← decodeUInt 1 bytes
   pure ({ sequenceNumber, networkStatusValue }, bytes)
 
 @[simp] theorem encode_length (message : NetworkStatusMessage) : (encode message).length = 5 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : NetworkStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3129,7 +3129,7 @@ theorem encode_length_pos (message : NetworkStatusMessage) : (encode message).le
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end NetworkStatusMessage
@@ -3151,7 +3151,7 @@ def encode (message : LogonMessage) : List UInt8 :=
     ++ (Alpha.encode message.password
     ++ (Alpha.encode message.softwareName
     ++ (encodeUIntLE 4 message.expectedSequenceNumber
-    ++ (encodeUIntLE 1 message.subscriptions
+    ++ (encodeUInt 1 message.subscriptions
     ++ (Alpha.encode message.protocolVersion)))))
 
 def decode (bytes : List UInt8) : Option (LogonMessage × List UInt8) := do
@@ -3159,13 +3159,13 @@ def decode (bytes : List UInt8) : Option (LogonMessage × List UInt8) := do
   let (password, bytes) ← Alpha.decode 10 bytes
   let (softwareName, bytes) ← Alpha.decode 25 bytes
   let (expectedSequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (subscriptions, bytes) ← decodeUIntLE 1 bytes
+  let (subscriptions, bytes) ← decodeUInt 1 bytes
   let (protocolVersion, bytes) ← Alpha.decode 6 bytes
   pure ({ username, password, softwareName, expectedSequenceNumber, subscriptions, protocolVersion }, bytes)
 
 @[simp] theorem encode_length (message : LogonMessage) : (encode message).length = 53 := by
   unfold encode
-  simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length]
+  simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : LogonMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3182,7 +3182,7 @@ theorem encode_length_pos (message : LogonMessage) : (encode message).length > 0
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -3222,20 +3222,20 @@ namespace RejectMessage
 
 def encode (message : RejectMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeUIntLE 1 message.sessionRejectReason
+    ++ (encodeUInt 1 message.sessionRejectReason
     ++ (Alpha.encode message.textC58
     ++ (Alpha.encode message.msgRejectedReference)))
 
 def decode (bytes : List UInt8) : Option (RejectMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (sessionRejectReason, bytes) ← decodeUIntLE 1 bytes
+  let (sessionRejectReason, bytes) ← decodeUInt 1 bytes
   let (textC58, bytes) ← Alpha.decode 58 bytes
   let (msgRejectedReference, bytes) ← Alpha.decode 7 bytes
   pure ({ sequenceNumber, sessionRejectReason, textC58, msgRejectedReference }, bytes)
 
 @[simp] theorem encode_length (message : RejectMessage) : (encode message).length = 70 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : RejectMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3246,7 +3246,7 @@ theorem encode_length_pos (message : RejectMessage) : (encode message).length > 
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -3268,22 +3268,22 @@ namespace TradingSessionStatusMessage
 
 def encode (message : TradingSessionStatusMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeUIntLE 1 message.tradingSessionId
-    ++ (encodeUIntLE 1 message.tradingSessionSubId
-    ++ (encodeUIntLE 1 message.tradSesStatus
+    ++ (encodeUInt 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionSubId
+    ++ (encodeUInt 1 message.tradSesStatus
     ++ (encodeUIntLE 8 message.transactionDateAndTime))))
 
 def decode (bytes : List UInt8) : Option (TradingSessionStatusMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
-  let (tradingSessionSubId, bytes) ← decodeUIntLE 1 bytes
-  let (tradSesStatus, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
+  let (tradingSessionSubId, bytes) ← decodeUInt 1 bytes
+  let (tradSesStatus, bytes) ← decodeUInt 1 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   pure ({ sequenceNumber, tradingSessionId, tradingSessionSubId, tradSesStatus, transactionDateAndTime }, bytes)
 
 @[simp] theorem encode_length (message : TradingSessionStatusMessage) : (encode message).length = 15 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : TradingSessionStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3294,11 +3294,11 @@ theorem encode_length_pos (message : TradingSessionStatusMessage) : (encode mess
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
@@ -3444,14 +3444,14 @@ def encode (message : StatisticsMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.statisticsRepeatingGroup.val.length)
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.statisticsRepeatingGroup.val.length)
     ++ (encodeMany StatisticsRepeatingGroup.encode message.statisticsRepeatingGroup.val))))
 
 def decode (bytes : List UInt8) : Option (StatisticsMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
-  let (dataCount, bytes) ← decodeUIntLE 1 bytes
+  let (dataCount, bytes) ← decodeUInt 1 bytes
   let (statisticsRepeatingGroup_, bytes) ← decodeMany StatisticsRepeatingGroup.decode dataCount.toNat bytes
   if fits_statisticsRepeatingGroup : statisticsRepeatingGroup_.length < 256 ^ 1 then
     pure ({ sequenceNumber, securityCode, transactionDateAndTime, statisticsRepeatingGroup := ⟨statisticsRepeatingGroup_, fits_statisticsRepeatingGroup⟩ }, bytes)
@@ -3466,7 +3466,7 @@ theorem encode_length_pos (message : StatisticsMessage) : (encode message).lengt
 theorem encode_length_le (message : StatisticsMessage) : (encode message).length ≤ 2312 := by
   have bound_statisticsRepeatingGroup := message.statisticsRepeatingGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeMany_length_const StatisticsRepeatingGroup.encode 9 StatisticsRepeatingGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const StatisticsRepeatingGroup.encode 9 StatisticsRepeatingGroup.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : StatisticsMessage) (rest : List UInt8) :
@@ -3478,7 +3478,7 @@ theorem encode_length_le (message : StatisticsMessage) : (encode message).length
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeMany_bounded 1 StatisticsRepeatingGroup.encode StatisticsRepeatingGroup.decode StatisticsRepeatingGroup.decode_encode, some_bind]
   dsimp only
@@ -3572,33 +3572,33 @@ def encode (message : SecurityListMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.sstIpre
     ++ (encodeUIntLE 8 message.liSpost
     ++ (encodeUIntLE 8 message.sstIpost
-    ++ (encodeUIntLE 1 message.liquidInstrument
-    ++ (encodeUIntLE 1 message.admissionRequestedByIssuer
+    ++ (encodeUInt 1 message.liquidInstrument
+    ++ (encodeUInt 1 message.admissionRequestedByIssuer
     ++ (encodeUIntLE 4 message.minTradeVol
     ++ (encodeUIntLE 4 message.roundLot
     ++ (Alpha.encode message.currency
     ++ (encodeUIntLE 4 message.modalityMaskB4
     ++ (Alpha.encode message.securityDescription
-    ++ (encodeUIntLE 1 message.tradingObligation
+    ++ (encodeUInt 1 message.tradingObligation
     ++ (Alpha.encode message.securityName
     ++ (SecurityStatus.encode message.securityStatus
     ++ (encodeUIntLE 4 message.couponPaymentDate
     ++ (encodeUIntLE 8 message.minPriceIncrement
-    ++ (encodeUIntLE 1 message.numberOfDecimals
-    ++ (encodeUIntLE 1 message.orderNumberOfDecimals
+    ++ (encodeUInt 1 message.numberOfDecimals
+    ++ (encodeUInt 1 message.orderNumberOfDecimals
     ++ (encodeUIntLE 8 message.couponRate
     ++ (Alpha.encode message.issuer
-    ++ (encodeUIntLE 1 message.tradingScopeB1
+    ++ (encodeUInt 1 message.tradingScopeB1
     ++ (encodeUIntLE 4 message.firstTradingDate
     ++ (SettlementSystem.encode message.settlementSystem
     ++ (encodeUIntLE 8 message.maturity
-    ++ (encodeUIntLE 1 message.couponPeriodicity
-    ++ (encodeUIntLE 1 message.benchmark
-    ++ (encodeUIntLE 1 message.strippable
+    ++ (encodeUInt 1 message.couponPeriodicity
+    ++ (encodeUInt 1 message.benchmark
+    ++ (encodeUInt 1 message.strippable
     ++ (encodeUIntLE 8 message.volumeIssued
     ++ (encodeUIntLE 8 message.aliveVolume
     ++ (CouponType.encode message.couponType
-    ++ (encodeUIntLE 1 message.couponQuotation
+    ++ (encodeUInt 1 message.couponQuotation
     ++ (AccruedInterestCalculationProcedure.encode message.accruedInterestCalculationProcedure
     ++ (encodeUIntLE 4 message.nextRedemptionDate
     ++ (Alpha.encode message.typeOfRedemption
@@ -3611,7 +3611,7 @@ def encode (message : SecurityListMessage) : List UInt8 :=
     ++ (PriceType.encode message.priceType
     ++ (encodeUIntLE 8 message.spreadToIndex
     ++ (Alpha.encode message.benchmarkCurvePointsUnits
-    ++ (encodeUIntLE 1 message.benchmarkCurvePointsValue
+    ++ (encodeUInt 1 message.benchmarkCurvePointsValue
     ++ (Alpha.encode message.benchmarkSecurityId
     ++ (encodeUIntLE 8 message.accruedInterestRateR8)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
@@ -3636,33 +3636,33 @@ def decode (bytes : List UInt8) : Option (SecurityListMessage × List UInt8) := 
   let (sstIpre, bytes) ← decodeUIntLE 8 bytes
   let (liSpost, bytes) ← decodeUIntLE 8 bytes
   let (sstIpost, bytes) ← decodeUIntLE 8 bytes
-  let (liquidInstrument, bytes) ← decodeUIntLE 1 bytes
-  let (admissionRequestedByIssuer, bytes) ← decodeUIntLE 1 bytes
+  let (liquidInstrument, bytes) ← decodeUInt 1 bytes
+  let (admissionRequestedByIssuer, bytes) ← decodeUInt 1 bytes
   let (minTradeVol, bytes) ← decodeUIntLE 4 bytes
   let (roundLot, bytes) ← decodeUIntLE 4 bytes
   let (currency, bytes) ← Alpha.decode 3 bytes
   let (modalityMaskB4, bytes) ← decodeUIntLE 4 bytes
   let (securityDescription, bytes) ← Alpha.decode 80 bytes
-  let (tradingObligation, bytes) ← decodeUIntLE 1 bytes
+  let (tradingObligation, bytes) ← decodeUInt 1 bytes
   let (securityName, bytes) ← Alpha.decode 40 bytes
   let (securityStatus, bytes) ← SecurityStatus.decode bytes
   let (couponPaymentDate, bytes) ← decodeUIntLE 4 bytes
   let (minPriceIncrement, bytes) ← decodeUIntLE 8 bytes
-  let (numberOfDecimals, bytes) ← decodeUIntLE 1 bytes
-  let (orderNumberOfDecimals, bytes) ← decodeUIntLE 1 bytes
+  let (numberOfDecimals, bytes) ← decodeUInt 1 bytes
+  let (orderNumberOfDecimals, bytes) ← decodeUInt 1 bytes
   let (couponRate, bytes) ← decodeUIntLE 8 bytes
   let (issuer, bytes) ← Alpha.decode 12 bytes
-  let (tradingScopeB1, bytes) ← decodeUIntLE 1 bytes
+  let (tradingScopeB1, bytes) ← decodeUInt 1 bytes
   let (firstTradingDate, bytes) ← decodeUIntLE 4 bytes
   let (settlementSystem, bytes) ← SettlementSystem.decode bytes
   let (maturity, bytes) ← decodeUIntLE 8 bytes
-  let (couponPeriodicity, bytes) ← decodeUIntLE 1 bytes
-  let (benchmark, bytes) ← decodeUIntLE 1 bytes
-  let (strippable, bytes) ← decodeUIntLE 1 bytes
+  let (couponPeriodicity, bytes) ← decodeUInt 1 bytes
+  let (benchmark, bytes) ← decodeUInt 1 bytes
+  let (strippable, bytes) ← decodeUInt 1 bytes
   let (volumeIssued, bytes) ← decodeUIntLE 8 bytes
   let (aliveVolume, bytes) ← decodeUIntLE 8 bytes
   let (couponType, bytes) ← CouponType.decode bytes
-  let (couponQuotation, bytes) ← decodeUIntLE 1 bytes
+  let (couponQuotation, bytes) ← decodeUInt 1 bytes
   let (accruedInterestCalculationProcedure, bytes) ← AccruedInterestCalculationProcedure.decode bytes
   let (nextRedemptionDate, bytes) ← decodeUIntLE 4 bytes
   let (typeOfRedemption, bytes) ← Alpha.decode 2 bytes
@@ -3675,14 +3675,14 @@ def decode (bytes : List UInt8) : Option (SecurityListMessage × List UInt8) := 
   let (priceType, bytes) ← PriceType.decode bytes
   let (spreadToIndex, bytes) ← decodeUIntLE 8 bytes
   let (benchmarkCurvePointsUnits, bytes) ← Alpha.decode 4 bytes
-  let (benchmarkCurvePointsValue, bytes) ← decodeUIntLE 1 bytes
+  let (benchmarkCurvePointsValue, bytes) ← decodeUInt 1 bytes
   let (benchmarkSecurityId, bytes) ← Alpha.decode 25 bytes
   let (accruedInterestRateR8, bytes) ← decodeUIntLE 8 bytes
   pure ({ sequenceNumber, marketId, marketSegmentId, securityCode, symbol, symbolIsin, fisn, issuerLei, securityGroup, cfiCode, securityType, maturityDate, issueDate, contractMultiplier, liSpre, sstIpre, liSpost, sstIpost, liquidInstrument, admissionRequestedByIssuer, minTradeVol, roundLot, currency, modalityMaskB4, securityDescription, tradingObligation, securityName, securityStatus, couponPaymentDate, minPriceIncrement, numberOfDecimals, orderNumberOfDecimals, couponRate, issuer, tradingScopeB1, firstTradingDate, settlementSystem, maturity, couponPeriodicity, benchmark, strippable, volumeIssued, aliveVolume, couponType, couponQuotation, accruedInterestCalculationProcedure, nextRedemptionDate, typeOfRedemption, facial, calculationMethod, dateLastCouponWasPaid, bondSeniority, interestAccrualDate, startDate, priceType, spreadToIndex, benchmarkCurvePointsUnits, benchmarkCurvePointsValue, benchmarkSecurityId, accruedInterestRateR8 }, bytes)
 
 @[simp] theorem encode_length (message : SecurityListMessage) : (encode message).length = 450 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, SecurityStatus.encode_length, SettlementSystem.encode_length, CouponType.encode_length, AccruedInterestCalculationProcedure.encode_length, CalculationMethod.encode_length, PriceType.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, SecurityStatus.encode_length, SettlementSystem.encode_length, CouponType.encode_length, AccruedInterestCalculationProcedure.encode_length, CalculationMethod.encode_length, PriceType.encode_length]
 
 theorem encode_length_pos (message : SecurityListMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -3728,9 +3728,9 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -3742,7 +3742,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -3752,15 +3752,15 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -3768,11 +3768,11 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -3780,7 +3780,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, CouponType.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, AccruedInterestCalculationProcedure.decode_encode, some_bind]
   dsimp only
@@ -3806,7 +3806,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -3900,33 +3900,33 @@ def encode (message : SecurityListUpdateReportMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.sstIpre
     ++ (encodeUIntLE 8 message.liSpost
     ++ (encodeUIntLE 8 message.sstIpost
-    ++ (encodeUIntLE 1 message.liquidInstrument
-    ++ (encodeUIntLE 1 message.admissionRequestedByIssuer
+    ++ (encodeUInt 1 message.liquidInstrument
+    ++ (encodeUInt 1 message.admissionRequestedByIssuer
     ++ (encodeUIntLE 4 message.minTradeVol
     ++ (encodeUIntLE 4 message.roundLot
     ++ (Alpha.encode message.currency
     ++ (encodeUIntLE 4 message.modalityMaskB4
     ++ (Alpha.encode message.securityDescription
-    ++ (encodeUIntLE 1 message.tradingObligation
+    ++ (encodeUInt 1 message.tradingObligation
     ++ (Alpha.encode message.securityName
     ++ (SecurityStatus.encode message.securityStatus
     ++ (encodeUIntLE 4 message.couponPaymentDate
     ++ (encodeUIntLE 8 message.minPriceIncrement
-    ++ (encodeUIntLE 1 message.numberOfDecimals
-    ++ (encodeUIntLE 1 message.orderNumberOfDecimals
+    ++ (encodeUInt 1 message.numberOfDecimals
+    ++ (encodeUInt 1 message.orderNumberOfDecimals
     ++ (encodeUIntLE 8 message.couponRate
     ++ (Alpha.encode message.issuer
-    ++ (encodeUIntLE 1 message.tradingScopeB1
+    ++ (encodeUInt 1 message.tradingScopeB1
     ++ (encodeUIntLE 4 message.firstTradingDate
     ++ (SettlementSystem.encode message.settlementSystem
     ++ (encodeUIntLE 8 message.maturity
-    ++ (encodeUIntLE 1 message.couponPeriodicity
-    ++ (encodeUIntLE 1 message.benchmark
-    ++ (encodeUIntLE 1 message.strippable
+    ++ (encodeUInt 1 message.couponPeriodicity
+    ++ (encodeUInt 1 message.benchmark
+    ++ (encodeUInt 1 message.strippable
     ++ (encodeUIntLE 8 message.volumeIssued
     ++ (encodeUIntLE 8 message.aliveVolume
     ++ (CouponType.encode message.couponType
-    ++ (encodeUIntLE 1 message.couponQuotation
+    ++ (encodeUInt 1 message.couponQuotation
     ++ (AccruedInterestCalculationProcedure.encode message.accruedInterestCalculationProcedure
     ++ (encodeUIntLE 4 message.nextRedemptionDate
     ++ (Alpha.encode message.typeOfRedemption
@@ -3939,7 +3939,7 @@ def encode (message : SecurityListUpdateReportMessage) : List UInt8 :=
     ++ (PriceType.encode message.priceType
     ++ (encodeUIntLE 8 message.spreadToIndex
     ++ (Alpha.encode message.benchmarkCurvePointsUnits
-    ++ (encodeUIntLE 1 message.benchmarkCurvePointsValue
+    ++ (encodeUInt 1 message.benchmarkCurvePointsValue
     ++ (Alpha.encode message.benchmarkSecurityId
     ++ (encodeUIntLE 8 message.accruedInterestRateR8)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
@@ -3964,33 +3964,33 @@ def decode (bytes : List UInt8) : Option (SecurityListUpdateReportMessage × Lis
   let (sstIpre, bytes) ← decodeUIntLE 8 bytes
   let (liSpost, bytes) ← decodeUIntLE 8 bytes
   let (sstIpost, bytes) ← decodeUIntLE 8 bytes
-  let (liquidInstrument, bytes) ← decodeUIntLE 1 bytes
-  let (admissionRequestedByIssuer, bytes) ← decodeUIntLE 1 bytes
+  let (liquidInstrument, bytes) ← decodeUInt 1 bytes
+  let (admissionRequestedByIssuer, bytes) ← decodeUInt 1 bytes
   let (minTradeVol, bytes) ← decodeUIntLE 4 bytes
   let (roundLot, bytes) ← decodeUIntLE 4 bytes
   let (currency, bytes) ← Alpha.decode 3 bytes
   let (modalityMaskB4, bytes) ← decodeUIntLE 4 bytes
   let (securityDescription, bytes) ← Alpha.decode 80 bytes
-  let (tradingObligation, bytes) ← decodeUIntLE 1 bytes
+  let (tradingObligation, bytes) ← decodeUInt 1 bytes
   let (securityName, bytes) ← Alpha.decode 40 bytes
   let (securityStatus, bytes) ← SecurityStatus.decode bytes
   let (couponPaymentDate, bytes) ← decodeUIntLE 4 bytes
   let (minPriceIncrement, bytes) ← decodeUIntLE 8 bytes
-  let (numberOfDecimals, bytes) ← decodeUIntLE 1 bytes
-  let (orderNumberOfDecimals, bytes) ← decodeUIntLE 1 bytes
+  let (numberOfDecimals, bytes) ← decodeUInt 1 bytes
+  let (orderNumberOfDecimals, bytes) ← decodeUInt 1 bytes
   let (couponRate, bytes) ← decodeUIntLE 8 bytes
   let (issuer, bytes) ← Alpha.decode 12 bytes
-  let (tradingScopeB1, bytes) ← decodeUIntLE 1 bytes
+  let (tradingScopeB1, bytes) ← decodeUInt 1 bytes
   let (firstTradingDate, bytes) ← decodeUIntLE 4 bytes
   let (settlementSystem, bytes) ← SettlementSystem.decode bytes
   let (maturity, bytes) ← decodeUIntLE 8 bytes
-  let (couponPeriodicity, bytes) ← decodeUIntLE 1 bytes
-  let (benchmark, bytes) ← decodeUIntLE 1 bytes
-  let (strippable, bytes) ← decodeUIntLE 1 bytes
+  let (couponPeriodicity, bytes) ← decodeUInt 1 bytes
+  let (benchmark, bytes) ← decodeUInt 1 bytes
+  let (strippable, bytes) ← decodeUInt 1 bytes
   let (volumeIssued, bytes) ← decodeUIntLE 8 bytes
   let (aliveVolume, bytes) ← decodeUIntLE 8 bytes
   let (couponType, bytes) ← CouponType.decode bytes
-  let (couponQuotation, bytes) ← decodeUIntLE 1 bytes
+  let (couponQuotation, bytes) ← decodeUInt 1 bytes
   let (accruedInterestCalculationProcedure, bytes) ← AccruedInterestCalculationProcedure.decode bytes
   let (nextRedemptionDate, bytes) ← decodeUIntLE 4 bytes
   let (typeOfRedemption, bytes) ← Alpha.decode 2 bytes
@@ -4003,14 +4003,14 @@ def decode (bytes : List UInt8) : Option (SecurityListUpdateReportMessage × Lis
   let (priceType, bytes) ← PriceType.decode bytes
   let (spreadToIndex, bytes) ← decodeUIntLE 8 bytes
   let (benchmarkCurvePointsUnits, bytes) ← Alpha.decode 4 bytes
-  let (benchmarkCurvePointsValue, bytes) ← decodeUIntLE 1 bytes
+  let (benchmarkCurvePointsValue, bytes) ← decodeUInt 1 bytes
   let (benchmarkSecurityId, bytes) ← Alpha.decode 25 bytes
   let (accruedInterestRateR8, bytes) ← decodeUIntLE 8 bytes
   pure ({ sequenceNumber, marketId, marketSegmentId, securityCode, symbol, symbolIsin, fisn, issuerLei, securityGroup, cfiCode, securityType, maturityDate, issueDate, contractMultiplier, liSpre, sstIpre, liSpost, sstIpost, liquidInstrument, admissionRequestedByIssuer, minTradeVol, roundLot, currency, modalityMaskB4, securityDescription, tradingObligation, securityName, securityStatus, couponPaymentDate, minPriceIncrement, numberOfDecimals, orderNumberOfDecimals, couponRate, issuer, tradingScopeB1, firstTradingDate, settlementSystem, maturity, couponPeriodicity, benchmark, strippable, volumeIssued, aliveVolume, couponType, couponQuotation, accruedInterestCalculationProcedure, nextRedemptionDate, typeOfRedemption, facial, calculationMethod, dateLastCouponWasPaid, bondSeniority, interestAccrualDate, startDate, priceType, spreadToIndex, benchmarkCurvePointsUnits, benchmarkCurvePointsValue, benchmarkSecurityId, accruedInterestRateR8 }, bytes)
 
 @[simp] theorem encode_length (message : SecurityListUpdateReportMessage) : (encode message).length = 450 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, SecurityStatus.encode_length, SettlementSystem.encode_length, CouponType.encode_length, AccruedInterestCalculationProcedure.encode_length, CalculationMethod.encode_length, PriceType.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, SecurityStatus.encode_length, SettlementSystem.encode_length, CouponType.encode_length, AccruedInterestCalculationProcedure.encode_length, CalculationMethod.encode_length, PriceType.encode_length]
 
 theorem encode_length_pos (message : SecurityListUpdateReportMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4056,9 +4056,9 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4070,7 +4070,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -4080,15 +4080,15 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4096,11 +4096,11 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4108,7 +4108,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, CouponType.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, AccruedInterestCalculationProcedure.decode_encode, some_bind]
   dsimp only
@@ -4134,7 +4134,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -4165,8 +4165,8 @@ def encode (message : SecurityStatusMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (encodeUIntLE 8 message.referencePrice
-    ++ (encodeUIntLE 1 message.securityTradingStatus
-    ++ (encodeUIntLE 1 message.nonAvailabilityReason
+    ++ (encodeUInt 1 message.securityTradingStatus
+    ++ (encodeUInt 1 message.nonAvailabilityReason
     ++ (encodeUIntLE 8 message.highLimitPrice
     ++ (encodeUIntLE 8 message.lowLimitPrice
     ++ (StaticRangeType.encode message.staticRangeType
@@ -4178,8 +4178,8 @@ def decode (bytes : List UInt8) : Option (SecurityStatusMessage × List UInt8) :
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (referencePrice, bytes) ← decodeUIntLE 8 bytes
-  let (securityTradingStatus, bytes) ← decodeUIntLE 1 bytes
-  let (nonAvailabilityReason, bytes) ← decodeUIntLE 1 bytes
+  let (securityTradingStatus, bytes) ← decodeUInt 1 bytes
+  let (nonAvailabilityReason, bytes) ← decodeUInt 1 bytes
   let (highLimitPrice, bytes) ← decodeUIntLE 8 bytes
   let (lowLimitPrice, bytes) ← decodeUIntLE 8 bytes
   let (staticRangeType, bytes) ← StaticRangeType.decode bytes
@@ -4189,7 +4189,7 @@ def decode (bytes : List UInt8) : Option (SecurityStatusMessage × List UInt8) :
 
 @[simp] theorem encode_length (message : SecurityStatusMessage) : (encode message).length = 59 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, StaticRangeType.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, StaticRangeType.encode_length]
 
 theorem encode_length_pos (message : SecurityStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4206,9 +4206,9 @@ theorem encode_length_pos (message : SecurityStatusMessage) : (encode message).l
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4347,7 +4347,7 @@ def encode (message : IndicationOfInterestMessage) : List UInt8 :=
     ++ (Side.encode message.side
     ++ (encodeUIntLE 4 message.ioiQty
     ++ (encodeUIntLE 8 message.ioiPrice
-    ++ (encodeUIntLE 1 message.tradingSessionId))))))))
+    ++ (encodeUInt 1 message.tradingSessionId))))))))
 
 def decode (bytes : List UInt8) : Option (IndicationOfInterestMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
@@ -4358,12 +4358,12 @@ def decode (bytes : List UInt8) : Option (IndicationOfInterestMessage × List UI
   let (side, bytes) ← Side.decode bytes
   let (ioiQty, bytes) ← decodeUIntLE 4 bytes
   let (ioiPrice, bytes) ← decodeUIntLE 8 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   pure ({ sequenceNumber, securityCode, transactionDateAndTime, ioiid, ioiTransType, side, ioiQty, ioiPrice, tradingSessionId }, bytes)
 
 @[simp] theorem encode_length (message : IndicationOfInterestMessage) : (encode message).length = 35 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, IoiTransType.encode_length, Side.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, IoiTransType.encode_length, Side.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : IndicationOfInterestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4388,7 +4388,7 @@ theorem encode_length_pos (message : IndicationOfInterestMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end IndicationOfInterestMessage
@@ -4417,14 +4417,14 @@ namespace OrderAndQuoteClientDataMessage
 def encode (message : OrderAndQuoteClientDataMessage) : List UInt8 :=
   encodeUIntLE 4 message.requestId
     ++ (encodeUIntLE 2 message.clientDataId
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -4434,14 +4434,14 @@ def encode (message : OrderAndQuoteClientDataMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (OrderAndQuoteClientDataMessage × List UInt8) := do
   let (requestId, bytes) ← decodeUIntLE 4 bytes
   let (clientDataId, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -4451,7 +4451,7 @@ def decode (bytes : List UInt8) : Option (OrderAndQuoteClientDataMessage × List
 
 @[simp] theorem encode_length (message : OrderAndQuoteClientDataMessage) : (encode message).length = 64 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : OrderAndQuoteClientDataMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4464,7 +4464,7 @@ theorem encode_length_pos (message : OrderAndQuoteClientDataMessage) : (encode m
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4472,13 +4472,13 @@ theorem encode_length_pos (message : OrderAndQuoteClientDataMessage) : (encode m
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -4592,14 +4592,14 @@ def encode (message : SimpleNewOrderWithClientDataMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderQty
     ++ (TimeInForce.encode message.timeInForce
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -4614,14 +4614,14 @@ def decode (bytes : List UInt8) : Option (SimpleNewOrderWithClientDataMessage ×
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
   let (timeInForce, bytes) ← TimeInForce.decode bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -4631,7 +4631,7 @@ def decode (bytes : List UInt8) : Option (SimpleNewOrderWithClientDataMessage ×
 
 @[simp] theorem encode_length (message : SimpleNewOrderWithClientDataMessage) : (encode message).length = 84 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, TimeInForce.encode_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, TimeInForce.encode_length, encodeUInt_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : SimpleNewOrderWithClientDataMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4654,7 +4654,7 @@ theorem encode_length_pos (message : SimpleNewOrderWithClientDataMessage) : (enc
   dsimp only
   rw [List.append_assoc, TimeInForce.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4662,13 +4662,13 @@ theorem encode_length_pos (message : SimpleNewOrderWithClientDataMessage) : (enc
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -4775,14 +4775,14 @@ def encode (message : SimpleOrderModificationWithClientDataMessage) : List UInt8
     ++ (Side.encode message.side
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderQty
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -4796,14 +4796,14 @@ def decode (bytes : List UInt8) : Option (SimpleOrderModificationWithClientDataM
   let (side, bytes) ← Side.decode bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -4813,7 +4813,7 @@ def decode (bytes : List UInt8) : Option (SimpleOrderModificationWithClientDataM
 
 @[simp] theorem encode_length (message : SimpleOrderModificationWithClientDataMessage) : (encode message).length = 83 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Side.encode_length, encodeUInt_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : SimpleOrderModificationWithClientDataMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -4834,7 +4834,7 @@ theorem encode_length_pos (message : SimpleOrderModificationWithClientDataMessag
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -4842,13 +4842,13 @@ theorem encode_length_pos (message : SimpleOrderModificationWithClientDataMessag
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -5149,16 +5149,16 @@ namespace OrderAndQuoteClientDataParametersAckNackMessage
 def encode (message : OrderAndQuoteClientDataParametersAckNackMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 4 message.requestId
-    ++ (encodeUIntLE 1 message.status
+    ++ (encodeUInt 1 message.status
     ++ (encodeUIntLE 2 message.clientDataId
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -5168,16 +5168,16 @@ def encode (message : OrderAndQuoteClientDataParametersAckNackMessage) : List UI
 def decode (bytes : List UInt8) : Option (OrderAndQuoteClientDataParametersAckNackMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
-  let (status, bytes) ← decodeUIntLE 1 bytes
+  let (status, bytes) ← decodeUInt 1 bytes
   let (clientDataId, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -5187,7 +5187,7 @@ def decode (bytes : List UInt8) : Option (OrderAndQuoteClientDataParametersAckNa
 
 @[simp] theorem encode_length (message : OrderAndQuoteClientDataParametersAckNackMessage) : (encode message).length = 69 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : OrderAndQuoteClientDataParametersAckNackMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -5200,11 +5200,11 @@ theorem encode_length_pos (message : OrderAndQuoteClientDataParametersAckNackMes
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -5212,13 +5212,13 @@ theorem encode_length_pos (message : OrderAndQuoteClientDataParametersAckNackMes
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -5586,7 +5586,7 @@ namespace MassOrderquoteCancellationCompletionMessage
 def encode (message : MassOrderquoteCancellationCompletionMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 8 message.transactionDateAndTime
-    ++ (encodeUIntLE 1 message.tradingUnit
+    ++ (encodeUInt 1 message.tradingUnit
     ++ (CancellationType.encode message.cancellationType
     ++ (OrderOrQuoteCancel.encode message.orderOrQuoteCancel
     ++ (encodeUIntLE 4 message.requestId)))))
@@ -5594,7 +5594,7 @@ def encode (message : MassOrderquoteCancellationCompletionMessage) : List UInt8 
 def decode (bytes : List UInt8) : Option (MassOrderquoteCancellationCompletionMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
-  let (tradingUnit, bytes) ← decodeUIntLE 1 bytes
+  let (tradingUnit, bytes) ← decodeUInt 1 bytes
   let (cancellationType, bytes) ← CancellationType.decode bytes
   let (orderOrQuoteCancel, bytes) ← OrderOrQuoteCancel.decode bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
@@ -5602,7 +5602,7 @@ def decode (bytes : List UInt8) : Option (MassOrderquoteCancellationCompletionMe
 
 @[simp] theorem encode_length (message : MassOrderquoteCancellationCompletionMessage) : (encode message).length = 19 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, CancellationType.encode_length, OrderOrQuoteCancel.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, CancellationType.encode_length, OrderOrQuoteCancel.encode_length]
 
 theorem encode_length_pos (message : MassOrderquoteCancellationCompletionMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -5615,7 +5615,7 @@ theorem encode_length_pos (message : MassOrderquoteCancellationCompletionMessage
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, CancellationType.decode_encode, some_bind]
   dsimp only
@@ -5639,19 +5639,19 @@ namespace MassOrderquoteCancellationRejectMessage
 def encode (message : MassOrderquoteCancellationRejectMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 8 message.transactionDateAndTime
-    ++ (encodeUIntLE 1 message.tradingUnit
+    ++ (encodeUInt 1 message.tradingUnit
     ++ (MassCancelRejectReason.encode message.massCancelRejectReason)))
 
 def decode (bytes : List UInt8) : Option (MassOrderquoteCancellationRejectMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
-  let (tradingUnit, bytes) ← decodeUIntLE 1 bytes
+  let (tradingUnit, bytes) ← decodeUInt 1 bytes
   let (massCancelRejectReason, bytes) ← MassCancelRejectReason.decode bytes
   pure ({ sequenceNumber, transactionDateAndTime, tradingUnit, massCancelRejectReason }, bytes)
 
 @[simp] theorem encode_length (message : MassOrderquoteCancellationRejectMessage) : (encode message).length = 14 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, MassCancelRejectReason.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MassCancelRejectReason.encode_length]
 
 theorem encode_length_pos (message : MassOrderquoteCancellationRejectMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -5664,7 +5664,7 @@ theorem encode_length_pos (message : MassOrderquoteCancellationRejectMessage) : 
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [MassCancelRejectReason.decode_encode, some_bind]
   rfl
@@ -5686,23 +5686,23 @@ namespace BusinessMessageRejectMessage
 def encode (message : BusinessMessageRejectMessage) : List UInt8 :=
   encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 8 message.transactionDateAndTime
-    ++ (encodeUIntLE 1 message.refMsgType
-    ++ (encodeUIntLE 1 message.businessRejectReason
+    ++ (encodeUInt 1 message.refMsgType
+    ++ (encodeUInt 1 message.businessRejectReason
     ++ (Alpha.encode message.textC65
     ++ (encodeUIntLE 4 message.requestId)))))
 
 def decode (bytes : List UInt8) : Option (BusinessMessageRejectMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
-  let (refMsgType, bytes) ← decodeUIntLE 1 bytes
-  let (businessRejectReason, bytes) ← decodeUIntLE 1 bytes
+  let (refMsgType, bytes) ← decodeUInt 1 bytes
+  let (businessRejectReason, bytes) ← decodeUInt 1 bytes
   let (textC65, bytes) ← Alpha.decode 65 bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
   pure ({ sequenceNumber, transactionDateAndTime, refMsgType, businessRejectReason, textC65, requestId }, bytes)
 
 @[simp] theorem encode_length (message : BusinessMessageRejectMessage) : (encode message).length = 83 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : BusinessMessageRejectMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -5715,9 +5715,9 @@ theorem encode_length_pos (message : BusinessMessageRejectMessage) : (encode mes
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -5783,7 +5783,7 @@ def encode (message : ExecutionPrivateInformation2LegsMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -5791,7 +5791,7 @@ def encode (message : ExecutionPrivateInformation2LegsMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
@@ -5833,7 +5833,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation2LegsMessag
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -5841,7 +5841,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation2LegsMessag
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
@@ -5879,7 +5879,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation2LegsMessag
 
 @[simp] theorem encode_length (message : ExecutionPrivateInformation2LegsMessage) : (encode message).length = 184 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length]
 
 theorem encode_length_pos (message : ExecutionPrivateInformation2LegsMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -5897,7 +5897,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -5913,7 +5913,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6060,7 +6060,7 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformation
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -6068,13 +6068,13 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformation
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
-    ++ (encodeUIntLE 1 message.lastChangeFlag
+    ++ (encodeUInt 1 message.lastChangeFlag
     ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
@@ -6104,14 +6104,14 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformation
     ++ (AggressorIndicator.encode message.aggressorIndicator
     ++ (encodeUIntLE 4 message.requestId
     ++ (encodeUIntLE 2 message.clientDataId
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -6129,7 +6129,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -6137,13 +6137,13 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
-  let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
+  let (lastChangeFlag, bytes) ← decodeUInt 1 bytes
   let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
@@ -6173,14 +6173,14 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
   let (aggressorIndicator, bytes) ← AggressorIndicator.decode bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
   let (clientDataId, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -6194,7 +6194,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegB
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage) : (encode message).length = 255 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -6212,7 +6212,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6228,7 +6228,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6240,7 +6240,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, TransactionCategory.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
@@ -6300,7 +6300,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6308,13 +6308,13 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -6413,7 +6413,7 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformatio
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -6421,13 +6421,13 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformatio
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
-    ++ (encodeUIntLE 1 message.lastChangeFlag
+    ++ (encodeUInt 1 message.lastChangeFlag
     ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
@@ -6457,14 +6457,14 @@ def encode (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformatio
     ++ (AggressorIndicator.encode message.aggressorIndicator
     ++ (encodeUIntLE 4 message.requestId
     ++ (encodeUIntLE 2 message.clientDataId
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -6482,7 +6482,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -6490,13 +6490,13 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
-  let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
+  let (lastChangeFlag, bytes) ← decodeUInt 1 bytes
   let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
@@ -6526,14 +6526,14 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
   let (aggressorIndicator, bytes) ← AggressorIndicator.decode bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
   let (clientDataId, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -6547,7 +6547,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation1LegS
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage) : (encode message).length = 255 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -6565,7 +6565,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6581,7 +6581,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6593,7 +6593,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, TransactionCategory.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
@@ -6653,7 +6653,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -6661,13 +6661,13 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -6797,7 +6797,7 @@ def encode (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMe
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -6805,13 +6805,13 @@ def encode (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMe
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
     ++ (encodeUIntLE 4 message.settlDate
     ++ (TransactionCategory.encode message.transactionCategory
-    ++ (encodeUIntLE 1 message.lastChangeFlag
+    ++ (encodeUInt 1 message.lastChangeFlag
     ++ (BencRfptFlag.encode message.bencRfptFlag
     ++ (TradePriceCondition.encode message.tradePriceCondition
     ++ (PreTradeTransparencyWaiver.encode message.preTradeTransparencyWaiver
@@ -6841,14 +6841,14 @@ def encode (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMe
     ++ (AggressorIndicator.encode message.aggressorIndicator
     ++ (encodeUIntLE 4 message.requestId
     ++ (encodeUIntLE 2 message.clientDataId
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator
     ++ (encodeUIntLE 4 message.clientId
     ++ (Alpha.encode message.accountBolsa
     ++ (Alpha.encode message.account
-    ++ (encodeUIntLE 1 message.deaFlag
+    ++ (encodeUInt 1 message.deaFlag
     ++ (encodeUIntLE 4 message.decisorId
     ++ (encodeUIntLE 4 message.executorId
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity
+    ++ (encodeUInt 1 message.liquidityProvisionActivity
     ++ (Alpha.encode message.accountMember
     ++ (LastCapacity.encode message.lastCapacity
     ++ (ReceivedDeptId.encode message.receivedDeptId
@@ -6872,14 +6872,14 @@ def encode (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMe
     ++ (AggressorIndicator2.encode message.aggressorIndicator2
     ++ (encodeUIntLE 4 message.requestId2
     ++ (encodeUIntLE 2 message.clientDataId2
-    ++ (encodeUIntLE 1 message.algorithmicTradeIndicator2
+    ++ (encodeUInt 1 message.algorithmicTradeIndicator2
     ++ (encodeUIntLE 4 message.clientId2
     ++ (Alpha.encode message.accountBolsa2
     ++ (Alpha.encode message.account2
-    ++ (encodeUIntLE 1 message.deaFlag2
+    ++ (encodeUInt 1 message.deaFlag2
     ++ (encodeUIntLE 4 message.decisorId2
     ++ (encodeUIntLE 4 message.executorId2
-    ++ (encodeUIntLE 1 message.liquidityProvisionActivity2
+    ++ (encodeUInt 1 message.liquidityProvisionActivity2
     ++ (Alpha.encode message.accountMember2
     ++ (LastCapacity2.encode message.lastCapacity2
     ++ (ReceivedDeptId2.encode message.receivedDeptId2
@@ -6897,7 +6897,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -6905,13 +6905,13 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
   let (settlDate, bytes) ← decodeUIntLE 4 bytes
   let (transactionCategory, bytes) ← TransactionCategory.decode bytes
-  let (lastChangeFlag, bytes) ← decodeUIntLE 1 bytes
+  let (lastChangeFlag, bytes) ← decodeUInt 1 bytes
   let (bencRfptFlag, bytes) ← BencRfptFlag.decode bytes
   let (tradePriceCondition, bytes) ← TradePriceCondition.decode bytes
   let (preTradeTransparencyWaiver, bytes) ← PreTradeTransparencyWaiver.decode bytes
@@ -6941,14 +6941,14 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (aggressorIndicator, bytes) ← AggressorIndicator.decode bytes
   let (requestId, bytes) ← decodeUIntLE 4 bytes
   let (clientDataId, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator, bytes) ← decodeUInt 1 bytes
   let (clientId, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa, bytes) ← Alpha.decode 16 bytes
   let (account, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag, bytes) ← decodeUInt 1 bytes
   let (decisorId, bytes) ← decodeUIntLE 4 bytes
   let (executorId, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity, bytes) ← decodeUInt 1 bytes
   let (accountMember, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity, bytes) ← LastCapacity.decode bytes
   let (receivedDeptId, bytes) ← ReceivedDeptId.decode bytes
@@ -6972,14 +6972,14 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
   let (aggressorIndicator2, bytes) ← AggressorIndicator2.decode bytes
   let (requestId2, bytes) ← decodeUIntLE 4 bytes
   let (clientDataId2, bytes) ← decodeUIntLE 2 bytes
-  let (algorithmicTradeIndicator2, bytes) ← decodeUIntLE 1 bytes
+  let (algorithmicTradeIndicator2, bytes) ← decodeUInt 1 bytes
   let (clientId2, bytes) ← decodeUIntLE 4 bytes
   let (accountBolsa2, bytes) ← Alpha.decode 16 bytes
   let (account2, bytes) ← Alpha.decode 5 bytes
-  let (deaFlag2, bytes) ← decodeUIntLE 1 bytes
+  let (deaFlag2, bytes) ← decodeUInt 1 bytes
   let (decisorId2, bytes) ← decodeUIntLE 4 bytes
   let (executorId2, bytes) ← decodeUIntLE 4 bytes
-  let (liquidityProvisionActivity2, bytes) ← decodeUIntLE 1 bytes
+  let (liquidityProvisionActivity2, bytes) ← decodeUInt 1 bytes
   let (accountMember2, bytes) ← Alpha.decode 4 bytes
   let (lastCapacity2, bytes) ← LastCapacity2.decode bytes
   let (receivedDeptId2, bytes) ← ReceivedDeptId2.decode bytes
@@ -6993,7 +6993,7 @@ def decode (bytes : List UInt8) : Option (TradeTradeAmendmentOrCancellation2Legs
 
 @[simp] theorem encode_length (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage) : (encode message).length = 367 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length, LastCapacity2.encode_length, ReceivedDeptId2.encode_length, Persistence2.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, BencRfptFlag.encode_length, TradePriceCondition.encode_length, PreTradeTransparencyWaiver.encode_length, DeferralWaiver.encode_length, PostDeferralPublicationType.encode_length, AmendedTradeType.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length, LastCapacity.encode_length, ReceivedDeptId.encode_length, Persistence.encode_length, OrdStatus2.encode_length, CcpCode2.encode_length, AggressorIndicator2.encode_length, LastCapacity2.encode_length, ReceivedDeptId2.encode_length, Persistence2.encode_length]
 
 theorem encode_length_pos (message : TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -7011,7 +7011,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7027,7 +7027,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7039,7 +7039,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, TransactionCategory.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, BencRfptFlag.decode_encode, some_bind]
   dsimp only
@@ -7099,7 +7099,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7107,13 +7107,13 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -7161,7 +7161,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7169,13 +7169,13 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -7241,7 +7241,7 @@ def encode (message : ExecutionPrivateInformation1LegBuyOrderEntryMessage) : Lis
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -7249,7 +7249,7 @@ def encode (message : ExecutionPrivateInformation1LegBuyOrderEntryMessage) : Lis
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
@@ -7277,7 +7277,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegBuyOrde
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -7285,7 +7285,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegBuyOrde
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
@@ -7309,7 +7309,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegBuyOrde
 
 @[simp] theorem encode_length (message : ExecutionPrivateInformation1LegBuyOrderEntryMessage) : (encode message).length = 131 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length]
 
 theorem encode_length_pos (message : ExecutionPrivateInformation1LegBuyOrderEntryMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -7327,7 +7327,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7343,7 +7343,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7429,7 +7429,7 @@ def encode (message : ExecutionPrivateInformation1LegSellOrderEntryMessage) : Li
     ++ (encodeUIntLE 4 message.securityCode
     ++ (encodeUIntLE 8 message.transactionDateAndTime
     ++ (Alpha.encode message.marketSegmentId
-    ++ (encodeUIntLE 1 message.tradingSessionId
+    ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 4 message.trdMatchId
     ++ (TradeType.encode message.tradeType
     ++ (encodeUIntLE 8 message.lastPx
@@ -7437,7 +7437,7 @@ def encode (message : ExecutionPrivateInformation1LegSellOrderEntryMessage) : Li
     ++ (encodeUIntLE 8 message.grossTradeAmt
     ++ (Designation.encode message.designation
     ++ (MarketMechanism.encode message.marketMechanism
-    ++ (encodeUIntLE 1 message.algoFlag
+    ++ (encodeUInt 1 message.algoFlag
     ++ (encodeUIntLE 8 message.altLastPx
     ++ (encodeUIntLE 8 message.accruedInterestAmt
     ++ (encodeUIntLE 8 message.accruedInterestRateP8
@@ -7465,7 +7465,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegSellOrd
   let (securityCode, bytes) ← decodeUIntLE 4 bytes
   let (transactionDateAndTime, bytes) ← decodeUIntLE 8 bytes
   let (marketSegmentId, bytes) ← Alpha.decode 4 bytes
-  let (tradingSessionId, bytes) ← decodeUIntLE 1 bytes
+  let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (trdMatchId, bytes) ← decodeUIntLE 4 bytes
   let (tradeType, bytes) ← TradeType.decode bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
@@ -7473,7 +7473,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegSellOrd
   let (grossTradeAmt, bytes) ← decodeUIntLE 8 bytes
   let (designation, bytes) ← Designation.decode bytes
   let (marketMechanism, bytes) ← MarketMechanism.decode bytes
-  let (algoFlag, bytes) ← decodeUIntLE 1 bytes
+  let (algoFlag, bytes) ← decodeUInt 1 bytes
   let (altLastPx, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestAmt, bytes) ← decodeUIntLE 8 bytes
   let (accruedInterestRateP8, bytes) ← decodeUIntLE 8 bytes
@@ -7497,7 +7497,7 @@ def decode (bytes : List UInt8) : Option (ExecutionPrivateInformation1LegSellOrd
 
 @[simp] theorem encode_length (message : ExecutionPrivateInformation1LegSellOrderEntryMessage) : (encode message).length = 131 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeType.encode_length, Designation.encode_length, MarketMechanism.encode_length, TransactionCategory.encode_length, OrdStatus.encode_length, CcpCode.encode_length, AggressorIndicator.encode_length]
 
 theorem encode_length_pos (message : ExecutionPrivateInformation1LegSellOrderEntryMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -7515,7 +7515,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -7531,7 +7531,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, MarketMechanism.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

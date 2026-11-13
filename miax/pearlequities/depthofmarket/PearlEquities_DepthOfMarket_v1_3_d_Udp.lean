@@ -19,6 +19,9 @@ Note: Trade Flags is a bit field set, proven as its 1 byte integer rather than b
 
 Note: Application Message is not framed: its length Mach Packet Length is not an integer it reads
 
+Note: a Mach Message that ends the session is the last of machMessage: the decoder turns away one
+that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 
@@ -540,19 +543,19 @@ namespace SystemStateMessage
 def encode (message : SystemStateMessage) : List UInt8 :=
   encodeUIntLE 4 message.nanoseconds
     ++ (Alpha.encode message.doMVersion
-    ++ (encodeUIntLE 1 message.sessionId
+    ++ (encodeUInt 1 message.sessionId
     ++ (SystemStatus.encode message.systemStatus)))
 
 def decode (bytes : List UInt8) : Option (SystemStateMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUIntLE 4 bytes
   let (doMVersion, bytes) ← Alpha.decode 8 bytes
-  let (sessionId, bytes) ← decodeUIntLE 1 bytes
+  let (sessionId, bytes) ← decodeUInt 1 bytes
   let (systemStatus, bytes) ← SystemStatus.decode bytes
   pure ({ nanoseconds, doMVersion, sessionId, systemStatus }, bytes)
 
 @[simp] theorem encode_length (message : SystemStateMessage) : (encode message).length = 14 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, SystemStatus.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, SystemStatus.encode_length]
 
 theorem encode_length_pos (message : SystemStateMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -565,7 +568,7 @@ theorem encode_length_pos (message : SystemStateMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [SystemStatus.decode_encode, some_bind]
   rfl
@@ -586,21 +589,21 @@ namespace SecurityTradingStatusNotificationMessage
 def encode (message : SecurityTradingStatusNotificationMessage) : List UInt8 :=
   encodeUIntLE 4 message.nanoseconds
     ++ (encodeUIntLE 4 message.symbolId
-    ++ (encodeUIntLE 1 message.tradingStatus
-    ++ (encodeUIntLE 1 message.marketState
+    ++ (encodeUInt 1 message.tradingStatus
+    ++ (encodeUInt 1 message.marketState
     ++ (ShortSaleRestriction.encode message.shortSaleRestriction))))
 
 def decode (bytes : List UInt8) : Option (SecurityTradingStatusNotificationMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 4 bytes
-  let (tradingStatus, bytes) ← decodeUIntLE 1 bytes
-  let (marketState, bytes) ← decodeUIntLE 1 bytes
+  let (tradingStatus, bytes) ← decodeUInt 1 bytes
+  let (marketState, bytes) ← decodeUInt 1 bytes
   let (shortSaleRestriction, bytes) ← ShortSaleRestriction.decode bytes
   pure ({ nanoseconds, symbolId, tradingStatus, marketState, shortSaleRestriction }, bytes)
 
 @[simp] theorem encode_length (message : SecurityTradingStatusNotificationMessage) : (encode message).length = 11 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, ShortSaleRestriction.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, ShortSaleRestriction.encode_length]
 
 theorem encode_length_pos (message : SecurityTradingStatusNotificationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -613,9 +616,9 @@ theorem encode_length_pos (message : SecurityTradingStatusNotificationMessage) :
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [ShortSaleRestriction.decode_encode, some_bind]
   rfl
@@ -889,7 +892,7 @@ def encode (message : TradeMessage) : List UInt8 :=
   encodeUIntLE 4 message.nanoseconds
     ++ (encodeUIntLE 4 message.symbolId
     ++ (encodeUIntLE 8 message.tradeId
-    ++ (encodeUIntLE 1 message.correctionNumber
+    ++ (encodeUInt 1 message.correctionNumber
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.size
     ++ (encodeUIntLE 1 message.tradeFlags))))))
@@ -898,7 +901,7 @@ def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 4 bytes
   let (tradeId, bytes) ← decodeUIntLE 8 bytes
-  let (correctionNumber, bytes) ← decodeUIntLE 1 bytes
+  let (correctionNumber, bytes) ← decodeUInt 1 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (size, bytes) ← decodeUIntLE 4 bytes
   let (tradeFlags, bytes) ← decodeUIntLE 1 bytes
@@ -906,7 +909,7 @@ def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
 
 @[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 30 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -921,7 +924,7 @@ theorem encode_length_pos (message : TradeMessage) : (encode message).length > 0
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -948,7 +951,7 @@ def encode (message : TradeCancelMessage) : List UInt8 :=
   encodeUIntLE 4 message.nanoseconds
     ++ (encodeUIntLE 4 message.symbolId
     ++ (encodeUIntLE 8 message.tradeId
-    ++ (encodeUIntLE 1 message.correctionNumber
+    ++ (encodeUInt 1 message.correctionNumber
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.size)))))
 
@@ -956,14 +959,14 @@ def decode (bytes : List UInt8) : Option (TradeCancelMessage × List UInt8) := d
   let (nanoseconds, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 4 bytes
   let (tradeId, bytes) ← decodeUIntLE 8 bytes
-  let (correctionNumber, bytes) ← decodeUIntLE 1 bytes
+  let (correctionNumber, bytes) ← decodeUInt 1 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (size, bytes) ← decodeUIntLE 4 bytes
   pure ({ nanoseconds, symbolId, tradeId, correctionNumber, price, size }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelMessage) : (encode message).length = 29 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : TradeCancelMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -978,7 +981,7 @@ theorem encode_length_pos (message : TradeCancelMessage) : (encode message).leng
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -1180,6 +1183,11 @@ def encode : Payload → List UInt8
   | .endOfSession message => EndOfSession.encode message
   | .applicationMessage message => ApplicationMessage.encode message
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession : Payload → Bool
+  | .endOfSession _ => true
+  | _ => false
+
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 42 := by
   cases message with
@@ -1220,22 +1228,22 @@ structure MachMessage where
 namespace MachMessage
 
 def encodeBody (message : MachMessage) : List UInt8 :=
-  encodeUIntLE 1 (Payload.tag message.payload)
-    ++ (encodeUIntLE 1 message.sessionNumber
+  encodeUInt 1 (Payload.tag message.payload)
+    ++ (encodeUInt 1 message.sessionNumber
     ++ (Payload.encode message.payload))
 
 def decodeBody (sequenceNumber : BitVec 64) (bytes : List UInt8) : Option (MachMessage × List UInt8) := do
-  let (machPacketType, bytes) ← decodeUIntLE 1 bytes
-  let (sessionNumber, bytes) ← decodeUIntLE 1 bytes
+  let (machPacketType, bytes) ← decodeUInt 1 bytes
+  let (sessionNumber, bytes) ← decodeUInt 1 bytes
   let (payload, bytes) ← Payload.decode machPacketType bytes
   pure ({ sequenceNumber, sessionNumber, payload }, bytes)
 
 theorem decodeBody_encodeBody (message : MachMessage) (rest : List UInt8) :
     decodeBody message.sequenceNumber (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Payload.decode_encode, some_bind]
   rfl
@@ -1245,17 +1253,17 @@ theorem encodeBody_length_lt (message : MachMessage) : (encodeBody message).leng
   unfold encodeBody
   cases message.payload with
   | heartbeat inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Heartbeat.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Heartbeat.encode_length]
     omega
   | startOfSession inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, StartOfSession.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, StartOfSession.encode_length]
     omega
   | endOfSession inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, EndOfSession.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, EndOfSession.encode_length]
     omega
   | applicationMessage inner =>
     have bound_inner := ApplicationMessage.encode_length_le inner
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length]
     omega
 
 /-- Size rule: Mach Packet Length counts the bytes after it plus 10, so it is written from the body and checked on decode; Sequence Number is read ahead of it -/
@@ -1279,11 +1287,16 @@ theorem encode_length_pos (message : MachMessage) : (encode message).length > 0 
   simp only [encodeUIntLE_length, List.length_append, encodeFramedLE_length]
   omega
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession (message : MachMessage) : Bool :=
+  Payload.endsSession message.payload
+
 end MachMessage
 
 /-- Udp Packet -/
 structure UdpPacket where
   machMessage : List MachMessage
+  machMessage_last : endsLast MachMessage.endsSession machMessage = true
   deriving DecidableEq, Repr
 
 namespace UdpPacket
@@ -1293,11 +1306,14 @@ def encode (message : UdpPacket) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option UdpPacket := do
   let machMessage ← decodeAll MachMessage.decode bytes.length bytes
-  pure { machMessage }
+  if last_machMessage : endsLast MachMessage.endsSession machMessage = true then
+    pure { machMessage, machMessage_last := last_machMessage }
+  else none
 
 theorem decode_encode (message : UdpPacket) : decode (encode message) = some message := by
   unfold decode encode
   rw [decodeAll_encodeMany MachMessage.encode MachMessage.decode MachMessage.decode_encode MachMessage.encode_length_pos message.machMessage _ (encodeMany_length_ge MachMessage.encode MachMessage.encode_length_pos message.machMessage), some_bind]
+  rw [dite_eq_left message.machMessage_last]
   rfl
 
 end UdpPacket

@@ -127,9 +127,9 @@ def encode (message : LimitOrderMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.limitOrderBitFields
     ++ (encodeUIntLE 2 message.symbolId
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderPriceSlideInstruction
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderMinQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderMaxFloorQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderMaxReplenishQtyRange
@@ -148,9 +148,9 @@ def decode (bytes : List UInt8) : Option (LimitOrderMessage × List UInt8) := do
   let (limitOrderBitFields, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
-  let (limitOrderSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderPresenceBits_ &&& 1 != 0) bytes
-  let (limitOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderPresenceBits_ &&& 2 != 0) bytes
-  let (limitOrderPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderPresenceBits_ &&& 4 != 0) bytes
+  let (limitOrderSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (limitOrderPresenceBits_ &&& 1 != 0) bytes
+  let (limitOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderPresenceBits_ &&& 2 != 0) bytes
+  let (limitOrderPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderPresenceBits_ &&& 4 != 0) bytes
   let (limitOrderMinQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderPresenceBits_ &&& 8 != 0) bytes
   let (limitOrderMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderPresenceBits_ &&& 16 != 0) bytes
   let (limitOrderMaxReplenishQtyRange, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderPresenceBits_ &&& 32 != 0) bytes
@@ -257,13 +257,13 @@ theorem encode_length_pos (message : LimitOrderMessage) : (encode message).lengt
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [selected_limitOrderSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderMinQty]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
@@ -324,8 +324,8 @@ def encode (message : MarketOrderMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.orderQty
     ++ (encodeUIntLE 2 message.marketOrderBitFields
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderSelfMatchInstruction
     ++ (encodeOptional (encodeUIntLE 8) message.marketOrderUserData
     ++ (encodeOptional (Alpha.encode) message.marketOrderMpid
     ++ (encodeOptional (Alpha.encode) message.marketOrderMemberGroup
@@ -337,8 +337,8 @@ def decode (bytes : List UInt8) : Option (MarketOrderMessage × List UInt8) := d
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
   let (marketOrderBitFields, bytes) ← decodeUIntLE 2 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (marketOrderSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderPresenceBits_ &&& 1 != 0) bytes
-  let (marketOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderPresenceBits_ &&& 2 != 0) bytes
+  let (marketOrderSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (marketOrderPresenceBits_ &&& 1 != 0) bytes
+  let (marketOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (marketOrderPresenceBits_ &&& 2 != 0) bytes
   let (marketOrderUserData, bytes) ← decodeOptional (decodeUIntLE 8) (marketOrderPresenceBits_ &&& 4 != 0) bytes
   let (marketOrderMpid, bytes) ← decodeOptional (Alpha.decode 4) (marketOrderPresenceBits_ &&& 8 != 0) bytes
   let (marketOrderMemberGroup, bytes) ← decodeOptional (Alpha.decode 2) (marketOrderPresenceBits_ &&& 16 != 0) bytes
@@ -402,10 +402,10 @@ theorem encode_length_pos (message : MarketOrderMessage) : (encode message).leng
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [selected_marketOrderSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderUserData]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 8) (decodeUIntLE 8) (decodeUIntLE_encodeUIntLE 8), some_bind]
@@ -562,9 +562,9 @@ def encode (message : ReplaceOrderMessage) : List UInt8 :=
     ++ (encodeOptional (encodeUIntLE 8) message.replaceOrderPrice
     ++ (encodeOptional (encodeUIntLE 4) message.replaceOrderOrderQty
     ++ (encodeOptional (encodeUIntLE 4) message.replaceOrderMaxFloorQty
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceOrderSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceOrderSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceOrderPriceSlideInstruction
+    ++ (encodeOptional (encodeUInt 1) message.replaceOrderSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.replaceOrderSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.replaceOrderPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 2) message.replaceOrderReferencePriceTarget
     ++ (encodeOptional (Alpha.encode) message.replaceOrderLocateBroker)))))))))))
 
@@ -576,9 +576,9 @@ def decode (bytes : List UInt8) : Option (ReplaceOrderMessage × List UInt8) := 
   let (replaceOrderPrice, bytes) ← decodeOptional (decodeUIntLE 8) (replaceOrderPresenceBits_ &&& 1 != 0) bytes
   let (replaceOrderOrderQty, bytes) ← decodeOptional (decodeUIntLE 4) (replaceOrderPresenceBits_ &&& 2 != 0) bytes
   let (replaceOrderMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (replaceOrderPresenceBits_ &&& 4 != 0) bytes
-  let (replaceOrderSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (replaceOrderPresenceBits_ &&& 8 != 0) bytes
-  let (replaceOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (replaceOrderPresenceBits_ &&& 16 != 0) bytes
-  let (replaceOrderPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (replaceOrderPresenceBits_ &&& 32 != 0) bytes
+  let (replaceOrderSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (replaceOrderPresenceBits_ &&& 8 != 0) bytes
+  let (replaceOrderSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (replaceOrderPresenceBits_ &&& 16 != 0) bytes
+  let (replaceOrderPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (replaceOrderPresenceBits_ &&& 32 != 0) bytes
   let (replaceOrderReferencePriceTarget, bytes) ← decodeOptional (decodeUIntLE 2) (replaceOrderPresenceBits_ &&& 64 != 0) bytes
   let (replaceOrderLocateBroker, bytes) ← decodeOptional (Alpha.decode 4) (replaceOrderPresenceBits_ &&& 128 != 0) bytes
   if fits_replaceOrderPresenceBits : (replaceOrderPresenceBits_ &&& 65280) &&& 255 = 0 then
@@ -657,13 +657,13 @@ theorem encode_length_pos (message : ReplaceOrderMessage) : (encode message).len
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
   dsimp only
   rw [selected_replaceOrderSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceOrderSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceOrderPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceOrderReferencePriceTarget]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 2) (decodeUIntLE 2) (decodeUIntLE_encodeUIntLE 2), some_bind]
@@ -694,7 +694,7 @@ namespace MassCancelMessage
 def encode (message : MassCancelMessage) : List UInt8 :=
   encodeUIntLE 1 (message.massCancelPresenceBits.val ||| presence (n := 8) 1 message.massCancelMpid.isSome ||| presence (n := 8) 2 message.massCancelSenderComp.isSome ||| presence (n := 8) 4 message.massCancelMemberGroup.isSome ||| presence (n := 8) 8 message.massCancelClOrdId.isSome)
     ++ (encodeUIntLE 8 message.massCancelRequestId
-    ++ (encodeUIntLE 1 message.massCancelScope
+    ++ (encodeUInt 1 message.massCancelScope
     ++ (encodeUIntLE 1 message.massCancelBitFields
     ++ (encodeOptional (Alpha.encode) message.massCancelMpid
     ++ (encodeOptional (Alpha.encode) message.massCancelSenderComp
@@ -704,7 +704,7 @@ def encode (message : MassCancelMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (MassCancelMessage × List UInt8) := do
   let (massCancelPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (massCancelRequestId, bytes) ← decodeUIntLE 8 bytes
-  let (massCancelScope, bytes) ← decodeUIntLE 1 bytes
+  let (massCancelScope, bytes) ← decodeUInt 1 bytes
   let (massCancelBitFields, bytes) ← decodeUIntLE 1 bytes
   let (massCancelMpid, bytes) ← decodeOptional (Alpha.decode 4) (massCancelPresenceBits_ &&& 1 != 0) bytes
   let (massCancelSenderComp, bytes) ← decodeOptional (Alpha.decode 8) (massCancelPresenceBits_ &&& 2 != 0) bytes
@@ -752,7 +752,7 @@ theorem encode_length_pos (message : MassCancelMessage) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -885,18 +885,18 @@ structure ClientRakeTcpMessage where
 namespace ClientRakeTcpMessage
 
 def encodeBody (message : ClientRakeTcpMessage) : List UInt8 :=
-  encodeUIntLE 1 (ClientPayload.tag message.clientPayload)
+  encodeUInt 1 (ClientPayload.tag message.clientPayload)
     ++ (ClientPayload.encode message.clientPayload)
 
 def decodeBody (bytes : List UInt8) : Option (ClientRakeTcpMessage × List UInt8) := do
-  let (packetType, bytes) ← decodeUIntLE 1 bytes
+  let (packetType, bytes) ← decodeUInt 1 bytes
   let (clientPayload, bytes) ← ClientPayload.decode packetType bytes
   pure ({ clientPayload }, bytes)
 
 theorem decodeBody_encodeBody (message : ClientRakeTcpMessage) (rest : List UInt8) :
     decodeBody (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [ClientPayload.decode_encode, some_bind]
   rfl

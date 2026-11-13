@@ -5,6 +5,10 @@
 
 | Division | [Protocol][Omi.Eurex.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Transport | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Eurex.Specifications] |
 | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [T7][T7.Platform] | [CashOrderEntry][Eurex.T7.CashOrderEntry] | [Fix][Omi.Encoding.Fix] | [12.0][Eurex.T7.CashOrderEntry.Fix.v12.0.Client.Definition] | [Client][Eurex.T7.CashOrderEntry.Fix.v12.0.Client.Definition] | 8/25/2023 | 2,180 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][Eurex.T7.CashOrderEntry.Fix.v12.0.Url] |
+| [T7][T7.Platform] | [CashOrderEntry][Eurex.T7.CashOrderEntry] | [Fix][Omi.Encoding.Fix] | [14.0][Eurex.T7.CashOrderEntry.Fix.v14.0.Client.Definition] | [Client][Eurex.T7.CashOrderEntry.Fix.v14.0.Client.Definition] | 8/18/2025 | 2,210 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][Eurex.T7.CashOrderEntry.Fix.v14.0.Url] - [pdf][Eurex.T7.CashOrderEntry.Fix.v14.0.Pdf] |
+| [T7][T7.Platform] | [CashOrderEntry][Eurex.T7.CashOrderEntry] | [Fix][Omi.Encoding.Fix] | [14.1][Eurex.T7.CashOrderEntry.Fix.v14.1.Client.Definition] | [Client][Eurex.T7.CashOrderEntry.Fix.v14.1.Client.Definition] | 2/19/2026 | 2,220 | [Active][Omi.Glossary.Deployment.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Eurex.T7.CashOrderEntry.Fix.v14.1.Url] - [pdf][Eurex.T7.CashOrderEntry.Fix.v14.1.Pdf] |
+| [T7][T7.Platform] | [CashOrderEntry][Eurex.T7.CashOrderEntry] | [Fix][Omi.Encoding.Fix] | [15.0][Eurex.T7.CashOrderEntry.Fix.v15.0.Client.Definition] | [Client][Eurex.T7.CashOrderEntry.Fix.v15.0.Client.Definition] | 7/31/2026 | 2,269 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][Eurex.T7.CashOrderEntry.Fix.v15.0.Url] - [pdf][Eurex.T7.CashOrderEntry.Fix.v15.0.Pdf] |
 | [T7][T7.Platform] | [Edci][Eurex.T7.Edci] | [Fbe][Omi.Encoding.Fbe] | 1 | [Client][Eurex.T7.Edci.Fbe.v1.Client.Definition] [Server][Eurex.T7.Edci.Fbe.v1.Server.Definition] | 1/1/2015 | 168 | [Header][Omi.Glossary.Deployment.Header] | [Verified][Omi.Glossary.Testing.Verified] | [url][Eurex.T7.Edci.Fbe.v1.Url] |
 | [T7][T7.Platform] | [Edci][Eurex.T7.Edci] | [Fbe][Omi.Encoding.Fbe] | 13.0 | [Client][Eurex.T7.Edci.Fbe.v13.0.Client.Definition] [Server][Eurex.T7.Edci.Fbe.v13.0.Server.Definition] | 10/10/2024 | 1,899 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][Eurex.T7.Edci.Fbe.v13.0.Url] - [pdf][Eurex.T7.Edci.Fbe.v13.0.Pdf] - [xml][Eurex.T7.Edci.Fbe.v13.0.Xml] |
 | [T7][T7.Platform] | [Edci][Eurex.T7.Edci] | [Fbe][Omi.Encoding.Fbe] | 13.1 | [Client][Eurex.T7.Edci.Fbe.v13.1.Client.Definition] [Server][Eurex.T7.Edci.Fbe.v13.1.Server.Definition] | 3/6/2025 | 1,899 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][Eurex.T7.Edci.Fbe.v13.1.Url] - [pdf][Eurex.T7.Edci.Fbe.v13.1.Pdf] - [xml][Eurex.T7.Edci.Fbe.v13.1.Xml] |
@@ -97,13 +101,26 @@
 [Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
 [Omi.Eurex.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Eurex/Protocols "Eurex Protocol Directory"
 [Omi.Eurex.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Eurex/Specifications "Eurex Specifications Directory"
+[Omi.Encoding.Fix]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fix.md "Fix Encoding"
 [Omi.Encoding.Fbe]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fbe.md "Fbe Encoding"
 [T7.Platform]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Eurex/Protocols/T7 "Eurex T7"
+[Eurex.T7.CashOrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/CashOrderEntry.md "Cash Order Entry"
 [Eurex.T7.Edci]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Edci.md "Extended Derivatives Clearing Interface"
 [Eurex.T7.Eobi]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Eobi.md "Enhanced Order Book Interface"
 [Eurex.T7.Eti]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Eti.md "Enhanced Trading Interface"
 [Eurex.T7.Xti]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Xti.md "Cash Enhanced Trading Interface"
 
+[Eurex.T7.CashOrderEntry.Fix.v12.0.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/cashorderentry/Eurex_T7_CashOrderEntry_v12_0_Client.lean "Eurex T7 CashOrderEntry Fix v12.0 Lean Definition"
+[Eurex.T7.CashOrderEntry.Fix.v12.0.Url]: https://www.eurex.com/ex-en/technology/t7 "Eurex Exchange 12.0 Url"
+[Eurex.T7.CashOrderEntry.Fix.v14.0.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/cashorderentry/Eurex_T7_CashOrderEntry_v14_0_Client.lean "Eurex T7 CashOrderEntry Fix v14.0 Lean Definition"
+[Eurex.T7.CashOrderEntry.Fix.v14.0.Url]: https://www.eurex.com/ex-en/technology/t7 "Eurex Exchange 14.0 Url"
+[Eurex.T7.CashOrderEntry.Fix.v14.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Specifications/14.0/Fix/Eurex.T7.CashOrderEntry.Fix.v14.0.pdf "Eurex Exchange 14.0 Pdf"
+[Eurex.T7.CashOrderEntry.Fix.v14.1.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/cashorderentry/Eurex_T7_CashOrderEntry_v14_1_Client.lean "Eurex T7 CashOrderEntry Fix v14.1 Lean Definition"
+[Eurex.T7.CashOrderEntry.Fix.v14.1.Url]: https://www.eurex.com/ex-en/technology/t7 "Eurex Exchange 14.1 Url"
+[Eurex.T7.CashOrderEntry.Fix.v14.1.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Specifications/14.1/Fix/Eurex.T7.CashOrderEntry.Fix.v14.1.pdf "Eurex Exchange 14.1 Pdf"
+[Eurex.T7.CashOrderEntry.Fix.v15.0.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/cashorderentry/Eurex_T7_CashOrderEntry_v15_0_Client.lean "Eurex T7 CashOrderEntry Fix v15.0 Lean Definition"
+[Eurex.T7.CashOrderEntry.Fix.v15.0.Url]: https://www.eurex.com/ex-en/support/initiatives/t7release15-0 "Eurex Exchange 15.0 Url"
+[Eurex.T7.CashOrderEntry.Fix.v15.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Specifications/15.0/Fix/Eurex.T7.CashOrderEntry.Fix.v15.0.pdf "Eurex Exchange 15.0 Pdf"
 [Eurex.T7.Edci.Fbe.v1.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/edci/Eurex_T7_Edci_v1_Client.lean "Eurex T7 Edci Fbe v1 Lean Definition"
 [Eurex.T7.Edci.Fbe.v1.Url]: https://www.eurex.com/ex-en/technology/t7 "Eurex Exchange 1 Url"
 [Eurex.T7.Edci.Fbe.v1.Server.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/eurex/t7/edci/Eurex_T7_Edci_v1_Server.lean "Eurex T7 Edci Fbe v1 Lean Definition"

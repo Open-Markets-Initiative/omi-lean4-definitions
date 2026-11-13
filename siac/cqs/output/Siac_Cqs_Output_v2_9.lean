@@ -2496,7 +2496,7 @@ structure MarketWideCircuitBreakerDeclineLevelStatusMessage where
   mwcbLevel1 : BitVec 64
   mwcbLevel2 : BitVec 64
   mwcbLevel3 : BitVec 64
-  reserved : BitVec 8
+  reserved : Alpha 1
   deriving DecidableEq, Repr
 
 namespace MarketWideCircuitBreakerDeclineLevelStatusMessage
@@ -2510,7 +2510,7 @@ def encode (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) : List 
     ++ (encodeUInt 8 message.mwcbLevel1
     ++ (encodeUInt 8 message.mwcbLevel2
     ++ (encodeUInt 8 message.mwcbLevel3
-    ++ (encodeUInt 1 message.reserved))))))))
+    ++ (Alpha.encode message.reserved))))))))
 
 def decode (bytes : List UInt8) : Option (MarketWideCircuitBreakerDeclineLevelStatusMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
@@ -2521,12 +2521,12 @@ def decode (bytes : List UInt8) : Option (MarketWideCircuitBreakerDeclineLevelSt
   let (mwcbLevel1, bytes) ← decodeUInt 8 bytes
   let (mwcbLevel2, bytes) ← decodeUInt 8 bytes
   let (mwcbLevel3, bytes) ← decodeUInt 8 bytes
-  let (reserved, bytes) ← decodeUInt 1 bytes
+  let (reserved, bytes) ← Alpha.decode 1 bytes
   pure ({ participantId, participantTimestamp, messageId, transactionId, participantReferenceNumber, mwcbLevel1, mwcbLevel2, mwcbLevel3, reserved }, bytes)
 
 @[simp] theorem encode_length (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) : (encode message).length = 47 := by
   unfold encode
-  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length]
+  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : MarketWideCircuitBreakerDeclineLevelStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2551,7 +2551,7 @@ theorem encode_length_pos (message : MarketWideCircuitBreakerDeclineLevelStatusM
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end MarketWideCircuitBreakerDeclineLevelStatusMessage
@@ -2564,7 +2564,7 @@ structure MarketWideCircuitBreakerStatusMessage where
   transactionId : BitVec 32
   participantReferenceNumber : BitVec 64
   mwcbLevelIndicator : MwcbLevelIndicator
-  reserved : BitVec 8
+  reserved : Alpha 1
   deriving DecidableEq, Repr
 
 namespace MarketWideCircuitBreakerStatusMessage
@@ -2576,7 +2576,7 @@ def encode (message : MarketWideCircuitBreakerStatusMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.transactionId
     ++ (encodeUInt 8 message.participantReferenceNumber
     ++ (MwcbLevelIndicator.encode message.mwcbLevelIndicator
-    ++ (encodeUInt 1 message.reserved))))))
+    ++ (Alpha.encode message.reserved))))))
 
 def decode (bytes : List UInt8) : Option (MarketWideCircuitBreakerStatusMessage × List UInt8) := do
   let (participantId, bytes) ← ParticipantId.decode bytes
@@ -2585,12 +2585,12 @@ def decode (bytes : List UInt8) : Option (MarketWideCircuitBreakerStatusMessage 
   let (transactionId, bytes) ← decodeUInt 4 bytes
   let (participantReferenceNumber, bytes) ← decodeUInt 8 bytes
   let (mwcbLevelIndicator, bytes) ← MwcbLevelIndicator.decode bytes
-  let (reserved, bytes) ← decodeUInt 1 bytes
+  let (reserved, bytes) ← Alpha.decode 1 bytes
   pure ({ participantId, participantTimestamp, messageId, transactionId, participantReferenceNumber, mwcbLevelIndicator, reserved }, bytes)
 
 @[simp] theorem encode_length (message : MarketWideCircuitBreakerStatusMessage) : (encode message).length = 24 := by
   unfold encode
-  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length, MwcbLevelIndicator.encode_length]
+  simp only [List.length_append, ParticipantId.encode_length, ParticipantTimestamp.encode_length, encodeUInt_length, MwcbLevelIndicator.encode_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : MarketWideCircuitBreakerStatusMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2611,7 +2611,7 @@ theorem encode_length_pos (message : MarketWideCircuitBreakerStatusMessage) : (e
   dsimp only
   rw [List.append_assoc, MwcbLevelIndicator.decode_encode, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end MarketWideCircuitBreakerStatusMessage

@@ -583,9 +583,9 @@ theorem encode_length_pos (message : AdminLogin) : (encode message).length > 0 :
 
 end AdminLogin
 
-/-- Admin Logout: 100 bytes -/
+/-- Admin Logout: 180 bytes -/
 structure AdminLogout where
-  text : Alpha 100
+  text : Alpha 180
   deriving DecidableEq, Repr
 
 namespace AdminLogout
@@ -594,10 +594,10 @@ def encode (message : AdminLogout) : List UInt8 :=
   Alpha.encode message.text
 
 def decode (bytes : List UInt8) : Option (AdminLogout × List UInt8) := do
-  let (text, bytes) ← Alpha.decode 100 bytes
+  let (text, bytes) ← Alpha.decode 180 bytes
   pure ({ text }, bytes)
 
-@[simp] theorem encode_length (message : AdminLogout) : (encode message).length = 100 := by
+@[simp] theorem encode_length (message : AdminLogout) : (encode message).length = 180 := by
   unfold encode
   simp only [Alpha.encode_length]
 
@@ -4206,7 +4206,7 @@ end RequestAck
 structure RequestReject where
   mdReqIdOptional : BitVec 32
   mdReqRejReason : BitVec 8
-  text : Alpha 100
+  sessionText : Alpha 100
   deriving DecidableEq, Repr
 
 namespace RequestReject
@@ -4214,13 +4214,13 @@ namespace RequestReject
 def encode (message : RequestReject) : List UInt8 :=
   encodeUIntLE 4 message.mdReqIdOptional
     ++ (encodeUInt 1 message.mdReqRejReason
-    ++ (Alpha.encode message.text))
+    ++ (Alpha.encode message.sessionText))
 
 def decode (bytes : List UInt8) : Option (RequestReject × List UInt8) := do
   let (mdReqIdOptional, bytes) ← decodeUIntLE 4 bytes
   let (mdReqRejReason, bytes) ← decodeUInt 1 bytes
-  let (text, bytes) ← Alpha.decode 100 bytes
-  pure ({ mdReqIdOptional, mdReqRejReason, text }, bytes)
+  let (sessionText, bytes) ← Alpha.decode 100 bytes
+  pure ({ mdReqIdOptional, mdReqRejReason, sessionText }, bytes)
 
 @[simp] theorem encode_length (message : RequestReject) : (encode message).length = 105 := by
   unfold encode

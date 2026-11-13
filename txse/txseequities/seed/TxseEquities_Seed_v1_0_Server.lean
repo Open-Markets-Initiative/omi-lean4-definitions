@@ -232,18 +232,18 @@ namespace TradingSessionStatusMessage
 def encode (message : TradingSessionStatusMessage) : List UInt8 :=
   encodeUIntLE 1 (message.tradingSessionStatusPresenceBits.val ||| presence (n := 8) 1 message.tradingSessionStatusOperationalHaltReason.isSome ||| presence (n := 8) 2 message.tradingSessionStatusRegulatoryHaltReason.isSome)
     ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.marketHoursState
-    ++ (encodeUIntLE 1 message.sessionTradingState
-    ++ (encodeOptional (encodeUIntLE 1) message.tradingSessionStatusOperationalHaltReason
-    ++ (encodeOptional (encodeUIntLE 1) message.tradingSessionStatusRegulatoryHaltReason)))))
+    ++ (encodeUInt 1 message.marketHoursState
+    ++ (encodeUInt 1 message.sessionTradingState
+    ++ (encodeOptional (encodeUInt 1) message.tradingSessionStatusOperationalHaltReason
+    ++ (encodeOptional (encodeUInt 1) message.tradingSessionStatusRegulatoryHaltReason)))))
 
 def decode (bytes : List UInt8) : Option (TradingSessionStatusMessage × List UInt8) := do
   let (tradingSessionStatusPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (marketHoursState, bytes) ← decodeUIntLE 1 bytes
-  let (sessionTradingState, bytes) ← decodeUIntLE 1 bytes
-  let (tradingSessionStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (tradingSessionStatusPresenceBits_ &&& 1 != 0) bytes
-  let (tradingSessionStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (tradingSessionStatusPresenceBits_ &&& 2 != 0) bytes
+  let (marketHoursState, bytes) ← decodeUInt 1 bytes
+  let (sessionTradingState, bytes) ← decodeUInt 1 bytes
+  let (tradingSessionStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUInt 1) (tradingSessionStatusPresenceBits_ &&& 1 != 0) bytes
+  let (tradingSessionStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUInt 1) (tradingSessionStatusPresenceBits_ &&& 2 != 0) bytes
   if fits_tradingSessionStatusPresenceBits : (tradingSessionStatusPresenceBits_ &&& 252) &&& 3 = 0 then
     pure ({ tradingSessionStatusPresenceBits := ⟨tradingSessionStatusPresenceBits_ &&& 252, fits_tradingSessionStatusPresenceBits⟩, transactTime, marketHoursState, sessionTradingState, tradingSessionStatusOperationalHaltReason, tradingSessionStatusRegulatoryHaltReason }, bytes)
   else none
@@ -276,15 +276,15 @@ theorem encode_length_pos (message : TradingSessionStatusMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_tradingSessionStatusOperationalHaltReason]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_tradingSessionStatusRegulatoryHaltReason]
-  rw [decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [dite_eq_left (by rw [carried_tradingSessionStatusPresenceBits]; exact message.tradingSessionStatusPresenceBits.property)]
   simp only [carried_tradingSessionStatusPresenceBits]
@@ -315,20 +315,20 @@ def encode (message : DefineSymbolMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.symbolId
     ++ (Alpha.encode message.symbol
     ++ (Alpha.encode message.suffix
-    ++ (encodeUIntLE 1 message.matchingEngineId
+    ++ (encodeUInt 1 message.matchingEngineId
     ++ (encodeUIntLE 1 message.defineSymbolBitFields
     ++ (encodeUIntLE 4 message.lotSize
-    ++ (encodeOptional (encodeUIntLE 1) message.listingMarket)))))))
+    ++ (encodeOptional (encodeUInt 1) message.listingMarket)))))))
 
 def decode (bytes : List UInt8) : Option DefineSymbolMessage := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
   let (symbol, bytes) ← Alpha.decode 8 bytes
   let (suffix, bytes) ← Alpha.decode 8 bytes
-  let (matchingEngineId, bytes) ← decodeUIntLE 1 bytes
+  let (matchingEngineId, bytes) ← decodeUInt 1 bytes
   let (defineSymbolBitFields, bytes) ← decodeUIntLE 1 bytes
   let (lotSize, bytes) ← decodeUIntLE 4 bytes
-  let listingMarket ← decodeRemaining (decodeUIntLE 1) bytes
+  let listingMarket ← decodeRemaining (decodeUInt 1) bytes
   pure { transactTime, symbolId, symbol, suffix, matchingEngineId, defineSymbolBitFields, lotSize, listingMarket }
 
 theorem encode_length_pos (message : DefineSymbolMessage) : (encode message).length > 0 := by
@@ -346,13 +346,13 @@ theorem decode_encode (message : DefineSymbolMessage) : decode (encode message) 
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeRemaining_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1) ((encodeUIntLE_length_pos 1 (by decide))), some_bind]
+  rw [decodeRemaining_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1) ((encodeUInt_length_pos 1 (by decide))), some_bind]
   rfl
 
 end DefineSymbolMessage
@@ -374,19 +374,19 @@ def encode (message : SymbolStatusMessage) : List UInt8 :=
   encodeUIntLE 1 (message.symbolStatusPresenceBits.val ||| presence (n := 8) 1 message.symbolStatusOperationalHaltReason.isSome ||| presence (n := 8) 2 message.symbolStatusRegulatoryHaltReason.isSome)
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.symbolTradingState
-    ++ (encodeUIntLE 1 message.shortSaleRestrictionState
-    ++ (encodeOptional (encodeUIntLE 1) message.symbolStatusOperationalHaltReason
-    ++ (encodeOptional (encodeUIntLE 1) message.symbolStatusRegulatoryHaltReason))))))
+    ++ (encodeUInt 1 message.symbolTradingState
+    ++ (encodeUInt 1 message.shortSaleRestrictionState
+    ++ (encodeOptional (encodeUInt 1) message.symbolStatusOperationalHaltReason
+    ++ (encodeOptional (encodeUInt 1) message.symbolStatusRegulatoryHaltReason))))))
 
 def decode (bytes : List UInt8) : Option (SymbolStatusMessage × List UInt8) := do
   let (symbolStatusPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (symbolTradingState, bytes) ← decodeUIntLE 1 bytes
-  let (shortSaleRestrictionState, bytes) ← decodeUIntLE 1 bytes
-  let (symbolStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (symbolStatusPresenceBits_ &&& 1 != 0) bytes
-  let (symbolStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUIntLE 1) (symbolStatusPresenceBits_ &&& 2 != 0) bytes
+  let (symbolTradingState, bytes) ← decodeUInt 1 bytes
+  let (shortSaleRestrictionState, bytes) ← decodeUInt 1 bytes
+  let (symbolStatusOperationalHaltReason, bytes) ← decodeOptional (decodeUInt 1) (symbolStatusPresenceBits_ &&& 1 != 0) bytes
+  let (symbolStatusRegulatoryHaltReason, bytes) ← decodeOptional (decodeUInt 1) (symbolStatusPresenceBits_ &&& 2 != 0) bytes
   if fits_symbolStatusPresenceBits : (symbolStatusPresenceBits_ &&& 252) &&& 3 = 0 then
     pure ({ symbolStatusPresenceBits := ⟨symbolStatusPresenceBits_ &&& 252, fits_symbolStatusPresenceBits⟩, transactTime, symbolId, symbolTradingState, shortSaleRestrictionState, symbolStatusOperationalHaltReason, symbolStatusRegulatoryHaltReason }, bytes)
   else none
@@ -421,15 +421,15 @@ theorem encode_length_pos (message : SymbolStatusMessage) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_symbolStatusOperationalHaltReason]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_symbolStatusRegulatoryHaltReason]
-  rw [decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [dite_eq_left (by rw [carried_symbolStatusPresenceBits]; exact message.symbolStatusPresenceBits.property)]
   simp only [carried_symbolStatusPresenceBits]
@@ -479,9 +479,9 @@ def encode (message : LimitOrderAcceptedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.limitOrderAcceptedBitFields
     ++ (encodeUIntLE 2 message.symbolId
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderAcceptedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderAcceptedSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderAcceptedPriceSlideInstruction
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderAcceptedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderAcceptedSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderAcceptedPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderAcceptedMinQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderAcceptedMaxFloorQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderAcceptedMaxReplenishQtyRange
@@ -504,9 +504,9 @@ def decode (bytes : List UInt8) : Option (LimitOrderAcceptedMessage × List UInt
   let (limitOrderAcceptedBitFields, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
-  let (limitOrderAcceptedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderAcceptedPresenceBits_ &&& 1 != 0) bytes
-  let (limitOrderAcceptedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderAcceptedPresenceBits_ &&& 2 != 0) bytes
-  let (limitOrderAcceptedPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderAcceptedPresenceBits_ &&& 4 != 0) bytes
+  let (limitOrderAcceptedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (limitOrderAcceptedPresenceBits_ &&& 1 != 0) bytes
+  let (limitOrderAcceptedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderAcceptedPresenceBits_ &&& 2 != 0) bytes
+  let (limitOrderAcceptedPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderAcceptedPresenceBits_ &&& 4 != 0) bytes
   let (limitOrderAcceptedMinQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderAcceptedPresenceBits_ &&& 8 != 0) bytes
   let (limitOrderAcceptedMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderAcceptedPresenceBits_ &&& 16 != 0) bytes
   let (limitOrderAcceptedMaxReplenishQtyRange, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderAcceptedPresenceBits_ &&& 32 != 0) bytes
@@ -629,13 +629,13 @@ theorem encode_length_pos (message : LimitOrderAcceptedMessage) : (encode messag
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [selected_limitOrderAcceptedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderAcceptedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderAcceptedPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderAcceptedMinQty]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
@@ -718,10 +718,10 @@ def encode (message : LimitOrderRejectedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.limitOrderRejectedBitFields
     ++ (encodeUIntLE 2 message.symbolId
     ++ (encodeUIntLE 8 message.price
-    ++ (encodeUIntLE 1 message.limitOrderRejectedReason
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderRejectedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderRejectedSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.limitOrderRejectedPriceSlideInstruction
+    ++ (encodeUInt 1 message.limitOrderRejectedReason
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderRejectedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderRejectedSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.limitOrderRejectedPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderRejectedMinQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderRejectedMaxFloorQty
     ++ (encodeOptional (encodeUIntLE 4) message.limitOrderRejectedMaxReplenishQtyRange
@@ -741,10 +741,10 @@ def decode (bytes : List UInt8) : Option (LimitOrderRejectedMessage × List UInt
   let (limitOrderRejectedBitFields, bytes) ← decodeUIntLE 4 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
-  let (limitOrderRejectedReason, bytes) ← decodeUIntLE 1 bytes
-  let (limitOrderRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderRejectedPresenceBits_ &&& 1 != 0) bytes
-  let (limitOrderRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderRejectedPresenceBits_ &&& 2 != 0) bytes
-  let (limitOrderRejectedPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (limitOrderRejectedPresenceBits_ &&& 4 != 0) bytes
+  let (limitOrderRejectedReason, bytes) ← decodeUInt 1 bytes
+  let (limitOrderRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (limitOrderRejectedPresenceBits_ &&& 1 != 0) bytes
+  let (limitOrderRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderRejectedPresenceBits_ &&& 2 != 0) bytes
+  let (limitOrderRejectedPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (limitOrderRejectedPresenceBits_ &&& 4 != 0) bytes
   let (limitOrderRejectedMinQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderRejectedPresenceBits_ &&& 8 != 0) bytes
   let (limitOrderRejectedMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderRejectedPresenceBits_ &&& 16 != 0) bytes
   let (limitOrderRejectedMaxReplenishQtyRange, bytes) ← decodeOptional (decodeUIntLE 4) (limitOrderRejectedPresenceBits_ &&& 32 != 0) bytes
@@ -852,16 +852,16 @@ theorem encode_length_pos (message : LimitOrderRejectedMessage) : (encode messag
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_limitOrderRejectedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderRejectedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderRejectedPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_limitOrderRejectedMinQty]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
@@ -930,8 +930,8 @@ def encode (message : MarketOrderAcceptedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.orderQty
     ++ (encodeUIntLE 2 message.marketOrderAcceptedBitFields
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderAcceptedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderAcceptedSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderAcceptedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderAcceptedSelfMatchInstruction
     ++ (encodeOptional (encodeUIntLE 8) message.marketOrderAcceptedUserData
     ++ (encodeOptional (Alpha.encode) message.marketOrderAcceptedMpid
     ++ (encodeOptional (Alpha.encode) message.marketOrderAcceptedMemberGroup
@@ -945,8 +945,8 @@ def decode (bytes : List UInt8) : Option (MarketOrderAcceptedMessage × List UIn
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
   let (marketOrderAcceptedBitFields, bytes) ← decodeUIntLE 2 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (marketOrderAcceptedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderAcceptedPresenceBits_ &&& 1 != 0) bytes
-  let (marketOrderAcceptedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderAcceptedPresenceBits_ &&& 2 != 0) bytes
+  let (marketOrderAcceptedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (marketOrderAcceptedPresenceBits_ &&& 1 != 0) bytes
+  let (marketOrderAcceptedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (marketOrderAcceptedPresenceBits_ &&& 2 != 0) bytes
   let (marketOrderAcceptedUserData, bytes) ← decodeOptional (decodeUIntLE 8) (marketOrderAcceptedPresenceBits_ &&& 4 != 0) bytes
   let (marketOrderAcceptedMpid, bytes) ← decodeOptional (Alpha.decode 4) (marketOrderAcceptedPresenceBits_ &&& 8 != 0) bytes
   let (marketOrderAcceptedMemberGroup, bytes) ← decodeOptional (Alpha.decode 2) (marketOrderAcceptedPresenceBits_ &&& 16 != 0) bytes
@@ -1014,10 +1014,10 @@ theorem encode_length_pos (message : MarketOrderAcceptedMessage) : (encode messa
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [selected_marketOrderAcceptedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderAcceptedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderAcceptedUserData]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 8) (decodeUIntLE 8) (decodeUIntLE_encodeUIntLE 8), some_bind]
@@ -1067,9 +1067,9 @@ def encode (message : MarketOrderRejectedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.orderQty
     ++ (encodeUIntLE 2 message.marketOrderRejectedBitFields
     ++ (encodeUIntLE 2 message.symbolId
-    ++ (encodeUIntLE 1 message.marketOrderRejectedReason
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderRejectedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.marketOrderRejectedSelfMatchInstruction
+    ++ (encodeUInt 1 message.marketOrderRejectedReason
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderRejectedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.marketOrderRejectedSelfMatchInstruction
     ++ (encodeOptional (encodeUIntLE 8) message.marketOrderRejectedUserData
     ++ (encodeOptional (Alpha.encode) message.marketOrderRejectedMpid
     ++ (encodeOptional (Alpha.encode) message.marketOrderRejectedMemberGroup
@@ -1082,9 +1082,9 @@ def decode (bytes : List UInt8) : Option (MarketOrderRejectedMessage × List UIn
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
   let (marketOrderRejectedBitFields, bytes) ← decodeUIntLE 2 bytes
   let (symbolId, bytes) ← decodeUIntLE 2 bytes
-  let (marketOrderRejectedReason, bytes) ← decodeUIntLE 1 bytes
-  let (marketOrderRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderRejectedPresenceBits_ &&& 1 != 0) bytes
-  let (marketOrderRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (marketOrderRejectedPresenceBits_ &&& 2 != 0) bytes
+  let (marketOrderRejectedReason, bytes) ← decodeUInt 1 bytes
+  let (marketOrderRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (marketOrderRejectedPresenceBits_ &&& 1 != 0) bytes
+  let (marketOrderRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (marketOrderRejectedPresenceBits_ &&& 2 != 0) bytes
   let (marketOrderRejectedUserData, bytes) ← decodeOptional (decodeUIntLE 8) (marketOrderRejectedPresenceBits_ &&& 4 != 0) bytes
   let (marketOrderRejectedMpid, bytes) ← decodeOptional (Alpha.decode 4) (marketOrderRejectedPresenceBits_ &&& 8 != 0) bytes
   let (marketOrderRejectedMemberGroup, bytes) ← decodeOptional (Alpha.decode 2) (marketOrderRejectedPresenceBits_ &&& 16 != 0) bytes
@@ -1149,13 +1149,13 @@ theorem encode_length_pos (message : MarketOrderRejectedMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_marketOrderRejectedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderRejectedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_marketOrderRejectedUserData]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 8) (decodeUIntLE 8) (decodeUIntLE_encodeUIntLE 8), some_bind]
@@ -1193,18 +1193,18 @@ def encode (message : OrderCanceledMessage) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.origClOrdId
-    ++ (encodeUIntLE 1 message.cancelReason)))
+    ++ (encodeUInt 1 message.cancelReason)))
 
 def decode (bytes : List UInt8) : Option (OrderCanceledMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (origClOrdId, bytes) ← decodeUIntLE 8 bytes
-  let (cancelReason, bytes) ← decodeUIntLE 1 bytes
+  let (cancelReason, bytes) ← decodeUInt 1 bytes
   pure ({ transactTime, orderId, origClOrdId, cancelReason }, bytes)
 
 @[simp] theorem encode_length (message : OrderCanceledMessage) : (encode message).length = 25 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : OrderCanceledMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1219,7 +1219,7 @@ theorem encode_length_pos (message : OrderCanceledMessage) : (encode message).le
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 /-- Decoded as the whole of a frame: nothing follows -/
@@ -1240,17 +1240,17 @@ namespace CancelRejectedMessage
 def encode (message : CancelRejectedMessage) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.origClOrdId
-    ++ (encodeUIntLE 1 message.cancelRejectedReason))
+    ++ (encodeUInt 1 message.cancelRejectedReason))
 
 def decode (bytes : List UInt8) : Option (CancelRejectedMessage × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (origClOrdId, bytes) ← decodeUIntLE 8 bytes
-  let (cancelRejectedReason, bytes) ← decodeUIntLE 1 bytes
+  let (cancelRejectedReason, bytes) ← decodeUInt 1 bytes
   pure ({ transactTime, origClOrdId, cancelRejectedReason }, bytes)
 
 @[simp] theorem encode_length (message : CancelRejectedMessage) : (encode message).length = 17 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : CancelRejectedMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1263,7 +1263,7 @@ theorem encode_length_pos (message : CancelRejectedMessage) : (encode message).l
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 /-- Decoded as the whole of a frame: nothing follows -/
@@ -1391,7 +1391,7 @@ def encode (message : ModifyRejectedMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.origClOrdId
-    ++ (encodeUIntLE 1 message.modifyRejectedReason
+    ++ (encodeUInt 1 message.modifyRejectedReason
     ++ (encodeOptional (encodeUIntLE 4) message.modifyRejectedOrderQty
     ++ (encodeOptional (encodeUIntLE 1) message.modifyRejectedBitFields
     ++ (encodeOptional (Alpha.encode) message.modifyRejectedLocateBroker)))))))
@@ -1401,7 +1401,7 @@ def decode (bytes : List UInt8) : Option (ModifyRejectedMessage × List UInt8) :
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (origClOrdId, bytes) ← decodeUIntLE 8 bytes
-  let (modifyRejectedReason, bytes) ← decodeUIntLE 1 bytes
+  let (modifyRejectedReason, bytes) ← decodeUInt 1 bytes
   let (modifyRejectedOrderQty, bytes) ← decodeOptional (decodeUIntLE 4) (modifyRejectedPresenceBits_ &&& 1 != 0) bytes
   let (modifyRejectedBitFields, bytes) ← decodeOptional (decodeUIntLE 1) (modifyRejectedPresenceBits_ &&& 2 != 0) bytes
   let (modifyRejectedLocateBroker, bytes) ← decodeOptional (Alpha.decode 4) (modifyRejectedPresenceBits_ &&& 4 != 0) bytes
@@ -1446,7 +1446,7 @@ theorem encode_length_pos (message : ModifyRejectedMessage) : (encode message).l
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_modifyRejectedOrderQty]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
@@ -1501,9 +1501,9 @@ def encode (message : OrderReplacedMessage) : List UInt8 :=
     ++ (encodeOptional (encodeUIntLE 8) message.orderReplacedPrice
     ++ (encodeOptional (encodeUIntLE 4) message.orderReplacedOrderQty
     ++ (encodeOptional (encodeUIntLE 4) message.orderReplacedMaxFloorQty
-    ++ (encodeOptional (encodeUIntLE 1) message.orderReplacedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.orderReplacedSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.orderReplacedPriceSlideInstruction
+    ++ (encodeOptional (encodeUInt 1) message.orderReplacedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.orderReplacedSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.orderReplacedPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 2) message.orderReplacedReferencePriceTarget
     ++ (encodeOptional (Alpha.encode) message.orderReplacedLocateBroker
     ++ (encodeOptional (encodeUIntLE 8) message.orderReplacedRankPrice
@@ -1520,9 +1520,9 @@ def decode (bytes : List UInt8) : Option (OrderReplacedMessage × List UInt8) :=
   let (orderReplacedPrice, bytes) ← decodeOptional (decodeUIntLE 8) (orderReplacedPresenceBits_ &&& 1 != 0) bytes
   let (orderReplacedOrderQty, bytes) ← decodeOptional (decodeUIntLE 4) (orderReplacedPresenceBits_ &&& 2 != 0) bytes
   let (orderReplacedMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (orderReplacedPresenceBits_ &&& 4 != 0) bytes
-  let (orderReplacedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (orderReplacedPresenceBits_ &&& 8 != 0) bytes
-  let (orderReplacedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (orderReplacedPresenceBits_ &&& 16 != 0) bytes
-  let (orderReplacedPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (orderReplacedPresenceBits_ &&& 32 != 0) bytes
+  let (orderReplacedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (orderReplacedPresenceBits_ &&& 8 != 0) bytes
+  let (orderReplacedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (orderReplacedPresenceBits_ &&& 16 != 0) bytes
+  let (orderReplacedPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (orderReplacedPresenceBits_ &&& 32 != 0) bytes
   let (orderReplacedReferencePriceTarget, bytes) ← decodeOptional (decodeUIntLE 2) (orderReplacedPresenceBits_ &&& 64 != 0) bytes
   let (orderReplacedLocateBroker, bytes) ← decodeOptional (Alpha.decode 4) (orderReplacedPresenceBits_ &&& 128 != 0) bytes
   let (orderReplacedRankPrice, bytes) ← decodeOptional (decodeUIntLE 8) (orderReplacedPresenceBits_ &&& 256 != 0) bytes
@@ -1619,13 +1619,13 @@ theorem encode_length_pos (message : OrderReplacedMessage) : (encode message).le
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
   dsimp only
   rw [selected_orderReplacedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_orderReplacedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_orderReplacedPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_orderReplacedReferencePriceTarget]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 2) (decodeUIntLE 2) (decodeUIntLE_encodeUIntLE 2), some_bind]
@@ -1675,13 +1675,13 @@ def encode (message : ReplaceRejectedMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.origClOrdId
     ++ (encodeUIntLE 2 message.replaceRejectedBitFields
-    ++ (encodeUIntLE 1 message.replaceRejectedReason
+    ++ (encodeUInt 1 message.replaceRejectedReason
     ++ (encodeOptional (encodeUIntLE 8) message.replaceRejectedPrice
     ++ (encodeOptional (encodeUIntLE 4) message.replaceRejectedOrderQty
     ++ (encodeOptional (encodeUIntLE 4) message.replaceRejectedMaxFloorQty
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceRejectedSelfMatchScope
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceRejectedSelfMatchInstruction
-    ++ (encodeOptional (encodeUIntLE 1) message.replaceRejectedPriceSlideInstruction
+    ++ (encodeOptional (encodeUInt 1) message.replaceRejectedSelfMatchScope
+    ++ (encodeOptional (encodeUInt 1) message.replaceRejectedSelfMatchInstruction
+    ++ (encodeOptional (encodeUInt 1) message.replaceRejectedPriceSlideInstruction
     ++ (encodeOptional (encodeUIntLE 2) message.replaceRejectedReferencePriceTarget
     ++ (encodeOptional (Alpha.encode) message.replaceRejectedLocateBroker)))))))))))))
 
@@ -1691,13 +1691,13 @@ def decode (bytes : List UInt8) : Option (ReplaceRejectedMessage × List UInt8) 
   let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (origClOrdId, bytes) ← decodeUIntLE 8 bytes
   let (replaceRejectedBitFields, bytes) ← decodeUIntLE 2 bytes
-  let (replaceRejectedReason, bytes) ← decodeUIntLE 1 bytes
+  let (replaceRejectedReason, bytes) ← decodeUInt 1 bytes
   let (replaceRejectedPrice, bytes) ← decodeOptional (decodeUIntLE 8) (replaceRejectedPresenceBits_ &&& 1 != 0) bytes
   let (replaceRejectedOrderQty, bytes) ← decodeOptional (decodeUIntLE 4) (replaceRejectedPresenceBits_ &&& 2 != 0) bytes
   let (replaceRejectedMaxFloorQty, bytes) ← decodeOptional (decodeUIntLE 4) (replaceRejectedPresenceBits_ &&& 4 != 0) bytes
-  let (replaceRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUIntLE 1) (replaceRejectedPresenceBits_ &&& 8 != 0) bytes
-  let (replaceRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (replaceRejectedPresenceBits_ &&& 16 != 0) bytes
-  let (replaceRejectedPriceSlideInstruction, bytes) ← decodeOptional (decodeUIntLE 1) (replaceRejectedPresenceBits_ &&& 32 != 0) bytes
+  let (replaceRejectedSelfMatchScope, bytes) ← decodeOptional (decodeUInt 1) (replaceRejectedPresenceBits_ &&& 8 != 0) bytes
+  let (replaceRejectedSelfMatchInstruction, bytes) ← decodeOptional (decodeUInt 1) (replaceRejectedPresenceBits_ &&& 16 != 0) bytes
+  let (replaceRejectedPriceSlideInstruction, bytes) ← decodeOptional (decodeUInt 1) (replaceRejectedPresenceBits_ &&& 32 != 0) bytes
   let (replaceRejectedReferencePriceTarget, bytes) ← decodeOptional (decodeUIntLE 2) (replaceRejectedPresenceBits_ &&& 64 != 0) bytes
   let (replaceRejectedLocateBroker, bytes) ← decodeOptional (Alpha.decode 4) (replaceRejectedPresenceBits_ &&& 128 != 0) bytes
   if fits_replaceRejectedPresenceBits : (replaceRejectedPresenceBits_ &&& 65280) &&& 255 = 0 then
@@ -1768,7 +1768,7 @@ theorem encode_length_pos (message : ReplaceRejectedMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_replaceRejectedPrice]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 8) (decodeUIntLE 8) (decodeUIntLE_encodeUIntLE 8), some_bind]
@@ -1780,13 +1780,13 @@ theorem encode_length_pos (message : ReplaceRejectedMessage) : (encode message).
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 4) (decodeUIntLE 4) (decodeUIntLE_encodeUIntLE 4), some_bind]
   dsimp only
   rw [selected_replaceRejectedSelfMatchScope]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceRejectedSelfMatchInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceRejectedPriceSlideInstruction]
-  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1), some_bind]
+  rw [List.append_assoc, decodeOptional_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1), some_bind]
   dsimp only
   rw [selected_replaceRejectedReferencePriceTarget]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 2) (decodeUIntLE 2) (decodeUIntLE_encodeUIntLE 2), some_bind]
@@ -1826,7 +1826,7 @@ def encode (message : OrderExecutedMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.execId
     ++ (encodeUIntLE 4 message.execQty
     ++ (encodeUIntLE 4 message.leavesQty
-    ++ (encodeOptional (encodeUIntLE 1) message.liquidityIndicator)))))))
+    ++ (encodeOptional (encodeUInt 1) message.liquidityIndicator)))))))
 
 def decode (bytes : List UInt8) : Option OrderExecutedMessage := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
@@ -1836,7 +1836,7 @@ def decode (bytes : List UInt8) : Option OrderExecutedMessage := do
   let (execId, bytes) ← decodeUIntLE 8 bytes
   let (execQty, bytes) ← decodeUIntLE 4 bytes
   let (leavesQty, bytes) ← decodeUIntLE 4 bytes
-  let liquidityIndicator ← decodeRemaining (decodeUIntLE 1) bytes
+  let liquidityIndicator ← decodeRemaining (decodeUInt 1) bytes
   pure { transactTime, orderId, clOrdId, execPrice, execId, execQty, leavesQty, liquidityIndicator }
 
 theorem encode_length_pos (message : OrderExecutedMessage) : (encode message).length > 0 := by
@@ -1860,7 +1860,7 @@ theorem decode_encode (message : OrderExecutedMessage) : decode (encode message)
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeRemaining_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1) ((encodeUIntLE_length_pos 1 (by decide))), some_bind]
+  rw [decodeRemaining_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1) ((encodeUInt_length_pos 1 (by decide))), some_bind]
   rfl
 
 end OrderExecutedMessage
@@ -1884,7 +1884,7 @@ def encode (message : OrderRestatedMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.clOrdId
-    ++ (encodeUIntLE 1 message.restatementReason
+    ++ (encodeUInt 1 message.restatementReason
     ++ (encodeOptional (encodeUIntLE 8) message.orderRestatedRankPrice
     ++ (encodeOptional (encodeUIntLE 8) message.orderRestatedDisplayPrice
     ++ (encodeOptional (encodeUIntLE 4) message.displayQty)))))))
@@ -1894,7 +1894,7 @@ def decode (bytes : List UInt8) : Option (OrderRestatedMessage × List UInt8) :=
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (clOrdId, bytes) ← decodeUIntLE 8 bytes
-  let (restatementReason, bytes) ← decodeUIntLE 1 bytes
+  let (restatementReason, bytes) ← decodeUInt 1 bytes
   let (orderRestatedRankPrice, bytes) ← decodeOptional (decodeUIntLE 8) (orderRestatedPresenceBits_ &&& 1 != 0) bytes
   let (orderRestatedDisplayPrice, bytes) ← decodeOptional (decodeUIntLE 8) (orderRestatedPresenceBits_ &&& 2 != 0) bytes
   let (displayQty, bytes) ← decodeOptional (decodeUIntLE 4) (orderRestatedPresenceBits_ &&& 4 != 0) bytes
@@ -1939,7 +1939,7 @@ theorem encode_length_pos (message : OrderRestatedMessage) : (encode message).le
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_orderRestatedRankPrice]
   rw [List.append_assoc, decodeOptional_encodeOptional (encodeUIntLE 8) (decodeUIntLE 8) (decodeUIntLE_encodeUIntLE 8), some_bind]
@@ -1984,7 +1984,7 @@ def encode (message : SelfMatchPreventedMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.execQty
     ++ (encodeUIntLE 4 message.canceledQty
     ++ (encodeUIntLE 4 message.leavesQty
-    ++ (encodeOptional (encodeUIntLE 1) message.liquidityIndicator))))))))
+    ++ (encodeOptional (encodeUInt 1) message.liquidityIndicator))))))))
 
 def decode (bytes : List UInt8) : Option SelfMatchPreventedMessage := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
@@ -1995,7 +1995,7 @@ def decode (bytes : List UInt8) : Option SelfMatchPreventedMessage := do
   let (execQty, bytes) ← decodeUIntLE 4 bytes
   let (canceledQty, bytes) ← decodeUIntLE 4 bytes
   let (leavesQty, bytes) ← decodeUIntLE 4 bytes
-  let liquidityIndicator ← decodeRemaining (decodeUIntLE 1) bytes
+  let liquidityIndicator ← decodeRemaining (decodeUInt 1) bytes
   pure { transactTime, orderId, clOrdId, execPrice, execId, execQty, canceledQty, leavesQty, liquidityIndicator }
 
 theorem encode_length_pos (message : SelfMatchPreventedMessage) : (encode message).length > 0 := by
@@ -2021,7 +2021,7 @@ theorem decode_encode (message : SelfMatchPreventedMessage) : decode (encode mes
   dsimp only
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [decodeRemaining_encodeOptional (encodeUIntLE 1) (decodeUIntLE 1) (decodeUIntLE_encodeUIntLE 1) ((encodeUIntLE_length_pos 1 (by decide))), some_bind]
+  rw [decodeRemaining_encodeOptional (encodeUInt 1) (decodeUInt 1) (decodeUInt_encodeUInt 1) ((encodeUInt_length_pos 1 (by decide))), some_bind]
   rfl
 
 end SelfMatchPreventedMessage
@@ -2046,7 +2046,7 @@ def encode (message : MassCancelAcceptedMessage) : List UInt8 :=
   encodeUIntLE 1 (message.massCancelAcceptedPresenceBits.val ||| presence (n := 8) 1 message.massCancelAcceptedMpid.isSome ||| presence (n := 8) 2 message.massCancelAcceptedSenderComp.isSome ||| presence (n := 8) 4 message.massCancelAcceptedMemberGroup.isSome ||| presence (n := 8) 8 message.massCancelAcceptedClOrdId.isSome)
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.massCancelRequestId
-    ++ (encodeUIntLE 1 message.massCancelAcceptedScope
+    ++ (encodeUInt 1 message.massCancelAcceptedScope
     ++ (encodeUIntLE 1 message.massCancelAcceptedBitFields
     ++ (encodeUIntLE 8 message.massCancelId
     ++ (encodeOptional (Alpha.encode) message.massCancelAcceptedMpid
@@ -2058,7 +2058,7 @@ def decode (bytes : List UInt8) : Option (MassCancelAcceptedMessage × List UInt
   let (massCancelAcceptedPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (massCancelRequestId, bytes) ← decodeUIntLE 8 bytes
-  let (massCancelAcceptedScope, bytes) ← decodeUIntLE 1 bytes
+  let (massCancelAcceptedScope, bytes) ← decodeUInt 1 bytes
   let (massCancelAcceptedBitFields, bytes) ← decodeUIntLE 1 bytes
   let (massCancelId, bytes) ← decodeUIntLE 8 bytes
   let (massCancelAcceptedMpid, bytes) ← decodeOptional (Alpha.decode 4) (massCancelAcceptedPresenceBits_ &&& 1 != 0) bytes
@@ -2109,7 +2109,7 @@ theorem encode_length_pos (message : MassCancelAcceptedMessage) : (encode messag
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -2157,9 +2157,9 @@ def encode (message : MassCancelRejectedMessage) : List UInt8 :=
   encodeUIntLE 1 (message.massCancelRejectedPresenceBits.val ||| presence (n := 8) 1 message.massCancelRejectedMpid.isSome ||| presence (n := 8) 2 message.massCancelRejectedSenderComp.isSome ||| presence (n := 8) 4 message.massCancelRejectedMemberGroup.isSome ||| presence (n := 8) 8 message.massCancelRejectedClOrdId.isSome)
     ++ (encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 8 message.massCancelRequestId
-    ++ (encodeUIntLE 1 message.massCancelRejectedScope
+    ++ (encodeUInt 1 message.massCancelRejectedScope
     ++ (encodeUIntLE 1 message.massCancelRejectedBitFields
-    ++ (encodeUIntLE 1 message.massCancelRejectedReason
+    ++ (encodeUInt 1 message.massCancelRejectedReason
     ++ (encodeOptional (Alpha.encode) message.massCancelRejectedMpid
     ++ (encodeOptional (Alpha.encode) message.massCancelRejectedSenderComp
     ++ (encodeOptional (Alpha.encode) message.massCancelRejectedMemberGroup
@@ -2169,9 +2169,9 @@ def decode (bytes : List UInt8) : Option (MassCancelRejectedMessage × List UInt
   let (massCancelRejectedPresenceBits_, bytes) ← decodeUIntLE 1 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (massCancelRequestId, bytes) ← decodeUIntLE 8 bytes
-  let (massCancelRejectedScope, bytes) ← decodeUIntLE 1 bytes
+  let (massCancelRejectedScope, bytes) ← decodeUInt 1 bytes
   let (massCancelRejectedBitFields, bytes) ← decodeUIntLE 1 bytes
-  let (massCancelRejectedReason, bytes) ← decodeUIntLE 1 bytes
+  let (massCancelRejectedReason, bytes) ← decodeUInt 1 bytes
   let (massCancelRejectedMpid, bytes) ← decodeOptional (Alpha.decode 4) (massCancelRejectedPresenceBits_ &&& 1 != 0) bytes
   let (massCancelRejectedSenderComp, bytes) ← decodeOptional (Alpha.decode 8) (massCancelRejectedPresenceBits_ &&& 2 != 0) bytes
   let (massCancelRejectedMemberGroup, bytes) ← decodeOptional (Alpha.decode 2) (massCancelRejectedPresenceBits_ &&& 4 != 0) bytes
@@ -2220,11 +2220,11 @@ theorem encode_length_pos (message : MassCancelRejectedMessage) : (encode messag
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [selected_massCancelRejectedMpid]
   rw [List.append_assoc, decodeOptional_encodeOptional (Alpha.encode) (Alpha.decode 4) (Alpha.decode_encode), some_bind]
@@ -2497,17 +2497,17 @@ structure ServerRakeTcpMessageBody where
 namespace ServerRakeTcpMessageBody
 
 def encodeBody (message : ServerRakeTcpMessageBody) : List UInt8 :=
-  encodeUIntLE 1 (ServerPayload.tag message.serverPayload)
+  encodeUInt 1 (ServerPayload.tag message.serverPayload)
     ++ (ServerPayload.encode message.serverPayload)
 
 def decodeBody (bytes : List UInt8) : Option ServerRakeTcpMessageBody := do
-  let (packetType, bytes) ← decodeUIntLE 1 bytes
+  let (packetType, bytes) ← decodeUInt 1 bytes
   let serverPayload ← ServerPayload.decode packetType bytes
   pure { serverPayload }
 
 theorem decodeBody_encodeBody (message : ServerRakeTcpMessageBody) : decodeBody (encodeBody message) = some message := by
   unfold decodeBody encodeBody
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [ServerPayload.decode_encode, some_bind]
   rfl

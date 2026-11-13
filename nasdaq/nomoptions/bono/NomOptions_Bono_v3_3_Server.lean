@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# National Association of Securities Dealers Automated Quotations (Nasdaq) Nom Binary Order Entry v3.3
+# National Association of Securities Dealers Automated Quotations (Nasdaq) Best Of Nasdaq Options v3.3
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;

@@ -1294,7 +1294,7 @@ structure Packet where
 namespace Packet
 
 def encode (message : Packet) : List UInt8 :=
-  encodeUIntLE 1 message.version
+  encodeUInt 1 message.version
     ++ (Alpha.encode message.reserved
     ++ (encodeUIntLE 2 message.messageProtocolId
     ++ (encodeUIntLE 4 message.channelId
@@ -1307,7 +1307,7 @@ def encode (message : Packet) : List UInt8 :=
     ++ (encodeMany Message.encode message.message.val))))))))))
 
 def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
-  let (version, bytes) ← decodeUIntLE 1 bytes
+  let (version, bytes) ← decodeUInt 1 bytes
   let (reserved, bytes) ← Alpha.decode 1 bytes
   let (messageProtocolId, bytes) ← decodeUIntLE 2 bytes
   let (channelId, bytes) ← decodeUIntLE 4 bytes
@@ -1324,13 +1324,13 @@ def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
 
 theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
   omega
 
 @[simp] theorem decode_encode (message : Packet) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

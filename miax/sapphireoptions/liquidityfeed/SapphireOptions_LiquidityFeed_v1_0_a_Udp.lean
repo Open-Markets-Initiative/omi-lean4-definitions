@@ -1606,7 +1606,7 @@ def encode (message : ComplexStrategyDefinitionUpdateMessage) : List UInt8 :=
     ++ (Alpha.encode message.reserved1
     ++ (UpdateReason.encode message.updateReason
     ++ (Alpha.encode message.reserved10
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.legDefinition.val.length)
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.legDefinition.val.length)
     ++ (encodeMany LegDefinition.encode message.legDefinition.val))))))))
 
 def decode (bytes : List UInt8) : Option (ComplexStrategyDefinitionUpdateMessage × List UInt8) := do
@@ -1617,7 +1617,7 @@ def decode (bytes : List UInt8) : Option (ComplexStrategyDefinitionUpdateMessage
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (updateReason, bytes) ← UpdateReason.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  let (numberOfLegs, bytes) ← decodeUIntLE 1 bytes
+  let (numberOfLegs, bytes) ← decodeUInt 1 bytes
   let (legDefinition_, bytes) ← decodeMany LegDefinition.decode numberOfLegs.toNat bytes
   if fits_legDefinition : legDefinition_.length < 256 ^ 1 then
     pure ({ nanoseconds, strategyId, underlyingSymbol, activeOnSapphire, reserved1, updateReason, reserved10, legDefinition := ⟨legDefinition_, fits_legDefinition⟩ }, bytes)
@@ -1632,7 +1632,7 @@ theorem encode_length_pos (message : ComplexStrategyDefinitionUpdateMessage) : (
 theorem encode_length_le (message : ComplexStrategyDefinitionUpdateMessage) : (encode message).length ≤ 4368 := by
   have bound_legDefinition := message.legDefinition.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, ActiveOnSapphire.encode_length, UpdateReason.encode_length, encodeMany_length_const LegDefinition.encode 17 LegDefinition.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, ActiveOnSapphire.encode_length, UpdateReason.encode_length, encodeUInt_length, encodeMany_length_const LegDefinition.encode 17 LegDefinition.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : ComplexStrategyDefinitionUpdateMessage) (rest : List UInt8) :
@@ -1652,7 +1652,7 @@ theorem encode_length_le (message : ComplexStrategyDefinitionUpdateMessage) : (e
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeMany_bounded 1 LegDefinition.encode LegDefinition.decode LegDefinition.decode_encode, some_bind]
   dsimp only
@@ -1991,22 +1991,22 @@ structure MachMessage where
 namespace MachMessage
 
 def encodeBody (message : MachMessage) : List UInt8 :=
-  encodeUIntLE 1 (Payload.tag message.payload)
-    ++ (encodeUIntLE 1 message.sessionNumber
+  encodeUInt 1 (Payload.tag message.payload)
+    ++ (encodeUInt 1 message.sessionNumber
     ++ (Payload.encode message.payload))
 
 def decodeBody (sequenceNumber : BitVec 64) (bytes : List UInt8) : Option (MachMessage × List UInt8) := do
-  let (packetType, bytes) ← decodeUIntLE 1 bytes
-  let (sessionNumber, bytes) ← decodeUIntLE 1 bytes
+  let (packetType, bytes) ← decodeUInt 1 bytes
+  let (sessionNumber, bytes) ← decodeUInt 1 bytes
   let (payload, bytes) ← Payload.decode packetType bytes
   pure ({ sequenceNumber, sessionNumber, payload }, bytes)
 
 theorem decodeBody_encodeBody (message : MachMessage) (rest : List UInt8) :
     decodeBody message.sequenceNumber (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [Payload.decode_encode, some_bind]
   rfl
@@ -2016,17 +2016,17 @@ theorem encodeBody_length_lt (message : MachMessage) : (encodeBody message).leng
   unfold encodeBody
   cases message.payload with
   | heartbeat inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Heartbeat.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Heartbeat.encode_length]
     omega
   | startOfSession inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, StartOfSession.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, StartOfSession.encode_length]
     omega
   | endOfSession inner =>
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, EndOfSession.encode_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, EndOfSession.encode_length]
     omega
   | applicationMessage inner =>
     have bound_inner := ApplicationMessage.encode_length_le inner
-    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
+    simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length]
     omega
 
 /-- Size rule: Packet Length counts the bytes after it plus 10, so it is written from the body and checked on decode; Sequence Number is read ahead of it -/

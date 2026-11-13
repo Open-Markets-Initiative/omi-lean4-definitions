@@ -3,9 +3,10 @@
 
 ## Borsa İstanbul A.Ş.
 
-| Division | [Protocol][Omi.Bist.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Bist.Specifications] |
-| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [BorsaIstanbul][BorsaIstanbul.Exchange] | [GeniumInet][Bist.BorsaIstanbul.GeniumInet] | [Itch][Omi.Encoding.Itch] | [21.12][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Definition] | 2/28/2025 | 1,513 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Url] - [pdf][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Pdf] |
+| Division | [Protocol][Omi.Bist.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Transport | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Bist.Specifications] |
+| --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [BorsaIstanbul][BorsaIstanbul.Exchange] | [GeniumInet][Bist.BorsaIstanbul.GeniumInet] | [Itch][Omi.Encoding.Itch] | [21.12][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Definition] |  | 2/28/2025 | 1,513 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Url] - [pdf][Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Pdf] |
+| [BorsaIstanbul][BorsaIstanbul.Exchange] | [OrderEntry][Bist.BorsaIstanbul.OrderEntry] | [Fix][Omi.Encoding.Fix] | [1.0.64][Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.Exchange.Definition] | [Exchange][Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.Exchange.Definition] | 1/1/2026 | 4,371 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.Pdf] |
 
 
 <p align="center"><a href="https://www.borsaistanbul.com/en" title="Borsa İstanbul A.Ş. Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/borsaistanbul" title="Borsa İstanbul A.Ş. on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/Borsa_Istanbul" title="Borsa İstanbul A.Ş. on Wikipedia"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Wikipedia.png" alt="Wikipedia" width="32" height="32"></a></p>
@@ -28,9 +29,13 @@
 [Omi.Bist.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bist/Protocols "Bist Protocol Directory"
 [Omi.Bist.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bist/Specifications "Bist Specifications Directory"
 [Omi.Encoding.Itch]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Itch.md "Itch Encoding"
+[Omi.Encoding.Fix]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fix.md "Fix Encoding"
 [BorsaIstanbul.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bist/Protocols/BorsaIstanbul "Bist BorsaIstanbul"
 [Bist.BorsaIstanbul.GeniumInet]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bist/Protocols/BorsaIstanbul/GeniumInet.md "Genium Inet"
+[Bist.BorsaIstanbul.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bist/Protocols/BorsaIstanbul/OrderEntry.md ""
 
 [Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/bist/borsaistanbul/geniuminet/BorsaIstanbul_GeniumInet_v21_12.lean "Bist BorsaIstanbul GeniumInet Itch v21.12 Lean Definition"
 [Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Url]: https://www.borsaistanbul.com/en/technical-resources/technical-documents "Borsa İstanbul A.Ş. 21.12 Url"
 [Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bist/Specifications/Itch/Bist.BorsaIstanbul.GeniumInet.Itch.v21.12.pdf "Borsa İstanbul A.Ş. 21.12 Pdf"
+[Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.Exchange.Definition]: https://github.com/Open-Markets-Initiative/omi-lean4-definitions/blob/main/bist/borsaistanbul/orderentry/BorsaIstanbul_OrderEntry_v1_0_64_Exchange.lean "Bist BorsaIstanbul OrderEntry Fix v1.0.64 Lean Definition"
+[Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bist/Specifications/OrderEntry/Bist.BorsaIstanbul.OrderEntry.Fix.v1.0.64.pdf "Borsa İstanbul A.Ş. 1.0.64 Pdf"

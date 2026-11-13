@@ -1040,11 +1040,12 @@ end Category1
 
 /-- Category 2: one byte code -/
 def Category2.codes : List UInt8 :=
-  [0x20, 0x46, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]
+  [0x20, 0x46, 0x4F, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]
 
 inductive Category2 where
   | noTradeThroughExemptReason -- No Trade Through Exempt Reason
   | interMarketSweepOrder -- Inter Market Sweep Order
+  | marketCenterOpeningTrade -- Market Center Opening Trade
   | derivativelyPriced -- Derivatively Priced
   | marketCenterReopeningTrade -- Market Center Reopening Trade
   | marketCenterClosingTrade -- Market Center Closing Trade
@@ -1059,6 +1060,7 @@ namespace Category2
 def toByte : Category2 → UInt8
   | .noTradeThroughExemptReason => 0x20
   | .interMarketSweepOrder => 0x46
+  | .marketCenterOpeningTrade => 0x4F
   | .derivativelyPriced => 0x34
   | .marketCenterReopeningTrade => 0x35
   | .marketCenterClosingTrade => 0x36
@@ -1071,6 +1073,7 @@ def toByte : Category2 → UInt8
 def listed (byte : UInt8) : Category2 :=
   if byte = 0x20 then .noTradeThroughExemptReason
   else if byte = 0x46 then .interMarketSweepOrder
+  else if byte = 0x4F then .marketCenterOpeningTrade
   else if byte = 0x34 then .derivativelyPriced
   else if byte = 0x35 then .marketCenterReopeningTrade
   else if byte = 0x36 then .marketCenterClosingTrade
@@ -1085,6 +1088,7 @@ theorem ofByte_toByte (value : Category2) : ofByte value.toByte = value := by
   cases value with
   | noTradeThroughExemptReason => decide
   | interMarketSweepOrder => decide
+  | marketCenterOpeningTrade => decide
   | derivativelyPriced => decide
   | marketCenterReopeningTrade => decide
   | marketCenterClosingTrade => decide
@@ -1115,12 +1119,11 @@ end Category2
 
 /-- Category 3: one byte code -/
 def Category3.codes : List UInt8 :=
-  [0x20, 0x4C, 0x4F, 0x54, 0x55, 0x5A]
+  [0x20, 0x4C, 0x54, 0x55, 0x5A]
 
 inductive Category3 where
   | notExtendedHoursOrSoldOutOfSequence -- Not Extended Hours Or Sold Out Of Sequence
   | soldLastLateReporting -- Sold Last Late Reporting
-  | marketCenterOpeningTrade -- Market Center Opening Trade
   | extendedHoursTrade -- Extended Hours Trade
   | extendedHoursSoldOutOfSequence -- Extended Hours Sold Out Of Sequence
   | soldOutOfSequence -- Sold Out Of Sequence
@@ -1132,7 +1135,6 @@ namespace Category3
 def toByte : Category3 → UInt8
   | .notExtendedHoursOrSoldOutOfSequence => 0x20
   | .soldLastLateReporting => 0x4C
-  | .marketCenterOpeningTrade => 0x4F
   | .extendedHoursTrade => 0x54
   | .extendedHoursSoldOutOfSequence => 0x55
   | .soldOutOfSequence => 0x5A
@@ -1142,7 +1144,6 @@ def toByte : Category3 → UInt8
 def listed (byte : UInt8) : Category3 :=
   if byte = 0x20 then .notExtendedHoursOrSoldOutOfSequence
   else if byte = 0x4C then .soldLastLateReporting
-  else if byte = 0x4F then .marketCenterOpeningTrade
   else if byte = 0x54 then .extendedHoursTrade
   else if byte = 0x55 then .extendedHoursSoldOutOfSequence
   else .soldOutOfSequence
@@ -1154,7 +1155,6 @@ theorem ofByte_toByte (value : Category3) : ofByte value.toByte = value := by
   cases value with
   | notExtendedHoursOrSoldOutOfSequence => decide
   | soldLastLateReporting => decide
-  | marketCenterOpeningTrade => decide
   | extendedHoursTrade => decide
   | extendedHoursSoldOutOfSequence => decide
   | soldOutOfSequence => decide

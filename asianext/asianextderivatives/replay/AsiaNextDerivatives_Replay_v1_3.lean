@@ -94,15 +94,15 @@ structure ReplayResponseMessage where
 namespace ReplayResponseMessage
 
 def encode (message : ReplayResponseMessage) : List UInt8 :=
-  encodeUIntLE 1 message.responseCode
+  encodeUInt 1 message.responseCode
 
 def decode (bytes : List UInt8) : Option (ReplayResponseMessage × List UInt8) := do
-  let (responseCode, bytes) ← decodeUIntLE 1 bytes
+  let (responseCode, bytes) ← decodeUInt 1 bytes
   pure ({ responseCode }, bytes)
 
 @[simp] theorem encode_length (message : ReplayResponseMessage) : (encode message).length = 1 := by
   unfold encode
-  simp only [encodeUIntLE_length]
+  simp only [encodeUInt_length]
 
 theorem encode_length_pos (message : ReplayResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -111,7 +111,7 @@ theorem encode_length_pos (message : ReplayResponseMessage) : (encode message).l
 @[simp] theorem decode_encode (message : ReplayResponseMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end ReplayResponseMessage

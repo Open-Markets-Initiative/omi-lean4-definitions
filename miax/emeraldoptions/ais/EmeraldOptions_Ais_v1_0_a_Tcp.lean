@@ -13,14 +13,8 @@ Prices with implied decimals are proven as the integers on the wire.
 
 Note: Sequenced Data Packet is not framed: its length Sesm Packet Length is not an integer it reads
 
-Note: Application Message is not framed: its length Sesm Packet Length is not an integer it reads
-
 Note: Unsequenced Data Packet is not framed: its length Sesm Packet Length is not an integer it
 reads
-
-Note: Sesm Tcp Packet's body has no bound its 2 byte Sesm Packet Length must fit, so every message
-carries the proof its own encoding fits: the record is its body with that proof, checked as the
-frame is read
 
 License: MIT No Attribution
 -/
@@ -1378,7 +1372,7 @@ def encode (message : ComplexStrategyDefinitionUpdateMessage) : List UInt8 :=
     ++ (Alpha.encode message.reserved1
     ++ (UpdateReason.encode message.updateReason
     ++ (Alpha.encode message.reserved10
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.legDefinition.val.length)
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.legDefinition.val.length)
     ++ (encodeMany LegDefinition.encode message.legDefinition.val))))))))
 
 def decode (bytes : List UInt8) : Option (ComplexStrategyDefinitionUpdateMessage × List UInt8) := do
@@ -1389,7 +1383,7 @@ def decode (bytes : List UInt8) : Option (ComplexStrategyDefinitionUpdateMessage
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (updateReason, bytes) ← UpdateReason.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  let (numberOfLegs, bytes) ← decodeUIntLE 1 bytes
+  let (numberOfLegs, bytes) ← decodeUInt 1 bytes
   let (legDefinition_, bytes) ← decodeMany LegDefinition.decode numberOfLegs.toNat bytes
   if fits_legDefinition : legDefinition_.length < 256 ^ 1 then
     pure ({ nanoseconds, strategyId, underlyingSymbol, activeOnEmerald, reserved1, updateReason, reserved10, legDefinition := ⟨legDefinition_, fits_legDefinition⟩ }, bytes)
@@ -1404,7 +1398,7 @@ theorem encode_length_pos (message : ComplexStrategyDefinitionUpdateMessage) : (
 theorem encode_length_le (message : ComplexStrategyDefinitionUpdateMessage) : (encode message).length ≤ 3858 := by
   have bound_legDefinition := message.legDefinition.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, ActiveOnEmerald.encode_length, UpdateReason.encode_length, encodeMany_length_const LegDefinition.encode 15 LegDefinition.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, ActiveOnEmerald.encode_length, UpdateReason.encode_length, encodeUInt_length, encodeMany_length_const LegDefinition.encode 15 LegDefinition.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : ComplexStrategyDefinitionUpdateMessage) (rest : List UInt8) :
@@ -1424,7 +1418,7 @@ theorem encode_length_le (message : ComplexStrategyDefinitionUpdateMessage) : (e
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [decodeMany_bounded 1 LegDefinition.encode LegDefinition.decode LegDefinition.decode_encode, some_bind]
   dsimp only
@@ -1767,92 +1761,65 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Data × List UInt8) :
 
 end Data
 
-/-- Application Message -/
-structure ApplicationMessage where
-  data : Data
-  deriving DecidableEq, Repr
-
-namespace ApplicationMessage
-
-def encode (message : ApplicationMessage) : List UInt8 :=
-  encodeUInt 1 (Data.tag message.data)
-    ++ (Data.encode message.data)
-
-def decode (bytes : List UInt8) : Option (ApplicationMessage × List UInt8) := do
-  let (messageType, bytes) ← decodeUInt 1 bytes
-  let (data, bytes) ← Data.decode messageType bytes
-  pure ({ data }, bytes)
-
-theorem encode_length_pos (message : ApplicationMessage) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUInt_length, List.length_append]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : ApplicationMessage) : (encode message).length ≤ 3859 := by
-  unfold encode
-  cases message.data with
-  | systemTimeMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, SystemTimeMessage.encode_length]
-    omega
-  | simpleSeriesUpdateMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, SimpleSeriesUpdateMessage.encode_length]
-    omega
-  | complexStrategyDefinitionUpdateMessage inner =>
-    have bound_inner := ComplexStrategyDefinitionUpdateMessage.encode_length_le inner
-    simp only [Data.encode, List.length_append, encodeUInt_length]
-    omega
-  | systemStateMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, SystemStateMessage.encode_length]
-    omega
-  | simpleLiquiditySeekingEventNotificationMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, SimpleLiquiditySeekingEventNotificationMessage.encode_length]
-    omega
-  | complexLiquiditySeekingEventNotificationMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, ComplexLiquiditySeekingEventNotificationMessage.encode_length]
-    omega
-  | underlyingTradingStatusNotificationMessage inner =>
-    simp only [Data.encode, List.length_append, encodeUInt_length, UnderlyingTradingStatusNotificationMessage.encode_length]
-    omega
-
-@[simp] theorem decode_encode (message : ApplicationMessage) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [Data.decode_encode, some_bind]
-  rfl
-
-end ApplicationMessage
-
 /-- Refresh Response Message -/
 structure RefreshResponseMessage where
   sequenceNumber : BitVec 64
-  applicationMessage : ApplicationMessage
+  data : Data
   deriving DecidableEq, Repr
 
 namespace RefreshResponseMessage
 
 def encode (message : RefreshResponseMessage) : List UInt8 :=
   encodeUIntLE 8 message.sequenceNumber
-    ++ (ApplicationMessage.encode message.applicationMessage)
+    ++ (encodeUInt 1 (Data.tag message.data)
+    ++ (Data.encode message.data))
 
 def decode (bytes : List UInt8) : Option (RefreshResponseMessage × List UInt8) := do
   let (sequenceNumber, bytes) ← decodeUIntLE 8 bytes
-  let (applicationMessage, bytes) ← ApplicationMessage.decode bytes
-  pure ({ sequenceNumber, applicationMessage }, bytes)
+  let (messageType, bytes) ← decodeUInt 1 bytes
+  let (data, bytes) ← Data.decode messageType bytes
+  pure ({ sequenceNumber, data }, bytes)
 
 theorem encode_length_pos (message : RefreshResponseMessage) : (encode message).length > 0 := by
   unfold encode
-  simp only [encodeUIntLE_length, List.length_append]
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : RefreshResponseMessage) : (encode message).length ≤ 3867 := by
+  unfold encode
+  cases message.data with
+  | systemTimeMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SystemTimeMessage.encode_length]
+    omega
+  | simpleSeriesUpdateMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SimpleSeriesUpdateMessage.encode_length]
+    omega
+  | complexStrategyDefinitionUpdateMessage inner =>
+    have bound_inner := ComplexStrategyDefinitionUpdateMessage.encode_length_le inner
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length]
+    omega
+  | systemStateMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SystemStateMessage.encode_length]
+    omega
+  | simpleLiquiditySeekingEventNotificationMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SimpleLiquiditySeekingEventNotificationMessage.encode_length]
+    omega
+  | complexLiquiditySeekingEventNotificationMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, ComplexLiquiditySeekingEventNotificationMessage.encode_length]
+    omega
+  | underlyingTradingStatusNotificationMessage inner =>
+    simp only [Data.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, UnderlyingTradingStatusNotificationMessage.encode_length]
+    omega
 
 @[simp] theorem decode_encode (message : RefreshResponseMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [ApplicationMessage.decode_encode, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [Data.decode_encode, some_bind]
   rfl
 
 end RefreshResponseMessage
@@ -1907,6 +1874,20 @@ def encode : UnsequencedMessage → List UInt8
   | .refreshResponseMessage message => RefreshResponseMessage.encode message
   | .endOfRefreshNotificationMessage message => EndOfRefreshNotificationMessage.encode message
 
+/-- The most bytes any message's encoding can take -/
+theorem encode_length_le (message : UnsequencedMessage) : (encode message).length ≤ 3867 := by
+  cases message with
+  | refreshRequestMessage inner =>
+    simp only [encode, RefreshRequestMessage.encode_length]
+    omega
+  | refreshResponseMessage inner =>
+    have bound_inner := RefreshResponseMessage.encode_length_le inner
+    simp only [encode]
+    omega
+  | endOfRefreshNotificationMessage inner =>
+    simp only [encode, EndOfRefreshNotificationMessage.encode_length]
+    omega
+
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (UnsequencedMessage × List UInt8) :=
   if tag = 82 then (RefreshRequestMessage.decode bytes).map fun (message, rest) => (.refreshRequestMessage message, rest)
   else if tag = 114 then (RefreshResponseMessage.decode bytes).map fun (message, rest) => (.refreshResponseMessage message, rest)
@@ -1939,6 +1920,21 @@ theorem encode_length_pos (message : UnsequencedDataPacket) : (encode message).l
   unfold encode
   simp only [encodeUInt_length, List.length_append]
   omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : UnsequencedDataPacket) : (encode message).length ≤ 3868 := by
+  unfold encode
+  cases message.unsequencedMessage with
+  | refreshRequestMessage inner =>
+    simp only [UnsequencedMessage.encode, List.length_append, encodeUInt_length, RefreshRequestMessage.encode_length]
+    omega
+  | refreshResponseMessage inner =>
+    have bound_inner := RefreshResponseMessage.encode_length_le inner
+    simp only [UnsequencedMessage.encode, List.length_append, encodeUInt_length]
+    omega
+  | endOfRefreshNotificationMessage inner =>
+    simp only [UnsequencedMessage.encode, List.length_append, encodeUInt_length, EndOfRefreshNotificationMessage.encode_length]
+    omega
 
 @[simp] theorem decode_encode (message : UnsequencedDataPacket) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
@@ -2366,6 +2362,50 @@ def encode : SesmPayload → List UInt8
   | .clientHeartbeat message => ClientHeartbeat.encode message
   | .testPacket message => TestPacket.encode message
 
+/-- The most bytes any message's encoding can take -/
+theorem encode_length_le (message : SesmPayload) : (encode message).length ≤ 61667 := by
+  cases message with
+  | sequencedDataPacket inner =>
+    simp only [encode, SequencedDataPacket.encode_length]
+    omega
+  | unsequencedDataPacket inner =>
+    have bound_inner := UnsequencedDataPacket.encode_length_le inner
+    simp only [encode]
+    omega
+  | loginRequest inner =>
+    simp only [encode, LoginRequest.encode_length]
+    omega
+  | loginResponse inner =>
+    simp only [encode, LoginResponse.encode_length]
+    omega
+  | synchronizationComplete inner =>
+    simp only [encode, SynchronizationComplete.encode_length]
+    omega
+  | retransmissionRequest inner =>
+    simp only [encode, RetransmissionRequest.encode_length]
+    omega
+  | logoutRequest inner =>
+    have bound_inner := LogoutRequest.encode_length_le inner
+    simp only [encode]
+    omega
+  | goodbyePacket inner =>
+    have bound_inner := GoodbyePacket.encode_length_le inner
+    simp only [encode]
+    omega
+  | tradingSessionUpdate inner =>
+    simp only [encode, TradingSessionUpdate.encode_length]
+    omega
+  | serverHeartbeat inner =>
+    simp only [encode, ServerHeartbeat.encode_length]
+    omega
+  | clientHeartbeat inner =>
+    simp only [encode, ClientHeartbeat.encode_length]
+    omega
+  | testPacket inner =>
+    have bound_inner := TestPacket.encode_length_le inner
+    simp only [encode]
+    omega
+
 /-- Decoded from the whole of the frame: a message that reads to its end takes it all, any other must leave nothing -/
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option SesmPayload :=
   if tag = 115 then (SequencedDataPacket.decode bytes).bind fun (message, rest) => if rest.isEmpty then some (.sequencedDataPacket message) else none
@@ -2400,54 +2440,86 @@ theorem decode_encode (message : SesmPayload) :
 
 end SesmPayload
 
-/-- Sesm Tcp Packet: the body, which the record carries with the proof it fits its frame -/
-structure SesmTcpPacketBody where
+/-- Sesm Tcp Packet -/
+structure SesmTcpPacket where
   sesmPayload : SesmPayload
   deriving DecidableEq, Repr
 
-namespace SesmTcpPacketBody
+namespace SesmTcpPacket
 
-def encodeBody (message : SesmTcpPacketBody) : List UInt8 :=
+def encodeBody (message : SesmTcpPacket) : List UInt8 :=
   encodeUInt 1 (SesmPayload.tag message.sesmPayload)
     ++ (SesmPayload.encode message.sesmPayload)
 
-def decodeBody (bytes : List UInt8) : Option SesmTcpPacketBody := do
+def decodeBody (bytes : List UInt8) : Option SesmTcpPacket := do
   let (sesmPacketType, bytes) ← decodeUInt 1 bytes
   let sesmPayload ← SesmPayload.decode sesmPacketType bytes
   pure { sesmPayload }
 
-theorem decodeBody_encodeBody (message : SesmTcpPacketBody) : decodeBody (encodeBody message) = some message := by
+theorem decodeBody_encodeBody (message : SesmTcpPacket) : decodeBody (encodeBody message) = some message := by
   unfold decodeBody encodeBody
   rw [decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [SesmPayload.decode_encode, some_bind]
   rfl
 
-end SesmTcpPacketBody
+/-- Every body fits the length prefix -/
+theorem encodeBody_length_lt (message : SesmTcpPacket) : (encodeBody message).length + 0 < 256 ^ 2 := by
+  unfold encodeBody
+  cases message.sesmPayload with
+  | sequencedDataPacket inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, SequencedDataPacket.encode_length]
+    omega
+  | unsequencedDataPacket inner =>
+    have bound_inner := UnsequencedDataPacket.encode_length_le inner
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length]
+    omega
+  | loginRequest inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, LoginRequest.encode_length]
+    omega
+  | loginResponse inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, LoginResponse.encode_length]
+    omega
+  | synchronizationComplete inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, SynchronizationComplete.encode_length]
+    omega
+  | retransmissionRequest inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, RetransmissionRequest.encode_length]
+    omega
+  | logoutRequest inner =>
+    have bound_inner := LogoutRequest.encode_length_le inner
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length]
+    omega
+  | goodbyePacket inner =>
+    have bound_inner := GoodbyePacket.encode_length_le inner
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length]
+    omega
+  | tradingSessionUpdate inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, TradingSessionUpdate.encode_length]
+    omega
+  | serverHeartbeat inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, ServerHeartbeat.encode_length]
+    omega
+  | clientHeartbeat inner =>
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length, ClientHeartbeat.encode_length]
+    omega
+  | testPacket inner =>
+    have bound_inner := TestPacket.encode_length_le inner
+    simp only [SesmPayload.encode, List.length_append, encodeUInt_length]
+    omega
 
-/-- Sesm Tcp Packet: the body with the proof its encoding fits Sesm Packet Length, whose 2 bytes no bound of the fields fits -/
-abbrev SesmTcpPacket := Fitting SesmTcpPacketBody.encodeBody 0 65536
-
-namespace SesmTcpPacket
-
-def encode (message : SesmTcpPacket) : List UInt8 :=
-  encodeFramedLE 2 0 SesmTcpPacketBody.encodeBody message.val
+/-- Size rule: Sesm Packet Length counts the bytes after it, so it is written from the body and checked on decode -/
+def encode : SesmTcpPacket → List UInt8 :=
+  encodeFramedLE 2 0 encodeBody
 
 def decode : List UInt8 → Option (SesmTcpPacket × List UInt8) :=
-  decodeFittingAllLE 2 0 SesmTcpPacketBody.encodeBody SesmTcpPacketBody.decodeBody
+  decodeFramedAllLE 2 0 decodeBody
 
 @[simp] theorem decode_encode (message : SesmTcpPacket) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) :=
-  decodeFittingAllLE_encodeFramedLE 2 0 SesmTcpPacketBody.encodeBody SesmTcpPacketBody.decodeBody message (SesmTcpPacketBody.decodeBody_encodeBody message.val) rest
+  decodeFramedAllLE_encodeFramedLE 2 0 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
 theorem encode_length_pos (message : SesmTcpPacket) : (encode message).length > 0 := by
-  unfold encode
-  rw [encodeFramedLE_length]
-  omega
-
-/-- The most bytes an encoding can take: what the prefix can count, by the fit the message carries -/
-theorem encode_length_le (message : SesmTcpPacket) : (encode message).length ≤ 65537 := by
-  have fits := message.fits
   unfold encode
   rw [encodeFramedLE_length]
   omega

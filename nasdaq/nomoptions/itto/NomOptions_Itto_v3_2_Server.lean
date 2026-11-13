@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# National Association of Securities Dealers Automated Quotations (Nasdaq) Nom Itto Top Order Market Data v3.2
+# National Association of Securities Dealers Automated Quotations (Nasdaq) Itch to Trade Options v3.2
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;

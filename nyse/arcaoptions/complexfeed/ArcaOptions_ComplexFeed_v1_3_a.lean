@@ -936,9 +936,9 @@ namespace ComplexSymbolDefinitionMessage
 def encode (message : ComplexSymbolDefinitionMessage) : List UInt8 :=
   encodeUIntLE 4 message.complexIndex
     ++ (Alpha.encode message.complexSymbol
-    ++ (encodeUIntLE 1 message.channelId
+    ++ (encodeUInt 1 message.channelId
     ++ (encodeUIntLE 2 message.marketId
-    ++ (encodeUIntLE 1 message.systemId
+    ++ (encodeUInt 1 message.systemId
     ++ (Alpha.encode message.reserved1
     ++ (encodeUIntLE 2 message.streamId
     ++ (encodeUIntLE 2 (BitVec.ofNat (8 * 2) message.legDefinition.val.length)
@@ -948,9 +948,9 @@ def encode (message : ComplexSymbolDefinitionMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (ComplexSymbolDefinitionMessage × List UInt8) := do
   let (complexIndex, bytes) ← decodeUIntLE 4 bytes
   let (complexSymbol, bytes) ← Alpha.decode 21 bytes
-  let (channelId, bytes) ← decodeUIntLE 1 bytes
+  let (channelId, bytes) ← decodeUInt 1 bytes
   let (marketId, bytes) ← decodeUIntLE 2 bytes
-  let (systemId, bytes) ← decodeUIntLE 1 bytes
+  let (systemId, bytes) ← decodeUInt 1 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (streamId, bytes) ← decodeUIntLE 2 bytes
   let (noOfLegs, bytes) ← decodeUIntLE 2 bytes
@@ -969,7 +969,7 @@ theorem encode_length_pos (message : ComplexSymbolDefinitionMessage) : (encode m
 theorem encode_length_le (message : ComplexSymbolDefinitionMessage) : (encode message).length ≤ 524316 := by
   have bound_legDefinition := message.legDefinition.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeMany_length_const LegDefinition.encode 8 LegDefinition.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, encodeMany_length_const LegDefinition.encode 8 LegDefinition.encode_length]
   omega
 
 @[simp] theorem decode_encode (message : ComplexSymbolDefinitionMessage) (rest : List UInt8) :
@@ -979,11 +979,11 @@ theorem encode_length_le (message : ComplexSymbolDefinitionMessage) : (encode me
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1048,19 +1048,19 @@ namespace SequenceNumberResetMessage
 def encode (message : SequenceNumberResetMessage) : List UInt8 :=
   encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
-    ++ (encodeUIntLE 1 message.productId
-    ++ (encodeUIntLE 1 message.channelId)))
+    ++ (encodeUInt 1 message.productId
+    ++ (encodeUInt 1 message.channelId)))
 
 def decode (bytes : List UInt8) : Option (SequenceNumberResetMessage × List UInt8) := do
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
-  let (productId, bytes) ← decodeUIntLE 1 bytes
-  let (channelId, bytes) ← decodeUIntLE 1 bytes
+  let (productId, bytes) ← decodeUInt 1 bytes
+  let (channelId, bytes) ← decodeUInt 1 bytes
   pure ({ sourceTime, sourceTimeNs, productId, channelId }, bytes)
 
 @[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 10 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1073,9 +1073,9 @@ theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rw [decodeUInt_encodeUInt, some_bind]
   rfl
 
 end SequenceNumberResetMessage
@@ -1233,16 +1233,16 @@ namespace Packet
 
 def encode (message : Packet) : List UInt8 :=
   encodeUIntLE 2 message.packetSize
-    ++ (encodeUIntLE 1 message.deliveryFlag
-    ++ (encodeUIntLE 1 (BitVec.ofNat (8 * 1) message.message.val.length)
+    ++ (encodeUInt 1 message.deliveryFlag
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
     ++ (encodeUIntLE 4 message.sequenceNumber
     ++ (SendTime.encode message.sendTime
     ++ (encodeMany Message.encode message.message.val)))))
 
 def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
   let (packetSize, bytes) ← decodeUIntLE 2 bytes
-  let (deliveryFlag, bytes) ← decodeUIntLE 1 bytes
-  let (messageCount, bytes) ← decodeUIntLE 1 bytes
+  let (deliveryFlag, bytes) ← decodeUInt 1 bytes
+  let (messageCount, bytes) ← decodeUInt 1 bytes
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (sendTime, bytes) ← SendTime.decode bytes
   let (message_, bytes) ← decodeMany Message.decode messageCount.toNat bytes
@@ -1260,9 +1260,9 @@ theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

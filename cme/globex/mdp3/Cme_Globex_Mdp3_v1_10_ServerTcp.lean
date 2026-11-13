@@ -5658,7 +5658,7 @@ end RequestAck
 structure RequestReject where
   mdReqIdOptional : BitVec 32
   mdReqRejReason : BitVec 8
-  text : Alpha 100
+  sessionText : Alpha 100
   deriving DecidableEq, Repr
 
 namespace RequestReject
@@ -5666,13 +5666,13 @@ namespace RequestReject
 def encode (message : RequestReject) : List UInt8 :=
   encodeUIntLE 4 message.mdReqIdOptional
     ++ (encodeUInt 1 message.mdReqRejReason
-    ++ (Alpha.encode message.text))
+    ++ (Alpha.encode message.sessionText))
 
 def decode (bytes : List UInt8) : Option (RequestReject × List UInt8) := do
   let (mdReqIdOptional, bytes) ← decodeUIntLE 4 bytes
   let (mdReqRejReason, bytes) ← decodeUInt 1 bytes
-  let (text, bytes) ← Alpha.decode 100 bytes
-  pure ({ mdReqIdOptional, mdReqRejReason, text }, bytes)
+  let (sessionText, bytes) ← Alpha.decode 100 bytes
+  pure ({ mdReqIdOptional, mdReqRejReason, sessionText }, bytes)
 
 @[simp] theorem encode_length (message : RequestReject) : (encode message).length = 105 := by
   unfold encode
