@@ -678,6 +678,7 @@ structure NoRelatedSym where
   noEvents : List NoEvents  -- tag 864
   minPriceIncrement : Terminated 1  -- tag 969
   securityGroup : Terminated 1  -- tag 1151
+  noLegs : Option (Terminated 1)  -- tag 555
   minTradeVol : Option (Terminated 1)  -- tag 562
   priceLimitType : Option (Terminated 1)  -- tag 1306
   lowLimitPrice : Option (Terminated 1)  -- tag 1148
@@ -694,6 +695,7 @@ def NoRelatedSym.parts (record : NoRelatedSym) : List Part :=
    Part.group [56, 54, 52] NoEvents.members NoEvents.encode NoEvents.within record.noEvents,
    Part.required [57, 54, 57] record.minPriceIncrement,
    Part.required [49, 49, 53, 49] record.securityGroup,
+   Part.optional [53, 53, 53] record.noLegs,
    Part.optional [53, 54, 50] record.minTradeVol,
    Part.optional [49, 51, 48, 54] record.priceLimitType,
    Part.optional [49, 49, 52, 56] record.lowLimitPrice,
@@ -701,7 +703,7 @@ def NoRelatedSym.parts (record : NoRelatedSym) : List Part :=
    Part.required [49, 53] record.currency]
 
 def NoRelatedSym.tags : List (List (List UInt8)) :=
-  [[[53, 53]], [[52, 56]], [[50, 50]], [[52, 54, 48]], [[49, 54, 55]], [[50, 51, 49]], [56, 54, 52] :: NoEvents.members, [[57, 54, 57]], [[49, 49, 53, 49]], [[53, 54, 50]], [[49, 51, 48, 54]], [[49, 49, 52, 56]], [[49, 49, 52, 57]], [[49, 53]]]
+  [[[53, 53]], [[52, 56]], [[50, 50]], [[52, 54, 48]], [[49, 54, 55]], [[50, 51, 49]], [56, 54, 52] :: NoEvents.members, [[57, 54, 57]], [[49, 49, 53, 49]], [[53, 53, 53]], [[53, 54, 50]], [[49, 51, 48, 54]], [[49, 49, 52, 56]], [[49, 49, 52, 57]], [[49, 53]]]
 
 theorem NoRelatedSym.shape (record : NoRelatedSym) : record.parts.map Part.tags = NoRelatedSym.tags := rfl
 
@@ -715,12 +717,13 @@ def NoRelatedSym.decode (tokens : List Token) : Option NoRelatedSym := do
   let noEvents ← readGroup [56, 54, 52] [56, 54, 53] NoEvents.members NoEvents.decode tokens
   let minPriceIncrement ← readRequired [57, 54, 57] tokens
   let securityGroup ← readRequired [49, 49, 53, 49] tokens
+  let noLegs ← readOptional [53, 53, 53] tokens
   let minTradeVol ← readOptional [53, 54, 50] tokens
   let priceLimitType ← readOptional [49, 51, 48, 54] tokens
   let lowLimitPrice ← readOptional [49, 49, 52, 56] tokens
   let highLimitPrice ← readOptional [49, 49, 52, 57] tokens
   let currency ← readRequired [49, 53] tokens
-  pure { symbol, securityID, securityIDSource, product, securityType, contractMultiplier, noEvents, minPriceIncrement, securityGroup, minTradeVol, priceLimitType, lowLimitPrice, highLimitPrice, currency }
+  pure { symbol, securityID, securityIDSource, product, securityType, contractMultiplier, noEvents, minPriceIncrement, securityGroup, noLegs, minTradeVol, priceLimitType, lowLimitPrice, highLimitPrice, currency }
 
 theorem NoRelatedSym.decode_agrees (record : NoRelatedSym) (tokens : List Token)
     (agrees : ∀ tags ∈ NoRelatedSym.tags, select tags tokens = select tags (encodeParts record.parts)) :
@@ -744,17 +747,19 @@ theorem NoRelatedSym.decode_agrees (record : NoRelatedSym) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 7 (by decide +kernel)))
   have securityGroup := readRequired_part [49, 49, 53, 49] record.securityGroup tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 8 (by decide +kernel)))
-  have minTradeVol := readOptional_part [53, 54, 50] record.minTradeVol tokens
+  have noLegs := readOptional_part [53, 53, 53] record.noLegs tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 9 (by decide +kernel)))
-  have priceLimitType := readOptional_part [49, 51, 48, 54] record.priceLimitType tokens
+  have minTradeVol := readOptional_part [53, 54, 50] record.minTradeVol tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 10 (by decide +kernel)))
-  have lowLimitPrice := readOptional_part [49, 49, 52, 56] record.lowLimitPrice tokens
+  have priceLimitType := readOptional_part [49, 51, 48, 54] record.priceLimitType tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 11 (by decide +kernel)))
-  have highLimitPrice := readOptional_part [49, 49, 52, 57] record.highLimitPrice tokens
+  have lowLimitPrice := readOptional_part [49, 49, 52, 56] record.lowLimitPrice tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 12 (by decide +kernel)))
-  have currency := readRequired_part [49, 53] record.currency tokens
+  have highLimitPrice := readOptional_part [49, 49, 52, 57] record.highLimitPrice tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 13 (by decide +kernel)))
-  simp only [NoRelatedSym.decode, symbol, securityID, securityIDSource, product, securityType, contractMultiplier, noEvents, minPriceIncrement, securityGroup, minTradeVol, priceLimitType, lowLimitPrice, highLimitPrice, currency, some_bind] <;> rfl
+  have currency := readRequired_part [49, 53] record.currency tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 14 (by decide +kernel)))
+  simp only [NoRelatedSym.decode, symbol, securityID, securityIDSource, product, securityType, contractMultiplier, noEvents, minPriceIncrement, securityGroup, noLegs, minTradeVol, priceLimitType, lowLimitPrice, highLimitPrice, currency, some_bind] <;> rfl
 
 def NoRelatedSym.members : List (List UInt8) := NoRelatedSym.tags.flatten
 
@@ -816,12 +821,12 @@ theorem SecurityList.decode_agrees (record : SecurityList) (tokens : List Token)
 
 structure NoEventsSecurityDefinitionUpdate where
   eventType : Terminated 1  -- tag 865
-  eventDate : Terminated 1  -- tag 866
+  eventDate : Option (Terminated 1)  -- tag 866
   eventText : Terminated 1  -- tag 868
 
 def NoEventsSecurityDefinitionUpdate.parts (record : NoEventsSecurityDefinitionUpdate) : List Part :=
   [Part.required [56, 54, 53] record.eventType,
-   Part.required [56, 54, 54] record.eventDate,
+   Part.optional [56, 54, 54] record.eventDate,
    Part.required [56, 54, 56] record.eventText]
 
 def NoEventsSecurityDefinitionUpdate.tags : List (List (List UInt8)) :=
@@ -831,7 +836,7 @@ theorem NoEventsSecurityDefinitionUpdate.shape (record : NoEventsSecurityDefinit
 
 def NoEventsSecurityDefinitionUpdate.decode (tokens : List Token) : Option NoEventsSecurityDefinitionUpdate := do
   let eventType ← readRequired [56, 54, 53] tokens
-  let eventDate ← readRequired [56, 54, 54] tokens
+  let eventDate ← readOptional [56, 54, 54] tokens
   let eventText ← readRequired [56, 54, 56] tokens
   pure { eventType, eventDate, eventText }
 
@@ -841,7 +846,7 @@ theorem NoEventsSecurityDefinitionUpdate.decode_agrees (record : NoEventsSecurit
   have distinct : NoEventsSecurityDefinitionUpdate.tags.flatten.Nodup := by decide +kernel
   have eventType := readRequired_part [56, 54, 53] record.eventType tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
-  have eventDate := readRequired_part [56, 54, 54] record.eventDate tokens
+  have eventDate := readOptional_part [56, 54, 54] record.eventDate tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   have eventText := readRequired_part [56, 54, 56] record.eventText tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))

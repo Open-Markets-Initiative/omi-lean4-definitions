@@ -503,14 +503,18 @@ structure OrderCancelRequest where
   clOrdID : Terminated 1  -- tag 11
   origClOrdID : Terminated 1  -- tag 41
   symbol : Terminated 1  -- tag 55
+  side : Option (Terminated 1)  -- tag 54
+  price : Option (Terminated 1)  -- tag 44
 
 def OrderCancelRequest.parts (record : OrderCancelRequest) : List Part :=
   [Part.required [49, 49] record.clOrdID,
    Part.required [52, 49] record.origClOrdID,
-   Part.required [53, 53] record.symbol]
+   Part.required [53, 53] record.symbol,
+   Part.optional [53, 52] record.side,
+   Part.optional [52, 52] record.price]
 
 def OrderCancelRequest.tags : List (List (List UInt8)) :=
-  [[[49, 49]], [[52, 49]], [[53, 53]]]
+  [[[49, 49]], [[52, 49]], [[53, 53]], [[53, 52]], [[52, 52]]]
 
 theorem OrderCancelRequest.shape (record : OrderCancelRequest) : record.parts.map Part.tags = OrderCancelRequest.tags := rfl
 
@@ -518,7 +522,9 @@ def OrderCancelRequest.decode (tokens : List Token) : Option OrderCancelRequest 
   let clOrdID ← readRequired [49, 49] tokens
   let origClOrdID ← readRequired [52, 49] tokens
   let symbol ← readRequired [53, 53] tokens
-  pure { clOrdID, origClOrdID, symbol }
+  let side ← readOptional [53, 52] tokens
+  let price ← readOptional [52, 52] tokens
+  pure { clOrdID, origClOrdID, symbol, side, price }
 
 theorem OrderCancelRequest.decode_agrees (record : OrderCancelRequest) (tokens : List Token)
     (agrees : ∀ tags ∈ OrderCancelRequest.tags, select tags tokens = select tags (encodeParts record.parts)) :
@@ -530,7 +536,11 @@ theorem OrderCancelRequest.decode_agrees (record : OrderCancelRequest) (tokens :
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   have symbol := readRequired_part [53, 53] record.symbol tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
-  simp only [OrderCancelRequest.decode, clOrdID, origClOrdID, symbol, some_bind] <;> rfl
+  have side := readOptional_part [53, 52] record.side tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 3 (by decide +kernel)))
+  have price := readOptional_part [52, 52] record.price tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
+  simp only [OrderCancelRequest.decode, clOrdID, origClOrdID, symbol, side, price, some_bind] <;> rfl
 
 structure OrderMassCancelRequest where
   account : Option (Terminated 1)  -- tag 1

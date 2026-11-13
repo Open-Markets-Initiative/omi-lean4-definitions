@@ -716,6 +716,7 @@ structure ExecutionReportTradeCancel where
   execRefID : Terminated 1  -- tag 19
   text : Terminated 1  -- tag 58
   grossTradeAmt : Terminated 1  -- tag 381
+  trdType : Option (Terminated 1)  -- tag 828
   trdMatchID : Terminated 1  -- tag 880
   aggressorIndicator : Option (Terminated 1)  -- tag 1057
 
@@ -723,11 +724,12 @@ def ExecutionReportTradeCancel.parts (record : ExecutionReportTradeCancel) : Lis
   [Part.required [49, 57] record.execRefID,
    Part.required [53, 56] record.text,
    Part.required [51, 56, 49] record.grossTradeAmt,
+   Part.optional [56, 50, 56] record.trdType,
    Part.required [56, 56, 48] record.trdMatchID,
    Part.optional [49, 48, 53, 55] record.aggressorIndicator]
 
 def ExecutionReportTradeCancel.tags : List (List (List UInt8)) :=
-  [[[49, 57]], [[53, 56]], [[51, 56, 49]], [[56, 56, 48]], [[49, 48, 53, 55]]]
+  [[[49, 57]], [[53, 56]], [[51, 56, 49]], [[56, 50, 56]], [[56, 56, 48]], [[49, 48, 53, 55]]]
 
 theorem ExecutionReportTradeCancel.shape (record : ExecutionReportTradeCancel) : record.parts.map Part.tags = ExecutionReportTradeCancel.tags := rfl
 
@@ -735,9 +737,10 @@ def ExecutionReportTradeCancel.decode (tokens : List Token) : Option ExecutionRe
   let execRefID ← readRequired [49, 57] tokens
   let text ← readRequired [53, 56] tokens
   let grossTradeAmt ← readRequired [51, 56, 49] tokens
+  let trdType ← readOptional [56, 50, 56] tokens
   let trdMatchID ← readRequired [56, 56, 48] tokens
   let aggressorIndicator ← readOptional [49, 48, 53, 55] tokens
-  pure { execRefID, text, grossTradeAmt, trdMatchID, aggressorIndicator }
+  pure { execRefID, text, grossTradeAmt, trdType, trdMatchID, aggressorIndicator }
 
 theorem ExecutionReportTradeCancel.decode_agrees (record : ExecutionReportTradeCancel) (tokens : List Token)
     (agrees : ∀ tags ∈ ExecutionReportTradeCancel.tags, select tags tokens = select tags (encodeParts record.parts)) :
@@ -749,11 +752,13 @@ theorem ExecutionReportTradeCancel.decode_agrees (record : ExecutionReportTradeC
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   have grossTradeAmt := readRequired_part [51, 56, 49] record.grossTradeAmt tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
-  have trdMatchID := readRequired_part [56, 56, 48] record.trdMatchID tokens
+  have trdType := readOptional_part [56, 50, 56] record.trdType tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 3 (by decide +kernel)))
-  have aggressorIndicator := readOptional_part [49, 48, 53, 55] record.aggressorIndicator tokens
+  have trdMatchID := readRequired_part [56, 56, 48] record.trdMatchID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
-  simp only [ExecutionReportTradeCancel.decode, execRefID, text, grossTradeAmt, trdMatchID, aggressorIndicator, some_bind] <;> rfl
+  have aggressorIndicator := readOptional_part [49, 48, 53, 55] record.aggressorIndicator tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 5 (by decide +kernel)))
+  simp only [ExecutionReportTradeCancel.decode, execRefID, text, grossTradeAmt, trdType, trdMatchID, aggressorIndicator, some_bind] <;> rfl
 
 structure OrderCancelReject where
   clOrdID : Terminated 1  -- tag 11
