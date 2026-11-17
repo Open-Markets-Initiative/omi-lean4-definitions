@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.AsxAsxsecuritiesSignalbFixV10Client
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   senderCompID : Terminated 1  -- tag 49
   targetCompID : Terminated 1  -- tag 56
@@ -73,6 +76,17 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
   have applVerID := readOptional_part [49, 49, 50, 56] record.applVerID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 7 (by decide +kernel)))
   simp only [Header.decode, senderCompID, targetCompID, msgSeqNum, sendingTime, possDupFlag, possResend, origSendingTime, applVerID, some_bind] <;> rfl
+
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [52, 57] record.senderCompID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [53, 54] record.targetCompID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [51, 52] record.msgSeqNum (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [53, 50] record.sendingTime (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [52, 51] record.possDupFlag (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [57, 55] record.possResend (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [49, 50, 50] record.origSendingTime (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [49, 49, 50, 56] record.applVerID (by decide) (by decide))
+          (paired_none pairing))))))))
 
 structure Logon where
   heartBtInt : Terminated 1  -- tag 108
@@ -137,6 +151,18 @@ theorem Logon.decode_agrees (record : Logon) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 8 (by decide +kernel)))
   simp only [Logon.decode, heartBtInt, resetSeqNumFlag, nextExpectedMsgSeqNum, username, password, newPassword, sessionStatus, defaultApplVerID, text, some_bind] <;> rfl
 
+theorem Logon.taken (record : Logon) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [49, 48, 56] record.heartBtInt (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [49, 52, 49] record.resetSeqNumFlag (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [55, 56, 57] record.nextExpectedMsgSeqNum (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [53, 53, 51] record.username (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [53, 53, 52] record.password (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [57, 50, 53] record.newPassword (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [49, 52, 48, 57] record.sessionStatus (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [49, 49, 51, 55] record.defaultApplVerID (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+           (paired_none pairing)))))))))
+
 structure Heartbeat where
   testReqID : Option (Terminated 1)  -- tag 112
 
@@ -159,6 +185,10 @@ theorem Heartbeat.decode_agrees (record : Heartbeat) (tokens : List Token)
   have testReqID := readOptional_part [49, 49, 50] record.testReqID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
   simp only [Heartbeat.decode, testReqID, some_bind] <;> rfl
+
+theorem Heartbeat.taken (record : Heartbeat) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49, 49, 50] record.testReqID (by decide) (by decide))
+   (paired_none pairing)
 
 structure ResendRequest where
   beginSeqNo : Terminated 1  -- tag 7
@@ -188,6 +218,11 @@ theorem ResendRequest.decode_agrees (record : ResendRequest) (tokens : List Toke
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [ResendRequest.decode, beginSeqNo, endSeqNo, some_bind] <;> rfl
 
+theorem ResendRequest.taken (record : ResendRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [55] record.beginSeqNo (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 54] record.endSeqNo (by decide) (by decide))
+    (paired_none pairing))
+
 structure SequenceReset where
   gapFillFlag : Option (Terminated 1)  -- tag 123
   newSeqNo : Terminated 1  -- tag 36
@@ -215,6 +250,11 @@ theorem SequenceReset.decode_agrees (record : SequenceReset) (tokens : List Toke
   have newSeqNo := readRequired_part [51, 54] record.newSeqNo tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [SequenceReset.decode, gapFillFlag, newSeqNo, some_bind] <;> rfl
+
+theorem SequenceReset.taken (record : SequenceReset) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49, 50, 51] record.gapFillFlag (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [51, 54] record.newSeqNo (by decide) (by decide))
+    (paired_none pairing))
 
 structure Logout where
   sessionStatus : Option (Terminated 1)  -- tag 1409
@@ -244,6 +284,11 @@ theorem Logout.decode_agrees (record : Logout) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [Logout.decode, sessionStatus, text, some_bind] <;> rfl
 
+theorem Logout.taken (record : Logout) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49, 52, 48, 57] record.sessionStatus (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+    (paired_none pairing))
+
 structure NoDates where
   tradeDate : Terminated 1  -- tag 75
 
@@ -266,6 +311,10 @@ theorem NoDates.decode_agrees (record : NoDates) (tokens : List Token)
   have tradeDate := readRequired_part [55, 53] record.tradeDate tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
   simp only [NoDates.decode, tradeDate, some_bind] <;> rfl
+
+theorem NoDates.taken (record : NoDates) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [55, 53] record.tradeDate (by decide) (by decide))
+   (paired_none pairing)
 
 def NoDates.members : List (List UInt8) := NoDates.tags.flatten
 
@@ -315,6 +364,12 @@ theorem TradeCaptureReportRequest.decode_agrees (record : TradeCaptureReportRequ
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
   simp only [TradeCaptureReportRequest.decode, tradeRequestID, tradeRequestType, noDates, some_bind] <;> rfl
 
+theorem TradeCaptureReportRequest.taken (record : TradeCaptureReportRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [53, 54, 56] record.tradeRequestID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [53, 54, 57] record.tradeRequestType (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_group pairing [53, 56, 48] NoDates.members NoDates.encode NoDates.within (by decide) (by decide) NoDates.taken record.noDates)
+     (paired_none pairing)))
+
 inductive Message where
   | logon (header : Header) (r0 : Logon)
   | heartbeat (header : Header) (r0 : Heartbeat)
@@ -324,48 +379,48 @@ inductive Message where
   | tradeCaptureReportRequest (header : Header) (r0 : TradeCaptureReportRequest)
 
 def Message.tokens : Message → List Token
-  | .logon header r0 => ⟨[51, 53], ⟨[65], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .heartbeat header r0 => ⟨[51, 53], ⟨[48], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .resendRequest header r0 => ⟨[51, 53], ⟨[50], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .sequenceReset header r0 => ⟨[51, 53], ⟨[52], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .logout header r0 => ⟨[51, 53], ⟨[53], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .tradeCaptureReportRequest header r0 => ⟨[51, 53], ⟨[65, 68], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .logon header r0 => ⟨[51, 53], [65]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .heartbeat header r0 => ⟨[51, 53], [48]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .resendRequest header r0 => ⟨[51, 53], [50]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .sequenceReset header r0 => ⟨[51, 53], [52]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .logout header r0 => ⟨[51, 53], [53]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .tradeCaptureReportRequest header r0 => ⟨[51, 53], [65, 68]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [65] then
+      if token.value = [65] then
         if known (Header.tags ++ Logon.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Logon.decode rest
           pure (.logon header r0)
         else none
-      else if token.value.val = [48] then
+      else if token.value = [48] then
         if known (Header.tags ++ Heartbeat.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Heartbeat.decode rest
           pure (.heartbeat header r0)
         else none
-      else if token.value.val = [50] then
+      else if token.value = [50] then
         if known (Header.tags ++ ResendRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← ResendRequest.decode rest
           pure (.resendRequest header r0)
         else none
-      else if token.value.val = [52] then
+      else if token.value = [52] then
         if known (Header.tags ++ SequenceReset.tags) rest then do
           let header ← Header.decode rest
           let r0 ← SequenceReset.decode rest
           pure (.sequenceReset header r0)
         else none
-      else if token.value.val = [53] then
+      else if token.value = [53] then
         if known (Header.tags ++ Logout.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Logout.decode rest
           pure (.logout header r0)
         else none
-      else if token.value.val = [65, 68] then
+      else if token.value = [65, 68] then
         if known (Header.tags ++ TradeCaptureReportRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← TradeCaptureReportRequest.decode rest
@@ -434,53 +489,53 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_logon (header : Header) (r0 : Logon) :
     Message.decodeBytes (Message.encode (.logon header r0)) = some (.logon header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[65], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Logon.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [65]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Logon.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_logon header r0
 
 theorem Message.decodeBytes_heartbeat (header : Header) (r0 : Heartbeat) :
     Message.decodeBytes (Message.encode (.heartbeat header r0)) = some (.heartbeat header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[48], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Heartbeat.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [48]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Heartbeat.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_heartbeat header r0
 
 theorem Message.decodeBytes_resendRequest (header : Header) (r0 : ResendRequest) :
     Message.decodeBytes (Message.encode (.resendRequest header r0)) = some (.resendRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[50], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ ResendRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [50]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (ResendRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_resendRequest header r0
 
 theorem Message.decodeBytes_sequenceReset (header : Header) (r0 : SequenceReset) :
     Message.decodeBytes (Message.encode (.sequenceReset header r0)) = some (.sequenceReset header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[52], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ SequenceReset.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [52]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (SequenceReset.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_sequenceReset header r0
 
 theorem Message.decodeBytes_logout (header : Header) (r0 : Logout) :
     Message.decodeBytes (Message.encode (.logout header r0)) = some (.logout header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[53], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Logout.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [53]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Logout.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_logout header r0
 
 theorem Message.decodeBytes_tradeCaptureReportRequest (header : Header) (r0 : TradeCaptureReportRequest) :
     Message.decodeBytes (Message.encode (.tradeCaptureReportRequest header r0)) = some (.tradeCaptureReportRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[65, 68], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ TradeCaptureReportRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [65, 68]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (TradeCaptureReportRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_tradeCaptureReportRequest header r0

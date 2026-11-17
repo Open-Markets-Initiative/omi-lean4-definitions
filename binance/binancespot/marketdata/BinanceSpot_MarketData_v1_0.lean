@@ -16,7 +16,7 @@ License: MIT No Attribution
 
 namespace Omi.BinanceBinancespotMarketdataSbeV10
 
-/-- Trades Stream Event Message trades Group: 25 bytes -/
+/-- Trades Stream Event Message Trades Group: 25 bytes -/
 structure TradesStreamEventMessageTradesGroup where
   id : BitVec 64
   price : BitVec 64
@@ -61,7 +61,7 @@ theorem encode_length_pos (message : TradesStreamEventMessageTradesGroup) : (enc
 
 end TradesStreamEventMessageTradesGroup
 
-/-- Trades Stream Event Message trades Groups -/
+/-- Trades Stream Event Message Trades Groups -/
 structure TradesStreamEventMessageTradesGroups where
   blockLength : BitVec 16
   tradesStreamEventMessageTradesGroup : Bounded 4 TradesStreamEventMessageTradesGroup
@@ -284,7 +284,7 @@ theorem encode_length_le (message : BestBidAskStreamEventMessage) : (encode mess
 
 end BestBidAskStreamEventMessage
 
-/-- Depth Snapshot Stream Event Message bids Group: 16 bytes -/
+/-- Depth Snapshot Stream Event Message Bids Group: 16 bytes -/
 structure DepthSnapshotStreamEventMessageBidsGroup where
   price : BitVec 64
   qty : BitVec 64
@@ -319,7 +319,7 @@ theorem encode_length_pos (message : DepthSnapshotStreamEventMessageBidsGroup) :
 
 end DepthSnapshotStreamEventMessageBidsGroup
 
-/-- Depth Snapshot Stream Event Message bids Groups -/
+/-- Depth Snapshot Stream Event Message Bids Groups -/
 structure DepthSnapshotStreamEventMessageBidsGroups where
   blockLength : BitVec 16
   depthSnapshotStreamEventMessageBidsGroup : Bounded 2 DepthSnapshotStreamEventMessageBidsGroup
@@ -366,7 +366,7 @@ theorem encode_length_le (message : DepthSnapshotStreamEventMessageBidsGroups) :
 
 end DepthSnapshotStreamEventMessageBidsGroups
 
-/-- Depth Snapshot Stream Event Message asks Group: 16 bytes -/
+/-- Depth Snapshot Stream Event Message Asks Group: 16 bytes -/
 structure DepthSnapshotStreamEventMessageAsksGroup where
   price : BitVec 64
   qty : BitVec 64
@@ -401,7 +401,7 @@ theorem encode_length_pos (message : DepthSnapshotStreamEventMessageAsksGroup) :
 
 end DepthSnapshotStreamEventMessageAsksGroup
 
-/-- Depth Snapshot Stream Event Message asks Groups -/
+/-- Depth Snapshot Stream Event Message Asks Groups -/
 structure DepthSnapshotStreamEventMessageAsksGroups where
   blockLength : BitVec 16
   depthSnapshotStreamEventMessageAsksGroup : Bounded 2 DepthSnapshotStreamEventMessageAsksGroup
@@ -514,7 +514,7 @@ theorem encode_length_le (message : DepthSnapshotStreamEventMessage) : (encode m
 
 end DepthSnapshotStreamEventMessage
 
-/-- Depth Diff Stream Event Message bids Group: 16 bytes -/
+/-- Depth Diff Stream Event Message Bids Group: 16 bytes -/
 structure DepthDiffStreamEventMessageBidsGroup where
   price : BitVec 64
   qty : BitVec 64
@@ -549,7 +549,7 @@ theorem encode_length_pos (message : DepthDiffStreamEventMessageBidsGroup) : (en
 
 end DepthDiffStreamEventMessageBidsGroup
 
-/-- Depth Diff Stream Event Message bids Groups -/
+/-- Depth Diff Stream Event Message Bids Groups -/
 structure DepthDiffStreamEventMessageBidsGroups where
   blockLength : BitVec 16
   depthDiffStreamEventMessageBidsGroup : Bounded 2 DepthDiffStreamEventMessageBidsGroup
@@ -596,7 +596,7 @@ theorem encode_length_le (message : DepthDiffStreamEventMessageBidsGroups) : (en
 
 end DepthDiffStreamEventMessageBidsGroups
 
-/-- Depth Diff Stream Event Message asks Group: 16 bytes -/
+/-- Depth Diff Stream Event Message Asks Group: 16 bytes -/
 structure DepthDiffStreamEventMessageAsksGroup where
   price : BitVec 64
   qty : BitVec 64
@@ -631,7 +631,7 @@ theorem encode_length_pos (message : DepthDiffStreamEventMessageAsksGroup) : (en
 
 end DepthDiffStreamEventMessageAsksGroup
 
-/-- Depth Diff Stream Event Message asks Groups -/
+/-- Depth Diff Stream Event Message Asks Groups -/
 structure DepthDiffStreamEventMessageAsksGroups where
   blockLength : BitVec 16
   depthDiffStreamEventMessageAsksGroup : Bounded 2 DepthDiffStreamEventMessageAsksGroup

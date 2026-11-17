@@ -653,9 +653,9 @@ structure BenchmarkMessage where
   annualPerformance : BitVec 64
   monthlyPerformance : BitVec 64
   last12MonthsPerformance : BitVec 64
-  t24HoursDailyPerformance : BitVec 64
-  t24HoursAnnualPerformance : BitVec 64
-  t24HoursMonthlyPerformance : BitVec 64
+  n24HoursDailyPerformance : BitVec 64
+  n24HoursAnnualPerformance : BitVec 64
+  n24HoursMonthlyPerformance : BitVec 64
   last12Months24HoursPerformance : BitVec 64
   deriving DecidableEq, Repr
 
@@ -674,9 +674,9 @@ def encode (message : BenchmarkMessage) : List UInt8 :=
     ++ (encodeUInt 8 message.annualPerformance
     ++ (encodeUInt 8 message.monthlyPerformance
     ++ (encodeUInt 8 message.last12MonthsPerformance
-    ++ (encodeUInt 8 message.t24HoursDailyPerformance
-    ++ (encodeUInt 8 message.t24HoursAnnualPerformance
-    ++ (encodeUInt 8 message.t24HoursMonthlyPerformance
+    ++ (encodeUInt 8 message.n24HoursDailyPerformance
+    ++ (encodeUInt 8 message.n24HoursAnnualPerformance
+    ++ (encodeUInt 8 message.n24HoursMonthlyPerformance
     ++ (encodeUInt 8 message.last12Months24HoursPerformance)))))))))))))))
 
 def decode (bytes : List UInt8) : Option (BenchmarkMessage × List UInt8) := do
@@ -692,11 +692,11 @@ def decode (bytes : List UInt8) : Option (BenchmarkMessage × List UInt8) := do
   let (annualPerformance, bytes) ← decodeUInt 8 bytes
   let (monthlyPerformance, bytes) ← decodeUInt 8 bytes
   let (last12MonthsPerformance, bytes) ← decodeUInt 8 bytes
-  let (t24HoursDailyPerformance, bytes) ← decodeUInt 8 bytes
-  let (t24HoursAnnualPerformance, bytes) ← decodeUInt 8 bytes
-  let (t24HoursMonthlyPerformance, bytes) ← decodeUInt 8 bytes
+  let (n24HoursDailyPerformance, bytes) ← decodeUInt 8 bytes
+  let (n24HoursAnnualPerformance, bytes) ← decodeUInt 8 bytes
+  let (n24HoursMonthlyPerformance, bytes) ← decodeUInt 8 bytes
   let (last12Months24HoursPerformance, bytes) ← decodeUInt 8 bytes
-  pure ({ benchmarkName, benchmarkDate, outstanding, integerAmount, decimalAmount, indices, indices24, rebalance, dailyPerformance, annualPerformance, monthlyPerformance, last12MonthsPerformance, t24HoursDailyPerformance, t24HoursAnnualPerformance, t24HoursMonthlyPerformance, last12Months24HoursPerformance }, bytes)
+  pure ({ benchmarkName, benchmarkDate, outstanding, integerAmount, decimalAmount, indices, indices24, rebalance, dailyPerformance, annualPerformance, monthlyPerformance, last12MonthsPerformance, n24HoursDailyPerformance, n24HoursAnnualPerformance, n24HoursMonthlyPerformance, last12Months24HoursPerformance }, bytes)
 
 @[simp] theorem encode_length (message : BenchmarkMessage) : (encode message).length = 149 := by
   unfold encode

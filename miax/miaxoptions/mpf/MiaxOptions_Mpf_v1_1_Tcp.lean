@@ -23,9 +23,10 @@ namespace Omi.MiaxMiaxoptionsMpfMachV11Tcp
 
 /-- Refresh Message Type: one byte code -/
 def RefreshMessageType.codes : List UInt8 :=
-  [0x49, 0x5A]
+  [0x73, 0x49, 0x5A]
 
 inductive RefreshMessageType where
+  | symbolDefinitionRefresh -- Symbol Definition Refresh
   | indexUpdateRefresh -- Index Update Refresh
   | syntheticFutureValues -- Synthetic Future Values
   | unlisted (byte : { byte : UInt8 // byte ∉ RefreshMessageType.codes }) -- any other code, kept as it is
@@ -34,13 +35,15 @@ inductive RefreshMessageType where
 namespace RefreshMessageType
 
 def toByte : RefreshMessageType → UInt8
+  | .symbolDefinitionRefresh => 0x73
   | .indexUpdateRefresh => 0x49
   | .syntheticFutureValues => 0x5A
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : RefreshMessageType :=
-  if byte = 0x49 then .indexUpdateRefresh
+  if byte = 0x73 then .symbolDefinitionRefresh
+  else if byte = 0x49 then .indexUpdateRefresh
   else .syntheticFutureValues
 
 def ofByte (byte : UInt8) : RefreshMessageType :=
@@ -48,6 +51,7 @@ def ofByte (byte : UInt8) : RefreshMessageType :=
 
 theorem ofByte_toByte (value : RefreshMessageType) : ofByte value.toByte = value := by
   cases value with
+  | symbolDefinitionRefresh => decide
   | indexUpdateRefresh => decide
   | syntheticFutureValues => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]

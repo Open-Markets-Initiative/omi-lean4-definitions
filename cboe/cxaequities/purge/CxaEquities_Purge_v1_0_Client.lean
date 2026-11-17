@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.CboeCxaequitiesPurgeFixV10Client
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   senderCompID : Terminated 1  -- tag 49
   senderSubID : Terminated 1  -- tag 50
@@ -48,6 +51,12 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
   have targetCompID := readRequired_part [53, 54] record.targetCompID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
   simp only [Header.decode, senderCompID, senderSubID, targetCompID, some_bind] <;> rfl
+
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [52, 57] record.senderCompID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [53, 48] record.senderSubID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [53, 54] record.targetCompID (by decide) (by decide))
+     (paired_none pairing)))
 
 structure PurgeRequest where
   possResend : Option (Terminated 1)  -- tag 97
@@ -86,6 +95,13 @@ theorem PurgeRequest.decode_agrees (record : PurgeRequest) (tokens : List Token)
   have orderID := readOptional_part [51, 55] record.orderID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 3 (by decide +kernel)))
   simp only [PurgeRequest.decode, possResend, transactTime, symbol, orderID, some_bind] <;> rfl
+
+theorem PurgeRequest.taken (record : PurgeRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [57, 55] record.possResend (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [54, 48] record.transactTime (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [53, 53] record.symbol (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [51, 55] record.orderID (by decide) (by decide))
+      (paired_none pairing))))
 
 structure AmendRequest where
   possResend : Option (Terminated 1)  -- tag 97
@@ -280,25 +296,63 @@ theorem AmendRequest.decode_agrees (record : AmendRequest) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 34 (by decide +kernel)))
   simp only [AmendRequest.decode, possResend, account, clOrdId, execInst, orderID, orderQty, ordType, origClOrdID, price, orderCapacity, side, symbol, timeInForce, transactTime, minQty, maxFloor, expireTime, expireDate, clearingFirm, clearingAccount, undisclosed, clientCrossRef, shortSellNakedQty, shortSellCoveredQty, shortSellLongQty, noTradeFeat, noTradeKey, originOfTrans, intermediaryID, directedWholesaleIndic, removeCrossingFromClearing, brokerPreferencing, routingInst, displayIndicator, cancelOrigOnReject, some_bind] <;> rfl
 
+theorem AmendRequest.taken (record : AmendRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [57, 55] record.possResend (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdId (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [51, 55] record.orderID (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [52, 48] record.ordType (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [52, 49] record.origClOrdID (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_optional pairing [52, 55] record.orderCapacity (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [53, 52] record.side (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_optional pairing [53, 53] record.symbol (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_optional pairing [53, 57] record.timeInForce (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_optional pairing [49, 49, 48] record.minQty (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [49, 49, 49] record.maxFloor (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_optional pairing [49, 50, 54] record.expireTime (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_optional pairing [52, 51, 50] record.expireDate (by decide) (by decide))
+                    (paired_cons pairing _ _ (paired_optional pairing [52, 51, 57] record.clearingFirm (by decide) (by decide))
+                     (paired_cons pairing _ _ (paired_optional pairing [52, 52, 48] record.clearingAccount (by decide) (by decide))
+                      (paired_cons pairing _ _ (paired_optional pairing [54, 56, 48, 49] record.undisclosed (by decide) (by decide))
+                       (paired_cons pairing _ _ (paired_optional pairing [54, 56, 48, 50] record.clientCrossRef (by decide) (by decide))
+                        (paired_cons pairing _ _ (paired_optional pairing [54, 56, 48, 51] record.shortSellNakedQty (by decide) (by decide))
+                         (paired_cons pairing _ _ (paired_optional pairing [54, 56, 48, 52] record.shortSellCoveredQty (by decide) (by decide))
+                          (paired_cons pairing _ _ (paired_optional pairing [54, 56, 48, 53] record.shortSellLongQty (by decide) (by decide))
+                           (paired_cons pairing _ _ (paired_optional pairing [55, 55, 49, 51] record.noTradeFeat (by decide) (by decide))
+                            (paired_cons pairing _ _ (paired_optional pairing [55, 55, 49, 52] record.noTradeKey (by decide) (by decide))
+                             (paired_cons pairing _ _ (paired_optional pairing [56, 49, 51, 56] record.originOfTrans (by decide) (by decide))
+                              (paired_cons pairing _ _ (paired_optional pairing [56, 49, 51, 57] record.intermediaryID (by decide) (by decide))
+                               (paired_cons pairing _ _ (paired_optional pairing [56, 49, 52, 48] record.directedWholesaleIndic (by decide) (by decide))
+                                (paired_cons pairing _ _ (paired_optional pairing [56, 49, 55, 55] record.removeCrossingFromClearing (by decide) (by decide))
+                                 (paired_cons pairing _ _ (paired_optional pairing [56, 49, 56, 50] record.brokerPreferencing (by decide) (by decide))
+                                  (paired_cons pairing _ _ (paired_optional pairing [57, 51, 48, 51] record.routingInst (by decide) (by decide))
+                                   (paired_cons pairing _ _ (paired_optional pairing [57, 52, 55, 57] record.displayIndicator (by decide) (by decide))
+                                    (paired_cons pairing _ _ (paired_optional pairing [57, 54, 49, 57] record.cancelOrigOnReject (by decide) (by decide))
+                                     (paired_none pairing)))))))))))))))))))))))))))))))))))
+
 inductive Message where
   | purgeRequest (header : Header) (r0 : PurgeRequest)
   | amendRequest (header : Header) (r0 : AmendRequest)
 
 def Message.tokens : Message → List Token
-  | .purgeRequest header r0 => ⟨[51, 53], ⟨[70], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .amendRequest header r0 => ⟨[51, 53], ⟨[71], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .purgeRequest header r0 => ⟨[51, 53], [70]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .amendRequest header r0 => ⟨[51, 53], [71]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [70] then
+      if token.value = [70] then
         if known (Header.tags ++ PurgeRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← PurgeRequest.decode rest
           pure (.purgeRequest header r0)
         else none
-      else if token.value.val = [71] then
+      else if token.value = [71] then
         if known (Header.tags ++ AmendRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← AmendRequest.decode rest
@@ -331,21 +385,21 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_purgeRequest (header : Header) (r0 : PurgeRequest) :
     Message.decodeBytes (Message.encode (.purgeRequest header r0)) = some (.purgeRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[70], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ PurgeRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [70]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (PurgeRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_purgeRequest header r0
 
 theorem Message.decodeBytes_amendRequest (header : Header) (r0 : AmendRequest) :
     Message.decodeBytes (Message.encode (.amendRequest header r0)) = some (.amendRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[71], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ AmendRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [71]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (AmendRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_amendRequest header r0

@@ -28,6 +28,736 @@ License: MIT No Attribution
 
 namespace Omi.MiaxOnyxfuturesExpressinterfaceFeiV10C
 
+/-- Order Status: one byte code -/
+def OrderStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x43, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x55, 0x56, 0x57, 0x59, 0x61, 0x62, 0x63, 0x64, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x5A, 0x2A]
+
+inductive OrderStatus where
+  | successful -- Successful
+  | duplicateClientOrderId -- Duplicate Client Order Id
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | invalidOrderType -- Invalid Order Type
+  | invalidCustomerOrderHandlingInstruction -- Invalid Customer Order Handling Instruction
+  | invalidTimeInForceOrItsUse -- Invalid Time In Force Or Its Use
+  | invalidSelfTradeProtectionLevel -- Invalid Self Trade Protection Level
+  | invalidSelfTradeProtectionInstruction -- Invalid Self Trade Protection Instruction
+  | invalidMpid -- Invalid Mpid
+  | invalidUseSelfTradeProtectionInstruction -- Invalid Use Self Trade Protection Instruction
+  | invalidSelfTradeProtectionGroup -- Invalid Self Trade Protection Group
+  | invalidUseSelfTradeProtectionGroup -- Invalid Use Self Trade Protection Group
+  | invalidForCurrentTradingStatus -- Invalid For Current Trading Status
+  | invalidClientOrderId -- Invalid Client Order Id
+  | invalidPrice -- Invalid Price
+  | invalidSize -- Invalid Size
+  | invalidUseMinimumQty -- Invalid Use Minimum Qty
+  | invalidInstrumentId -- Invalid Instrument Id
+  | invalidUseOrderType -- Invalid Use Order Type
+  | invalidPurgeGroup -- Invalid Purge Group
+  | invalidOrderExpiryDateOrItsUse -- Invalid Order Expiry Date Or Its Use
+  | blockedByUserMassCancel -- Blocked By User Mass Cancel
+  | blockedByMfpHelpDeskMassCancel -- Blocked By Mfp Help Desk Mass Cancel
+  | blockedByCrm -- Blocked By Crm
+  | invalidAccount -- Invalid Account
+  | invalidTradingCollar -- Invalid Trading Collar
+  | invalidOperatorId -- Invalid Operator Id
+  | invalidOperatorLocation -- Invalid Operator Location
+  | invalidCtiCode -- Invalid Cti Code
+  | invalidTextMemo -- Invalid Text Memo
+  | blockedByDropCopyAcodacosfEvent -- Blocked By Drop Copy Acodacosf Event
+  | dailyTradingLimitBreach -- Daily Trading Limit Breach
+  | tradingCollarProtection -- Trading Collar Protection
+  | duplicateOrderProtection -- Duplicate Order Protection
+  | orderTypeRestriction -- Order Type Restriction
+  | restrictionForCurrentTradingSession -- Restriction For Current Trading Session
+  | productRestriction -- Product Restriction
+  | undefinedReason -- Undefined Reason
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ OrderStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace OrderStatus
+
+def toByte : OrderStatus → UInt8
+  | .successful => 0x20
+  | .duplicateClientOrderId => 0x41
+  | .notInLiveOrderWindow => 0x42
+  | .invalidOrderType => 0x43
+  | .invalidCustomerOrderHandlingInstruction => 0x45
+  | .invalidTimeInForceOrItsUse => 0x46
+  | .invalidSelfTradeProtectionLevel => 0x47
+  | .invalidSelfTradeProtectionInstruction => 0x48
+  | .invalidMpid => 0x49
+  | .invalidUseSelfTradeProtectionInstruction => 0x4B
+  | .invalidSelfTradeProtectionGroup => 0x4C
+  | .invalidUseSelfTradeProtectionGroup => 0x4D
+  | .invalidForCurrentTradingStatus => 0x4E
+  | .invalidClientOrderId => 0x4F
+  | .invalidPrice => 0x50
+  | .invalidSize => 0x51
+  | .invalidUseMinimumQty => 0x52
+  | .invalidInstrumentId => 0x53
+  | .invalidUseOrderType => 0x55
+  | .invalidPurgeGroup => 0x56
+  | .invalidOrderExpiryDateOrItsUse => 0x57
+  | .blockedByUserMassCancel => 0x59
+  | .blockedByMfpHelpDeskMassCancel => 0x61
+  | .blockedByCrm => 0x62
+  | .invalidAccount => 0x63
+  | .invalidTradingCollar => 0x64
+  | .invalidOperatorId => 0x67
+  | .invalidOperatorLocation => 0x68
+  | .invalidCtiCode => 0x69
+  | .invalidTextMemo => 0x6A
+  | .blockedByDropCopyAcodacosfEvent => 0x6B
+  | .dailyTradingLimitBreach => 0x6C
+  | .tradingCollarProtection => 0x6D
+  | .duplicateOrderProtection => 0x6E
+  | .orderTypeRestriction => 0x6F
+  | .restrictionForCurrentTradingSession => 0x70
+  | .productRestriction => 0x71
+  | .undefinedReason => 0x5A
+  | .downgradedFromOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : OrderStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .duplicateClientOrderId
+  else if byte = 0x42 then .notInLiveOrderWindow
+  else if byte = 0x43 then .invalidOrderType
+  else if byte = 0x45 then .invalidCustomerOrderHandlingInstruction
+  else if byte = 0x46 then .invalidTimeInForceOrItsUse
+  else if byte = 0x47 then .invalidSelfTradeProtectionLevel
+  else if byte = 0x48 then .invalidSelfTradeProtectionInstruction
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4B then .invalidUseSelfTradeProtectionInstruction
+  else if byte = 0x4C then .invalidSelfTradeProtectionGroup
+  else if byte = 0x4D then .invalidUseSelfTradeProtectionGroup
+  else if byte = 0x4E then .invalidForCurrentTradingStatus
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x50 then .invalidPrice
+  else if byte = 0x51 then .invalidSize
+  else if byte = 0x52 then .invalidUseMinimumQty
+  else if byte = 0x53 then .invalidInstrumentId
+  else if byte = 0x55 then .invalidUseOrderType
+  else if byte = 0x56 then .invalidPurgeGroup
+  else if byte = 0x57 then .invalidOrderExpiryDateOrItsUse
+  else if byte = 0x59 then .blockedByUserMassCancel
+  else if byte = 0x61 then .blockedByMfpHelpDeskMassCancel
+  else if byte = 0x62 then .blockedByCrm
+  else if byte = 0x63 then .invalidAccount
+  else if byte = 0x64 then .invalidTradingCollar
+  else if byte = 0x67 then .invalidOperatorId
+  else if byte = 0x68 then .invalidOperatorLocation
+  else if byte = 0x69 then .invalidCtiCode
+  else if byte = 0x6A then .invalidTextMemo
+  else if byte = 0x6B then .blockedByDropCopyAcodacosfEvent
+  else if byte = 0x6C then .dailyTradingLimitBreach
+  else if byte = 0x6D then .tradingCollarProtection
+  else if byte = 0x6E then .duplicateOrderProtection
+  else if byte = 0x6F then .orderTypeRestriction
+  else if byte = 0x70 then .restrictionForCurrentTradingSession
+  else if byte = 0x71 then .productRestriction
+  else if byte = 0x5A then .undefinedReason
+  else .downgradedFromOlderVersion
+
+def ofByte (byte : UInt8) : OrderStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : OrderStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | duplicateClientOrderId => decide
+  | notInLiveOrderWindow => decide
+  | invalidOrderType => decide
+  | invalidCustomerOrderHandlingInstruction => decide
+  | invalidTimeInForceOrItsUse => decide
+  | invalidSelfTradeProtectionLevel => decide
+  | invalidSelfTradeProtectionInstruction => decide
+  | invalidMpid => decide
+  | invalidUseSelfTradeProtectionInstruction => decide
+  | invalidSelfTradeProtectionGroup => decide
+  | invalidUseSelfTradeProtectionGroup => decide
+  | invalidForCurrentTradingStatus => decide
+  | invalidClientOrderId => decide
+  | invalidPrice => decide
+  | invalidSize => decide
+  | invalidUseMinimumQty => decide
+  | invalidInstrumentId => decide
+  | invalidUseOrderType => decide
+  | invalidPurgeGroup => decide
+  | invalidOrderExpiryDateOrItsUse => decide
+  | blockedByUserMassCancel => decide
+  | blockedByMfpHelpDeskMassCancel => decide
+  | blockedByCrm => decide
+  | invalidAccount => decide
+  | invalidTradingCollar => decide
+  | invalidOperatorId => decide
+  | invalidOperatorLocation => decide
+  | invalidCtiCode => decide
+  | invalidTextMemo => decide
+  | blockedByDropCopyAcodacosfEvent => decide
+  | dailyTradingLimitBreach => decide
+  | tradingCollarProtection => decide
+  | duplicateOrderProtection => decide
+  | orderTypeRestriction => decide
+  | restrictionForCurrentTradingSession => decide
+  | productRestriction => decide
+  | undefinedReason => decide
+  | downgradedFromOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : OrderStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (OrderStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : OrderStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : OrderStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : OrderStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end OrderStatus
+
+/-- Modify Status: one byte code -/
+def ModifyStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x44, 0x45, 0x46, 0x49, 0x4A, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x53, 0x54, 0x56, 0x57, 0x59, 0x61, 0x62, 0x67, 0x68, 0x6B, 0x6C, 0x6D, 0x70, 0x71, 0x5A, 0x2A]
+
+inductive ModifyStatus where
+  | successful -- Successful
+  | duplicateClientOrderId -- Duplicate Client Order Id
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | cannotFindOrderWithTargetClientOrderId -- Cannot Find Order With Target Client Order Id
+  | invalidCustomerOrderHandlingInstruction -- Invalid Customer Order Handling Instruction
+  | invalidForTimeInForce -- Invalid For Time In Force
+  | invalidMpid -- Invalid Mpid
+  | mpidDoesNotMatchTargetOrder -- Mpid Does Not Match Target Order
+  | invalidSelfTradeProtectionGroup -- Invalid Self Trade Protection Group
+  | invalidUseSelfTradeProtectionGroup -- Invalid Use Self Trade Protection Group
+  | invalidForCurrentTradingStatus -- Invalid For Current Trading Status
+  | invalidClientOrderId -- Invalid Client Order Id
+  | invalidPrice -- Invalid Price
+  | invalidSize -- Invalid Size
+  | invalidInstrumentId -- Invalid Instrument Id
+  | invalidTargetClientOrderId -- Invalid Target Client Order Id
+  | invalidPurgeGroup -- Invalid Purge Group
+  | invalidOrderExpiryDateOrItsUse -- Invalid Order Expiry Date Or Its Use
+  | blockedByUserMassCancel -- Blocked By User Mass Cancel
+  | blockedByMfpHelpDeskMassCancel -- Blocked By Mfp Help Desk Mass Cancel
+  | blockedByCrm -- Blocked By Crm
+  | invalidOperatorId -- Invalid Operator Id
+  | invalidOperatorLocation -- Invalid Operator Location
+  | blockedByDropCopyAcodacosfEvent -- Blocked By Drop Copy Acodacosf Event
+  | dailyTradingLimitBreach -- Daily Trading Limit Breach
+  | tradingCollarProtection -- Trading Collar Protection
+  | restrictionForCurrentTradingSession -- Restriction For Current Trading Session
+  | productRestriction -- Product Restriction
+  | undefinedReason -- Undefined Reason
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ ModifyStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace ModifyStatus
+
+def toByte : ModifyStatus → UInt8
+  | .successful => 0x20
+  | .duplicateClientOrderId => 0x41
+  | .notInLiveOrderWindow => 0x42
+  | .cannotFindOrderWithTargetClientOrderId => 0x44
+  | .invalidCustomerOrderHandlingInstruction => 0x45
+  | .invalidForTimeInForce => 0x46
+  | .invalidMpid => 0x49
+  | .mpidDoesNotMatchTargetOrder => 0x4A
+  | .invalidSelfTradeProtectionGroup => 0x4C
+  | .invalidUseSelfTradeProtectionGroup => 0x4D
+  | .invalidForCurrentTradingStatus => 0x4E
+  | .invalidClientOrderId => 0x4F
+  | .invalidPrice => 0x50
+  | .invalidSize => 0x51
+  | .invalidInstrumentId => 0x53
+  | .invalidTargetClientOrderId => 0x54
+  | .invalidPurgeGroup => 0x56
+  | .invalidOrderExpiryDateOrItsUse => 0x57
+  | .blockedByUserMassCancel => 0x59
+  | .blockedByMfpHelpDeskMassCancel => 0x61
+  | .blockedByCrm => 0x62
+  | .invalidOperatorId => 0x67
+  | .invalidOperatorLocation => 0x68
+  | .blockedByDropCopyAcodacosfEvent => 0x6B
+  | .dailyTradingLimitBreach => 0x6C
+  | .tradingCollarProtection => 0x6D
+  | .restrictionForCurrentTradingSession => 0x70
+  | .productRestriction => 0x71
+  | .undefinedReason => 0x5A
+  | .downgradedFromOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : ModifyStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .duplicateClientOrderId
+  else if byte = 0x42 then .notInLiveOrderWindow
+  else if byte = 0x44 then .cannotFindOrderWithTargetClientOrderId
+  else if byte = 0x45 then .invalidCustomerOrderHandlingInstruction
+  else if byte = 0x46 then .invalidForTimeInForce
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4A then .mpidDoesNotMatchTargetOrder
+  else if byte = 0x4C then .invalidSelfTradeProtectionGroup
+  else if byte = 0x4D then .invalidUseSelfTradeProtectionGroup
+  else if byte = 0x4E then .invalidForCurrentTradingStatus
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x50 then .invalidPrice
+  else if byte = 0x51 then .invalidSize
+  else if byte = 0x53 then .invalidInstrumentId
+  else if byte = 0x54 then .invalidTargetClientOrderId
+  else if byte = 0x56 then .invalidPurgeGroup
+  else if byte = 0x57 then .invalidOrderExpiryDateOrItsUse
+  else if byte = 0x59 then .blockedByUserMassCancel
+  else if byte = 0x61 then .blockedByMfpHelpDeskMassCancel
+  else if byte = 0x62 then .blockedByCrm
+  else if byte = 0x67 then .invalidOperatorId
+  else if byte = 0x68 then .invalidOperatorLocation
+  else if byte = 0x6B then .blockedByDropCopyAcodacosfEvent
+  else if byte = 0x6C then .dailyTradingLimitBreach
+  else if byte = 0x6D then .tradingCollarProtection
+  else if byte = 0x70 then .restrictionForCurrentTradingSession
+  else if byte = 0x71 then .productRestriction
+  else if byte = 0x5A then .undefinedReason
+  else .downgradedFromOlderVersion
+
+def ofByte (byte : UInt8) : ModifyStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : ModifyStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | duplicateClientOrderId => decide
+  | notInLiveOrderWindow => decide
+  | cannotFindOrderWithTargetClientOrderId => decide
+  | invalidCustomerOrderHandlingInstruction => decide
+  | invalidForTimeInForce => decide
+  | invalidMpid => decide
+  | mpidDoesNotMatchTargetOrder => decide
+  | invalidSelfTradeProtectionGroup => decide
+  | invalidUseSelfTradeProtectionGroup => decide
+  | invalidForCurrentTradingStatus => decide
+  | invalidClientOrderId => decide
+  | invalidPrice => decide
+  | invalidSize => decide
+  | invalidInstrumentId => decide
+  | invalidTargetClientOrderId => decide
+  | invalidPurgeGroup => decide
+  | invalidOrderExpiryDateOrItsUse => decide
+  | blockedByUserMassCancel => decide
+  | blockedByMfpHelpDeskMassCancel => decide
+  | blockedByCrm => decide
+  | invalidOperatorId => decide
+  | invalidOperatorLocation => decide
+  | blockedByDropCopyAcodacosfEvent => decide
+  | dailyTradingLimitBreach => decide
+  | tradingCollarProtection => decide
+  | restrictionForCurrentTradingSession => decide
+  | productRestriction => decide
+  | undefinedReason => decide
+  | downgradedFromOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : ModifyStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (ModifyStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : ModifyStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : ModifyStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : ModifyStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end ModifyStatus
+
+/-- Cancel Status: one byte code -/
+def CancelStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x44, 0x49, 0x4A, 0x4E, 0x4F, 0x53, 0x54, 0x65, 0x66, 0x67, 0x68, 0x5A, 0x2A]
+
+inductive CancelStatus where
+  | successful -- Successful
+  | duplicateClientOrderId -- Duplicate Client Order Id
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | cannotFindOrderWithTargetClientOrderId -- Cannot Find Order With Target Client Order Id
+  | invalidMpid -- Invalid Mpid
+  | mpidDoesNotMatchTargetOrder -- Mpid Does Not Match Target Order
+  | invalidForCurrentTradingStatus -- Invalid For Current Trading Status
+  | invalidClientOrderId -- Invalid Client Order Id
+  | invalidInstrumentId -- Invalid Instrument Id
+  | invalidTargetOrderId -- Invalid Target Order Id
+  | invalidOrderIdOrItsUse -- Invalid Order Id Or Its Use
+  | requestNotPermitted -- Request Not Permitted
+  | invalidOperatorId -- Invalid Operator Id
+  | invalidOperatorLocation -- Invalid Operator Location
+  | undefinedReason -- Undefined Reason
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ CancelStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace CancelStatus
+
+def toByte : CancelStatus → UInt8
+  | .successful => 0x20
+  | .duplicateClientOrderId => 0x41
+  | .notInLiveOrderWindow => 0x42
+  | .cannotFindOrderWithTargetClientOrderId => 0x44
+  | .invalidMpid => 0x49
+  | .mpidDoesNotMatchTargetOrder => 0x4A
+  | .invalidForCurrentTradingStatus => 0x4E
+  | .invalidClientOrderId => 0x4F
+  | .invalidInstrumentId => 0x53
+  | .invalidTargetOrderId => 0x54
+  | .invalidOrderIdOrItsUse => 0x65
+  | .requestNotPermitted => 0x66
+  | .invalidOperatorId => 0x67
+  | .invalidOperatorLocation => 0x68
+  | .undefinedReason => 0x5A
+  | .downgradedFromOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : CancelStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .duplicateClientOrderId
+  else if byte = 0x42 then .notInLiveOrderWindow
+  else if byte = 0x44 then .cannotFindOrderWithTargetClientOrderId
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4A then .mpidDoesNotMatchTargetOrder
+  else if byte = 0x4E then .invalidForCurrentTradingStatus
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x53 then .invalidInstrumentId
+  else if byte = 0x54 then .invalidTargetOrderId
+  else if byte = 0x65 then .invalidOrderIdOrItsUse
+  else if byte = 0x66 then .requestNotPermitted
+  else if byte = 0x67 then .invalidOperatorId
+  else if byte = 0x68 then .invalidOperatorLocation
+  else if byte = 0x5A then .undefinedReason
+  else .downgradedFromOlderVersion
+
+def ofByte (byte : UInt8) : CancelStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : CancelStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | duplicateClientOrderId => decide
+  | notInLiveOrderWindow => decide
+  | cannotFindOrderWithTargetClientOrderId => decide
+  | invalidMpid => decide
+  | mpidDoesNotMatchTargetOrder => decide
+  | invalidForCurrentTradingStatus => decide
+  | invalidClientOrderId => decide
+  | invalidInstrumentId => decide
+  | invalidTargetOrderId => decide
+  | invalidOrderIdOrItsUse => decide
+  | requestNotPermitted => decide
+  | invalidOperatorId => decide
+  | invalidOperatorLocation => decide
+  | undefinedReason => decide
+  | downgradedFromOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : CancelStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (CancelStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : CancelStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : CancelStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : CancelStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end CancelStatus
+
+/-- Mass Cancel Status: one byte code -/
+def MassCancelStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x49, 0x4F, 0x67, 0x68, 0x2A, 0x5A]
+
+inductive MassCancelStatus where
+  | successful -- Successful
+  | invalidAction -- Invalid Action
+  | invalidScope -- Invalid Scope
+  | invalidPurgeGroup -- Invalid Purge Group
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | invalidProductGroupCode -- Invalid Product Group Code
+  | invalidProductType -- Invalid Product Type
+  | invalidMpid -- Invalid Mpid
+  | invalidClientOrderId -- Invalid Client Order Id
+  | invalidOperatorId -- Invalid Operator Id
+  | invalidOperatorLocation -- Invalid Operator Location
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | undefined -- Undefined
+  | unlisted (byte : { byte : UInt8 // byte ∉ MassCancelStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace MassCancelStatus
+
+def toByte : MassCancelStatus → UInt8
+  | .successful => 0x20
+  | .invalidAction => 0x41
+  | .invalidScope => 0x42
+  | .invalidPurgeGroup => 0x43
+  | .notInLiveOrderWindow => 0x44
+  | .invalidProductGroupCode => 0x45
+  | .invalidProductType => 0x46
+  | .invalidMpid => 0x49
+  | .invalidClientOrderId => 0x4F
+  | .invalidOperatorId => 0x67
+  | .invalidOperatorLocation => 0x68
+  | .downgradedFromOlderVersion => 0x2A
+  | .undefined => 0x5A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : MassCancelStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .invalidAction
+  else if byte = 0x42 then .invalidScope
+  else if byte = 0x43 then .invalidPurgeGroup
+  else if byte = 0x44 then .notInLiveOrderWindow
+  else if byte = 0x45 then .invalidProductGroupCode
+  else if byte = 0x46 then .invalidProductType
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x67 then .invalidOperatorId
+  else if byte = 0x68 then .invalidOperatorLocation
+  else if byte = 0x2A then .downgradedFromOlderVersion
+  else .undefined
+
+def ofByte (byte : UInt8) : MassCancelStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : MassCancelStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | invalidAction => decide
+  | invalidScope => decide
+  | invalidPurgeGroup => decide
+  | notInLiveOrderWindow => decide
+  | invalidProductGroupCode => decide
+  | invalidProductType => decide
+  | invalidMpid => decide
+  | invalidClientOrderId => decide
+  | invalidOperatorId => decide
+  | invalidOperatorLocation => decide
+  | downgradedFromOlderVersion => decide
+  | undefined => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : MassCancelStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (MassCancelStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : MassCancelStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : MassCancelStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : MassCancelStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end MassCancelStatus
+
+/-- Strategy Creation Status: one byte code -/
+def StrategyCreationStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4F, 0x5A, 0x67, 0x68, 0x2A]
+
+inductive StrategyCreationStatus where
+  | successful -- Successful
+  | invalidNumberOfLegs -- Invalid Number Of Legs
+  | invalidNotAllowedStrategy -- Invalid Not Allowed Strategy
+  | invalidLegRatio -- Invalid Leg Ratio
+  | legsFromDifferentProducts -- Legs From Different Products
+  | repeatingInstrument -- Repeating Instrument
+  | noMoreStrategiesCanBeCreated -- No More Strategies Can Be Created
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | invalidLegInstrument -- Invalid Leg Instrument
+  | invalidMpid -- Invalid Mpid
+  | invalidClientOrderId -- Invalid Client Order Id
+  | undefined -- Undefined
+  | invalidOperatorId -- Invalid Operator Id
+  | invalidOperatorLocation -- Invalid Operator Location
+  | downgradedForOlderVersion -- Downgraded For Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ StrategyCreationStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace StrategyCreationStatus
+
+def toByte : StrategyCreationStatus → UInt8
+  | .successful => 0x20
+  | .invalidNumberOfLegs => 0x41
+  | .invalidNotAllowedStrategy => 0x42
+  | .invalidLegRatio => 0x43
+  | .legsFromDifferentProducts => 0x44
+  | .repeatingInstrument => 0x45
+  | .noMoreStrategiesCanBeCreated => 0x46
+  | .notInLiveOrderWindow => 0x47
+  | .invalidLegInstrument => 0x48
+  | .invalidMpid => 0x49
+  | .invalidClientOrderId => 0x4F
+  | .undefined => 0x5A
+  | .invalidOperatorId => 0x67
+  | .invalidOperatorLocation => 0x68
+  | .downgradedForOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : StrategyCreationStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .invalidNumberOfLegs
+  else if byte = 0x42 then .invalidNotAllowedStrategy
+  else if byte = 0x43 then .invalidLegRatio
+  else if byte = 0x44 then .legsFromDifferentProducts
+  else if byte = 0x45 then .repeatingInstrument
+  else if byte = 0x46 then .noMoreStrategiesCanBeCreated
+  else if byte = 0x47 then .notInLiveOrderWindow
+  else if byte = 0x48 then .invalidLegInstrument
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x5A then .undefined
+  else if byte = 0x67 then .invalidOperatorId
+  else if byte = 0x68 then .invalidOperatorLocation
+  else .downgradedForOlderVersion
+
+def ofByte (byte : UInt8) : StrategyCreationStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : StrategyCreationStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | invalidNumberOfLegs => decide
+  | invalidNotAllowedStrategy => decide
+  | invalidLegRatio => decide
+  | legsFromDifferentProducts => decide
+  | repeatingInstrument => decide
+  | noMoreStrategiesCanBeCreated => decide
+  | notInLiveOrderWindow => decide
+  | invalidLegInstrument => decide
+  | invalidMpid => decide
+  | invalidClientOrderId => decide
+  | undefined => decide
+  | invalidOperatorId => decide
+  | invalidOperatorLocation => decide
+  | downgradedForOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : StrategyCreationStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (StrategyCreationStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : StrategyCreationStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : StrategyCreationStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : StrategyCreationStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end StrategyCreationStatus
+
+/-- System Status: one byte code -/
+def SystemStatus.codes : List UInt8 :=
+  [0x53, 0x43, 0x31, 0x32, 0x2A]
+
+inductive SystemStatus where
+  | startOfSystemHours -- Start Of System Hours
+  | endOfSystemHours -- End Of System Hours
+  | startOfTestSession -- Start Of Test Session
+  | endOfTestSession -- End Of Test Session
+  | downgradedForOlderVersion -- Downgraded For Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ SystemStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace SystemStatus
+
+def toByte : SystemStatus → UInt8
+  | .startOfSystemHours => 0x53
+  | .endOfSystemHours => 0x43
+  | .startOfTestSession => 0x31
+  | .endOfTestSession => 0x32
+  | .downgradedForOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : SystemStatus :=
+  if byte = 0x53 then .startOfSystemHours
+  else if byte = 0x43 then .endOfSystemHours
+  else if byte = 0x31 then .startOfTestSession
+  else if byte = 0x32 then .endOfTestSession
+  else .downgradedForOlderVersion
+
+def ofByte (byte : UInt8) : SystemStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : SystemStatus) : ofByte value.toByte = value := by
+  cases value with
+  | startOfSystemHours => decide
+  | endOfSystemHours => decide
+  | startOfTestSession => decide
+  | endOfTestSession => decide
+  | downgradedForOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : SystemStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (SystemStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : SystemStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : SystemStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : SystemStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end SystemStatus
+
 /-- Time In Force: one byte code -/
 def TimeInForce.codes : List UInt8 :=
   [0x49, 0x44, 0x46, 0x43, 0x58]
@@ -90,6 +820,613 @@ theorem encode_length_pos (value : TimeInForce) : (encode value).length > 0 := b
   simp [decode, encode, ofByte_toByte]
 
 end TimeInForce
+
+/-- Order Type: one byte code -/
+def OrderType.codes : List UInt8 :=
+  [0x31, 0x32, 0x33, 0x34]
+
+inductive OrderType where
+  | limit -- Limit
+  | stopLimitOrder -- Stop Limit Order
+  | market -- Market
+  | stopMarketOrder -- Stop Market Order
+  | unlisted (byte : { byte : UInt8 // byte ∉ OrderType.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace OrderType
+
+def toByte : OrderType → UInt8
+  | .limit => 0x31
+  | .stopLimitOrder => 0x32
+  | .market => 0x33
+  | .stopMarketOrder => 0x34
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : OrderType :=
+  if byte = 0x31 then .limit
+  else if byte = 0x32 then .stopLimitOrder
+  else if byte = 0x33 then .market
+  else .stopMarketOrder
+
+def ofByte (byte : UInt8) : OrderType :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : OrderType) : ofByte value.toByte = value := by
+  cases value with
+  | limit => decide
+  | stopLimitOrder => decide
+  | market => decide
+  | stopMarketOrder => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : OrderType) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (OrderType × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : OrderType) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : OrderType) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : OrderType) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end OrderType
+
+/-- Customer Order Handling Instruction: one byte code -/
+def CustomerOrderHandlingInstruction.codes : List UInt8 :=
+  [0x57, 0x59, 0x43, 0x47, 0x48, 0x44]
+
+inductive CustomerOrderHandlingInstruction where
+  | desk -- Desk
+  | electronic -- Electronic
+  | vendorProvidedPlatformBilledByExecutingBroker -- Vendor Provided Platform Billed By Executing Broker
+  | sponsoredAccessViaExchangeApiOrFixProvidedByExecutingBroker -- Sponsored Access Via Exchange Api Or Fix Provided By Executing Broker
+  | premiumAlgorithmicTradingProviderBilledByExecutingBroker -- Premium Algorithmic Trading Provider Billed By Executing Broker
+  | other -- Other
+  | unlisted (byte : { byte : UInt8 // byte ∉ CustomerOrderHandlingInstruction.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace CustomerOrderHandlingInstruction
+
+def toByte : CustomerOrderHandlingInstruction → UInt8
+  | .desk => 0x57
+  | .electronic => 0x59
+  | .vendorProvidedPlatformBilledByExecutingBroker => 0x43
+  | .sponsoredAccessViaExchangeApiOrFixProvidedByExecutingBroker => 0x47
+  | .premiumAlgorithmicTradingProviderBilledByExecutingBroker => 0x48
+  | .other => 0x44
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : CustomerOrderHandlingInstruction :=
+  if byte = 0x57 then .desk
+  else if byte = 0x59 then .electronic
+  else if byte = 0x43 then .vendorProvidedPlatformBilledByExecutingBroker
+  else if byte = 0x47 then .sponsoredAccessViaExchangeApiOrFixProvidedByExecutingBroker
+  else if byte = 0x48 then .premiumAlgorithmicTradingProviderBilledByExecutingBroker
+  else .other
+
+def ofByte (byte : UInt8) : CustomerOrderHandlingInstruction :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : CustomerOrderHandlingInstruction) : ofByte value.toByte = value := by
+  cases value with
+  | desk => decide
+  | electronic => decide
+  | vendorProvidedPlatformBilledByExecutingBroker => decide
+  | sponsoredAccessViaExchangeApiOrFixProvidedByExecutingBroker => decide
+  | premiumAlgorithmicTradingProviderBilledByExecutingBroker => decide
+  | other => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : CustomerOrderHandlingInstruction) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (CustomerOrderHandlingInstruction × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : CustomerOrderHandlingInstruction) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : CustomerOrderHandlingInstruction) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : CustomerOrderHandlingInstruction) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end CustomerOrderHandlingInstruction
+
+/-- Cti Code: one byte code -/
+def CtiCode.codes : List UInt8 :=
+  [0x31, 0x32, 0x33, 0x34]
+
+inductive CtiCode where
+  | cti1 -- Cti 1
+  | cti2 -- Cti 2
+  | cti3 -- Cti 3
+  | cti4 -- Cti 4
+  | unlisted (byte : { byte : UInt8 // byte ∉ CtiCode.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace CtiCode
+
+def toByte : CtiCode → UInt8
+  | .cti1 => 0x31
+  | .cti2 => 0x32
+  | .cti3 => 0x33
+  | .cti4 => 0x34
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : CtiCode :=
+  if byte = 0x31 then .cti1
+  else if byte = 0x32 then .cti2
+  else if byte = 0x33 then .cti3
+  else .cti4
+
+def ofByte (byte : UInt8) : CtiCode :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : CtiCode) : ofByte value.toByte = value := by
+  cases value with
+  | cti1 => decide
+  | cti2 => decide
+  | cti3 => decide
+  | cti4 => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : CtiCode) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (CtiCode × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : CtiCode) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : CtiCode) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : CtiCode) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end CtiCode
+
+/-- Cancel Reason: one byte code -/
+def CancelReason.codes : List UInt8 :=
+  [0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x55, 0x56, 0x31, 0x32, 0x33, 0x34, 0x5A, 0x2A]
+
+inductive CancelReason where
+  | minQuantityNotSatisfiedOrFokMinQuantityNotSatisfied -- Min Quantity Not Satisfied Or Fok Min Quantity Not Satisfied
+  | reservedForFutureUse -- Reserved For Future Use
+  | timeInForceCanceled -- Time In Force Canceled
+  | autoCancelOnDisconnectAcod -- Auto Cancel On Disconnect Acod
+  | breachedDailyTradingPriceRange -- Breached Daily Trading Price Range
+  | autoCancelOnSystemFailureAcosf -- Auto Cancel On System Failure Acosf
+  | tradingCollarProtection -- Trading Collar Protection
+  | canceledByHelpdeskOrOverMiaxMemberFirmPortal -- Canceled By Helpdesk Or Over Miax Member Firm Portal
+  | massCancelMpidOrProductGroupProductTypeByUser -- Mass Cancel Mpid Or Product Group Product Type By User
+  | massCancelMpidOrProductGroupProductTypeByHelpdeskOrOverMiaxMemberFirmPortal -- Mass Cancel Mpid Or Product Group Product Type By Helpdesk Or Over Miax Member Firm Portal
+  | massCancelSessionByUser -- Mass Cancel Session By User
+  | massCancelSessionByHelpdeskOrOverMiaxMemberFirmPortal -- Mass Cancel Session By Helpdesk Or Over Miax Member Firm Portal
+  | crossingStrategyMatchPriceRangeSmpr -- Crossing Strategy Match Price Range Smpr
+  | crmProtection -- Crm Protection
+  | dropCopyAcodacosfEvent -- Drop Copy Acodacosf Event
+  | marketableOrderOutsideStrategyMatchPriceRangeSmpr -- Marketable Order Outside Strategy Match Price Range Smpr
+  | gtcgtdOrderIntroductionBreachedPerOrderRiskMetrics -- Gtcgtd Order Introduction Breached Per Order Risk Metrics
+  | canceledByUserThroughOrderEntrySession -- Canceled By User Through Order Entry Session
+  | canceledByUserThroughASessionOtherThanTheOrderEntrySession -- Canceled By User Through A Session Other Than The Order Entry Session
+  | cancelNewestInstruction -- Cancel Newest Instruction
+  | cancelOldestInstruction -- Cancel Oldest Instruction
+  | cancelBothInstruction -- Cancel Both Instruction
+  | decrementAndCancelInstruction -- Decrement And Cancel Instruction
+  | undefinedReason -- Undefined Reason
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ CancelReason.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace CancelReason
+
+def toByte : CancelReason → UInt8
+  | .minQuantityNotSatisfiedOrFokMinQuantityNotSatisfied => 0x41
+  | .reservedForFutureUse => 0x42
+  | .timeInForceCanceled => 0x43
+  | .autoCancelOnDisconnectAcod => 0x44
+  | .breachedDailyTradingPriceRange => 0x45
+  | .autoCancelOnSystemFailureAcosf => 0x46
+  | .tradingCollarProtection => 0x47
+  | .canceledByHelpdeskOrOverMiaxMemberFirmPortal => 0x48
+  | .massCancelMpidOrProductGroupProductTypeByUser => 0x4A
+  | .massCancelMpidOrProductGroupProductTypeByHelpdeskOrOverMiaxMemberFirmPortal => 0x4B
+  | .massCancelSessionByUser => 0x4C
+  | .massCancelSessionByHelpdeskOrOverMiaxMemberFirmPortal => 0x4D
+  | .crossingStrategyMatchPriceRangeSmpr => 0x4E
+  | .crmProtection => 0x4F
+  | .dropCopyAcodacosfEvent => 0x50
+  | .marketableOrderOutsideStrategyMatchPriceRangeSmpr => 0x51
+  | .gtcgtdOrderIntroductionBreachedPerOrderRiskMetrics => 0x52
+  | .canceledByUserThroughOrderEntrySession => 0x55
+  | .canceledByUserThroughASessionOtherThanTheOrderEntrySession => 0x56
+  | .cancelNewestInstruction => 0x31
+  | .cancelOldestInstruction => 0x32
+  | .cancelBothInstruction => 0x33
+  | .decrementAndCancelInstruction => 0x34
+  | .undefinedReason => 0x5A
+  | .downgradedFromOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : CancelReason :=
+  if byte = 0x41 then .minQuantityNotSatisfiedOrFokMinQuantityNotSatisfied
+  else if byte = 0x42 then .reservedForFutureUse
+  else if byte = 0x43 then .timeInForceCanceled
+  else if byte = 0x44 then .autoCancelOnDisconnectAcod
+  else if byte = 0x45 then .breachedDailyTradingPriceRange
+  else if byte = 0x46 then .autoCancelOnSystemFailureAcosf
+  else if byte = 0x47 then .tradingCollarProtection
+  else if byte = 0x48 then .canceledByHelpdeskOrOverMiaxMemberFirmPortal
+  else if byte = 0x4A then .massCancelMpidOrProductGroupProductTypeByUser
+  else if byte = 0x4B then .massCancelMpidOrProductGroupProductTypeByHelpdeskOrOverMiaxMemberFirmPortal
+  else if byte = 0x4C then .massCancelSessionByUser
+  else if byte = 0x4D then .massCancelSessionByHelpdeskOrOverMiaxMemberFirmPortal
+  else if byte = 0x4E then .crossingStrategyMatchPriceRangeSmpr
+  else if byte = 0x4F then .crmProtection
+  else if byte = 0x50 then .dropCopyAcodacosfEvent
+  else if byte = 0x51 then .marketableOrderOutsideStrategyMatchPriceRangeSmpr
+  else if byte = 0x52 then .gtcgtdOrderIntroductionBreachedPerOrderRiskMetrics
+  else if byte = 0x55 then .canceledByUserThroughOrderEntrySession
+  else if byte = 0x56 then .canceledByUserThroughASessionOtherThanTheOrderEntrySession
+  else if byte = 0x31 then .cancelNewestInstruction
+  else if byte = 0x32 then .cancelOldestInstruction
+  else if byte = 0x33 then .cancelBothInstruction
+  else if byte = 0x34 then .decrementAndCancelInstruction
+  else if byte = 0x5A then .undefinedReason
+  else .downgradedFromOlderVersion
+
+def ofByte (byte : UInt8) : CancelReason :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : CancelReason) : ofByte value.toByte = value := by
+  cases value with
+  | minQuantityNotSatisfiedOrFokMinQuantityNotSatisfied => decide
+  | reservedForFutureUse => decide
+  | timeInForceCanceled => decide
+  | autoCancelOnDisconnectAcod => decide
+  | breachedDailyTradingPriceRange => decide
+  | autoCancelOnSystemFailureAcosf => decide
+  | tradingCollarProtection => decide
+  | canceledByHelpdeskOrOverMiaxMemberFirmPortal => decide
+  | massCancelMpidOrProductGroupProductTypeByUser => decide
+  | massCancelMpidOrProductGroupProductTypeByHelpdeskOrOverMiaxMemberFirmPortal => decide
+  | massCancelSessionByUser => decide
+  | massCancelSessionByHelpdeskOrOverMiaxMemberFirmPortal => decide
+  | crossingStrategyMatchPriceRangeSmpr => decide
+  | crmProtection => decide
+  | dropCopyAcodacosfEvent => decide
+  | marketableOrderOutsideStrategyMatchPriceRangeSmpr => decide
+  | gtcgtdOrderIntroductionBreachedPerOrderRiskMetrics => decide
+  | canceledByUserThroughOrderEntrySession => decide
+  | canceledByUserThroughASessionOtherThanTheOrderEntrySession => decide
+  | cancelNewestInstruction => decide
+  | cancelOldestInstruction => decide
+  | cancelBothInstruction => decide
+  | decrementAndCancelInstruction => decide
+  | undefinedReason => decide
+  | downgradedFromOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : CancelReason) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (CancelReason × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : CancelReason) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : CancelReason) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : CancelReason) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end CancelReason
+
+/-- Update Status: one byte code -/
+def UpdateStatus.codes : List UInt8 :=
+  [0x53]
+
+inductive UpdateStatus where
+  | stopOrderTriggered -- Stop Order Triggered
+  | unlisted (byte : { byte : UInt8 // byte ∉ UpdateStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace UpdateStatus
+
+def toByte : UpdateStatus → UInt8
+  | .stopOrderTriggered => 0x53
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (_ : UInt8) : UpdateStatus :=
+  .stopOrderTriggered
+
+def ofByte (byte : UInt8) : UpdateStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : UpdateStatus) : ofByte value.toByte = value := by
+  cases value with
+  | stopOrderTriggered => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : UpdateStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (UpdateStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : UpdateStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : UpdateStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : UpdateStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end UpdateStatus
+
+/-- Trade Status: one byte code -/
+def TradeStatus.codes : List UInt8 :=
+  [0x45, 0x43, 0x58]
+
+inductive TradeStatus where
+  | newExecution -- New Execution
+  | priceSizeCorrection -- Price Size Correction
+  | tradeCancellation -- Trade Cancellation
+  | unlisted (byte : { byte : UInt8 // byte ∉ TradeStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace TradeStatus
+
+def toByte : TradeStatus → UInt8
+  | .newExecution => 0x45
+  | .priceSizeCorrection => 0x43
+  | .tradeCancellation => 0x58
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : TradeStatus :=
+  if byte = 0x45 then .newExecution
+  else if byte = 0x43 then .priceSizeCorrection
+  else .tradeCancellation
+
+def ofByte (byte : UInt8) : TradeStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : TradeStatus) : ofByte value.toByte = value := by
+  cases value with
+  | newExecution => decide
+  | priceSizeCorrection => decide
+  | tradeCancellation => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : TradeStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (TradeStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : TradeStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : TradeStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : TradeStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end TradeStatus
+
+/-- Scope: one byte code -/
+def Scope.codes : List UInt8 :=
+  [0x4D, 0x50, 0x54, 0x53]
+
+inductive Scope where
+  | mpid -- Mpid
+  | mpidProductGroup -- Mpid Product Group
+  | mpidProductGroupProductType -- Mpid Product Group Product Type
+  | session -- Session
+  | unlisted (byte : { byte : UInt8 // byte ∉ Scope.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace Scope
+
+def toByte : Scope → UInt8
+  | .mpid => 0x4D
+  | .mpidProductGroup => 0x50
+  | .mpidProductGroupProductType => 0x54
+  | .session => 0x53
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : Scope :=
+  if byte = 0x4D then .mpid
+  else if byte = 0x50 then .mpidProductGroup
+  else if byte = 0x54 then .mpidProductGroupProductType
+  else .session
+
+def ofByte (byte : UInt8) : Scope :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : Scope) : ofByte value.toByte = value := by
+  cases value with
+  | mpid => decide
+  | mpidProductGroup => decide
+  | mpidProductGroupProductType => decide
+  | session => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : Scope) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (Scope × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : Scope) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : Scope) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : Scope) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end Scope
+
+/-- Action: one byte code -/
+def Action.codes : List UInt8 :=
+  [0x42, 0x4D, 0x58, 0x52]
+
+inductive Action where
+  | blockOnly -- Block Only
+  | massCancelOnly -- Mass Cancel Only
+  | blockAndMassCancel -- Block And Mass Cancel
+  | removeBlockingForTheSpecifiedScope -- Remove Blocking For The Specified Scope
+  | unlisted (byte : { byte : UInt8 // byte ∉ Action.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace Action
+
+def toByte : Action → UInt8
+  | .blockOnly => 0x42
+  | .massCancelOnly => 0x4D
+  | .blockAndMassCancel => 0x58
+  | .removeBlockingForTheSpecifiedScope => 0x52
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : Action :=
+  if byte = 0x42 then .blockOnly
+  else if byte = 0x4D then .massCancelOnly
+  else if byte = 0x58 then .blockAndMassCancel
+  else .removeBlockingForTheSpecifiedScope
+
+def ofByte (byte : UInt8) : Action :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : Action) : ofByte value.toByte = value := by
+  cases value with
+  | blockOnly => decide
+  | massCancelOnly => decide
+  | blockAndMassCancel => decide
+  | removeBlockingForTheSpecifiedScope => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : Action) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (Action × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : Action) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : Action) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : Action) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end Action
+
+/-- Product Type: one byte code -/
+def ProductType.codes : List UInt8 :=
+  [0x4F, 0x53, 0x45, 0x42]
+
+inductive ProductType where
+  | outrightFutures -- Outright Futures
+  | standardCalendarSpread -- Standard Calendar Spread
+  | equityCalendarSpread -- Equity Calendar Spread
+  | butterflySpread -- Butterfly Spread
+  | unlisted (byte : { byte : UInt8 // byte ∉ ProductType.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace ProductType
+
+def toByte : ProductType → UInt8
+  | .outrightFutures => 0x4F
+  | .standardCalendarSpread => 0x53
+  | .equityCalendarSpread => 0x45
+  | .butterflySpread => 0x42
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : ProductType :=
+  if byte = 0x4F then .outrightFutures
+  else if byte = 0x53 then .standardCalendarSpread
+  else if byte = 0x45 then .equityCalendarSpread
+  else .butterflySpread
+
+def ofByte (byte : UInt8) : ProductType :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : ProductType) : ofByte value.toByte = value := by
+  cases value with
+  | outrightFutures => decide
+  | standardCalendarSpread => decide
+  | equityCalendarSpread => decide
+  | butterflySpread => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : ProductType) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (ProductType × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : ProductType) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : ProductType) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : ProductType) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end ProductType
 
 /-- Login Status: one byte code -/
 def LoginStatus.codes : List UInt8 :=
@@ -223,39 +1560,39 @@ end LogoutReason
 
 /-- New Order Response Message: 56 bytes -/
 structure NewOrderResponseMessage where
-  matchingEngine : BitVec 64
+  matchingEngineTime : BitVec 64
   mpId : Alpha 5
   clientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   orderId : BitVec 64
-  status : Alpha 1
+  orderStatus : OrderStatus
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
 namespace NewOrderResponseMessage
 
 def encode (message : NewOrderResponseMessage) : List UInt8 :=
-  encodeUIntLE 8 message.matchingEngine
+  encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.clientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.orderId
-    ++ (Alpha.encode message.status
+    ++ (OrderStatus.encode message.orderStatus
     ++ (Alpha.encode message.reserved10))))))
 
 def decode (bytes : List UInt8) : Option (NewOrderResponseMessage × List UInt8) := do
-  let (matchingEngine, bytes) ← decodeUIntLE 8 bytes
+  let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (status, bytes) ← Alpha.decode 1 bytes
+  let (orderStatus, bytes) ← OrderStatus.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  pure ({ matchingEngine, mpId, clientOrderId, instrumentIdBinaryU4, orderId, status, reserved10 }, bytes)
+  pure ({ matchingEngineTime, mpId, clientOrderId, instrumentId, orderId, orderStatus, reserved10 }, bytes)
 
 @[simp] theorem encode_length (message : NewOrderResponseMessage) : (encode message).length = 56 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, OrderStatus.encode_length]
 
 theorem encode_length_pos (message : NewOrderResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -274,7 +1611,7 @@ theorem encode_length_pos (message : NewOrderResponseMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, OrderStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -287,10 +1624,10 @@ structure ModifyOrderResponse where
   mpId : Alpha 5
   clientOrderId : Alpha 20
   originalClientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   orderId : BitVec 64
   leavesQty : BitVec 32
-  status : Alpha 1
+  modifyStatus : ModifyStatus
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
@@ -301,10 +1638,10 @@ def encode (message : ModifyOrderResponse) : List UInt8 :=
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.clientOrderId
     ++ (Alpha.encode message.originalClientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 4 message.leavesQty
-    ++ (Alpha.encode message.status
+    ++ (ModifyStatus.encode message.modifyStatus
     ++ (Alpha.encode message.reserved10))))))))
 
 def decode (bytes : List UInt8) : Option (ModifyOrderResponse × List UInt8) := do
@@ -312,16 +1649,16 @@ def decode (bytes : List UInt8) : Option (ModifyOrderResponse × List UInt8) := 
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (originalClientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (leavesQty, bytes) ← decodeUIntLE 4 bytes
-  let (status, bytes) ← Alpha.decode 1 bytes
+  let (modifyStatus, bytes) ← ModifyStatus.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  pure ({ matchingEngineTime, mpId, clientOrderId, originalClientOrderId, instrumentIdBinaryU4, orderId, leavesQty, status, reserved10 }, bytes)
+  pure ({ matchingEngineTime, mpId, clientOrderId, originalClientOrderId, instrumentId, orderId, leavesQty, modifyStatus, reserved10 }, bytes)
 
 @[simp] theorem encode_length (message : ModifyOrderResponse) : (encode message).length = 80 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, ModifyStatus.encode_length]
 
 theorem encode_length_pos (message : ModifyOrderResponse) : (encode message).length > 0 := by
   rw [encode_length]
@@ -344,22 +1681,23 @@ theorem encode_length_pos (message : ModifyOrderResponse) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, ModifyStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
 
 end ModifyOrderResponse
 
-/-- Cancel Order Response: 66 bytes -/
+/-- Cancel Order Response: 76 bytes -/
 structure CancelOrderResponse where
   matchingEngineTime : BitVec 64
   mpId : Alpha 5
   clientOrderId : Alpha 20
-  originalClientOrder : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  originalClientOrderId : Alpha 20
+  instrumentId : BitVec 32
   orderId : BitVec 64
-  status : Alpha 1
+  cancelStatus : CancelStatus
+  reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
 namespace CancelOrderResponse
@@ -368,24 +1706,26 @@ def encode (message : CancelOrderResponse) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.clientOrderId
-    ++ (Alpha.encode message.originalClientOrder
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (Alpha.encode message.originalClientOrderId
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.orderId
-    ++ (Alpha.encode message.status))))))
+    ++ (CancelStatus.encode message.cancelStatus
+    ++ (Alpha.encode message.reserved10)))))))
 
 def decode (bytes : List UInt8) : Option (CancelOrderResponse × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (originalClientOrder, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (originalClientOrderId, bytes) ← Alpha.decode 20 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (status, bytes) ← Alpha.decode 1 bytes
-  pure ({ matchingEngineTime, mpId, clientOrderId, originalClientOrder, instrumentIdBinaryU4, orderId, status }, bytes)
+  let (cancelStatus, bytes) ← CancelStatus.decode bytes
+  let (reserved10, bytes) ← Alpha.decode 10 bytes
+  pure ({ matchingEngineTime, mpId, clientOrderId, originalClientOrderId, instrumentId, orderId, cancelStatus, reserved10 }, bytes)
 
-@[simp] theorem encode_length (message : CancelOrderResponse) : (encode message).length = 66 := by
+@[simp] theorem encode_length (message : CancelOrderResponse) : (encode message).length = 76 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CancelStatus.encode_length]
 
 theorem encode_length_pos (message : CancelOrderResponse) : (encode message).length > 0 := by
   rw [encode_length]
@@ -406,6 +1746,8 @@ theorem encode_length_pos (message : CancelOrderResponse) : (encode message).len
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
+  rw [List.append_assoc, CancelStatus.decode_encode, some_bind]
+  dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
 
@@ -416,7 +1758,7 @@ structure MassCancelResponse where
   matchingEngineTime : BitVec 64
   mpId : Alpha 5
   clientOrderId : Alpha 20
-  status : Alpha 1
+  massCancelStatus : MassCancelStatus
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
@@ -426,20 +1768,20 @@ def encode (message : MassCancelResponse) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.clientOrderId
-    ++ (Alpha.encode message.status
+    ++ (MassCancelStatus.encode message.massCancelStatus
     ++ (Alpha.encode message.reserved10))))
 
 def decode (bytes : List UInt8) : Option (MassCancelResponse × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (status, bytes) ← Alpha.decode 1 bytes
+  let (massCancelStatus, bytes) ← MassCancelStatus.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  pure ({ matchingEngineTime, mpId, clientOrderId, status, reserved10 }, bytes)
+  pure ({ matchingEngineTime, mpId, clientOrderId, massCancelStatus, reserved10 }, bytes)
 
 @[simp] theorem encode_length (message : MassCancelResponse) : (encode message).length = 44 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, MassCancelStatus.encode_length]
 
 theorem encode_length_pos (message : MassCancelResponse) : (encode message).length > 0 := by
   rw [encode_length]
@@ -454,20 +1796,20 @@ theorem encode_length_pos (message : MassCancelResponse) : (encode message).leng
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, MassCancelStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
 
 end MassCancelResponse
 
-/-- Strategy Creation Response Message: 70 bytes -/
+/-- Strategy Creation Response Message: 54 bytes -/
 structure StrategyCreationResponseMessage where
   matchingEngineTime : BitVec 64
   mpId : Alpha 5
   clientOrderId : Alpha 20
-  instrumentIdString20 : Alpha 20
-  status : Alpha 1
+  instrumentId : BitVec 32
+  strategyCreationStatus : StrategyCreationStatus
   reserved16 : Alpha 16
   deriving DecidableEq, Repr
 
@@ -477,22 +1819,22 @@ def encode (message : StrategyCreationResponseMessage) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.clientOrderId
-    ++ (Alpha.encode message.instrumentIdString20
-    ++ (Alpha.encode message.status
+    ++ (encodeUIntLE 4 message.instrumentId
+    ++ (StrategyCreationStatus.encode message.strategyCreationStatus
     ++ (Alpha.encode message.reserved16)))))
 
 def decode (bytes : List UInt8) : Option (StrategyCreationResponseMessage × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdString20, bytes) ← Alpha.decode 20 bytes
-  let (status, bytes) ← Alpha.decode 1 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
+  let (strategyCreationStatus, bytes) ← StrategyCreationStatus.decode bytes
   let (reserved16, bytes) ← Alpha.decode 16 bytes
-  pure ({ matchingEngineTime, mpId, clientOrderId, instrumentIdString20, status, reserved16 }, bytes)
+  pure ({ matchingEngineTime, mpId, clientOrderId, instrumentId, strategyCreationStatus, reserved16 }, bytes)
 
-@[simp] theorem encode_length (message : StrategyCreationResponseMessage) : (encode message).length = 70 := by
+@[simp] theorem encode_length (message : StrategyCreationResponseMessage) : (encode message).length = 54 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, StrategyCreationStatus.encode_length]
 
 theorem encode_length_pos (message : StrategyCreationResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -507,9 +1849,9 @@ theorem encode_length_pos (message : StrategyCreationResponseMessage) : (encode 
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, StrategyCreationStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -521,7 +1863,7 @@ structure SystemStateNotificationMessage where
   matchingEngineTime : BitVec 64
   version : Alpha 8
   sessionId : BitVec 8
-  systemStatus : Alpha 1
+  systemStatus : SystemStatus
   reserved8 : Alpha 8
   deriving DecidableEq, Repr
 
@@ -531,20 +1873,20 @@ def encode (message : SystemStateNotificationMessage) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.version
     ++ (encodeUInt 1 message.sessionId
-    ++ (Alpha.encode message.systemStatus
+    ++ (SystemStatus.encode message.systemStatus
     ++ (Alpha.encode message.reserved8))))
 
 def decode (bytes : List UInt8) : Option (SystemStateNotificationMessage × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (version, bytes) ← Alpha.decode 8 bytes
   let (sessionId, bytes) ← decodeUInt 1 bytes
-  let (systemStatus, bytes) ← Alpha.decode 1 bytes
+  let (systemStatus, bytes) ← SystemStatus.decode bytes
   let (reserved8, bytes) ← Alpha.decode 8 bytes
   pure ({ matchingEngineTime, version, sessionId, systemStatus, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : SystemStateNotificationMessage) : (encode message).length = 26 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, SystemStatus.encode_length]
 
 theorem encode_length_pos (message : SystemStateNotificationMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -559,7 +1901,7 @@ theorem encode_length_pos (message : SystemStateNotificationMessage) : (encode m
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, SystemStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -576,22 +1918,22 @@ structure NewOrderNotification where
   operatorLocation : Alpha 6
   account : Alpha 16
   clientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   price : BitVec 64
   stopOrderTriggerPrice : BitVec 64
   sizeBinaryU4 : BitVec 32
   orderInstructions : BitVec 16
   timeInForce : TimeInForce
-  orderType : Alpha 1
+  orderType : OrderType
   selfTradeProtection : BitVec 8
   selfTradeProtectionGroup : Alpha 2
   purgeGroup : Alpha 1
-  customerOrderHandlingInstruction : Alpha 1
+  customerOrderHandlingInstruction : CustomerOrderHandlingInstruction
   additionalOrderIndicators : BitVec 8
   minQty : BitVec 32
   orderExpiryDate : BitVec 16
   tradingCollarDollarValue : BitVec 64
-  ctiCode : Alpha 1
+  ctiCode : CtiCode
   textMemo : Alpha 20
   reserved32 : Alpha 32
   deriving DecidableEq, Repr
@@ -607,22 +1949,22 @@ def encode (message : NewOrderNotification) : List UInt8 :=
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.account
     ++ (Alpha.encode message.clientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 8 message.stopOrderTriggerPrice
     ++ (encodeUIntLE 4 message.sizeBinaryU4
     ++ (encodeUIntLE 2 message.orderInstructions
     ++ (TimeInForce.encode message.timeInForce
-    ++ (Alpha.encode message.orderType
+    ++ (OrderType.encode message.orderType
     ++ (encodeUIntLE 1 message.selfTradeProtection
     ++ (Alpha.encode message.selfTradeProtectionGroup
     ++ (Alpha.encode message.purgeGroup
-    ++ (Alpha.encode message.customerOrderHandlingInstruction
+    ++ (CustomerOrderHandlingInstruction.encode message.customerOrderHandlingInstruction
     ++ (encodeUIntLE 1 message.additionalOrderIndicators
     ++ (encodeUIntLE 4 message.minQty
     ++ (encodeUIntLE 2 message.orderExpiryDate
     ++ (encodeUIntLE 8 message.tradingCollarDollarValue
-    ++ (Alpha.encode message.ctiCode
+    ++ (CtiCode.encode message.ctiCode
     ++ (Alpha.encode message.textMemo
     ++ (Alpha.encode message.reserved32)))))))))))))))))))))))))
 
@@ -637,29 +1979,29 @@ def decode (bytes : List UInt8) : Option (NewOrderNotification × List UInt8) :=
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (account, bytes) ← Alpha.decode 16 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (stopOrderTriggerPrice, bytes) ← decodeUIntLE 8 bytes
   let (sizeBinaryU4, bytes) ← decodeUIntLE 4 bytes
   let (orderInstructions, bytes) ← decodeUIntLE 2 bytes
   let (timeInForce, bytes) ← TimeInForce.decode bytes
-  let (orderType, bytes) ← Alpha.decode 1 bytes
+  let (orderType, bytes) ← OrderType.decode bytes
   let (selfTradeProtection, bytes) ← decodeUIntLE 1 bytes
   let (selfTradeProtectionGroup, bytes) ← Alpha.decode 2 bytes
   let (purgeGroup, bytes) ← Alpha.decode 1 bytes
-  let (customerOrderHandlingInstruction, bytes) ← Alpha.decode 1 bytes
+  let (customerOrderHandlingInstruction, bytes) ← CustomerOrderHandlingInstruction.decode bytes
   let (additionalOrderIndicators, bytes) ← decodeUIntLE 1 bytes
   let (minQty, bytes) ← decodeUIntLE 4 bytes
   let (orderExpiryDate, bytes) ← decodeUIntLE 2 bytes
   let (tradingCollarDollarValue, bytes) ← decodeUIntLE 8 bytes
-  let (ctiCode, bytes) ← Alpha.decode 1 bytes
+  let (ctiCode, bytes) ← CtiCode.decode bytes
   let (textMemo, bytes) ← Alpha.decode 20 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ matchingEngineTime, mpId, orderId, clientSendTime, operatorId, operatorLocation, account, clientOrderId, instrumentIdBinaryU4, price, stopOrderTriggerPrice, sizeBinaryU4, orderInstructions, timeInForce, orderType, selfTradeProtection, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, minQty, orderExpiryDate, tradingCollarDollarValue, ctiCode, textMemo, reserved32 }, bytes)
+  pure ({ matchingEngineTime, mpId, orderId, clientSendTime, operatorId, operatorLocation, account, clientOrderId, instrumentId, price, stopOrderTriggerPrice, sizeBinaryU4, orderInstructions, timeInForce, orderType, selfTradeProtection, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, minQty, orderExpiryDate, tradingCollarDollarValue, ctiCode, textMemo, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : NewOrderNotification) : (encode message).length = 190 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TimeInForce.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TimeInForce.encode_length, OrderType.encode_length, CustomerOrderHandlingInstruction.encode_length, CtiCode.encode_length]
 
 theorem encode_length_pos (message : NewOrderNotification) : (encode message).length > 0 := by
   rw [encode_length]
@@ -697,7 +2039,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, TimeInForce.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, OrderType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -705,7 +2047,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CustomerOrderHandlingInstruction.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -715,7 +2057,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CtiCode.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -735,14 +2077,14 @@ structure ModifyOrderNotification where
   operatorLocation : Alpha 6
   clientOrderId : Alpha 20
   originalClientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   price : BitVec 64
   stopOrderTriggerPrice : BitVec 64
   sizeBinaryS4 : BitVec 32
   orderExpiryDate : BitVec 16
   selfTradeProtectionGroup : Alpha 2
   purgeGroup : Alpha 1
-  customerOrderHandlingInstruction : Alpha 1
+  customerOrderHandlingInstruction : CustomerOrderHandlingInstruction
   additionalOrderIndicators : BitVec 8
   reserved32 : Alpha 32
   deriving DecidableEq, Repr
@@ -759,14 +2101,14 @@ def encode (message : ModifyOrderNotification) : List UInt8 :=
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.clientOrderId
     ++ (Alpha.encode message.originalClientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 8 message.stopOrderTriggerPrice
     ++ (encodeUIntLE 4 message.sizeBinaryS4
     ++ (encodeUIntLE 2 message.orderExpiryDate
     ++ (Alpha.encode message.selfTradeProtectionGroup
     ++ (Alpha.encode message.purgeGroup
-    ++ (Alpha.encode message.customerOrderHandlingInstruction
+    ++ (CustomerOrderHandlingInstruction.encode message.customerOrderHandlingInstruction
     ++ (encodeUIntLE 1 message.additionalOrderIndicators
     ++ (Alpha.encode message.reserved32))))))))))))))))))
 
@@ -780,21 +2122,21 @@ def decode (bytes : List UInt8) : Option (ModifyOrderNotification × List UInt8)
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (originalClientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (stopOrderTriggerPrice, bytes) ← decodeUIntLE 8 bytes
   let (sizeBinaryS4, bytes) ← decodeUIntLE 4 bytes
   let (orderExpiryDate, bytes) ← decodeUIntLE 2 bytes
   let (selfTradeProtectionGroup, bytes) ← Alpha.decode 2 bytes
   let (purgeGroup, bytes) ← Alpha.decode 1 bytes
-  let (customerOrderHandlingInstruction, bytes) ← Alpha.decode 1 bytes
+  let (customerOrderHandlingInstruction, bytes) ← CustomerOrderHandlingInstruction.decode bytes
   let (additionalOrderIndicators, bytes) ← decodeUIntLE 1 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ matchingEngineTime, mpId, orderId, clientSendTime, leavesQty, operatorId, operatorLocation, clientOrderId, originalClientOrderId, instrumentIdBinaryU4, price, stopOrderTriggerPrice, sizeBinaryS4, orderExpiryDate, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, reserved32 }, bytes)
+  pure ({ matchingEngineTime, mpId, orderId, clientSendTime, leavesQty, operatorId, operatorLocation, clientOrderId, originalClientOrderId, instrumentId, price, stopOrderTriggerPrice, sizeBinaryS4, orderExpiryDate, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : ModifyOrderNotification) : (encode message).length = 160 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CustomerOrderHandlingInstruction.encode_length]
 
 theorem encode_length_pos (message : ModifyOrderNotification) : (encode message).length > 0 := by
   rw [encode_length]
@@ -835,7 +2177,7 @@ theorem encode_length_pos (message : ModifyOrderNotification) : (encode message)
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CustomerOrderHandlingInstruction.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -851,11 +2193,11 @@ structure CancelReduceSizeOrderNotification where
   operatorId : Alpha 18
   operatorLocation : Alpha 6
   clientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   orderId : BitVec 64
   clientSendTime : BitVec 64
   leavesQty : BitVec 32
-  cancelReason : Alpha 1
+  cancelReason : CancelReason
   lastPrice : BitVec 64
   lastSize : BitVec 32
   reserved8 : Alpha 8
@@ -869,11 +2211,11 @@ def encode (message : CancelReduceSizeOrderNotification) : List UInt8 :=
     ++ (Alpha.encode message.operatorId
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.clientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.clientSendTime
     ++ (encodeUIntLE 4 message.leavesQty
-    ++ (Alpha.encode message.cancelReason
+    ++ (CancelReason.encode message.cancelReason
     ++ (encodeUIntLE 8 message.lastPrice
     ++ (encodeUIntLE 4 message.lastSize
     ++ (Alpha.encode message.reserved8))))))))))))
@@ -884,19 +2226,19 @@ def decode (bytes : List UInt8) : Option (CancelReduceSizeOrderNotification × L
   let (operatorId, bytes) ← Alpha.decode 18 bytes
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (clientSendTime, bytes) ← decodeUIntLE 8 bytes
   let (leavesQty, bytes) ← decodeUIntLE 4 bytes
-  let (cancelReason, bytes) ← Alpha.decode 1 bytes
+  let (cancelReason, bytes) ← CancelReason.decode bytes
   let (lastPrice, bytes) ← decodeUIntLE 8 bytes
   let (lastSize, bytes) ← decodeUIntLE 4 bytes
   let (reserved8, bytes) ← Alpha.decode 8 bytes
-  pure ({ matchingEngineTime, mpId, operatorId, operatorLocation, clientOrderId, instrumentIdBinaryU4, orderId, clientSendTime, leavesQty, cancelReason, lastPrice, lastSize, reserved8 }, bytes)
+  pure ({ matchingEngineTime, mpId, operatorId, operatorLocation, clientOrderId, instrumentId, orderId, clientSendTime, leavesQty, cancelReason, lastPrice, lastSize, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : CancelReduceSizeOrderNotification) : (encode message).length = 102 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CancelReason.encode_length]
 
 theorem encode_length_pos (message : CancelReduceSizeOrderNotification) : (encode message).length > 0 := by
   rw [encode_length]
@@ -923,7 +2265,7 @@ theorem encode_length_pos (message : CancelReduceSizeOrderNotification) : (encod
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CancelReason.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -937,9 +2279,9 @@ end CancelReduceSizeOrderNotification
 /-- Order Status Update Notification: 53 bytes -/
 structure OrderStatusUpdateNotification where
   matchingEngineTime : BitVec 64
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   orderId : BitVec 64
-  updateStatus : Alpha 1
+  updateStatus : UpdateStatus
   reserved32 : Alpha 32
   deriving DecidableEq, Repr
 
@@ -947,22 +2289,22 @@ namespace OrderStatusUpdateNotification
 
 def encode (message : OrderStatusUpdateNotification) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.orderId
-    ++ (Alpha.encode message.updateStatus
+    ++ (UpdateStatus.encode message.updateStatus
     ++ (Alpha.encode message.reserved32))))
 
 def decode (bytes : List UInt8) : Option (OrderStatusUpdateNotification × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (updateStatus, bytes) ← Alpha.decode 1 bytes
+  let (updateStatus, bytes) ← UpdateStatus.decode bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ matchingEngineTime, instrumentIdBinaryU4, orderId, updateStatus, reserved32 }, bytes)
+  pure ({ matchingEngineTime, instrumentId, orderId, updateStatus, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : OrderStatusUpdateNotification) : (encode message).length = 53 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, UpdateStatus.encode_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OrderStatusUpdateNotification) : (encode message).length > 0 := by
   rw [encode_length]
@@ -977,7 +2319,7 @@ theorem encode_length_pos (message : OrderStatusUpdateNotification) : (encode me
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, UpdateStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -990,18 +2332,18 @@ structure SimpleExecutionNotification where
   mpId : Alpha 5
   operatorId : Alpha 18
   operatorLocation : Alpha 6
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   clientOrderId : Alpha 20
   simpleTradeId : BitVec 64
   complexTradeId : BitVec 64
   executionId : BitVec 64
   tradeDate : BitVec 16
   correctionNumber : BitVec 8
-  tradeStatus : Alpha 1
+  tradeStatus : TradeStatus
   lastPrice : BitVec 64
   lastSize : BitVec 32
   orderInstructions : BitVec 16
-  ctiCode : Alpha 1
+  ctiCode : CtiCode
   textMemo : Alpha 20
   liquidityIndicator : Alpha 3
   reserved32 : Alpha 32
@@ -1014,18 +2356,18 @@ def encode (message : SimpleExecutionNotification) : List UInt8 :=
     ++ (Alpha.encode message.mpId
     ++ (Alpha.encode message.operatorId
     ++ (Alpha.encode message.operatorLocation
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (Alpha.encode message.clientOrderId
     ++ (encodeUIntLE 8 message.simpleTradeId
     ++ (encodeUIntLE 8 message.complexTradeId
     ++ (encodeUIntLE 8 message.executionId
     ++ (encodeUIntLE 2 message.tradeDate
     ++ (encodeUInt 1 message.correctionNumber
-    ++ (Alpha.encode message.tradeStatus
+    ++ (TradeStatus.encode message.tradeStatus
     ++ (encodeUIntLE 8 message.lastPrice
     ++ (encodeUIntLE 4 message.lastSize
     ++ (encodeUIntLE 2 message.orderInstructions
-    ++ (Alpha.encode message.ctiCode
+    ++ (CtiCode.encode message.ctiCode
     ++ (Alpha.encode message.textMemo
     ++ (Alpha.encode message.liquidityIndicator
     ++ (Alpha.encode message.reserved32))))))))))))))))))
@@ -1035,26 +2377,26 @@ def decode (bytes : List UInt8) : Option (SimpleExecutionNotification × List UI
   let (mpId, bytes) ← Alpha.decode 5 bytes
   let (operatorId, bytes) ← Alpha.decode 18 bytes
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (simpleTradeId, bytes) ← decodeUIntLE 8 bytes
   let (complexTradeId, bytes) ← decodeUIntLE 8 bytes
   let (executionId, bytes) ← decodeUIntLE 8 bytes
   let (tradeDate, bytes) ← decodeUIntLE 2 bytes
   let (correctionNumber, bytes) ← decodeUInt 1 bytes
-  let (tradeStatus, bytes) ← Alpha.decode 1 bytes
+  let (tradeStatus, bytes) ← TradeStatus.decode bytes
   let (lastPrice, bytes) ← decodeUIntLE 8 bytes
   let (lastSize, bytes) ← decodeUIntLE 4 bytes
   let (orderInstructions, bytes) ← decodeUIntLE 2 bytes
-  let (ctiCode, bytes) ← Alpha.decode 1 bytes
+  let (ctiCode, bytes) ← CtiCode.decode bytes
   let (textMemo, bytes) ← Alpha.decode 20 bytes
   let (liquidityIndicator, bytes) ← Alpha.decode 3 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ matchingEngineTime, mpId, operatorId, operatorLocation, instrumentIdBinaryU4, clientOrderId, simpleTradeId, complexTradeId, executionId, tradeDate, correctionNumber, tradeStatus, lastPrice, lastSize, orderInstructions, ctiCode, textMemo, liquidityIndicator, reserved32 }, bytes)
+  pure ({ matchingEngineTime, mpId, operatorId, operatorLocation, instrumentId, clientOrderId, simpleTradeId, complexTradeId, executionId, tradeDate, correctionNumber, tradeStatus, lastPrice, lastSize, orderInstructions, ctiCode, textMemo, liquidityIndicator, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : SimpleExecutionNotification) : (encode message).length = 159 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeStatus.encode_length, CtiCode.encode_length]
 
 theorem encode_length_pos (message : SimpleExecutionNotification) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1085,7 +2427,7 @@ theorem encode_length_pos (message : SimpleExecutionNotification) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, TradeStatus.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -1093,7 +2435,7 @@ theorem encode_length_pos (message : SimpleExecutionNotification) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CtiCode.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1108,7 +2450,7 @@ end SimpleExecutionNotification
 structure ComplexExecutionNotification where
   matchingEngineTime : BitVec 64
   mpId : Alpha 5
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   clientOrderId : Alpha 20
   complexTradeId : BitVec 64
   tradeDate : BitVec 16
@@ -1123,7 +2465,7 @@ namespace ComplexExecutionNotification
 def encode (message : ComplexExecutionNotification) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (Alpha.encode message.mpId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (Alpha.encode message.clientOrderId
     ++ (encodeUIntLE 8 message.complexTradeId
     ++ (encodeUIntLE 2 message.tradeDate
@@ -1135,7 +2477,7 @@ def encode (message : ComplexExecutionNotification) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (ComplexExecutionNotification × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (mpId, bytes) ← Alpha.decode 5 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (complexTradeId, bytes) ← decodeUIntLE 8 bytes
   let (tradeDate, bytes) ← decodeUIntLE 2 bytes
@@ -1143,7 +2485,7 @@ def decode (bytes : List UInt8) : Option (ComplexExecutionNotification × List U
   let (lastSize, bytes) ← decodeUIntLE 4 bytes
   let (orderInstructions, bytes) ← decodeUIntLE 2 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ matchingEngineTime, mpId, instrumentIdBinaryU4, clientOrderId, complexTradeId, tradeDate, lastNetPrice, lastSize, orderInstructions, reserved32 }, bytes)
+  pure ({ matchingEngineTime, mpId, instrumentId, clientOrderId, complexTradeId, tradeDate, lastNetPrice, lastSize, orderInstructions, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : ComplexExecutionNotification) : (encode message).length = 93 := by
   unfold encode
@@ -1376,22 +2718,22 @@ structure NewOrderRequestMessage where
   operatorLocation : Alpha 6
   account : Alpha 16
   clientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   price : BitVec 64
   stopOrderTriggerPrice : BitVec 64
   sizeBinaryU4 : BitVec 32
   orderInstructions : BitVec 16
   timeInForce : TimeInForce
-  orderType : Alpha 1
+  orderType : OrderType
   selfTradeProtection : BitVec 8
   selfTradeProtectionGroup : Alpha 2
   purgeGroup : Alpha 1
-  customerOrderHandlingInstruction : Alpha 1
+  customerOrderHandlingInstruction : CustomerOrderHandlingInstruction
   additionalOrderIndicators : BitVec 8
   minQty : BitVec 32
   orderExpiryDate : BitVec 16
   tradingCollarDollarValue : BitVec 64
-  ctiCode : Alpha 1
+  ctiCode : CtiCode
   textMemo : Alpha 20
   reserved32 : Alpha 32
   deriving DecidableEq, Repr
@@ -1405,22 +2747,22 @@ def encode (message : NewOrderRequestMessage) : List UInt8 :=
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.account
     ++ (Alpha.encode message.clientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 8 message.stopOrderTriggerPrice
     ++ (encodeUIntLE 4 message.sizeBinaryU4
     ++ (encodeUIntLE 2 message.orderInstructions
     ++ (TimeInForce.encode message.timeInForce
-    ++ (Alpha.encode message.orderType
+    ++ (OrderType.encode message.orderType
     ++ (encodeUIntLE 1 message.selfTradeProtection
     ++ (Alpha.encode message.selfTradeProtectionGroup
     ++ (Alpha.encode message.purgeGroup
-    ++ (Alpha.encode message.customerOrderHandlingInstruction
+    ++ (CustomerOrderHandlingInstruction.encode message.customerOrderHandlingInstruction
     ++ (encodeUIntLE 1 message.additionalOrderIndicators
     ++ (encodeUIntLE 4 message.minQty
     ++ (encodeUIntLE 2 message.orderExpiryDate
     ++ (encodeUIntLE 8 message.tradingCollarDollarValue
-    ++ (Alpha.encode message.ctiCode
+    ++ (CtiCode.encode message.ctiCode
     ++ (Alpha.encode message.textMemo
     ++ (Alpha.encode message.reserved32)))))))))))))))))))))))
 
@@ -1431,29 +2773,29 @@ def decode (bytes : List UInt8) : Option (NewOrderRequestMessage × List UInt8) 
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (account, bytes) ← Alpha.decode 16 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (stopOrderTriggerPrice, bytes) ← decodeUIntLE 8 bytes
   let (sizeBinaryU4, bytes) ← decodeUIntLE 4 bytes
   let (orderInstructions, bytes) ← decodeUIntLE 2 bytes
   let (timeInForce, bytes) ← TimeInForce.decode bytes
-  let (orderType, bytes) ← Alpha.decode 1 bytes
+  let (orderType, bytes) ← OrderType.decode bytes
   let (selfTradeProtection, bytes) ← decodeUIntLE 1 bytes
   let (selfTradeProtectionGroup, bytes) ← Alpha.decode 2 bytes
   let (purgeGroup, bytes) ← Alpha.decode 1 bytes
-  let (customerOrderHandlingInstruction, bytes) ← Alpha.decode 1 bytes
+  let (customerOrderHandlingInstruction, bytes) ← CustomerOrderHandlingInstruction.decode bytes
   let (additionalOrderIndicators, bytes) ← decodeUIntLE 1 bytes
   let (minQty, bytes) ← decodeUIntLE 4 bytes
   let (orderExpiryDate, bytes) ← decodeUIntLE 2 bytes
   let (tradingCollarDollarValue, bytes) ← decodeUIntLE 8 bytes
-  let (ctiCode, bytes) ← Alpha.decode 1 bytes
+  let (ctiCode, bytes) ← CtiCode.decode bytes
   let (textMemo, bytes) ← Alpha.decode 20 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ clientSendTime, mpId, operatorId, operatorLocation, account, clientOrderId, instrumentIdBinaryU4, price, stopOrderTriggerPrice, sizeBinaryU4, orderInstructions, timeInForce, orderType, selfTradeProtection, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, minQty, orderExpiryDate, tradingCollarDollarValue, ctiCode, textMemo, reserved32 }, bytes)
+  pure ({ clientSendTime, mpId, operatorId, operatorLocation, account, clientOrderId, instrumentId, price, stopOrderTriggerPrice, sizeBinaryU4, orderInstructions, timeInForce, orderType, selfTradeProtection, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, minQty, orderExpiryDate, tradingCollarDollarValue, ctiCode, textMemo, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : NewOrderRequestMessage) : (encode message).length = 174 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TimeInForce.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TimeInForce.encode_length, OrderType.encode_length, CustomerOrderHandlingInstruction.encode_length, CtiCode.encode_length]
 
 theorem encode_length_pos (message : NewOrderRequestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1486,7 +2828,7 @@ theorem encode_length_pos (message : NewOrderRequestMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, TimeInForce.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, OrderType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -1494,7 +2836,7 @@ theorem encode_length_pos (message : NewOrderRequestMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CustomerOrderHandlingInstruction.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -1504,7 +2846,7 @@ theorem encode_length_pos (message : NewOrderRequestMessage) : (encode message).
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CtiCode.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1521,14 +2863,14 @@ structure ModifyOrderRequestMessage where
   operatorLocation : Alpha 6
   clientOrderId : Alpha 20
   originalClientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   price : BitVec 64
   stopOrderTriggerPrice : BitVec 64
   sizeBinaryS4 : BitVec 32
   orderExpiryDate : BitVec 16
   selfTradeProtectionGroup : Alpha 2
   purgeGroup : Alpha 1
-  customerOrderHandlingInstruction : Alpha 1
+  customerOrderHandlingInstruction : CustomerOrderHandlingInstruction
   additionalOrderIndicators : BitVec 8
   reserved32 : Alpha 32
   deriving DecidableEq, Repr
@@ -1542,14 +2884,14 @@ def encode (message : ModifyOrderRequestMessage) : List UInt8 :=
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.clientOrderId
     ++ (Alpha.encode message.originalClientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 8 message.stopOrderTriggerPrice
     ++ (encodeUIntLE 4 message.sizeBinaryS4
     ++ (encodeUIntLE 2 message.orderExpiryDate
     ++ (Alpha.encode message.selfTradeProtectionGroup
     ++ (Alpha.encode message.purgeGroup
-    ++ (Alpha.encode message.customerOrderHandlingInstruction
+    ++ (CustomerOrderHandlingInstruction.encode message.customerOrderHandlingInstruction
     ++ (encodeUIntLE 1 message.additionalOrderIndicators
     ++ (Alpha.encode message.reserved32)))))))))))))))
 
@@ -1560,21 +2902,21 @@ def decode (bytes : List UInt8) : Option (ModifyOrderRequestMessage × List UInt
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (originalClientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (stopOrderTriggerPrice, bytes) ← decodeUIntLE 8 bytes
   let (sizeBinaryS4, bytes) ← decodeUIntLE 4 bytes
   let (orderExpiryDate, bytes) ← decodeUIntLE 2 bytes
   let (selfTradeProtectionGroup, bytes) ← Alpha.decode 2 bytes
   let (purgeGroup, bytes) ← Alpha.decode 1 bytes
-  let (customerOrderHandlingInstruction, bytes) ← Alpha.decode 1 bytes
+  let (customerOrderHandlingInstruction, bytes) ← CustomerOrderHandlingInstruction.decode bytes
   let (additionalOrderIndicators, bytes) ← decodeUIntLE 1 bytes
   let (reserved32, bytes) ← Alpha.decode 32 bytes
-  pure ({ clientSendTime, mpId, operatorId, operatorLocation, clientOrderId, originalClientOrderId, instrumentIdBinaryU4, price, stopOrderTriggerPrice, sizeBinaryS4, orderExpiryDate, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, reserved32 }, bytes)
+  pure ({ clientSendTime, mpId, operatorId, operatorLocation, clientOrderId, originalClientOrderId, instrumentId, price, stopOrderTriggerPrice, sizeBinaryS4, orderExpiryDate, selfTradeProtectionGroup, purgeGroup, customerOrderHandlingInstruction, additionalOrderIndicators, reserved32 }, bytes)
 
 @[simp] theorem encode_length (message : ModifyOrderRequestMessage) : (encode message).length = 140 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CustomerOrderHandlingInstruction.encode_length]
 
 theorem encode_length_pos (message : ModifyOrderRequestMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1609,7 +2951,7 @@ theorem encode_length_pos (message : ModifyOrderRequestMessage) : (encode messag
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, CustomerOrderHandlingInstruction.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -1627,7 +2969,7 @@ structure CancelOrderRequestMessage where
   orderId : BitVec 64
   clientOrderId : Alpha 20
   originalClientOrderId : Alpha 20
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
@@ -1641,7 +2983,7 @@ def encode (message : CancelOrderRequestMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.orderId
     ++ (Alpha.encode message.clientOrderId
     ++ (Alpha.encode message.originalClientOrderId
-    ++ (encodeUIntLE 4 message.instrumentIdBinaryU4
+    ++ (encodeUIntLE 4 message.instrumentId
     ++ (Alpha.encode message.reserved10))))))))
 
 def decode (bytes : List UInt8) : Option (CancelOrderRequestMessage × List UInt8) := do
@@ -1652,9 +2994,9 @@ def decode (bytes : List UInt8) : Option (CancelOrderRequestMessage × List UInt
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
   let (originalClientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  pure ({ clientSendTime, mpId, operatorId, operatorLocation, orderId, clientOrderId, originalClientOrderId, instrumentIdBinaryU4, reserved10 }, bytes)
+  pure ({ clientSendTime, mpId, operatorId, operatorLocation, orderId, clientOrderId, originalClientOrderId, instrumentId, reserved10 }, bytes)
 
 @[simp] theorem encode_length (message : CancelOrderRequestMessage) : (encode message).length = 99 := by
   unfold encode
@@ -1696,10 +3038,10 @@ structure MassCancelRequest where
   operatorLocation : Alpha 6
   reserved10 : Alpha 10
   clientOrderId : Alpha 20
-  scope : Alpha 1
-  action : Alpha 1
+  scope : Scope
+  action : Action
   productGroupCode : Alpha 6
-  productType : Alpha 1
+  productType : ProductType
   purgeGroup : Alpha 1
   reserved9 : Alpha 9
   deriving DecidableEq, Repr
@@ -1713,10 +3055,10 @@ def encode (message : MassCancelRequest) : List UInt8 :=
     ++ (Alpha.encode message.operatorLocation
     ++ (Alpha.encode message.reserved10
     ++ (Alpha.encode message.clientOrderId
-    ++ (Alpha.encode message.scope
-    ++ (Alpha.encode message.action
+    ++ (Scope.encode message.scope
+    ++ (Action.encode message.action
     ++ (Alpha.encode message.productGroupCode
-    ++ (Alpha.encode message.productType
+    ++ (ProductType.encode message.productType
     ++ (Alpha.encode message.purgeGroup
     ++ (Alpha.encode message.reserved9)))))))))))
 
@@ -1727,17 +3069,17 @@ def decode (bytes : List UInt8) : Option (MassCancelRequest × List UInt8) := do
   let (operatorLocation, bytes) ← Alpha.decode 6 bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  let (scope, bytes) ← Alpha.decode 1 bytes
-  let (action, bytes) ← Alpha.decode 1 bytes
+  let (scope, bytes) ← Scope.decode bytes
+  let (action, bytes) ← Action.decode bytes
   let (productGroupCode, bytes) ← Alpha.decode 6 bytes
-  let (productType, bytes) ← Alpha.decode 1 bytes
+  let (productType, bytes) ← ProductType.decode bytes
   let (purgeGroup, bytes) ← Alpha.decode 1 bytes
   let (reserved9, bytes) ← Alpha.decode 9 bytes
   pure ({ clientSendTime, mpId, operatorId, operatorLocation, reserved10, clientOrderId, scope, action, productGroupCode, productType, purgeGroup, reserved9 }, bytes)
 
 @[simp] theorem encode_length (message : MassCancelRequest) : (encode message).length = 86 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, Scope.encode_length, Action.encode_length, ProductType.encode_length]
 
 theorem encode_length_pos (message : MassCancelRequest) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1758,13 +3100,13 @@ theorem encode_length_pos (message : MassCancelRequest) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, Scope.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Action.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, ProductType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -1775,7 +3117,7 @@ end MassCancelRequest
 
 /-- Strategy Leg: 16 bytes -/
 structure StrategyLeg where
-  instrumentIdBinaryU4 : BitVec 32
+  instrumentId : BitVec 32
   legRatio : BitVec 32
   reserved8 : Alpha 8
   deriving DecidableEq, Repr
@@ -1783,15 +3125,15 @@ structure StrategyLeg where
 namespace StrategyLeg
 
 def encode (message : StrategyLeg) : List UInt8 :=
-  encodeUIntLE 4 message.instrumentIdBinaryU4
+  encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 4 message.legRatio
     ++ (Alpha.encode message.reserved8))
 
 def decode (bytes : List UInt8) : Option (StrategyLeg × List UInt8) := do
-  let (instrumentIdBinaryU4, bytes) ← decodeUIntLE 4 bytes
+  let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (legRatio, bytes) ← decodeUIntLE 4 bytes
   let (reserved8, bytes) ← Alpha.decode 8 bytes
-  pure ({ instrumentIdBinaryU4, legRatio, reserved8 }, bytes)
+  pure ({ instrumentId, legRatio, reserved8 }, bytes)
 
 @[simp] theorem encode_length (message : StrategyLeg) : (encode message).length = 16 := by
   unfold encode

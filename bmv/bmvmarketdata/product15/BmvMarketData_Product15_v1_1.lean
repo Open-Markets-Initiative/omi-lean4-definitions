@@ -1571,7 +1571,7 @@ end WeightedAveragePriceSettlementPricesMessage
 structure CapitalTradesMessage where
   instrumentNumber : BitVec 32
   tradeTime : BitVec 64
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   price : BitVec 64
   concertationType : ConcertationType
   tradeNumber : BitVec 32
@@ -1589,7 +1589,7 @@ namespace CapitalTradesMessage
 def encode (message : CapitalTradesMessage) : List UInt8 :=
   encodeUInt 4 message.instrumentNumber
     ++ (encodeUInt 8 message.tradeTime
-    ++ (encodeUInt 4 message.volumeInt324
+    ++ (encodeUInt 4 message.volume
     ++ (encodeUInt 8 message.price
     ++ (ConcertationType.encode message.concertationType
     ++ (encodeUInt 4 message.tradeNumber
@@ -1604,7 +1604,7 @@ def encode (message : CapitalTradesMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (CapitalTradesMessage × List UInt8) := do
   let (instrumentNumber, bytes) ← decodeUInt 4 bytes
   let (tradeTime, bytes) ← decodeUInt 8 bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
+  let (volume, bytes) ← decodeUInt 4 bytes
   let (price, bytes) ← decodeUInt 8 bytes
   let (concertationType, bytes) ← ConcertationType.decode bytes
   let (tradeNumber, bytes) ← decodeUInt 4 bytes
@@ -1615,7 +1615,7 @@ def decode (bytes : List UInt8) : Option (CapitalTradesMessage × List UInt8) :=
   let (sell, bytes) ← Alpha.decode 5 bytes
   let (settlement, bytes) ← Settlement.decode bytes
   let (auctionIndicator, bytes) ← AuctionIndicator.decode bytes
-  pure ({ instrumentNumber, tradeTime, volumeInt324, price, concertationType, tradeNumber, priceSetter, operationType, amount, buy, sell, settlement, auctionIndicator }, bytes)
+  pure ({ instrumentNumber, tradeTime, volume, price, concertationType, tradeNumber, priceSetter, operationType, amount, buy, sell, settlement, auctionIndicator }, bytes)
 
 @[simp] theorem encode_length (message : CapitalTradesMessage) : (encode message).length = 51 := by
   unfold encode
@@ -1661,7 +1661,7 @@ end CapitalTradesMessage
 structure ProbableAllocationPriceMessage where
   instrumentNumber : BitVec 32
   probableAllocationPrice : BitVec 64
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   deriving DecidableEq, Repr
 
 namespace ProbableAllocationPriceMessage
@@ -1669,13 +1669,13 @@ namespace ProbableAllocationPriceMessage
 def encode (message : ProbableAllocationPriceMessage) : List UInt8 :=
   encodeUInt 4 message.instrumentNumber
     ++ (encodeUInt 8 message.probableAllocationPrice
-    ++ (encodeUInt 4 message.volumeInt324))
+    ++ (encodeUInt 4 message.volume))
 
 def decode (bytes : List UInt8) : Option (ProbableAllocationPriceMessage × List UInt8) := do
   let (instrumentNumber, bytes) ← decodeUInt 4 bytes
   let (probableAllocationPrice, bytes) ← decodeUInt 8 bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
-  pure ({ instrumentNumber, probableAllocationPrice, volumeInt324 }, bytes)
+  let (volume, bytes) ← decodeUInt 4 bytes
+  pure ({ instrumentNumber, probableAllocationPrice, volume }, bytes)
 
 @[simp] theorem encode_length (message : ProbableAllocationPriceMessage) : (encode message).length = 16 := by
   unfold encode
@@ -1926,7 +1926,7 @@ end MutualFundTradesMessage
 structure TradabilityMessage where
   instrumentNumber : BitVec 32
   numberOfOperations : BitVec 32
-  volumeInt648 : BitVec 64
+  volumeLong : BitVec 64
   amount : BitVec 64
   openingPrice : BitVec 64
   maximum : BitVec 64
@@ -1940,7 +1940,7 @@ namespace TradabilityMessage
 def encode (message : TradabilityMessage) : List UInt8 :=
   encodeUInt 4 message.instrumentNumber
     ++ (encodeUInt 4 message.numberOfOperations
-    ++ (encodeUInt 8 message.volumeInt648
+    ++ (encodeUInt 8 message.volumeLong
     ++ (encodeUInt 8 message.amount
     ++ (encodeUInt 8 message.openingPrice
     ++ (encodeUInt 8 message.maximum
@@ -1951,14 +1951,14 @@ def encode (message : TradabilityMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (TradabilityMessage × List UInt8) := do
   let (instrumentNumber, bytes) ← decodeUInt 4 bytes
   let (numberOfOperations, bytes) ← decodeUInt 4 bytes
-  let (volumeInt648, bytes) ← decodeUInt 8 bytes
+  let (volumeLong, bytes) ← decodeUInt 8 bytes
   let (amount, bytes) ← decodeUInt 8 bytes
   let (openingPrice, bytes) ← decodeUInt 8 bytes
   let (maximum, bytes) ← decodeUInt 8 bytes
   let (minimum, bytes) ← decodeUInt 8 bytes
   let (average, bytes) ← decodeUInt 8 bytes
   let (last, bytes) ← decodeUInt 8 bytes
-  pure ({ instrumentNumber, numberOfOperations, volumeInt648, amount, openingPrice, maximum, minimum, average, last }, bytes)
+  pure ({ instrumentNumber, numberOfOperations, volumeLong, amount, openingPrice, maximum, minimum, average, last }, bytes)
 
 @[simp] theorem encode_length (message : TradabilityMessage) : (encode message).length = 64 := by
   unfold encode
@@ -1998,7 +1998,7 @@ structure VirtualTradesMessage where
   virtualTradesStatus : VirtualTradesStatus
   operationType : OperationType
   number : BitVec 32
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   concertation : Concertation
   buy : Alpha 5
   sell : Alpha 5
@@ -2011,7 +2011,7 @@ def encode (message : VirtualTradesMessage) : List UInt8 :=
     ++ (VirtualTradesStatus.encode message.virtualTradesStatus
     ++ (OperationType.encode message.operationType
     ++ (encodeUInt 4 message.number
-    ++ (encodeUInt 4 message.volumeInt324
+    ++ (encodeUInt 4 message.volume
     ++ (Concertation.encode message.concertation
     ++ (Alpha.encode message.buy
     ++ (Alpha.encode message.sell)))))))
@@ -2021,11 +2021,11 @@ def decode (bytes : List UInt8) : Option (VirtualTradesMessage × List UInt8) :=
   let (virtualTradesStatus, bytes) ← VirtualTradesStatus.decode bytes
   let (operationType, bytes) ← OperationType.decode bytes
   let (number, bytes) ← decodeUInt 4 bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
+  let (volume, bytes) ← decodeUInt 4 bytes
   let (concertation, bytes) ← Concertation.decode bytes
   let (buy, bytes) ← Alpha.decode 5 bytes
   let (sell, bytes) ← Alpha.decode 5 bytes
-  pure ({ instrumentNumber, virtualTradesStatus, operationType, number, volumeInt324, concertation, buy, sell }, bytes)
+  pure ({ instrumentNumber, virtualTradesStatus, operationType, number, volume, concertation, buy, sell }, bytes)
 
 @[simp] theorem encode_length (message : VirtualTradesMessage) : (encode message).length = 25 := by
   unfold encode
@@ -2063,7 +2063,7 @@ structure OrderAdditionMessage where
   dateAndTime : BitVec 64
   number : BitVec 32
   direction : Direction
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   price : BitVec 64
   participant : Alpha 5
   deriving DecidableEq, Repr
@@ -2075,7 +2075,7 @@ def encode (message : OrderAdditionMessage) : List UInt8 :=
     ++ (encodeUInt 8 message.dateAndTime
     ++ (encodeUInt 4 message.number
     ++ (Direction.encode message.direction
-    ++ (encodeUInt 4 message.volumeInt324
+    ++ (encodeUInt 4 message.volume
     ++ (encodeUInt 8 message.price
     ++ (Alpha.encode message.participant))))))
 
@@ -2084,10 +2084,10 @@ def decode (bytes : List UInt8) : Option (OrderAdditionMessage × List UInt8) :=
   let (dateAndTime, bytes) ← decodeUInt 8 bytes
   let (number, bytes) ← decodeUInt 4 bytes
   let (direction, bytes) ← Direction.decode bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
+  let (volume, bytes) ← decodeUInt 4 bytes
   let (price, bytes) ← decodeUInt 8 bytes
   let (participant, bytes) ← Alpha.decode 5 bytes
-  pure ({ instrumentNumber, dateAndTime, number, direction, volumeInt324, price, participant }, bytes)
+  pure ({ instrumentNumber, dateAndTime, number, direction, volume, price, participant }, bytes)
 
 @[simp] theorem encode_length (message : OrderAdditionMessage) : (encode message).length = 34 := by
   unfold encode
@@ -2122,7 +2122,7 @@ structure ExecutionOfOrdersMessage where
   instrumentNumber : BitVec 32
   date : BitVec 64
   number : BitVec 32
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   tradeNumber : BitVec 32
   executionPrice : BitVec 64
   deriving DecidableEq, Repr
@@ -2133,7 +2133,7 @@ def encode (message : ExecutionOfOrdersMessage) : List UInt8 :=
   encodeUInt 4 message.instrumentNumber
     ++ (encodeUInt 8 message.date
     ++ (encodeUInt 4 message.number
-    ++ (encodeUInt 4 message.volumeInt324
+    ++ (encodeUInt 4 message.volume
     ++ (encodeUInt 4 message.tradeNumber
     ++ (encodeUInt 8 message.executionPrice)))))
 
@@ -2141,10 +2141,10 @@ def decode (bytes : List UInt8) : Option (ExecutionOfOrdersMessage × List UInt8
   let (instrumentNumber, bytes) ← decodeUInt 4 bytes
   let (date, bytes) ← decodeUInt 8 bytes
   let (number, bytes) ← decodeUInt 4 bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
+  let (volume, bytes) ← decodeUInt 4 bytes
   let (tradeNumber, bytes) ← decodeUInt 4 bytes
   let (executionPrice, bytes) ← decodeUInt 8 bytes
-  pure ({ instrumentNumber, date, number, volumeInt324, tradeNumber, executionPrice }, bytes)
+  pure ({ instrumentNumber, date, number, volume, tradeNumber, executionPrice }, bytes)
 
 @[simp] theorem encode_length (message : ExecutionOfOrdersMessage) : (encode message).length = 32 := by
   unfold encode
@@ -2220,7 +2220,7 @@ structure OrderChangeMessage where
   newDate : BitVec 64
   newNumber : BitVec 32
   direction : Direction
-  volumeInt324 : BitVec 32
+  volume : BitVec 32
   price : BitVec 64
   deriving DecidableEq, Repr
 
@@ -2233,7 +2233,7 @@ def encode (message : OrderChangeMessage) : List UInt8 :=
     ++ (encodeUInt 8 message.newDate
     ++ (encodeUInt 4 message.newNumber
     ++ (Direction.encode message.direction
-    ++ (encodeUInt 4 message.volumeInt324
+    ++ (encodeUInt 4 message.volume
     ++ (encodeUInt 8 message.price)))))))
 
 def decode (bytes : List UInt8) : Option (OrderChangeMessage × List UInt8) := do
@@ -2243,9 +2243,9 @@ def decode (bytes : List UInt8) : Option (OrderChangeMessage × List UInt8) := d
   let (newDate, bytes) ← decodeUInt 8 bytes
   let (newNumber, bytes) ← decodeUInt 4 bytes
   let (direction, bytes) ← Direction.decode bytes
-  let (volumeInt324, bytes) ← decodeUInt 4 bytes
+  let (volume, bytes) ← decodeUInt 4 bytes
   let (price, bytes) ← decodeUInt 8 bytes
-  pure ({ instrumentNumber, originalDate, originalNumber, newDate, newNumber, direction, volumeInt324, price }, bytes)
+  pure ({ instrumentNumber, originalDate, originalNumber, newDate, newNumber, direction, volume, price }, bytes)
 
 @[simp] theorem encode_length (message : OrderChangeMessage) : (encode message).length = 41 := by
   unfold encode

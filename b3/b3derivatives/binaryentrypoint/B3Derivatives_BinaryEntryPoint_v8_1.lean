@@ -2341,7 +2341,7 @@ structure SimpleNewOrderMessage where
   inboundBusinessHeader : InboundBusinessHeader
   ordtagid : BitVec 8
   mmProtectionReset : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   account : BitVec 32
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
@@ -2363,7 +2363,7 @@ def encode (message : SimpleNewOrderMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (encodeUInt 1 message.ordtagid
     ++ (encodeUInt 1 message.mmProtectionReset
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 4 message.account
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
@@ -2382,7 +2382,7 @@ def decode (bytes : List UInt8) : Option (SimpleNewOrderMessage × List UInt8) :
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
   let (mmProtectionReset, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
@@ -2396,7 +2396,7 @@ def decode (bytes : List UInt8) : Option (SimpleNewOrderMessage × List UInt8) :
   let (priceOptional, bytes) ← decodeUIntLE 8 bytes
   let (investorId, bytes) ← InvestorId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clordid, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, simpleOrdtype, timeInForceSimple, routingInstruction, orderQty, priceOptional, investorId, memo }, bytes)
+  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clOrdId, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, simpleOrdtype, timeInForceSimple, routingInstruction, orderQty, priceOptional, investorId, memo }, bytes)
 
 theorem encode_length_pos (message : SimpleNewOrderMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2455,7 +2455,7 @@ structure SimpleModifyOrderMessage where
   inboundBusinessHeader : InboundBusinessHeader
   ordtagid : BitVec 8
   mmProtectionReset : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   account : BitVec 32
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
@@ -2479,7 +2479,7 @@ def encode (message : SimpleModifyOrderMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (encodeUInt 1 message.ordtagid
     ++ (encodeUInt 1 message.mmProtectionReset
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 4 message.account
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
@@ -2500,7 +2500,7 @@ def decode (bytes : List UInt8) : Option (SimpleModifyOrderMessage × List UInt8
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
   let (mmProtectionReset, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
@@ -2516,7 +2516,7 @@ def decode (bytes : List UInt8) : Option (SimpleModifyOrderMessage × List UInt8
   let (origclordid, bytes) ← decodeUIntLE 8 bytes
   let (investorId, bytes) ← InvestorId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clordid, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, simpleOrdtype, timeInForceSimple, routingInstruction, orderQty, priceOptional, orderIdOptional, origclordid, investorId, memo }, bytes)
+  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clOrdId, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, simpleOrdtype, timeInForceSimple, routingInstruction, orderQty, priceOptional, orderIdOptional, origclordid, investorId, memo }, bytes)
 
 theorem encode_length_pos (message : SimpleModifyOrderMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2661,7 +2661,7 @@ structure NewOrderSingleMessage where
   inboundBusinessHeader : InboundBusinessHeader
   ordtagid : BitVec 8
   mmProtectionReset : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   account : BitVec 32
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
@@ -2691,7 +2691,7 @@ def encode (message : NewOrderSingleMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (encodeUInt 1 message.ordtagid
     ++ (encodeUInt 1 message.mmProtectionReset
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 4 message.account
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
@@ -2720,7 +2720,7 @@ def decode (bytes : List UInt8) : Option (NewOrderSingleMessage × List UInt8) :
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
   let (mmProtectionReset, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
@@ -2742,7 +2742,7 @@ def decode (bytes : List UInt8) : Option (NewOrderSingleMessage × List UInt8) :
   let (strategyId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clordid, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, ordtype, timeInForce, routingInstruction, orderQty, priceOptional, stopPx, minQty, maxFloor, executingTraderOptional, expireDate, custodianInfo, investorId, strategyId, deskId, memo }, bytes)
+  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clOrdId, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, ordtype, timeInForce, routingInstruction, orderQty, priceOptional, stopPx, minQty, maxFloor, executingTraderOptional, expireDate, custodianInfo, investorId, strategyId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : NewOrderSingleMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2819,7 +2819,7 @@ structure OrderCancelReplaceRequestMessage where
   inboundBusinessHeader : InboundBusinessHeader
   ordtagid : BitVec 8
   mmProtectionReset : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   account : BitVec 32
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
@@ -2852,7 +2852,7 @@ def encode (message : OrderCancelReplaceRequestMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (encodeUInt 1 message.ordtagid
     ++ (encodeUInt 1 message.mmProtectionReset
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 4 message.account
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
@@ -2884,7 +2884,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelReplaceRequestMessage × Li
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
   let (mmProtectionReset, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
@@ -2909,7 +2909,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelReplaceRequestMessage × Li
   let (strategyId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clordid, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, ordtype, timeInForceOptional, routingInstruction, orderQty, priceOptional, orderIdOptional, origclordid, stopPx, minQty, maxFloor, executingTraderOptional, accountType, expireDate, custodianInfo, investorId, strategyId, deskId, memo }, bytes)
+  pure ({ inboundBusinessHeader, ordtagid, mmProtectionReset, clOrdId, account, senderLocation, enteringTrader, selfTradePreventionInstruction, securityId, side, ordtype, timeInForceOptional, routingInstruction, orderQty, priceOptional, orderIdOptional, origclordid, stopPx, minQty, maxFloor, executingTraderOptional, accountType, expireDate, custodianInfo, investorId, strategyId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : OrderCancelReplaceRequestMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2991,7 +2991,7 @@ end OrderCancelReplaceRequestMessage
 structure OrderCancelRequestMessage where
   inboundBusinessHeader : InboundBusinessHeader
   offset18Padding2 : Alpha 2
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   securityId : BitVec 64
   orderIdOptional : BitVec 64
   origclordid : BitVec 64
@@ -3010,7 +3010,7 @@ namespace OrderCancelRequestMessage
 def encode (message : OrderCancelRequestMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (Alpha.encode message.offset18Padding2
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 8 message.orderIdOptional
     ++ (encodeUIntLE 8 message.origclordid
@@ -3026,7 +3026,7 @@ def encode (message : OrderCancelRequestMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (OrderCancelRequestMessage × List UInt8) := do
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (offset18Padding2, bytes) ← Alpha.decode 2 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (orderIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (origclordid, bytes) ← decodeUIntLE 8 bytes
@@ -3038,7 +3038,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelRequestMessage × List UInt
   let (executingTraderOptional, bytes) ← Alpha.decode 5 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, offset18Padding2, clordid, securityId, orderIdOptional, origclordid, side, singleCancelRestatementReason, offset54Padding2, senderLocation, enteringTrader, executingTraderOptional, deskId, memo }, bytes)
+  pure ({ inboundBusinessHeader, offset18Padding2, clOrdId, securityId, orderIdOptional, origclordid, side, singleCancelRestatementReason, offset54Padding2, senderLocation, enteringTrader, executingTraderOptional, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : OrderCancelRequestMessage) : (encode message).length > 0 := by
   unfold encode
@@ -3093,7 +3093,7 @@ structure CrossSidesGroup where
   offset1Padding1 : Alpha 1
   account : BitVec 32
   enteringFirmOptional : BitVec 32
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   deriving DecidableEq, Repr
 
 namespace CrossSidesGroup
@@ -3103,15 +3103,15 @@ def encode (message : CrossSidesGroup) : List UInt8 :=
     ++ (Alpha.encode message.offset1Padding1
     ++ (encodeUIntLE 4 message.account
     ++ (encodeUIntLE 4 message.enteringFirmOptional
-    ++ (encodeUIntLE 8 message.clordid))))
+    ++ (encodeUIntLE 8 message.clOrdId))))
 
 def decode (bytes : List UInt8) : Option (CrossSidesGroup × List UInt8) := do
   let (side, bytes) ← Side.decode bytes
   let (offset1Padding1, bytes) ← Alpha.decode 1 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
   let (enteringFirmOptional, bytes) ← decodeUIntLE 4 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
-  pure ({ side, offset1Padding1, account, enteringFirmOptional, clordid }, bytes)
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
+  pure ({ side, offset1Padding1, account, enteringFirmOptional, clOrdId }, bytes)
 
 @[simp] theorem encode_length (message : CrossSidesGroup) : (encode message).length = 18 := by
   unfold encode
@@ -3188,7 +3188,7 @@ end CrossSidesGroups
 structure NewOrderCrossMessage where
   inboundBusinessHeader : InboundBusinessHeader
   offset18Padding2 : Alpha 2
-  crossid : BitVec 64
+  crossId : BitVec 64
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
   executingTraderOptional : Alpha 5
@@ -3209,7 +3209,7 @@ namespace NewOrderCrossMessage
 def encode (message : NewOrderCrossMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (Alpha.encode message.offset18Padding2
-    ++ (encodeUIntLE 8 message.crossid
+    ++ (encodeUIntLE 8 message.crossId
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
     ++ (Alpha.encode message.executingTraderOptional
@@ -3227,7 +3227,7 @@ def encode (message : NewOrderCrossMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (NewOrderCrossMessage × List UInt8) := do
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (offset18Padding2, bytes) ← Alpha.decode 2 bytes
-  let (crossid, bytes) ← decodeUIntLE 8 bytes
+  let (crossId, bytes) ← decodeUIntLE 8 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
   let (executingTraderOptional, bytes) ← Alpha.decode 5 bytes
@@ -3241,7 +3241,7 @@ def decode (bytes : List UInt8) : Option (NewOrderCrossMessage × List UInt8) :=
   let (crossSidesGroups, bytes) ← CrossSidesGroups.decode bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ inboundBusinessHeader, offset18Padding2, crossid, senderLocation, enteringTrader, executingTraderOptional, securityId, orderQty, price, crossedIndicator, crossType, crossPrioritization, maxSweepQty, crossSidesGroups, deskId, memo }, bytes)
+  pure ({ inboundBusinessHeader, offset18Padding2, crossId, senderLocation, enteringTrader, executingTraderOptional, securityId, orderQty, price, crossedIndicator, crossType, crossPrioritization, maxSweepQty, crossSidesGroups, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : NewOrderCrossMessage) : (encode message).length > 0 := by
   unfold encode
@@ -3350,7 +3350,7 @@ structure ExecutionReportNewMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   ordStatus : OrdStatus
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   secondaryOrderId : BitVec 64
   securityId : BitVec 64
   orderId : BitVec 64
@@ -3370,7 +3370,7 @@ structure ExecutionReportNewMessage where
   stopPx : BitVec 64
   minQty : BitVec 64
   maxFloor : BitVec 64
-  crossidOptional : BitVec 64
+  crossIdOptional : BitVec 64
   receivedTime : BitVec 64
   offset152Padding3 : Alpha 3
   ordtagid : BitVec 8
@@ -3390,7 +3390,7 @@ def encode (message : ExecutionReportNewMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (OrdStatus.encode message.ordStatus
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 8 message.orderId
@@ -3410,7 +3410,7 @@ def encode (message : ExecutionReportNewMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.stopPx
     ++ (encodeUIntLE 8 message.minQty
     ++ (encodeUIntLE 8 message.maxFloor
-    ++ (encodeUIntLE 8 message.crossidOptional
+    ++ (encodeUIntLE 8 message.crossIdOptional
     ++ (encodeUIntLE 8 message.receivedTime
     ++ (Alpha.encode message.offset152Padding3
     ++ (encodeUInt 1 message.ordtagid
@@ -3429,7 +3429,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportNewMessage × List UInt
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (ordStatus, bytes) ← OrdStatus.decode bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
@@ -3449,7 +3449,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportNewMessage × List UInt
   let (stopPx, bytes) ← decodeUIntLE 8 bytes
   let (minQty, bytes) ← decodeUIntLE 8 bytes
   let (maxFloor, bytes) ← decodeUIntLE 8 bytes
-  let (crossidOptional, bytes) ← decodeUIntLE 8 bytes
+  let (crossIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (receivedTime, bytes) ← decodeUIntLE 8 bytes
   let (offset152Padding3, bytes) ← Alpha.decode 3 bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
@@ -3461,7 +3461,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportNewMessage × List UInt
   let (strategyId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ outboundBusinessHeader, side, ordStatus, clordid, secondaryOrderId, securityId, orderId, account, execId, transactTime, marketSegmentReceivedTime, protectionPrice, tradeDate, workingIndicator, multiLegReportingType, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, crossidOptional, receivedTime, offset152Padding3, ordtagid, investorId, crossType, crossPrioritization, mmProtectionResetOptional, offset167Padding1, strategyId, deskId, memo }, bytes)
+  pure ({ outboundBusinessHeader, side, ordStatus, clOrdId, secondaryOrderId, securityId, orderId, account, execId, transactTime, marketSegmentReceivedTime, protectionPrice, tradeDate, workingIndicator, multiLegReportingType, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, crossIdOptional, receivedTime, offset152Padding3, ordtagid, investorId, crossType, crossPrioritization, mmProtectionResetOptional, offset167Padding1, strategyId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportNewMessage) : (encode message).length > 0 := by
   unfold encode
@@ -3558,7 +3558,7 @@ structure ExecutionReportModifyMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   ordStatus : OrdStatus
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   secondaryOrderId : BitVec 64
   securityId : BitVec 64
   leavesQty : BitVec 64
@@ -3598,7 +3598,7 @@ def encode (message : ExecutionReportModifyMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (OrdStatus.encode message.ordStatus
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 8 message.leavesQty
@@ -3637,7 +3637,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportModifyMessage × List U
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (ordStatus, bytes) ← OrdStatus.decode bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (leavesQty, bytes) ← decodeUIntLE 8 bytes
@@ -3669,7 +3669,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportModifyMessage × List U
   let (strategyId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ outboundBusinessHeader, side, ordStatus, clordid, secondaryOrderId, securityId, leavesQty, account, execId, transactTime, cumQty, marketSegmentReceivedTime, orderId, origclordid, protectionPrice, tradeDate, workingIndicator, multiLegReportingType, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, receivedTime, offset168Padding3, ordtagid, investorId, mmProtectionResetOptional, offset181Padding1, strategyId, deskId, memo }, bytes)
+  pure ({ outboundBusinessHeader, side, ordStatus, clOrdId, secondaryOrderId, securityId, leavesQty, account, execId, transactTime, cumQty, marketSegmentReceivedTime, orderId, origclordid, protectionPrice, tradeDate, workingIndicator, multiLegReportingType, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, receivedTime, offset168Padding3, ordtagid, investorId, mmProtectionResetOptional, offset181Padding1, strategyId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportModifyMessage) : (encode message).length > 0 := by
   unfold encode
@@ -3766,7 +3766,7 @@ structure ExecutionReportCancelMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   ordStatus : OrdStatus
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   secondaryOrderId : BitVec 64
   securityId : BitVec 64
   cumQty : BitVec 64
@@ -3805,7 +3805,7 @@ def encode (message : ExecutionReportCancelMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (OrdStatus.encode message.ordStatus
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 8 message.cumQty
@@ -3843,7 +3843,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportCancelMessage × List U
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (ordStatus, bytes) ← OrdStatus.decode bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (cumQty, bytes) ← decodeUIntLE 8 bytes
@@ -3874,7 +3874,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportCancelMessage × List U
   let (actionRequestedFromSessionId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ outboundBusinessHeader, side, ordStatus, clordid, secondaryOrderId, securityId, cumQty, account, execId, transactTime, marketSegmentReceivedTime, orderId, origclordid, tradeDate, workingIndicator, execRestatementReason, offset100Padding4, massActionReportIdOptional, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, receivedTime, offset164Padding3, ordtagid, investorId, strategyId, actionRequestedFromSessionId, deskId, memo }, bytes)
+  pure ({ outboundBusinessHeader, side, ordStatus, clOrdId, secondaryOrderId, securityId, cumQty, account, execId, transactTime, marketSegmentReceivedTime, orderId, origclordid, tradeDate, workingIndicator, execRestatementReason, offset100Padding4, massActionReportIdOptional, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, receivedTime, offset164Padding3, ordtagid, investorId, strategyId, actionRequestedFromSessionId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportCancelMessage) : (encode message).length > 0 := by
   unfold encode
@@ -3969,7 +3969,7 @@ structure ExecutionReportTradeMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   ordStatus : OrdStatus
-  clordidOptional : BitVec 64
+  clOrdIdOptional : BitVec 64
   secondaryOrderId : BitVec 64
   securityId : BitVec 64
   account : BitVec 32
@@ -3991,7 +3991,7 @@ structure ExecutionReportTradeMessage where
   offset119Padding1 : Alpha 1
   secondaryExecId : BitVec 64
   execRefId : BitVec 64
-  crossidOptional : BitVec 64
+  crossIdOptional : BitVec 64
   crossedIndicator : BitVec 16
   orderQty : BitVec 64
   tradingSessionId : BitVec 8
@@ -4011,7 +4011,7 @@ def encode (message : ExecutionReportTradeMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (OrdStatus.encode message.ordStatus
-    ++ (encodeUIntLE 8 message.clordidOptional
+    ++ (encodeUIntLE 8 message.clOrdIdOptional
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 4 message.account
@@ -4033,7 +4033,7 @@ def encode (message : ExecutionReportTradeMessage) : List UInt8 :=
     ++ (Alpha.encode message.offset119Padding1
     ++ (encodeUIntLE 8 message.secondaryExecId
     ++ (encodeUIntLE 8 message.execRefId
-    ++ (encodeUIntLE 8 message.crossidOptional
+    ++ (encodeUIntLE 8 message.crossIdOptional
     ++ (encodeUIntLE 2 message.crossedIndicator
     ++ (encodeUIntLE 8 message.orderQty
     ++ (encodeUInt 1 message.tradingSessionId
@@ -4052,7 +4052,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportTradeMessage × List UI
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (ordStatus, bytes) ← OrdStatus.decode bytes
-  let (clordidOptional, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
@@ -4074,7 +4074,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportTradeMessage × List UI
   let (offset119Padding1, bytes) ← Alpha.decode 1 bytes
   let (secondaryExecId, bytes) ← decodeUIntLE 8 bytes
   let (execRefId, bytes) ← decodeUIntLE 8 bytes
-  let (crossidOptional, bytes) ← decodeUIntLE 8 bytes
+  let (crossIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (crossedIndicator, bytes) ← decodeUIntLE 2 bytes
   let (orderQty, bytes) ← decodeUIntLE 8 bytes
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
@@ -4086,7 +4086,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportTradeMessage × List UI
   let (strategyId, bytes) ← decodeUIntLE 4 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ outboundBusinessHeader, side, ordStatus, clordidOptional, secondaryOrderId, securityId, account, lastQty, lastPx, execId, transactTime, leavesQty, cumQty, aggressorIndicator, execType, orderCategory, multiLegReportingType, tradeId, contraBroker, orderId, tradeDate, totNoRelatedSym, offset119Padding1, secondaryExecId, execRefId, crossidOptional, crossedIndicator, orderQty, tradingSessionId, tradingSessionSubId, securityTradingStatus, crossType, crossPrioritization, offset159Padding1, strategyId, deskId, memo }, bytes)
+  pure ({ outboundBusinessHeader, side, ordStatus, clOrdIdOptional, secondaryOrderId, securityId, account, lastQty, lastPx, execId, transactTime, leavesQty, cumQty, aggressorIndicator, execType, orderCategory, multiLegReportingType, tradeId, contraBroker, orderId, tradeDate, totNoRelatedSym, offset119Padding1, secondaryExecId, execRefId, crossIdOptional, crossedIndicator, orderQty, tradingSessionId, tradingSessionSubId, securityTradingStatus, crossType, crossPrioritization, offset159Padding1, strategyId, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportTradeMessage) : (encode message).length > 0 := by
   unfold encode
@@ -4229,7 +4229,7 @@ structure ExecutionReportRejectMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   cxlRejResponseTo : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   secondaryOrderIdOptional : BitVec 64
   securityId : BitVec 64
   ordRejReason : BitVec 32
@@ -4246,7 +4246,7 @@ structure ExecutionReportRejectMessage where
   stopPx : BitVec 64
   minQty : BitVec 64
   maxFloor : BitVec 64
-  crossidOptional : BitVec 64
+  crossIdOptional : BitVec 64
   crossedIndicator : BitVec 16
   receivedTime : BitVec 64
   offset146Padding3 : Alpha 3
@@ -4264,7 +4264,7 @@ def encode (message : ExecutionReportRejectMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (encodeUInt 1 message.cxlRejResponseTo
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.secondaryOrderIdOptional
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 4 message.ordRejReason
@@ -4281,7 +4281,7 @@ def encode (message : ExecutionReportRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.stopPx
     ++ (encodeUIntLE 8 message.minQty
     ++ (encodeUIntLE 8 message.maxFloor
-    ++ (encodeUIntLE 8 message.crossidOptional
+    ++ (encodeUIntLE 8 message.crossIdOptional
     ++ (encodeUIntLE 2 message.crossedIndicator
     ++ (encodeUIntLE 8 message.receivedTime
     ++ (Alpha.encode message.offset146Padding3
@@ -4298,7 +4298,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportRejectMessage × List U
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (cxlRejResponseTo, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (ordRejReason, bytes) ← decodeUIntLE 4 bytes
@@ -4315,7 +4315,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportRejectMessage × List U
   let (stopPx, bytes) ← decodeUIntLE 8 bytes
   let (minQty, bytes) ← decodeUIntLE 8 bytes
   let (maxFloor, bytes) ← decodeUIntLE 8 bytes
-  let (crossidOptional, bytes) ← decodeUIntLE 8 bytes
+  let (crossIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (crossedIndicator, bytes) ← decodeUIntLE 2 bytes
   let (receivedTime, bytes) ← decodeUIntLE 8 bytes
   let (offset146Padding3, bytes) ← Alpha.decode 3 bytes
@@ -4325,7 +4325,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportRejectMessage × List U
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
   let (text, bytes) ← Text.decode bytes
-  pure ({ outboundBusinessHeader, side, cxlRejResponseTo, clordid, secondaryOrderIdOptional, securityId, ordRejReason, transactTime, execId, orderIdOptional, origclordid, account, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, crossidOptional, crossedIndicator, receivedTime, offset146Padding3, ordtagid, investorId, strategyId, deskId, memo, text }, bytes)
+  pure ({ outboundBusinessHeader, side, cxlRejResponseTo, clOrdId, secondaryOrderIdOptional, securityId, ordRejReason, transactTime, execId, orderIdOptional, origclordid, account, ordtype, timeInForce, expireDate, orderQty, priceOptional, stopPx, minQty, maxFloor, crossIdOptional, crossedIndicator, receivedTime, offset146Padding3, ordtagid, investorId, strategyId, deskId, memo, text }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -4413,7 +4413,7 @@ structure ExecutionReportForwardMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   side : Side
   ordStatus : OrdStatus
-  clordidOptional : BitVec 64
+  clOrdIdOptional : BitVec 64
   secondaryOrderId : BitVec 64
   securityId : BitVec 64
   account : BitVec 32
@@ -4433,7 +4433,7 @@ structure ExecutionReportForwardMessage where
   offset118Padding2 : Alpha 2
   secondaryExecId : BitVec 64
   execRefId : BitVec 64
-  fixedRatePercentage8Optional : BitVec 64
+  fixedRateOptional : BitVec 64
   orderQty : BitVec 64
   tradingSessionId : BitVec 8
   tradingSessionSubId : BitVec 8
@@ -4448,7 +4448,7 @@ def encode (message : ExecutionReportForwardMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (Side.encode message.side
     ++ (OrdStatus.encode message.ordStatus
-    ++ (encodeUIntLE 8 message.clordidOptional
+    ++ (encodeUIntLE 8 message.clOrdIdOptional
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.securityId
     ++ (encodeUIntLE 4 message.account
@@ -4468,7 +4468,7 @@ def encode (message : ExecutionReportForwardMessage) : List UInt8 :=
     ++ (Alpha.encode message.offset118Padding2
     ++ (encodeUIntLE 8 message.secondaryExecId
     ++ (encodeUIntLE 8 message.execRefId
-    ++ (encodeUIntLE 8 message.fixedRatePercentage8Optional
+    ++ (encodeUIntLE 8 message.fixedRateOptional
     ++ (encodeUIntLE 8 message.orderQty
     ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUInt 1 message.tradingSessionSubId
@@ -4482,7 +4482,7 @@ def decode (bytes : List UInt8) : Option (ExecutionReportForwardMessage × List 
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (side, bytes) ← Side.decode bytes
   let (ordStatus, bytes) ← OrdStatus.decode bytes
-  let (clordidOptional, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 8 bytes
   let (account, bytes) ← decodeUIntLE 4 bytes
@@ -4502,14 +4502,14 @@ def decode (bytes : List UInt8) : Option (ExecutionReportForwardMessage × List 
   let (offset118Padding2, bytes) ← Alpha.decode 2 bytes
   let (secondaryExecId, bytes) ← decodeUIntLE 8 bytes
   let (execRefId, bytes) ← decodeUIntLE 8 bytes
-  let (fixedRatePercentage8Optional, bytes) ← decodeUIntLE 8 bytes
+  let (fixedRateOptional, bytes) ← decodeUIntLE 8 bytes
   let (orderQty, bytes) ← decodeUIntLE 8 bytes
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (tradingSessionSubId, bytes) ← decodeUInt 1 bytes
   let (securityTradingStatus, bytes) ← decodeUInt 1 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ outboundBusinessHeader, side, ordStatus, clordidOptional, secondaryOrderId, securityId, account, lastQty, lastPx, execId, transactTime, leavesQty, cumQty, tradeId, contraBroker, orderId, aggressorIndicator, settlTypeOptional, tradeDate, daysToSettlementOptional, offset118Padding2, secondaryExecId, execRefId, fixedRatePercentage8Optional, orderQty, tradingSessionId, tradingSessionSubId, securityTradingStatus, deskId, memo }, bytes)
+  pure ({ outboundBusinessHeader, side, ordStatus, clOrdIdOptional, secondaryOrderId, securityId, account, lastQty, lastPx, execId, transactTime, leavesQty, cumQty, tradeId, contraBroker, orderId, aggressorIndicator, settlTypeOptional, tradeDate, daysToSettlementOptional, offset118Padding2, secondaryExecId, execRefId, fixedRateOptional, orderQty, tradingSessionId, tradingSessionSubId, securityTradingStatus, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : ExecutionReportForwardMessage) : (encode message).length > 0 := by
   unfold encode
@@ -5035,7 +5035,7 @@ structure QuoteRequestMessage where
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
   executingTrader : Alpha 5
-  fixedRatePercentage8 : BitVec 64
+  fixedRate : BitVec 64
   daysToSettlement : BitVec 16
   sidesGroups : SidesGroups
   deskId : DeskId
@@ -5059,7 +5059,7 @@ def encode (message : QuoteRequestMessage) : List UInt8 :=
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
     ++ (Alpha.encode message.executingTrader
-    ++ (encodeUIntLE 8 message.fixedRatePercentage8
+    ++ (encodeUIntLE 8 message.fixedRate
     ++ (encodeUIntLE 2 message.daysToSettlement
     ++ (SidesGroups.encode message.sidesGroups
     ++ (DeskId.encode message.deskId
@@ -5080,12 +5080,12 @@ def decode (bytes : List UInt8) : Option (QuoteRequestMessage × List UInt8) := 
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
   let (executingTrader, bytes) ← Alpha.decode 5 bytes
-  let (fixedRatePercentage8, bytes) ← decodeUIntLE 8 bytes
+  let (fixedRate, bytes) ← decodeUIntLE 8 bytes
   let (daysToSettlement, bytes) ← decodeUIntLE 2 bytes
   let (sidesGroups, bytes) ← SidesGroups.decode bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ bidirectionalBusinessHeader, securityId, quoteReqId, quoteIdOptional, tradeIdOptional, contraBroker, transactTime, price8, settlType, executeUnderlyingTrade, orderQty, senderLocation, enteringTrader, executingTrader, fixedRatePercentage8, daysToSettlement, sidesGroups, deskId, memo }, bytes)
+  pure ({ bidirectionalBusinessHeader, securityId, quoteReqId, quoteIdOptional, tradeIdOptional, contraBroker, transactTime, price8, settlType, executeUnderlyingTrade, orderQty, senderLocation, enteringTrader, executingTrader, fixedRate, daysToSettlement, sidesGroups, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : QuoteRequestMessage) : (encode message).length > 0 := by
   unfold encode
@@ -5165,7 +5165,7 @@ structure QuoteStatusReportMessage where
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
   executingTrader : Alpha 5
-  fixedRatePercentage8Optional : BitVec 64
+  fixedRateOptional : BitVec 64
   executeUnderlyingTrade : ExecuteUnderlyingTrade
   daysToSettlementOptional : BitVec 16
   deskId : DeskId
@@ -5194,7 +5194,7 @@ def encode (message : QuoteStatusReportMessage) : List UInt8 :=
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
     ++ (Alpha.encode message.executingTrader
-    ++ (encodeUIntLE 8 message.fixedRatePercentage8Optional
+    ++ (encodeUIntLE 8 message.fixedRateOptional
     ++ (ExecuteUnderlyingTrade.encode message.executeUnderlyingTrade
     ++ (encodeUIntLE 2 message.daysToSettlementOptional
     ++ (DeskId.encode message.deskId
@@ -5220,13 +5220,13 @@ def decode (bytes : List UInt8) : Option (QuoteStatusReportMessage × List UInt8
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
   let (executingTrader, bytes) ← Alpha.decode 5 bytes
-  let (fixedRatePercentage8Optional, bytes) ← decodeUIntLE 8 bytes
+  let (fixedRateOptional, bytes) ← decodeUIntLE 8 bytes
   let (executeUnderlyingTrade, bytes) ← ExecuteUnderlyingTrade.decode bytes
   let (daysToSettlementOptional, bytes) ← decodeUIntLE 2 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
   let (text, bytes) ← Text.decode bytes
-  pure ({ bidirectionalBusinessHeader, quoteRejectReason, securityId, quoteReqId, quoteId, tradeIdOptional, contraBroker, transactTime, quoteStatus, quoteStatusResponseTo, account, sideOptional, settlTypeOptional, price8Optional, orderQty, senderLocation, enteringTrader, executingTrader, fixedRatePercentage8Optional, executeUnderlyingTrade, daysToSettlementOptional, deskId, memo, text }, bytes)
+  pure ({ bidirectionalBusinessHeader, quoteRejectReason, securityId, quoteReqId, quoteId, tradeIdOptional, contraBroker, transactTime, quoteStatus, quoteStatusResponseTo, account, sideOptional, settlTypeOptional, price8Optional, orderQty, senderLocation, enteringTrader, executingTrader, fixedRateOptional, executeUnderlyingTrade, daysToSettlementOptional, deskId, memo, text }, bytes)
 
 theorem encode_length_pos (message : QuoteStatusReportMessage) : (encode message).length > 0 := by
   unfold encode
@@ -5311,7 +5311,7 @@ structure QuoteMessage where
   senderLocation : Alpha 10
   enteringTrader : Alpha 5
   executingTrader : Alpha 5
-  fixedRatePercentage8 : BitVec 64
+  fixedRate : BitVec 64
   executeUnderlyingTrade : ExecuteUnderlyingTrade
   daysToSettlement : BitVec 16
   deskId : DeskId
@@ -5334,7 +5334,7 @@ def encode (message : QuoteMessage) : List UInt8 :=
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.enteringTrader
     ++ (Alpha.encode message.executingTrader
-    ++ (encodeUIntLE 8 message.fixedRatePercentage8
+    ++ (encodeUIntLE 8 message.fixedRate
     ++ (ExecuteUnderlyingTrade.encode message.executeUnderlyingTrade
     ++ (encodeUIntLE 2 message.daysToSettlement
     ++ (DeskId.encode message.deskId
@@ -5354,12 +5354,12 @@ def decode (bytes : List UInt8) : Option (QuoteMessage × List UInt8) := do
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (enteringTrader, bytes) ← Alpha.decode 5 bytes
   let (executingTrader, bytes) ← Alpha.decode 5 bytes
-  let (fixedRatePercentage8, bytes) ← decodeUIntLE 8 bytes
+  let (fixedRate, bytes) ← decodeUIntLE 8 bytes
   let (executeUnderlyingTrade, bytes) ← ExecuteUnderlyingTrade.decode bytes
   let (daysToSettlement, bytes) ← decodeUIntLE 2 bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
-  pure ({ bidirectionalBusinessHeader, securityId, quoteReqId, quoteId, transactTime, price8Optional, orderQty, side, settlType, account, senderLocation, enteringTrader, executingTrader, fixedRatePercentage8, executeUnderlyingTrade, daysToSettlement, deskId, memo }, bytes)
+  pure ({ bidirectionalBusinessHeader, securityId, quoteReqId, quoteId, transactTime, price8Optional, orderQty, side, settlType, account, senderLocation, enteringTrader, executingTrader, fixedRate, executeUnderlyingTrade, daysToSettlement, deskId, memo }, bytes)
 
 theorem encode_length_pos (message : QuoteMessage) : (encode message).length > 0 := by
   unfold encode
@@ -5512,7 +5512,7 @@ structure QuoteRequestRejectMessage where
   orderQtyOptional : BitVec 64
   senderLocation : Alpha 10
   executingTrader : Alpha 5
-  fixedRatePercentage8Optional : BitVec 64
+  fixedRateOptional : BitVec 64
   daysToSettlementOptional : BitVec 16
   sidesGroups : SidesGroups
   deskId : DeskId
@@ -5537,7 +5537,7 @@ def encode (message : QuoteRequestRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.orderQtyOptional
     ++ (Alpha.encode message.senderLocation
     ++ (Alpha.encode message.executingTrader
-    ++ (encodeUIntLE 8 message.fixedRatePercentage8Optional
+    ++ (encodeUIntLE 8 message.fixedRateOptional
     ++ (encodeUIntLE 2 message.daysToSettlementOptional
     ++ (SidesGroups.encode message.sidesGroups
     ++ (DeskId.encode message.deskId
@@ -5559,13 +5559,13 @@ def decode (bytes : List UInt8) : Option (QuoteRequestRejectMessage × List UInt
   let (orderQtyOptional, bytes) ← decodeUIntLE 8 bytes
   let (senderLocation, bytes) ← Alpha.decode 10 bytes
   let (executingTrader, bytes) ← Alpha.decode 5 bytes
-  let (fixedRatePercentage8Optional, bytes) ← decodeUIntLE 8 bytes
+  let (fixedRateOptional, bytes) ← decodeUIntLE 8 bytes
   let (daysToSettlementOptional, bytes) ← decodeUIntLE 2 bytes
   let (sidesGroups, bytes) ← SidesGroups.decode bytes
   let (deskId, bytes) ← DeskId.decode bytes
   let (memo, bytes) ← Memo.decode bytes
   let (text, bytes) ← Text.decode bytes
-  pure ({ bidirectionalBusinessHeader, quoteRequestRejectReason, securityId, quoteReqId, quoteIdOptional, tradeIdOptional, contraBroker, transactTime, enteringTrader, settlTypeOptional, price8Optional, orderQtyOptional, senderLocation, executingTrader, fixedRatePercentage8Optional, daysToSettlementOptional, sidesGroups, deskId, memo, text }, bytes)
+  pure ({ bidirectionalBusinessHeader, quoteRequestRejectReason, securityId, quoteReqId, quoteIdOptional, tradeIdOptional, contraBroker, transactTime, enteringTrader, settlTypeOptional, price8Optional, orderQtyOptional, senderLocation, executingTrader, fixedRateOptional, daysToSettlementOptional, sidesGroups, deskId, memo, text }, bytes)
 
 theorem encode_length_pos (message : QuoteRequestRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -6222,7 +6222,7 @@ structure OrderMassActionRequestMessage where
   inboundBusinessHeader : InboundBusinessHeader
   massActionType : BitVec 8
   massActionScope : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   massCancelRestatementReason : BitVec 8
   ordtagid : BitVec 8
   sideOptional : SideOptional
@@ -6238,7 +6238,7 @@ def encode (message : OrderMassActionRequestMessage) : List UInt8 :=
   InboundBusinessHeader.encode message.inboundBusinessHeader
     ++ (encodeUInt 1 message.massActionType
     ++ (encodeUInt 1 message.massActionScope
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUInt 1 message.massCancelRestatementReason
     ++ (encodeUInt 1 message.ordtagid
     ++ (SideOptional.encode message.sideOptional
@@ -6251,7 +6251,7 @@ def decode (bytes : List UInt8) : Option (OrderMassActionRequestMessage × List 
   let (inboundBusinessHeader, bytes) ← InboundBusinessHeader.decode bytes
   let (massActionType, bytes) ← decodeUInt 1 bytes
   let (massActionScope, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (massCancelRestatementReason, bytes) ← decodeUInt 1 bytes
   let (ordtagid, bytes) ← decodeUInt 1 bytes
   let (sideOptional, bytes) ← SideOptional.decode bytes
@@ -6259,7 +6259,7 @@ def decode (bytes : List UInt8) : Option (OrderMassActionRequestMessage × List 
   let (asset, bytes) ← Alpha.decode 6 bytes
   let (securityIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (investorId, bytes) ← InvestorId.decode bytes
-  pure ({ inboundBusinessHeader, massActionType, massActionScope, clordid, massCancelRestatementReason, ordtagid, sideOptional, offset31Padding1, asset, securityIdOptional, investorId }, bytes)
+  pure ({ inboundBusinessHeader, massActionType, massActionScope, clOrdId, massCancelRestatementReason, ordtagid, sideOptional, offset31Padding1, asset, securityIdOptional, investorId }, bytes)
 
 @[simp] theorem encode_length (message : OrderMassActionRequestMessage) : (encode message).length = 54 := by
   unfold encode
@@ -6302,7 +6302,7 @@ structure OrderMassActionReportMessage where
   outboundBusinessHeader : OutboundBusinessHeader
   massActionType : BitVec 8
   massActionScope : BitVec 8
-  clordid : BitVec 64
+  clOrdId : BitVec 64
   massActionReportId : BitVec 64
   transactTime : BitVec 64
   massActionResponse : MassActionResponse
@@ -6323,7 +6323,7 @@ def encode (message : OrderMassActionReportMessage) : List UInt8 :=
   OutboundBusinessHeader.encode message.outboundBusinessHeader
     ++ (encodeUInt 1 message.massActionType
     ++ (encodeUInt 1 message.massActionScope
-    ++ (encodeUIntLE 8 message.clordid
+    ++ (encodeUIntLE 8 message.clOrdId
     ++ (encodeUIntLE 8 message.massActionReportId
     ++ (encodeUIntLE 8 message.transactTime
     ++ (MassActionResponse.encode message.massActionResponse
@@ -6341,7 +6341,7 @@ def decode (bytes : List UInt8) : Option (OrderMassActionReportMessage × List U
   let (outboundBusinessHeader, bytes) ← OutboundBusinessHeader.decode bytes
   let (massActionType, bytes) ← decodeUInt 1 bytes
   let (massActionScope, bytes) ← decodeUInt 1 bytes
-  let (clordid, bytes) ← decodeUIntLE 8 bytes
+  let (clOrdId, bytes) ← decodeUIntLE 8 bytes
   let (massActionReportId, bytes) ← decodeUIntLE 8 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (massActionResponse, bytes) ← MassActionResponse.decode bytes
@@ -6354,7 +6354,7 @@ def decode (bytes : List UInt8) : Option (OrderMassActionReportMessage × List U
   let (securityIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (investorId, bytes) ← InvestorId.decode bytes
   let (text, bytes) ← Text.decode bytes
-  pure ({ outboundBusinessHeader, massActionType, massActionScope, clordid, massActionReportId, transactTime, massActionResponse, massActionRejectReason, massCancelRestatementReason, ordtagid, sideOptional, offset49Padding1, asset, securityIdOptional, investorId, text }, bytes)
+  pure ({ outboundBusinessHeader, massActionType, massActionScope, clOrdId, massActionReportId, transactTime, massActionResponse, massActionRejectReason, massCancelRestatementReason, ordtagid, sideOptional, offset49Padding1, asset, securityIdOptional, investorId, text }, bytes)
 
 theorem encode_length_pos (message : OrderMassActionReportMessage) : (encode message).length > 0 := by
   unfold encode

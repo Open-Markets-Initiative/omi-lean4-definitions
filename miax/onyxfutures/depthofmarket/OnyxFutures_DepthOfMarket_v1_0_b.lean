@@ -15,6 +15,9 @@ Note: Modify Flags is a bit field set, proven as its 1 byte integer rather than 
 
 Note: Application Message is not framed: its length Packet Length is not an integer it reads
 
+Note: a Mach Message that ends the session is the last of machMessage: the decoder turns away one
+that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 
@@ -1929,6 +1932,11 @@ def encode : Payload → List UInt8
   | .startOfSession message => StartOfSession.encode message
   | .endOfSession message => EndOfSession.encode message
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession : Payload → Bool
+  | .endOfSession _ => true
+  | _ => false
+
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 5185 := by
   cases message with
@@ -2028,11 +2036,16 @@ theorem encode_length_pos (message : MachMessage) : (encode message).length > 0 
   simp only [encodeUIntLE_length, List.length_append, encodeFramedLE_length]
   omega
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession (message : MachMessage) : Bool :=
+  Payload.endsSession message.payload
+
 end MachMessage
 
 /-- Packet -/
 structure Packet where
   machMessage : List MachMessage
+  machMessage_last : endsLast MachMessage.endsSession machMessage = true
   deriving DecidableEq, Repr
 
 namespace Packet
@@ -2042,11 +2055,14 @@ def encode (message : Packet) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option Packet := do
   let machMessage ← decodeAll MachMessage.decode bytes.length bytes
-  pure { machMessage }
+  if last_machMessage : endsLast MachMessage.endsSession machMessage = true then
+    pure { machMessage, machMessage_last := last_machMessage }
+  else none
 
 theorem decode_encode (message : Packet) : decode (encode message) = some message := by
   unfold decode encode
   rw [decodeAll_encodeMany MachMessage.encode MachMessage.decode MachMessage.decode_encode MachMessage.encode_length_pos message.machMessage _ (encodeMany_length_ge MachMessage.encode MachMessage.encode_length_pos message.machMessage), some_bind]
+  rw [dite_eq_left message.machMessage_last]
   rfl
 
 end Packet

@@ -388,7 +388,7 @@ end Details
 /-- Reject Message -/
 structure RejectMessage where
   refSequenceNumber : BitVec 64
-  reasonRejectReason : BitVec 8
+  rejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -396,14 +396,14 @@ namespace RejectMessage
 
 def encode (message : RejectMessage) : List UInt8 :=
   encodeUIntLE 8 message.refSequenceNumber
-    ++ (encodeUInt 1 message.reasonRejectReason
+    ++ (encodeUInt 1 message.rejectReason
     ++ (Details.encode message.details))
 
 def decode (bytes : List UInt8) : Option (RejectMessage × List UInt8) := do
   let (refSequenceNumber, bytes) ← decodeUIntLE 8 bytes
-  let (reasonRejectReason, bytes) ← decodeUInt 1 bytes
+  let (rejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ refSequenceNumber, reasonRejectReason, details }, bytes)
+  pure ({ refSequenceNumber, rejectReason, details }, bytes)
 
 theorem encode_length_pos (message : RejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -466,20 +466,20 @@ end Quantity
 
 /-- Show Qty: 9 bytes -/
 structure ShowQty where
-  mantissa : BitVec 64
+  mantissaOptional : BitVec 64
   exponent : BitVec 8
   deriving DecidableEq, Repr
 
 namespace ShowQty
 
 def encode (message : ShowQty) : List UInt8 :=
-  encodeUIntLE 8 message.mantissa
+  encodeUIntLE 8 message.mantissaOptional
     ++ (encodeUInt 1 message.exponent)
 
 def decode (bytes : List UInt8) : Option (ShowQty × List UInt8) := do
-  let (mantissa, bytes) ← decodeUIntLE 8 bytes
+  let (mantissaOptional, bytes) ← decodeUIntLE 8 bytes
   let (exponent, bytes) ← decodeUInt 1 bytes
-  pure ({ mantissa, exponent }, bytes)
+  pure ({ mantissaOptional, exponent }, bytes)
 
 @[simp] theorem encode_length (message : ShowQty) : (encode message).length = 9 := by
   unfold encode
@@ -749,7 +749,7 @@ theorem encode_length_pos (message : AskQty) : (encode message).length > 0 := by
 
 end AskQty
 
-/-- Mass Quote Request Message quotes Group: 46 bytes -/
+/-- Mass Quote Request Message Quotes Group: 46 bytes -/
 structure MassQuoteRequestMessageQuotesGroup where
   instrumentId : BitVec 64
   bidPriceOptional : BitVec 64
@@ -809,7 +809,7 @@ theorem encode_length_pos (message : MassQuoteRequestMessageQuotesGroup) : (enco
 
 end MassQuoteRequestMessageQuotesGroup
 
-/-- Mass Quote Request Message quotes Groups -/
+/-- Mass Quote Request Message Quotes Groups -/
 structure MassQuoteRequestMessageQuotesGroups where
   blockLength : BitVec 16
   massQuoteRequestMessageQuotesGroup : Bounded 2 MassQuoteRequestMessageQuotesGroup
@@ -1110,7 +1110,7 @@ theorem encode_length_pos (message : FillQty) : (encode message).length > 0 := b
 
 end FillQty
 
-/-- New Order Response Message fills Group: 25 bytes -/
+/-- New Order Response Message Fills Group: 25 bytes -/
 structure NewOrderResponseMessageFillsGroup where
   matchId : BitVec 64
   fillPrice : BitVec 64
@@ -1150,7 +1150,7 @@ theorem encode_length_pos (message : NewOrderResponseMessageFillsGroup) : (encod
 
 end NewOrderResponseMessageFillsGroup
 
-/-- New Order Response Message fills Groups -/
+/-- New Order Response Message Fills Groups -/
 structure NewOrderResponseMessageFillsGroups where
   blockLength : BitVec 16
   newOrderResponseMessageFillsGroup : Bounded 2 NewOrderResponseMessageFillsGroup
@@ -1197,7 +1197,7 @@ theorem encode_length_le (message : NewOrderResponseMessageFillsGroups) : (encod
 
 end NewOrderResponseMessageFillsGroups
 
-/-- New Order Response Message legs Group: 34 bytes -/
+/-- New Order Response Message Legs Group: 34 bytes -/
 structure NewOrderResponseMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -1247,7 +1247,7 @@ theorem encode_length_pos (message : NewOrderResponseMessageLegsGroup) : (encode
 
 end NewOrderResponseMessageLegsGroup
 
-/-- New Order Response Message legs Groups -/
+/-- New Order Response Message Legs Groups -/
 structure NewOrderResponseMessageLegsGroups where
   blockLength : BitVec 16
   newOrderResponseMessageLegsGroup : Bounded 2 NewOrderResponseMessageLegsGroup
@@ -1412,7 +1412,7 @@ structure NewOrderRejectMessage where
   correlationId : BitVec 64
   orderId : BitVec 64
   instrumentId : BitVec 64
-  reasonOrderRejectReason : BitVec 8
+  orderRejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -1425,7 +1425,7 @@ def encode (message : NewOrderRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.correlationId
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.instrumentId
-    ++ (encodeUInt 1 message.reasonOrderRejectReason
+    ++ (encodeUInt 1 message.orderRejectReason
     ++ (Details.encode message.details)))))))
 
 def decode (bytes : List UInt8) : Option (NewOrderRejectMessage × List UInt8) := do
@@ -1435,9 +1435,9 @@ def decode (bytes : List UInt8) : Option (NewOrderRejectMessage × List UInt8) :
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (instrumentId, bytes) ← decodeUIntLE 8 bytes
-  let (reasonOrderRejectReason, bytes) ← decodeUInt 1 bytes
+  let (orderRejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ timestamp, execId, clientOrderId, correlationId, orderId, instrumentId, reasonOrderRejectReason, details }, bytes)
+  pure ({ timestamp, execId, clientOrderId, correlationId, orderId, instrumentId, orderRejectReason, details }, bytes)
 
 theorem encode_length_pos (message : NewOrderRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1473,7 +1473,7 @@ theorem encode_length_le (message : NewOrderRejectMessage) : (encode message).le
 
 end NewOrderRejectMessage
 
-/-- Amend Order Response Message fills Group: 25 bytes -/
+/-- Amend Order Response Message Fills Group: 25 bytes -/
 structure AmendOrderResponseMessageFillsGroup where
   matchId : BitVec 64
   fillPrice : BitVec 64
@@ -1513,7 +1513,7 @@ theorem encode_length_pos (message : AmendOrderResponseMessageFillsGroup) : (enc
 
 end AmendOrderResponseMessageFillsGroup
 
-/-- Amend Order Response Message fills Groups -/
+/-- Amend Order Response Message Fills Groups -/
 structure AmendOrderResponseMessageFillsGroups where
   blockLength : BitVec 16
   amendOrderResponseMessageFillsGroup : Bounded 2 AmendOrderResponseMessageFillsGroup
@@ -1560,7 +1560,7 @@ theorem encode_length_le (message : AmendOrderResponseMessageFillsGroups) : (enc
 
 end AmendOrderResponseMessageFillsGroups
 
-/-- Amend Order Response Message legs Group: 34 bytes -/
+/-- Amend Order Response Message Legs Group: 34 bytes -/
 structure AmendOrderResponseMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -1610,7 +1610,7 @@ theorem encode_length_pos (message : AmendOrderResponseMessageLegsGroup) : (enco
 
 end AmendOrderResponseMessageLegsGroup
 
-/-- Amend Order Response Message legs Groups -/
+/-- Amend Order Response Message Legs Groups -/
 structure AmendOrderResponseMessageLegsGroups where
   blockLength : BitVec 16
   amendOrderResponseMessageLegsGroup : Bounded 2 AmendOrderResponseMessageLegsGroup
@@ -1770,7 +1770,7 @@ structure AmendOrderRejectMessage where
   correlationId : BitVec 64
   orderId : BitVec 64
   instrumentId : BitVec 64
-  reasonOrderRejectReason : BitVec 8
+  orderRejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -1783,7 +1783,7 @@ def encode (message : AmendOrderRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.correlationId
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.instrumentId
-    ++ (encodeUInt 1 message.reasonOrderRejectReason
+    ++ (encodeUInt 1 message.orderRejectReason
     ++ (Details.encode message.details)))))))
 
 def decode (bytes : List UInt8) : Option (AmendOrderRejectMessage × List UInt8) := do
@@ -1793,9 +1793,9 @@ def decode (bytes : List UInt8) : Option (AmendOrderRejectMessage × List UInt8)
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (instrumentId, bytes) ← decodeUIntLE 8 bytes
-  let (reasonOrderRejectReason, bytes) ← decodeUInt 1 bytes
+  let (orderRejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ timestamp, execId, clientOrderId, correlationId, orderId, instrumentId, reasonOrderRejectReason, details }, bytes)
+  pure ({ timestamp, execId, clientOrderId, correlationId, orderId, instrumentId, orderRejectReason, details }, bytes)
 
 theorem encode_length_pos (message : AmendOrderRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1899,7 +1899,7 @@ structure CancelOrderRejectMessage where
   correlationId : BitVec 64
   orderIdOptional : BitVec 64
   instrumentId : BitVec 64
-  reasonCancelOrderRejectReason : BitVec 8
+  cancelOrderRejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -1912,7 +1912,7 @@ def encode (message : CancelOrderRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.correlationId
     ++ (encodeUIntLE 8 message.orderIdOptional
     ++ (encodeUIntLE 8 message.instrumentId
-    ++ (encodeUInt 1 message.reasonCancelOrderRejectReason
+    ++ (encodeUInt 1 message.cancelOrderRejectReason
     ++ (Details.encode message.details)))))))
 
 def decode (bytes : List UInt8) : Option (CancelOrderRejectMessage × List UInt8) := do
@@ -1922,9 +1922,9 @@ def decode (bytes : List UInt8) : Option (CancelOrderRejectMessage × List UInt8
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (orderIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (instrumentId, bytes) ← decodeUIntLE 8 bytes
-  let (reasonCancelOrderRejectReason, bytes) ← decodeUInt 1 bytes
+  let (cancelOrderRejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ timestamp, execId, clientOrderId, correlationId, orderIdOptional, instrumentId, reasonCancelOrderRejectReason, details }, bytes)
+  pure ({ timestamp, execId, clientOrderId, correlationId, orderIdOptional, instrumentId, cancelOrderRejectReason, details }, bytes)
 
 theorem encode_length_pos (message : CancelOrderRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2030,7 +2030,7 @@ theorem encode_length_pos (message : AskFilledQty) : (encode message).length > 0
 
 end AskFilledQty
 
-/-- Mass Quote Response Message quotes Group: 80 bytes -/
+/-- Mass Quote Response Message Quotes Group: 80 bytes -/
 structure MassQuoteResponseMessageQuotesGroup where
   instrumentId : BitVec 64
   bidOrderId : BitVec 64
@@ -2120,7 +2120,7 @@ theorem encode_length_pos (message : MassQuoteResponseMessageQuotesGroup) : (enc
 
 end MassQuoteResponseMessageQuotesGroup
 
-/-- Mass Quote Response Message quotes Groups -/
+/-- Mass Quote Response Message Quotes Groups -/
 structure MassQuoteResponseMessageQuotesGroups where
   blockLength : BitVec 16
   massQuoteResponseMessageQuotesGroup : Bounded 2 MassQuoteResponseMessageQuotesGroup
@@ -2167,7 +2167,7 @@ theorem encode_length_le (message : MassQuoteResponseMessageQuotesGroups) : (enc
 
 end MassQuoteResponseMessageQuotesGroups
 
-/-- Mass Quote Response Message bid Fills Group: 33 bytes -/
+/-- Mass Quote Response Message Bid Fills Group: 33 bytes -/
 structure MassQuoteResponseMessageBidFillsGroup where
   matchId : BitVec 64
   instrumentId : BitVec 64
@@ -2212,7 +2212,7 @@ theorem encode_length_pos (message : MassQuoteResponseMessageBidFillsGroup) : (e
 
 end MassQuoteResponseMessageBidFillsGroup
 
-/-- Mass Quote Response Message bid Fills Groups -/
+/-- Mass Quote Response Message Bid Fills Groups -/
 structure MassQuoteResponseMessageBidFillsGroups where
   blockLength : BitVec 16
   massQuoteResponseMessageBidFillsGroup : Bounded 2 MassQuoteResponseMessageBidFillsGroup
@@ -2259,7 +2259,7 @@ theorem encode_length_le (message : MassQuoteResponseMessageBidFillsGroups) : (e
 
 end MassQuoteResponseMessageBidFillsGroups
 
-/-- Mass Quote Response Message ask Fills Group: 33 bytes -/
+/-- Mass Quote Response Message Ask Fills Group: 33 bytes -/
 structure MassQuoteResponseMessageAskFillsGroup where
   matchId : BitVec 64
   instrumentId : BitVec 64
@@ -2304,7 +2304,7 @@ theorem encode_length_pos (message : MassQuoteResponseMessageAskFillsGroup) : (e
 
 end MassQuoteResponseMessageAskFillsGroup
 
-/-- Mass Quote Response Message ask Fills Groups -/
+/-- Mass Quote Response Message Ask Fills Groups -/
 structure MassQuoteResponseMessageAskFillsGroups where
   blockLength : BitVec 16
   massQuoteResponseMessageAskFillsGroup : Bounded 2 MassQuoteResponseMessageAskFillsGroup
@@ -2351,7 +2351,7 @@ theorem encode_length_le (message : MassQuoteResponseMessageAskFillsGroups) : (e
 
 end MassQuoteResponseMessageAskFillsGroups
 
-/-- Mass Quote Response Message legs Group: 34 bytes -/
+/-- Mass Quote Response Message Legs Group: 34 bytes -/
 structure MassQuoteResponseMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -2401,7 +2401,7 @@ theorem encode_length_pos (message : MassQuoteResponseMessageLegsGroup) : (encod
 
 end MassQuoteResponseMessageLegsGroup
 
-/-- Mass Quote Response Message legs Groups -/
+/-- Mass Quote Response Message Legs Groups -/
 structure MassQuoteResponseMessageLegsGroups where
   blockLength : BitVec 16
   massQuoteResponseMessageLegsGroup : Bounded 2 MassQuoteResponseMessageLegsGroup
@@ -2537,7 +2537,7 @@ structure MassQuoteRejectMessage where
   quoteId : BitVec 64
   correlationId : BitVec 64
   mmpGroupId : BitVec 64
-  reasonMassQuoteRejectReason : BitVec 8
+  massQuoteRejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -2549,7 +2549,7 @@ def encode (message : MassQuoteRejectMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.quoteId
     ++ (encodeUIntLE 8 message.correlationId
     ++ (encodeUIntLE 8 message.mmpGroupId
-    ++ (encodeUInt 1 message.reasonMassQuoteRejectReason
+    ++ (encodeUInt 1 message.massQuoteRejectReason
     ++ (Details.encode message.details))))))
 
 def decode (bytes : List UInt8) : Option (MassQuoteRejectMessage × List UInt8) := do
@@ -2558,9 +2558,9 @@ def decode (bytes : List UInt8) : Option (MassQuoteRejectMessage × List UInt8) 
   let (quoteId, bytes) ← decodeUIntLE 8 bytes
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (mmpGroupId, bytes) ← decodeUIntLE 8 bytes
-  let (reasonMassQuoteRejectReason, bytes) ← decodeUInt 1 bytes
+  let (massQuoteRejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ timestamp, execId, quoteId, correlationId, mmpGroupId, reasonMassQuoteRejectReason, details }, bytes)
+  pure ({ timestamp, execId, quoteId, correlationId, mmpGroupId, massQuoteRejectReason, details }, bytes)
 
 theorem encode_length_pos (message : MassQuoteRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2649,7 +2649,7 @@ structure MassCancelRejectMessage where
   timestamp : BitVec 64
   execId : BitVec 64
   correlationId : BitVec 64
-  reasonMassCancelRejectReason : BitVec 8
+  massCancelRejectReason : BitVec 8
   details : Details
   deriving DecidableEq, Repr
 
@@ -2659,16 +2659,16 @@ def encode (message : MassCancelRejectMessage) : List UInt8 :=
   encodeUIntLE 8 message.timestamp
     ++ (encodeUIntLE 8 message.execId
     ++ (encodeUIntLE 8 message.correlationId
-    ++ (encodeUInt 1 message.reasonMassCancelRejectReason
+    ++ (encodeUInt 1 message.massCancelRejectReason
     ++ (Details.encode message.details))))
 
 def decode (bytes : List UInt8) : Option (MassCancelRejectMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUIntLE 8 bytes
   let (execId, bytes) ← decodeUIntLE 8 bytes
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
-  let (reasonMassCancelRejectReason, bytes) ← decodeUInt 1 bytes
+  let (massCancelRejectReason, bytes) ← decodeUInt 1 bytes
   let (details, bytes) ← Details.decode bytes
-  pure ({ timestamp, execId, correlationId, reasonMassCancelRejectReason, details }, bytes)
+  pure ({ timestamp, execId, correlationId, massCancelRejectReason, details }, bytes)
 
 theorem encode_length_pos (message : MassCancelRejectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -2698,7 +2698,7 @@ theorem encode_length_le (message : MassCancelRejectMessage) : (encode message).
 
 end MassCancelRejectMessage
 
-/-- Order Filled Message fills Group: 60 bytes -/
+/-- Order Filled Message Fills Group: 60 bytes -/
 structure OrderFilledMessageFillsGroup where
   clientOrderId : BitVec 64
   orderId : BitVec 64
@@ -2768,7 +2768,7 @@ theorem encode_length_pos (message : OrderFilledMessageFillsGroup) : (encode mes
 
 end OrderFilledMessageFillsGroup
 
-/-- Order Filled Message fills Groups -/
+/-- Order Filled Message Fills Groups -/
 structure OrderFilledMessageFillsGroups where
   blockLength : BitVec 16
   orderFilledMessageFillsGroup : Bounded 2 OrderFilledMessageFillsGroup
@@ -2815,7 +2815,7 @@ theorem encode_length_le (message : OrderFilledMessageFillsGroups) : (encode mes
 
 end OrderFilledMessageFillsGroups
 
-/-- Order Filled Message legs Group: 34 bytes -/
+/-- Order Filled Message Legs Group: 34 bytes -/
 structure OrderFilledMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -2865,7 +2865,7 @@ theorem encode_length_pos (message : OrderFilledMessageLegsGroup) : (encode mess
 
 end OrderFilledMessageLegsGroup
 
-/-- Order Filled Message legs Groups -/
+/-- Order Filled Message Legs Groups -/
 structure OrderFilledMessageLegsGroups where
   blockLength : BitVec 16
   orderFilledMessageLegsGroup : Bounded 2 OrderFilledMessageLegsGroup
@@ -2962,7 +2962,7 @@ theorem encode_length_le (message : OrderFilledMessage) : (encode message).lengt
 
 end OrderFilledMessage
 
-/-- Orders Canceled Message orders Group: 35 bytes -/
+/-- Orders Canceled Message Orders Group: 35 bytes -/
 structure OrdersCanceledMessageOrdersGroup where
   clientOrderId : BitVec 64
   orderId : BitVec 64
@@ -3017,7 +3017,7 @@ theorem encode_length_pos (message : OrdersCanceledMessageOrdersGroup) : (encode
 
 end OrdersCanceledMessageOrdersGroup
 
-/-- Orders Canceled Message orders Groups -/
+/-- Orders Canceled Message Orders Groups -/
 structure OrdersCanceledMessageOrdersGroups where
   blockLength : BitVec 16
   ordersCanceledMessageOrdersGroup : Bounded 2 OrdersCanceledMessageOrdersGroup
@@ -3113,7 +3113,7 @@ theorem encode_length_le (message : OrdersCanceledMessage) : (encode message).le
 
 end OrdersCanceledMessage
 
-/-- Order Placed Message fills Group: 25 bytes -/
+/-- Order Placed Message Fills Group: 25 bytes -/
 structure OrderPlacedMessageFillsGroup where
   matchId : BitVec 64
   fillPrice : BitVec 64
@@ -3153,7 +3153,7 @@ theorem encode_length_pos (message : OrderPlacedMessageFillsGroup) : (encode mes
 
 end OrderPlacedMessageFillsGroup
 
-/-- Order Placed Message fills Groups -/
+/-- Order Placed Message Fills Groups -/
 structure OrderPlacedMessageFillsGroups where
   blockLength : BitVec 16
   orderPlacedMessageFillsGroup : Bounded 2 OrderPlacedMessageFillsGroup
@@ -3200,7 +3200,7 @@ theorem encode_length_le (message : OrderPlacedMessageFillsGroups) : (encode mes
 
 end OrderPlacedMessageFillsGroups
 
-/-- Order Placed Message legs Group: 34 bytes -/
+/-- Order Placed Message Legs Group: 34 bytes -/
 structure OrderPlacedMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -3250,7 +3250,7 @@ theorem encode_length_pos (message : OrderPlacedMessageLegsGroup) : (encode mess
 
 end OrderPlacedMessageLegsGroup
 
-/-- Order Placed Message legs Groups -/
+/-- Order Placed Message Legs Groups -/
 structure OrderPlacedMessageLegsGroups where
   blockLength : BitVec 16
   orderPlacedMessageLegsGroup : Bounded 2 OrderPlacedMessageLegsGroup
@@ -3392,7 +3392,7 @@ theorem encode_length_le (message : OrderPlacedMessage) : (encode message).lengt
 
 end OrderPlacedMessage
 
-/-- Mass Quote Orders Placed Message orders Group: 62 bytes -/
+/-- Mass Quote Orders Placed Message Orders Group: 62 bytes -/
 structure MassQuoteOrdersPlacedMessageOrdersGroup where
   clientOrderId : BitVec 64
   orderId : BitVec 64
@@ -3467,7 +3467,7 @@ theorem encode_length_pos (message : MassQuoteOrdersPlacedMessageOrdersGroup) : 
 
 end MassQuoteOrdersPlacedMessageOrdersGroup
 
-/-- Mass Quote Orders Placed Message orders Groups -/
+/-- Mass Quote Orders Placed Message Orders Groups -/
 structure MassQuoteOrdersPlacedMessageOrdersGroups where
   blockLength : BitVec 16
   massQuoteOrdersPlacedMessageOrdersGroup : Bounded 2 MassQuoteOrdersPlacedMessageOrdersGroup
@@ -3514,10 +3514,10 @@ theorem encode_length_le (message : MassQuoteOrdersPlacedMessageOrdersGroups) : 
 
 end MassQuoteOrdersPlacedMessageOrdersGroups
 
-/-- Mass Quote Orders Placed Message fills Group: 33 bytes -/
+/-- Mass Quote Orders Placed Message Fills Group: 33 bytes -/
 structure MassQuoteOrdersPlacedMessageFillsGroup where
   matchId : BitVec 64
-  orderIdFillId : BitVec 64
+  orderId : BitVec 64
   fillPrice : BitVec 64
   fillQty : FillQty
   deriving DecidableEq, Repr
@@ -3526,16 +3526,16 @@ namespace MassQuoteOrdersPlacedMessageFillsGroup
 
 def encode (message : MassQuoteOrdersPlacedMessageFillsGroup) : List UInt8 :=
   encodeUIntLE 8 message.matchId
-    ++ (encodeUIntLE 8 message.orderIdFillId
+    ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.fillPrice
     ++ (FillQty.encode message.fillQty)))
 
 def decode (bytes : List UInt8) : Option (MassQuoteOrdersPlacedMessageFillsGroup × List UInt8) := do
   let (matchId, bytes) ← decodeUIntLE 8 bytes
-  let (orderIdFillId, bytes) ← decodeUIntLE 8 bytes
+  let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (fillPrice, bytes) ← decodeUIntLE 8 bytes
   let (fillQty, bytes) ← FillQty.decode bytes
-  pure ({ matchId, orderIdFillId, fillPrice, fillQty }, bytes)
+  pure ({ matchId, orderId, fillPrice, fillQty }, bytes)
 
 @[simp] theorem encode_length (message : MassQuoteOrdersPlacedMessageFillsGroup) : (encode message).length = 33 := by
   unfold encode
@@ -3559,7 +3559,7 @@ theorem encode_length_pos (message : MassQuoteOrdersPlacedMessageFillsGroup) : (
 
 end MassQuoteOrdersPlacedMessageFillsGroup
 
-/-- Mass Quote Orders Placed Message fills Groups -/
+/-- Mass Quote Orders Placed Message Fills Groups -/
 structure MassQuoteOrdersPlacedMessageFillsGroups where
   blockLength : BitVec 16
   massQuoteOrdersPlacedMessageFillsGroup : Bounded 2 MassQuoteOrdersPlacedMessageFillsGroup
@@ -3606,7 +3606,7 @@ theorem encode_length_le (message : MassQuoteOrdersPlacedMessageFillsGroups) : (
 
 end MassQuoteOrdersPlacedMessageFillsGroups
 
-/-- Mass Quote Orders Placed Message legs Group: 34 bytes -/
+/-- Mass Quote Orders Placed Message Legs Group: 34 bytes -/
 structure MassQuoteOrdersPlacedMessageLegsGroup where
   matchId : BitVec 64
   fillId : BitVec 64
@@ -3656,7 +3656,7 @@ theorem encode_length_pos (message : MassQuoteOrdersPlacedMessageLegsGroup) : (e
 
 end MassQuoteOrdersPlacedMessageLegsGroup
 
-/-- Mass Quote Orders Placed Message legs Groups -/
+/-- Mass Quote Orders Placed Message Legs Groups -/
 structure MassQuoteOrdersPlacedMessageLegsGroups where
   blockLength : BitVec 16
   massQuoteOrdersPlacedMessageLegsGroup : Bounded 2 MassQuoteOrdersPlacedMessageLegsGroup

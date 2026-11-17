@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.NasdaqIseoptionsOrderentryFixV134Exchange
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   msgSeqNum : Terminated 1  -- tag 34
   sendingTime : Terminated 1  -- tag 52
@@ -69,6 +72,16 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 6 (by decide +kernel)))
   simp only [Header.decode, msgSeqNum, sendingTime, senderCompID, targetCompID, senderSubID, possDupFlag, origSendingTime, some_bind] <;> rfl
 
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [51, 52] record.msgSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [53, 50] record.sendingTime (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [52, 57] record.senderCompID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [53, 54] record.targetCompID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [53, 48] record.senderSubID (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [52, 51] record.possDupFlag (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [49, 50, 50] record.origSendingTime (by decide) (by decide))
+         (paired_none pairing)))))))
+
 structure AllocationAck where
   text : Option (Terminated 1)  -- tag 58
   transactTime : Terminated 1  -- tag 60
@@ -112,6 +125,14 @@ theorem AllocationAck.decode_agrees (record : AllocationAck) (tokens : List Toke
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
   simp only [AllocationAck.decode, text, transactTime, allocID, allocStatus, allocRejCode, some_bind] <;> rfl
 
+theorem AllocationAck.taken (record : AllocationAck) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [55, 48] record.allocID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [56, 55] record.allocStatus (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [56, 56] record.allocRejCode (by decide) (by decide))
+       (paired_none pairing)))))
+
 structure BusinessMessageReject where
   refSeqNum : Terminated 1  -- tag 45
   text : Option (Terminated 1)  -- tag 58
@@ -154,6 +175,14 @@ theorem BusinessMessageReject.decode_agrees (record : BusinessMessageReject) (to
   have businessRejectReason := readRequired_part [51, 56, 48] record.businessRejectReason tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
   simp only [BusinessMessageReject.decode, refSeqNum, text, refMsgType, businessRejectRefID, businessRejectReason, some_bind] <;> rfl
+
+theorem BusinessMessageReject.taken (record : BusinessMessageReject) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [52, 53] record.refSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [51, 55, 50] record.refMsgType (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [51, 55, 57] record.businessRejectRefID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_required pairing [51, 56, 48] record.businessRejectReason (by decide) (by decide))
+       (paired_none pairing)))))
 
 structure ExecutionReport where
   account : Option (Terminated 1)  -- tag 1
@@ -463,6 +492,67 @@ theorem ExecutionReport.decode_agrees (record : ExecutionReport) (tokens : List 
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 57 (by decide +kernel)))
   simp only [ExecutionReport.decode, account, avgPx, clOrdID, cumQty, execID, execInst, execRefID, execTransType, lastMkt, lastPx, lastShares, orderID, orderQty, ordStatus, ordType, origClOrdID, price, rule80A, side, symbol, text, timeInForce, transactTime, execBroker, openClose, stopPx, ordRejReason, maxFloor, execType, leavesQty, securityType, putOrCall, strikePrice, customerOrFirm, execRestatementReason, dayOrderQty, dayCumQty, dayAvgPx, expireDate, clearingFirm, clearingAccount, multiLegReportingType, maturityDate, crossID, workingIndicator, legRefID, underlyingPx, underlyingQty, priceProtectionScope, liquidityIndicator, auctionType, stepUpPriceType, stepUpPrice, stockLegGiveUp, auctionID, rFPID, displayWhen, displayRange, some_bind] <;> rfl
 
+theorem ExecutionReport.taken (record : ExecutionReport) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [54] record.avgPx (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [49, 49] record.clOrdID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [49, 52] record.cumQty (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_required pairing [49, 55] record.execID (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [49, 57] record.execRefID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [50, 48] record.execTransType (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [51, 48] record.lastMkt (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_required pairing [51, 49] record.lastPx (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_required pairing [51, 50] record.lastShares (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_required pairing [51, 55] record.orderID (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_required pairing [51, 57] record.ordStatus (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_optional pairing [52, 48] record.ordType (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [52, 49] record.origClOrdID (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_optional pairing [52, 55] record.rule80A (by decide) (by decide))
+                    (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+                     (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+                      (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+                       (paired_cons pairing _ _ (paired_optional pairing [53, 57] record.timeInForce (by decide) (by decide))
+                        (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+                         (paired_cons pairing _ _ (paired_optional pairing [55, 54] record.execBroker (by decide) (by decide))
+                          (paired_cons pairing _ _ (paired_required pairing [55, 55] record.openClose (by decide) (by decide))
+                           (paired_cons pairing _ _ (paired_optional pairing [57, 57] record.stopPx (by decide) (by decide))
+                            (paired_cons pairing _ _ (paired_optional pairing [49, 48, 51] record.ordRejReason (by decide) (by decide))
+                             (paired_cons pairing _ _ (paired_optional pairing [49, 49, 49] record.maxFloor (by decide) (by decide))
+                              (paired_cons pairing _ _ (paired_required pairing [49, 53, 48] record.execType (by decide) (by decide))
+                               (paired_cons pairing _ _ (paired_required pairing [49, 53, 49] record.leavesQty (by decide) (by decide))
+                                (paired_cons pairing _ _ (paired_required pairing [49, 54, 55] record.securityType (by decide) (by decide))
+                                 (paired_cons pairing _ _ (paired_required pairing [50, 48, 49] record.putOrCall (by decide) (by decide))
+                                  (paired_cons pairing _ _ (paired_required pairing [50, 48, 50] record.strikePrice (by decide) (by decide))
+                                   (paired_cons pairing _ _ (paired_required pairing [50, 48, 52] record.customerOrFirm (by decide) (by decide))
+                                    (paired_cons pairing _ _ (paired_optional pairing [51, 55, 56] record.execRestatementReason (by decide) (by decide))
+                                     (paired_cons pairing _ _ (paired_optional pairing [52, 50, 52] record.dayOrderQty (by decide) (by decide))
+                                      (paired_cons pairing _ _ (paired_optional pairing [52, 50, 53] record.dayCumQty (by decide) (by decide))
+                                       (paired_cons pairing _ _ (paired_optional pairing [52, 50, 54] record.dayAvgPx (by decide) (by decide))
+                                        (paired_cons pairing _ _ (paired_optional pairing [52, 51, 50] record.expireDate (by decide) (by decide))
+                                         (paired_cons pairing _ _ (paired_optional pairing [52, 51, 57] record.clearingFirm (by decide) (by decide))
+                                          (paired_cons pairing _ _ (paired_optional pairing [52, 52, 48] record.clearingAccount (by decide) (by decide))
+                                           (paired_cons pairing _ _ (paired_optional pairing [52, 52, 50] record.multiLegReportingType (by decide) (by decide))
+                                            (paired_cons pairing _ _ (paired_required pairing [53, 52, 49] record.maturityDate (by decide) (by decide))
+                                             (paired_cons pairing _ _ (paired_optional pairing [53, 52, 56] record.crossID (by decide) (by decide))
+                                              (paired_cons pairing _ _ (paired_optional pairing [54, 51, 54] record.workingIndicator (by decide) (by decide))
+                                               (paired_cons pairing _ _ (paired_optional pairing [54, 53, 52] record.legRefID (by decide) (by decide))
+                                                (paired_cons pairing _ _ (paired_optional pairing [56, 49, 48] record.underlyingPx (by decide) (by decide))
+                                                 (paired_cons pairing _ _ (paired_optional pairing [56, 55, 57] record.underlyingQty (by decide) (by decide))
+                                                  (paired_cons pairing _ _ (paired_optional pairing [49, 48, 57, 50] record.priceProtectionScope (by decide) (by decide))
+                                                   (paired_cons pairing _ _ (paired_optional pairing [57, 55, 51, 48] record.liquidityIndicator (by decide) (by decide))
+                                                    (paired_cons pairing _ _ (paired_optional pairing [57, 51, 55, 51] record.auctionType (by decide) (by decide))
+                                                     (paired_cons pairing _ _ (paired_optional pairing [57, 48, 52, 51] record.stepUpPriceType (by decide) (by decide))
+                                                      (paired_cons pairing _ _ (paired_optional pairing [57, 48, 52, 52] record.stepUpPrice (by decide) (by decide))
+                                                       (paired_cons pairing _ _ (paired_optional pairing [57, 48, 55, 54] record.stockLegGiveUp (by decide) (by decide))
+                                                        (paired_cons pairing _ _ (paired_optional pairing [57, 51, 55, 48] record.auctionID (by decide) (by decide))
+                                                         (paired_cons pairing _ _ (paired_optional pairing [57, 50, 49, 48] record.rFPID (by decide) (by decide))
+                                                          (paired_cons pairing _ _ (paired_optional pairing [49, 48, 56, 51] record.displayWhen (by decide) (by decide))
+                                                           (paired_cons pairing _ _ (paired_optional pairing [56, 48, 50, 48] record.displayRange (by decide) (by decide))
+                                                            (paired_none pairing))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
 structure Heartbeat where
   testReqID : Option (Terminated 1)  -- tag 112
 
@@ -485,6 +575,10 @@ theorem Heartbeat.decode_agrees (record : Heartbeat) (tokens : List Token)
   have testReqID := readOptional_part [49, 49, 50] record.testReqID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
   simp only [Heartbeat.decode, testReqID, some_bind] <;> rfl
+
+theorem Heartbeat.taken (record : Heartbeat) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49, 49, 50] record.testReqID (by decide) (by decide))
+   (paired_none pairing)
 
 structure Logon where
   encryptMethod : Terminated 1  -- tag 98
@@ -514,6 +608,11 @@ theorem Logon.decode_agrees (record : Logon) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [Logon.decode, encryptMethod, heartBtInt, some_bind] <;> rfl
 
+theorem Logon.taken (record : Logon) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [57, 56] record.encryptMethod (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 48, 56] record.heartBtInt (by decide) (by decide))
+    (paired_none pairing))
+
 structure Logout where
   text : Option (Terminated 1)  -- tag 58
 
@@ -536,6 +635,10 @@ theorem Logout.decode_agrees (record : Logout) (tokens : List Token)
   have text := readOptional_part [53, 56] record.text tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
   simp only [Logout.decode, text, some_bind] <;> rfl
+
+theorem Logout.taken (record : Logout) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+   (paired_none pairing)
 
 structure NoPartyDetails where
   partyDetailID : Terminated 1  -- tag 1691
@@ -564,6 +667,11 @@ theorem NoPartyDetails.decode_agrees (record : NoPartyDetails) (tokens : List To
   have partyDetailRole := readRequired_part [49, 54, 57, 51] record.partyDetailRole tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [NoPartyDetails.decode, partyDetailID, partyDetailRole, some_bind] <;> rfl
+
+theorem NoPartyDetails.taken (record : NoPartyDetails) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [49, 54, 57, 49] record.partyDetailID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 54, 57, 51] record.partyDetailRole (by decide) (by decide))
+    (paired_none pairing))
 
 def NoPartyDetails.members : List (List UInt8) := NoPartyDetails.tags.flatten
 
@@ -612,6 +720,12 @@ theorem NoPartyEntitlements.decode_agrees (record : NoPartyEntitlements) (tokens
   have entitlementStatus := readOptional_part [49, 56, 56, 51] record.entitlementStatus tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
   simp only [NoPartyEntitlements.decode, listUpdateAction, noPartyDetails, entitlementStatus, some_bind] <;> rfl
+
+theorem NoPartyEntitlements.taken (record : NoPartyEntitlements) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [49, 51, 50, 52] record.listUpdateAction (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_group pairing [49, 54, 55, 49] NoPartyDetails.members NoPartyDetails.encode NoPartyDetails.within (by decide) (by decide) NoPartyDetails.taken record.noPartyDetails)
+    (paired_cons pairing _ _ (paired_optional pairing [49, 56, 56, 51] record.entitlementStatus (by decide) (by decide))
+     (paired_none pairing)))
 
 def NoPartyEntitlements.members : List (List UInt8) := NoPartyEntitlements.tags.flatten
 
@@ -671,6 +785,14 @@ theorem MemberKillSwitchResponse.decode_agrees (record : MemberKillSwitchRespons
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
   simp only [MemberKillSwitchResponse.decode, text, entitlementRequestID, noPartyEntitlements, entitlementRequestResult, entitlementRequestStatus, some_bind] <;> rfl
 
+theorem MemberKillSwitchResponse.taken (record : MemberKillSwitchResponse) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 55, 55, 48] record.entitlementRequestID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_group pairing [49, 55, 55, 50] NoPartyEntitlements.members NoPartyEntitlements.encode NoPartyEntitlements.within (by decide) (by decide) NoPartyEntitlements.taken record.noPartyEntitlements)
+     (paired_cons pairing _ _ (paired_optional pairing [49, 56, 56, 49] record.entitlementRequestResult (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_required pairing [49, 56, 56, 50] record.entitlementRequestStatus (by decide) (by decide))
+       (paired_none pairing)))))
+
 structure MemberKillSwitchTriggerReset where
   transactTime : Terminated 1  -- tag 60
   noPartyEntitlements : List NoPartyEntitlements  -- tag 1772
@@ -698,6 +820,11 @@ theorem MemberKillSwitchTriggerReset.decode_agrees (record : MemberKillSwitchTri
   have noPartyEntitlements := readGroup_part [49, 55, 55, 50] [49, 51, 50, 52] NoPartyEntitlements.members NoPartyEntitlements.encode NoPartyEntitlements.within NoPartyEntitlements.decode NoPartyEntitlements.decode_encode NoPartyEntitlements.led record.noPartyEntitlements tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [MemberKillSwitchTriggerReset.decode, transactTime, noPartyEntitlements, some_bind] <;> rfl
+
+theorem MemberKillSwitchTriggerReset.taken (record : MemberKillSwitchTriggerReset) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_group pairing [49, 55, 55, 50] NoPartyEntitlements.members NoPartyEntitlements.encode NoPartyEntitlements.within (by decide) (by decide) NoPartyEntitlements.taken record.noPartyEntitlements)
+    (paired_none pairing))
 
 structure OrderCancelReject where
   orderID : Terminated 1  -- tag 37
@@ -752,6 +879,16 @@ theorem OrderCancelReject.decode_agrees (record : OrderCancelReject) (tokens : L
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 6 (by decide +kernel)))
   simp only [OrderCancelReject.decode, orderID, clOrdID, origClOrdID, ordStatus, cxlRejReason, text, cxlRejResponseTo, some_bind] <;> rfl
 
+theorem OrderCancelReject.taken (record : OrderCancelReject) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [51, 55] record.orderID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [52, 49] record.origClOrdID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [51, 57] record.ordStatus (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [49, 48, 50] record.cxlRejReason (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_required pairing [52, 51, 52] record.cxlRejResponseTo (by decide) (by decide))
+         (paired_none pairing)))))))
+
 structure Reject where
   refSeqNum : Terminated 1  -- tag 45
   refTagID : Option (Terminated 1)  -- tag 371
@@ -794,6 +931,14 @@ theorem Reject.decode_agrees (record : Reject) (tokens : List Token)
   have text := readOptional_part [53, 56] record.text tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 4 (by decide +kernel)))
   simp only [Reject.decode, refSeqNum, refTagID, refMsgType, sessionRejectReason, text, some_bind] <;> rfl
+
+theorem Reject.taken (record : Reject) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [52, 53] record.refSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [51, 55, 49] record.refTagID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [51, 55, 50] record.refMsgType (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [51, 55, 51] record.sessionRejectReason (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+       (paired_none pairing)))))
 
 structure RequestForPrismNotification where
   rFPID : Terminated 1  -- tag 9210
@@ -873,6 +1018,21 @@ theorem RequestForPrismNotification.decode_agrees (record : RequestForPrismNotif
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 11 (by decide +kernel)))
   simp only [RequestForPrismNotification.decode, rFPID, execInst, orderQty, ordType, price, side, symbol, securityType, putOrCall, strikePrice, customerOrFirm, maturityDate, some_bind] <;> rfl
 
+theorem RequestForPrismNotification.taken (record : RequestForPrismNotification) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [57, 50, 49, 48] record.rFPID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [52, 48] record.ordType (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [49, 54, 55] record.securityType (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_required pairing [50, 48, 49] record.putOrCall (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_required pairing [50, 48, 50] record.strikePrice (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_required pairing [50, 48, 52] record.customerOrFirm (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_required pairing [53, 52, 49] record.maturityDate (by decide) (by decide))
+              (paired_none pairing))))))))))))
+
 structure ResendRequest where
   beginSeqNo : Terminated 1  -- tag 7
   endSeqNo : Terminated 1  -- tag 16
@@ -900,6 +1060,11 @@ theorem ResendRequest.decode_agrees (record : ResendRequest) (tokens : List Toke
   have endSeqNo := readRequired_part [49, 54] record.endSeqNo tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [ResendRequest.decode, beginSeqNo, endSeqNo, some_bind] <;> rfl
+
+theorem ResendRequest.taken (record : ResendRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [55] record.beginSeqNo (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 54] record.endSeqNo (by decide) (by decide))
+    (paired_none pairing))
 
 structure SequenceReset where
   gapFillFlag : Option (Terminated 1)  -- tag 123
@@ -929,6 +1094,11 @@ theorem SequenceReset.decode_agrees (record : SequenceReset) (tokens : List Toke
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
   simp only [SequenceReset.decode, gapFillFlag, newSeqNo, some_bind] <;> rfl
 
+theorem SequenceReset.taken (record : SequenceReset) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49, 50, 51] record.gapFillFlag (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [51, 54] record.newSeqNo (by decide) (by decide))
+    (paired_none pairing))
+
 structure TestRequest where
   testReqID : Terminated 1  -- tag 112
 
@@ -952,6 +1122,10 @@ theorem TestRequest.decode_agrees (record : TestRequest) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
   simp only [TestRequest.decode, testReqID, some_bind] <;> rfl
 
+theorem TestRequest.taken (record : TestRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [49, 49, 50] record.testReqID (by decide) (by decide))
+   (paired_none pairing)
+
 inductive Message where
   | allocationAck (header : Header) (r0 : AllocationAck)
   | businessMessageReject (header : Header) (r0 : BusinessMessageReject)
@@ -969,104 +1143,104 @@ inductive Message where
   | testRequest (header : Header) (r0 : TestRequest)
 
 def Message.tokens : Message → List Token
-  | .allocationAck header r0 => ⟨[51, 53], ⟨[80], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .businessMessageReject header r0 => ⟨[51, 53], ⟨[106], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .executionReport header r0 => ⟨[51, 53], ⟨[56], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .heartbeat header r0 => ⟨[51, 53], ⟨[48], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .logon header r0 => ⟨[51, 53], ⟨[65], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .logout header r0 => ⟨[51, 53], ⟨[53], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .memberKillSwitchResponse header r0 => ⟨[51, 53], ⟨[85, 68, 66], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .memberKillSwitchTriggerReset header r0 => ⟨[51, 53], ⟨[85, 68, 67], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .orderCancelReject header r0 => ⟨[51, 53], ⟨[57], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .reject header r0 => ⟨[51, 53], ⟨[51], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .requestForPrismNotification header r0 => ⟨[51, 53], ⟨[68, 83, 78], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .resendRequest header r0 => ⟨[51, 53], ⟨[50], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .sequenceReset header r0 => ⟨[51, 53], ⟨[52], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .testRequest header r0 => ⟨[51, 53], ⟨[49], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .allocationAck header r0 => ⟨[51, 53], [80]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .businessMessageReject header r0 => ⟨[51, 53], [106]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .executionReport header r0 => ⟨[51, 53], [56]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .heartbeat header r0 => ⟨[51, 53], [48]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .logon header r0 => ⟨[51, 53], [65]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .logout header r0 => ⟨[51, 53], [53]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .memberKillSwitchResponse header r0 => ⟨[51, 53], [85, 68, 66]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .memberKillSwitchTriggerReset header r0 => ⟨[51, 53], [85, 68, 67]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .orderCancelReject header r0 => ⟨[51, 53], [57]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .reject header r0 => ⟨[51, 53], [51]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .requestForPrismNotification header r0 => ⟨[51, 53], [68, 83, 78]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .resendRequest header r0 => ⟨[51, 53], [50]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .sequenceReset header r0 => ⟨[51, 53], [52]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .testRequest header r0 => ⟨[51, 53], [49]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [80] then
+      if token.value = [80] then
         if known (Header.tags ++ AllocationAck.tags) rest then do
           let header ← Header.decode rest
           let r0 ← AllocationAck.decode rest
           pure (.allocationAck header r0)
         else none
-      else if token.value.val = [106] then
+      else if token.value = [106] then
         if known (Header.tags ++ BusinessMessageReject.tags) rest then do
           let header ← Header.decode rest
           let r0 ← BusinessMessageReject.decode rest
           pure (.businessMessageReject header r0)
         else none
-      else if token.value.val = [56] then
+      else if token.value = [56] then
         if known (Header.tags ++ ExecutionReport.tags) rest then do
           let header ← Header.decode rest
           let r0 ← ExecutionReport.decode rest
           pure (.executionReport header r0)
         else none
-      else if token.value.val = [48] then
+      else if token.value = [48] then
         if known (Header.tags ++ Heartbeat.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Heartbeat.decode rest
           pure (.heartbeat header r0)
         else none
-      else if token.value.val = [65] then
+      else if token.value = [65] then
         if known (Header.tags ++ Logon.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Logon.decode rest
           pure (.logon header r0)
         else none
-      else if token.value.val = [53] then
+      else if token.value = [53] then
         if known (Header.tags ++ Logout.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Logout.decode rest
           pure (.logout header r0)
         else none
-      else if token.value.val = [85, 68, 66] then
+      else if token.value = [85, 68, 66] then
         if known (Header.tags ++ MemberKillSwitchResponse.tags) rest then do
           let header ← Header.decode rest
           let r0 ← MemberKillSwitchResponse.decode rest
           pure (.memberKillSwitchResponse header r0)
         else none
-      else if token.value.val = [85, 68, 67] then
+      else if token.value = [85, 68, 67] then
         if known (Header.tags ++ MemberKillSwitchTriggerReset.tags) rest then do
           let header ← Header.decode rest
           let r0 ← MemberKillSwitchTriggerReset.decode rest
           pure (.memberKillSwitchTriggerReset header r0)
         else none
-      else if token.value.val = [57] then
+      else if token.value = [57] then
         if known (Header.tags ++ OrderCancelReject.tags) rest then do
           let header ← Header.decode rest
           let r0 ← OrderCancelReject.decode rest
           pure (.orderCancelReject header r0)
         else none
-      else if token.value.val = [51] then
+      else if token.value = [51] then
         if known (Header.tags ++ Reject.tags) rest then do
           let header ← Header.decode rest
           let r0 ← Reject.decode rest
           pure (.reject header r0)
         else none
-      else if token.value.val = [68, 83, 78] then
+      else if token.value = [68, 83, 78] then
         if known (Header.tags ++ RequestForPrismNotification.tags) rest then do
           let header ← Header.decode rest
           let r0 ← RequestForPrismNotification.decode rest
           pure (.requestForPrismNotification header r0)
         else none
-      else if token.value.val = [50] then
+      else if token.value = [50] then
         if known (Header.tags ++ ResendRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← ResendRequest.decode rest
           pure (.resendRequest header r0)
         else none
-      else if token.value.val = [52] then
+      else if token.value = [52] then
         if known (Header.tags ++ SequenceReset.tags) rest then do
           let header ← Header.decode rest
           let r0 ← SequenceReset.decode rest
           pure (.sequenceReset header r0)
         else none
-      else if token.value.val = [49] then
+      else if token.value = [49] then
         if known (Header.tags ++ TestRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← TestRequest.decode rest
@@ -1207,117 +1381,117 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_allocationAck (header : Header) (r0 : AllocationAck) :
     Message.decodeBytes (Message.encode (.allocationAck header r0)) = some (.allocationAck header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[80], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ AllocationAck.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [80]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (AllocationAck.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_allocationAck header r0
 
 theorem Message.decodeBytes_businessMessageReject (header : Header) (r0 : BusinessMessageReject) :
     Message.decodeBytes (Message.encode (.businessMessageReject header r0)) = some (.businessMessageReject header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[106], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ BusinessMessageReject.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [106]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (BusinessMessageReject.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_businessMessageReject header r0
 
 theorem Message.decodeBytes_executionReport (header : Header) (r0 : ExecutionReport) :
     Message.decodeBytes (Message.encode (.executionReport header r0)) = some (.executionReport header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[56], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ ExecutionReport.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [56]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (ExecutionReport.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_executionReport header r0
 
 theorem Message.decodeBytes_heartbeat (header : Header) (r0 : Heartbeat) :
     Message.decodeBytes (Message.encode (.heartbeat header r0)) = some (.heartbeat header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[48], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Heartbeat.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [48]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Heartbeat.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_heartbeat header r0
 
 theorem Message.decodeBytes_logon (header : Header) (r0 : Logon) :
     Message.decodeBytes (Message.encode (.logon header r0)) = some (.logon header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[65], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Logon.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [65]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Logon.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_logon header r0
 
 theorem Message.decodeBytes_logout (header : Header) (r0 : Logout) :
     Message.decodeBytes (Message.encode (.logout header r0)) = some (.logout header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[53], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Logout.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [53]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Logout.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_logout header r0
 
 theorem Message.decodeBytes_memberKillSwitchResponse (header : Header) (r0 : MemberKillSwitchResponse) :
     Message.decodeBytes (Message.encode (.memberKillSwitchResponse header r0)) = some (.memberKillSwitchResponse header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[85, 68, 66], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ MemberKillSwitchResponse.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [85, 68, 66]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (MemberKillSwitchResponse.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_memberKillSwitchResponse header r0
 
 theorem Message.decodeBytes_memberKillSwitchTriggerReset (header : Header) (r0 : MemberKillSwitchTriggerReset) :
     Message.decodeBytes (Message.encode (.memberKillSwitchTriggerReset header r0)) = some (.memberKillSwitchTriggerReset header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[85, 68, 67], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ MemberKillSwitchTriggerReset.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [85, 68, 67]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (MemberKillSwitchTriggerReset.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_memberKillSwitchTriggerReset header r0
 
 theorem Message.decodeBytes_orderCancelReject (header : Header) (r0 : OrderCancelReject) :
     Message.decodeBytes (Message.encode (.orderCancelReject header r0)) = some (.orderCancelReject header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[57], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ OrderCancelReject.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [57]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (OrderCancelReject.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_orderCancelReject header r0
 
 theorem Message.decodeBytes_reject (header : Header) (r0 : Reject) :
     Message.decodeBytes (Message.encode (.reject header r0)) = some (.reject header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[51], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ Reject.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [51]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (Reject.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_reject header r0
 
 theorem Message.decodeBytes_requestForPrismNotification (header : Header) (r0 : RequestForPrismNotification) :
     Message.decodeBytes (Message.encode (.requestForPrismNotification header r0)) = some (.requestForPrismNotification header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[68, 83, 78], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ RequestForPrismNotification.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [68, 83, 78]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (RequestForPrismNotification.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_requestForPrismNotification header r0
 
 theorem Message.decodeBytes_resendRequest (header : Header) (r0 : ResendRequest) :
     Message.decodeBytes (Message.encode (.resendRequest header r0)) = some (.resendRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[50], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ ResendRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [50]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (ResendRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_resendRequest header r0
 
 theorem Message.decodeBytes_sequenceReset (header : Header) (r0 : SequenceReset) :
     Message.decodeBytes (Message.encode (.sequenceReset header r0)) = some (.sequenceReset header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[52], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ SequenceReset.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [52]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (SequenceReset.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_sequenceReset header r0
 
 theorem Message.decodeBytes_testRequest (header : Header) (r0 : TestRequest) :
     Message.decodeBytes (Message.encode (.testRequest header r0)) = some (.testRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[49], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ TestRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [49]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (TestRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_testRequest header r0

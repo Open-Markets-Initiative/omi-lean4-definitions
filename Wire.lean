@@ -1222,24 +1222,30 @@ group's entry. So a body is read as the tokens it is, `tag=value` each, and a re
 tokens of its own tags wherever they stand. Its encoder writes them in the order the specification lists
 them, which is one of the orders a decoder accepts. -/
 
-/-- A Fix field as the wire carries it: the digits of its tag, and its value up to the separator -/
+/-- A Fix field as the wire carries it: the digits of its tag, and the bytes of its value.
+
+An ordinary value ends at the separator and holds none of it, which is what a record states by keeping
+such a field as `Terminated 1` and what the parts written from it carry. A Data or XMLData value may hold
+the separator and is bounded by the Length field ahead of it instead, so a value is bytes here, and ending
+at the separator belongs to the fields that do. -/
 structure Token where
   tag : List UInt8
-  value : Terminated 1
+  value : List UInt8
 
 def Token.encode (token : Token) : List UInt8 :=
-  token.tag ++ (61 :: (token.value.val ++ [1]))
+  token.tag ++ (61 :: (token.value ++ [1]))
 
 /-- A token: its tag up to the equals sign, then its value up to the separator -/
 def decodeToken (bytes : List UInt8) : Option (Token × List UInt8) := do
   let (tag, afterTag) ← decodeTerminated 61 bytes
   let (value, rest) ← decodeTerminated 1 afterTag
-  pure (⟨tag.val, value⟩, rest)
+  pure (⟨tag.val, value.val⟩, rest)
 
-theorem decodeToken_encode (token : Token) (clean : (61 : UInt8) ∉ token.tag) (rest : List UInt8) :
+theorem decodeToken_encode (token : Token) (clean : (61 : UInt8) ∉ token.tag)
+    (ends : (1 : UInt8) ∉ token.value) (rest : List UInt8) :
     decodeToken (token.encode ++ rest) = some (token, rest) := by
-  have tag := decodeTerminated_encodeTerminated 61 ⟨token.tag, clean⟩ (token.value.val ++ [1] ++ rest)
-  have value := decodeTerminated_encodeTerminated 1 token.value rest
+  have tag := decodeTerminated_encodeTerminated 61 ⟨token.tag, clean⟩ (token.value ++ [1] ++ rest)
+  have value := decodeTerminated_encodeTerminated 1 (⟨token.value, ends⟩ : Terminated 1) rest
   simp only [encodeTerminated, List.append_assoc, List.singleton_append] at tag value
   simp only [decodeToken, Token.encode, List.append_assoc, List.cons_append, List.nil_append]
   rw [tag, some_bind]
@@ -1247,34 +1253,134 @@ theorem decodeToken_encode (token : Token) (clean : (61 : UInt8) ∉ token.tag) 
   rw [value, some_bind]
   rfl
 
-/-- Every token of a body, read until no byte is left; at most one token per byte -/
-def decodeTokens : Nat → List UInt8 → Option (List Token)
+/-- Which Length tags count a data field, and the tag of the field each one counts.
+
+Fix states that a Data or XMLData field is always immediately preceded by a Length field counting its
+bytes. A data value may hold the separator, so nothing in the bytes marks where it ends and the reader
+cannot find it by scanning: it needs to be told which tags those are, which is what a definition lists
+here. A definition holding no data field lists none, and every value then ends at the separator. -/
+abbrev Pairing := List (List UInt8 × List UInt8)
+
+/-- A data field: its tag, then exactly the bytes the Length ahead of it counted, then the separator.
+    The separator may be among those bytes, so only the count bounds the value -/
+def decodeCounted (tag : List UInt8) (count : Nat) (bytes : List UInt8) : Option (Token × List UInt8) := do
+  let afterTag ← stripPrefix (tag ++ [61]) bytes
+  let (value, afterValue) ← take? count afterTag
+  let rest ← stripPrefix [1] afterValue
+  pure (⟨tag, value⟩, rest)
+
+theorem decodeCounted_encode (tag value rest : List UInt8) :
+    decodeCounted tag value.length (Token.encode ⟨tag, value⟩ ++ rest) = some (⟨tag, value⟩, rest) := by
+  have split : Token.encode ⟨tag, value⟩ ++ rest = (tag ++ [61]) ++ (value ++ ([1] ++ rest)) := by
+    simp [Token.encode]
+  unfold decodeCounted
+  rw [split, stripPrefix_append, some_bind]
+  dsimp only
+  rw [take?_append rfl, some_bind]
+  dsimp only
+  rw [stripPrefix_append, some_bind]
+  rfl
+
+/-- Every token of a body, read until no byte is left. A Length tag the definition pairs with a data field
+    is read as itself, and then that field is taken as the bytes it counts; at most one token per byte, so
+    the body is fuel enough for its own tokens -/
+def decodeTokens (paired : Pairing) : Nat → List UInt8 → Option (List Token)
   | 0, bytes => if bytes.isEmpty then some [] else none
   | fuel + 1, bytes =>
     if bytes.isEmpty then some [] else do
-      let (token, rest) ← decodeToken bytes
-      let more ← decodeTokens fuel rest
-      pure (token :: more)
+      let (token, afterToken) ← decodeToken bytes
+      match paired.find? (fun entry => entry.1 == token.tag) with
+      | none =>
+        let more ← decodeTokens paired fuel afterToken
+        pure (token :: more)
+      | some entry =>
+        let count ← decodeDecimal token.value
+        let (field, rest) ← decodeCounted entry.2 count afterToken
+        let more ← decodeTokens paired fuel rest
+        pure (token :: field :: more)
 
 def encodeTokens (tokens : List Token) : List UInt8 :=
   tokens.flatMap Token.encode
 
-theorem decodeTokens_encodeTokens (tokens : List Token) (clean : ∀ token ∈ tokens, (61 : UInt8) ∉ token.tag)
+/-- The tokens of a message as the reader takes them back: each tag free of the equals sign and each value
+    free of the separator, save a data field, which stands right after the Length counting its bytes -/
+inductive Paired (paired : Pairing) : List Token → Prop where
+  | nil : Paired paired []
+  | plain (token : Token) (rest : List Token)
+      (tagged : (61 : UInt8) ∉ token.tag) (closed : (1 : UInt8) ∉ token.value)
+      (alone : paired.find? (fun entry => entry.1 == token.tag) = none)
+      (after : Paired paired rest) : Paired paired (token :: rest)
+  | counted (count field : Token) (rest : List Token)
+      (tagged : (61 : UInt8) ∉ count.tag) (closed : (1 : UInt8) ∉ count.value)
+      (pairs : paired.find? (fun entry => entry.1 == count.tag) = some (count.tag, field.tag))
+      (states : decodeDecimal count.value = some field.value.length)
+      (after : Paired paired rest) : Paired paired (count :: field :: rest)
+
+/-- Tokens the reader takes back, one run after another: a run never ends on a Length whose field is in
+    the next, because a part writes a data field together with the Length that counts it -/
+theorem paired_append (paired : Pairing) (fuel : Nat) : ∀ front back : List Token,
+    front.length ≤ fuel → Paired paired front → Paired paired back → Paired paired (front ++ back) := by
+  induction fuel with
+  | zero =>
+    intro front back small ahead behind
+    have empty : front = [] := List.eq_nil_of_length_eq_zero (Nat.le_zero.mp small)
+    subst empty
+    simpa using behind
+  | succ fuel ih =>
+    intro front back small ahead behind
+    cases ahead with
+    | nil => simpa using behind
+    | plain token rest tagged closed alone after =>
+      simp only [List.cons_append]
+      exact .plain _ _ tagged closed alone (ih rest back (by simp at small; omega) after behind)
+    | counted count field rest tagged closed pairs states after =>
+      simp only [List.cons_append]
+      exact .counted _ _ _ tagged closed pairs states (ih rest back (by simp at small; omega) after behind)
+
+/-- A run of tokens the reader takes back, of however many parts wrote it -/
+theorem paired_of (paired : Pairing) (front back : List Token)
+    (ahead : Paired paired front) (behind : Paired paired back) : Paired paired (front ++ back) :=
+  paired_append paired front.length front back (Nat.le_refl _) ahead behind
+
+theorem decodeTokens_encodeTokens (paired : Pairing) (tokens : List Token) (taken : Paired paired tokens)
     (fuel : Nat) (enough : tokens.length ≤ fuel) :
-    decodeTokens fuel (encodeTokens tokens) = some tokens := by
-  induction tokens generalizing fuel with
-  | nil => cases fuel <;> simp [decodeTokens, encodeTokens]
-  | cons token others ih =>
-    cases fuel with
-    | zero => simp at enough
-    | succ fuel =>
-      have filled : (encodeTokens (token :: others)).isEmpty = false := by
+    decodeTokens paired fuel (encodeTokens tokens) = some tokens := by
+  induction fuel generalizing tokens with
+  | zero =>
+    have empty : tokens = [] := List.eq_nil_of_length_eq_zero (Nat.le_zero.mp enough)
+    subst empty
+    simp [decodeTokens, encodeTokens]
+  | succ fuel ih =>
+    cases taken with
+    | nil => simp [decodeTokens, encodeTokens]
+    | plain token rest tagged closed alone after =>
+      have filled : (encodeTokens (token :: rest)).isEmpty = false := by
         simp [encodeTokens, Token.encode]
-      have first := decodeToken_encode token (clean token (by simp)) (encodeTokens others)
-      have more := ih (fun item inside => clean item (by simp [inside])) fuel (by simp at enough; omega)
+      have first := decodeToken_encode token tagged closed (encodeTokens rest)
+      have more := ih rest after (by simp at enough; omega)
       simp only [decodeTokens, filled, Bool.false_eq_true, ite_false]
-      rw [show encodeTokens (token :: others) = token.encode ++ encodeTokens others by simp [encodeTokens], first,
-        some_bind]
+      rw [show encodeTokens (token :: rest) = token.encode ++ encodeTokens rest by simp [encodeTokens],
+        first, some_bind]
+      dsimp only
+      rw [alone]
+      dsimp only
+      rw [more, some_bind]
+      rfl
+    | counted count field rest tagged closed pairs states after =>
+      have filled : (encodeTokens (count :: field :: rest)).isEmpty = false := by
+        simp [encodeTokens, Token.encode]
+      have first := decodeToken_encode count tagged closed (encodeTokens (field :: rest))
+      have held := decodeCounted_encode field.tag field.value (encodeTokens rest)
+      have more := ih rest after (by simp at enough; omega)
+      simp only [decodeTokens, filled, Bool.false_eq_true, ite_false]
+      rw [show encodeTokens (count :: field :: rest) = count.encode ++ encodeTokens (field :: rest) by
+        simp [encodeTokens], first, some_bind]
+      dsimp only
+      rw [pairs]
+      dsimp only
+      rw [states, some_bind]
+      rw [show encodeTokens (field :: rest) = Token.encode ⟨field.tag, field.value⟩ ++ encodeTokens rest by
+        simp [encodeTokens], held, some_bind]
       dsimp only
       rw [more, some_bind]
       rfl
@@ -1349,32 +1455,130 @@ theorem select_part (parts : List Part) (tagged : List (List (List UInt8))) (sha
 
 /-- A field the venue requires: one token of its tag -/
 def Part.required (tag : List UInt8) (value : Terminated 1) : Part :=
-  ⟨[tag], [⟨tag, value⟩], by simp⟩
+  ⟨[tag], [⟨tag, value.val⟩], by simp⟩
 
 /-- A field the venue does not require: one token of its tag, or none -/
 def Part.optional (tag : List UInt8) (value : Option (Terminated 1)) : Part :=
-  ⟨[tag], (value.map fun item => (⟨tag, item⟩ : Token)).toList, by cases value <;> simp⟩
+  ⟨[tag], (value.map fun item => (⟨tag, item.val⟩ : Token)).toList, by cases value <;> simp⟩
 
-/-- A required field read: exactly one token of its tag -/
+/-- A required field read: exactly one token of its tag, whose value ends at the separator -/
 def readRequired (tag : List UInt8) (tokens : List Token) : Option (Terminated 1) :=
   match select [tag] tokens with
-  | [token] => some token.value
+  | [token] => if ends : (1 : UInt8) ∉ token.value then some ⟨token.value, ends⟩ else none
   | _ => none
 
 /-- An optional field read: no token of its tag, or exactly one -/
 def readOptional (tag : List UInt8) (tokens : List Token) : Option (Option (Terminated 1)) :=
   match select [tag] tokens with
   | [] => some none
-  | [token] => some (some token.value)
+  | [token] => if ends : (1 : UInt8) ∉ token.value then some (some ⟨token.value, ends⟩) else none
   | _ => none
 
 theorem readRequired_part (tag : List UInt8) (value : Terminated 1) (tokens : List Token)
     (agrees : select [tag] tokens = (Part.required tag value).tokens) : readRequired tag tokens = some value := by
-  simp [readRequired, agrees, Part.required]
+  simp [readRequired, agrees, Part.required, value.property]
 
 theorem readOptional_part (tag : List UInt8) (value : Option (Terminated 1)) (tokens : List Token)
     (agrees : select [tag] tokens = (Part.optional tag value).tokens) : readOptional tag tokens = some value := by
-  cases value <;> simp [readOptional, agrees, Part.optional]
+  cases value with
+  | none => simp [readOptional, agrees, Part.optional]
+  | some item => simp [readOptional, agrees, Part.optional, item.property]
+
+/-! ## Data fields: the bytes a Length ahead of the field counts
+
+A record keeps a data field as the bytes alone and writes the Length from them, as the frame writes
+BodyLength from the body: a stored count could disagree with what it counts, and the reader would then
+have no value to give back. The two tokens are written together, so the field always stands right after
+the Length that bounds it. -/
+
+/-- A data field the venue requires: the Length counting its bytes, then the field itself -/
+def Part.dataRequired (count field : List UInt8) (value : List UInt8) : Part :=
+  ⟨[count, field], [⟨count, encodeDecimal value.length⟩, ⟨field, value⟩], by simp⟩
+
+/-- A data field the venue does not require: the Length and the field, or neither -/
+def Part.dataOptional (count field : List UInt8) (value : Option (List UInt8)) : Part :=
+  ⟨[count, field],
+   (value.map fun bytes => [(⟨count, encodeDecimal bytes.length⟩ : Token), ⟨field, bytes⟩]).getD [],
+   by cases value <;> simp⟩
+
+/-- A required data field read: the Length, then the field holding the bytes it counts -/
+def readData (count field : List UInt8) (tokens : List Token) : Option (List UInt8) :=
+  match select [count, field] tokens with
+  | [stated, held] =>
+    if stated.tag = count ∧ held.tag = field ∧ decodeDecimal stated.value = some held.value.length
+      then some held.value else none
+  | _ => none
+
+/-- An optional data field read: neither token, or the Length and the field holding the bytes it counts -/
+def readDataOptional (count field : List UInt8) (tokens : List Token) : Option (Option (List UInt8)) :=
+  match select [count, field] tokens with
+  | [] => some none
+  | [stated, held] =>
+    if stated.tag = count ∧ held.tag = field ∧ decodeDecimal stated.value = some held.value.length
+      then some (some held.value) else none
+  | _ => none
+
+theorem readData_part (count field : List UInt8) (value : List UInt8) (tokens : List Token)
+    (agrees : select [count, field] tokens = (Part.dataRequired count field value).tokens) :
+    readData count field tokens = some value := by
+  simp [readData, agrees, Part.dataRequired, decodeDecimal_encodeDecimal]
+
+theorem readDataOptional_part (count field : List UInt8) (value : Option (List UInt8)) (tokens : List Token)
+    (agrees : select [count, field] tokens = (Part.dataOptional count field value).tokens) :
+    readDataOptional count field tokens = some value := by
+  cases value with
+  | none => simp [readDataOptional, agrees, Part.dataOptional]
+  | some bytes => simp [readDataOptional, agrees, Part.dataOptional, decodeDecimal_encodeDecimal]
+
+/-! ## The parts of a record write tokens the reader takes back
+
+A record states this one part at a time, as it states its parts, and a message states it one component at
+a time: the tokens of each run followed by the tokens of the rest. -/
+
+theorem paired_none (paired : Pairing) : Paired paired (encodeParts []) := .nil
+
+/-- One part of a record, then the rest of it -/
+theorem paired_cons (paired : Pairing) (part : Part) (rest : List Part)
+    (ahead : Paired paired part.tokens) (behind : Paired paired (encodeParts rest)) :
+    Paired paired (encodeParts (part :: rest)) := by
+  simp only [encodeParts, List.flatMap_cons]
+  exact paired_of paired _ _ ahead behind
+
+/-- One run of parts, then the run after it -/
+theorem paired_parts (paired : Pairing) (front back : List Part)
+    (ahead : Paired paired (encodeParts front)) (behind : Paired paired (encodeParts back)) :
+    Paired paired (encodeParts (front ++ back)) := by
+  simp only [encodeParts, List.flatMap_append]
+  exact paired_of paired _ _ ahead behind
+
+theorem paired_required (paired : Pairing) (tag : List UInt8) (value : Terminated 1)
+    (tagged : (61 : UInt8) ∉ tag) (alone : paired.find? (fun entry => entry.1 == tag) = none) :
+    Paired paired (Part.required tag value).tokens :=
+  .plain _ _ tagged value.property alone .nil
+
+theorem paired_optional (paired : Pairing) (tag : List UInt8) (value : Option (Terminated 1))
+    (tagged : (61 : UInt8) ∉ tag) (alone : paired.find? (fun entry => entry.1 == tag) = none) :
+    Paired paired (Part.optional tag value).tokens := by
+  cases value with
+  | none => exact .nil
+  | some item => exact .plain _ _ tagged item.property alone .nil
+
+theorem paired_dataRequired (paired : Pairing) (count field : List UInt8) (value : List UInt8)
+    (tagged : (61 : UInt8) ∉ count)
+    (pairs : paired.find? (fun entry => entry.1 == count) = some (count, field)) :
+    Paired paired (Part.dataRequired count field value).tokens :=
+  .counted _ _ _ tagged (encodeDecimal_free value.length) pairs
+    (decodeDecimal_encodeDecimal value.length) .nil
+
+theorem paired_dataOptional (paired : Pairing) (count field : List UInt8) (value : Option (List UInt8))
+    (tagged : (61 : UInt8) ∉ count)
+    (pairs : paired.find? (fun entry => entry.1 == count) = some (count, field)) :
+    Paired paired (Part.dataOptional count field value).tokens := by
+  cases value with
+  | none => exact .nil
+  | some bytes =>
+    exact .counted _ _ _ tagged (encodeDecimal_free bytes.length) pairs
+      (decodeDecimal_encodeDecimal bytes.length) .nil
 
 /-! ## Repeating groups in any order: the count, then entries each led by the delimiter -/
 
@@ -1441,7 +1645,7 @@ theorem chunks_entries (delimiter : List UInt8) (entries : List (List Token))
 def Part.group (count : List UInt8) (members : List (List UInt8))
     (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members) (items : List α) : Part :=
   ⟨count :: members,
-   (if items.isEmpty then [] else ⟨count, ⟨encodeDecimal items.length, encodeDecimal_free items.length⟩⟩ :: items.flatMap encode),
+   (if items.isEmpty then [] else ⟨count, encodeDecimal items.length⟩ :: items.flatMap encode),
    by
      intro token inside
      split at inside
@@ -1451,13 +1655,34 @@ def Part.group (count : List UInt8) (members : List (List UInt8))
        · subst first; simp
        · exact List.mem_cons_of_mem _ (within item token holds)⟩
 
+/-- Tokens the reader takes back, of every item of a run -/
+theorem paired_flatMap (paired : Pairing) (encode : α → List Token)
+    (taken : ∀ item, Paired paired (encode item)) (items : List α) :
+    Paired paired (items.flatMap encode) := by
+  induction items with
+  | nil => exact .nil
+  | cons item others ih =>
+    simp only [List.flatMap_cons]
+    exact paired_of paired _ _ (taken item) ih
+
+theorem paired_group (paired : Pairing) (count : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members)
+    (tagged : (61 : UInt8) ∉ count) (alone : paired.find? (fun entry => entry.1 == count) = none)
+    (taken : ∀ item, Paired paired (encode item)) (items : List α) :
+    Paired paired (Part.group count members encode within items).tokens := by
+  simp only [Part.group]
+  split
+  · exact .nil
+  · exact .plain _ _ tagged (encodeDecimal_free items.length) alone
+      (paired_flatMap paired encode taken items)
+
 /-- A group read from its own tokens: none, or the count and exactly that many entries -/
 def decodeGroup (count : List UInt8) (delimiter : List UInt8) (decode : List Token → Option α) :
     List Token → Option (List α)
   | [] => some []
   | token :: rest =>
     if token.tag = count then do
-      let number ← decodeDecimal token.value.val
+      let number ← decodeDecimal token.value
       let entries ← chunks delimiter rest.length rest
       if entries.length = number then entries.mapM decode else none
     else none
@@ -1509,7 +1734,7 @@ theorem readGroup_part (count delimiter : List UInt8) (members : List (List UInt
 theorem lead_parts (delimiter : List UInt8) (value : Terminated 1) (others : List Part) (tagged : List (List (List UInt8)))
     (shape : others.map Part.tags = tagged) (apart : delimiter ∉ tagged.flatten) :
     Lead delimiter (encodeParts (Part.required delimiter value :: others)) := by
-  refine ⟨value, encodeParts others, rfl, ?_⟩
+  refine ⟨value.val, encodeParts others, rfl, ?_⟩
   intro token inside same
   have := encodeParts_within others token inside
   rw [shape, same] at this
@@ -1560,19 +1785,14 @@ theorem encodeTokens_length_ge (tokens : List Token) : tokens.length ≤ (encode
     omega
 
 /-- A message's bytes: its tokens, each written tag=value and closed by the separator -/
-theorem decodeTokens_message (lead : Token) (parts : List Part) (tagged : List (List (List UInt8)))
-    (shape : parts.map Part.tags = tagged) (cleanLead : (61 : UInt8) ∉ lead.tag)
-    (clean : ∀ tag ∈ tagged.flatten, (61 : UInt8) ∉ tag) :
-    decodeTokens (encodeTokens (lead :: encodeParts parts)).length (encodeTokens (lead :: encodeParts parts))
-      = some (lead :: encodeParts parts) := by
-  apply decodeTokens_encodeTokens _ _ _ (encodeTokens_length_ge _)
-  intro token inside
-  simp only [List.mem_cons] at inside
-  rcases inside with first | later
-  · subst first; exact cleanLead
-  · have := encodeParts_within parts token later
-    rw [shape] at this
-    exact clean _ this
+theorem decodeTokens_message (paired : Pairing) (lead : Token) (parts : List Part)
+    (tagged : (61 : UInt8) ∉ lead.tag) (closed : (1 : UInt8) ∉ lead.value)
+    (alone : paired.find? (fun entry => entry.1 == lead.tag) = none)
+    (taken : Paired paired (encodeParts parts)) :
+    decodeTokens paired (encodeTokens (lead :: encodeParts parts)).length
+        (encodeTokens (lead :: encodeParts parts))
+      = some (lead :: encodeParts parts) :=
+  decodeTokens_encodeTokens paired _ (.plain _ _ tagged closed alone taken) _ (encodeTokens_length_ge _)
 
 /-- A component reads the same from a message's tokens as from its own, where nothing around it writes its tags -/
 theorem agrees_slice (front middle back : List Part) (frontTags middleTags backTags : List (List (List UInt8)))

@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.CboeBidsjapanOrderentryFixV873Client
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   msgSeqNum : Option (Terminated 1)  -- tag 34
   possDupFlag : Option (Terminated 1)  -- tag 43
@@ -93,6 +96,21 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
   have deliverToCompID := readOptional_part [49, 50, 56] record.deliverToCompID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 11 (by decide +kernel)))
   simp only [Header.decode, msgSeqNum, possDupFlag, senderCompID, senderSubID, sendingTime, targetCompID, targetSubID, possResend, onBehalfOfCompID, onBehalfOfSubID, origSendingTime, deliverToCompID, some_bind] <;> rfl
+
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [51, 52] record.msgSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [52, 51] record.possDupFlag (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [52, 57] record.senderCompID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [53, 48] record.senderSubID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [53, 50] record.sendingTime (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [53, 54] record.targetCompID (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [53, 55] record.targetSubID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [57, 55] record.possResend (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [49, 49, 53] record.onBehalfOfCompID (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_optional pairing [49, 49, 54] record.onBehalfOfSubID (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [49, 50, 50] record.origSendingTime (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_optional pairing [49, 50, 56] record.deliverToCompID (by decide) (by decide))
+              (paired_none pairing))))))))))))
 
 structure NewOrderSingle where
   account : Option (Terminated 1)  -- tag 1
@@ -306,6 +324,48 @@ theorem NewOrderSingle.decode_agrees (record : NewOrderSingle) (tokens : List To
   have partyIDOrderOriginationFirm := readOptional_part [50, 48, 48, 49, 51] record.partyIDOrderOriginationFirm tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 38 (by decide +kernel)))
   simp only [NewOrderSingle.decode, account, clOrdID, currency, execInst, handlInst, iDSource, iOIid, orderQty, ordType, price, rule80A, securityID, side, symbol, text, timeInForce, transactTime, settlmntTyp, symbolSfx, execBroker, exDestination, minQty, locateReqd, expireTime, securityExchange, pegDifference, complianceID, discretionInst, discretionOffset, clearingFirm, partyID, partyIDSource, partyRole, orderCapacity, bookingType, shortSaleExemptionReason, locateBroker, locateIdentifier, partyIDOrderOriginationFirm, some_bind] <;> rfl
+
+theorem NewOrderSingle.taken (record : NewOrderSingle) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [49, 53] record.currency (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [50, 49] record.handlInst (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [50, 50] record.iDSource (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [50, 51] record.iOIid (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_required pairing [52, 48] record.ordType (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [52, 55] record.rule80A (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_optional pairing [52, 56] record.securityID (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [53, 57] record.timeInForce (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_optional pairing [54, 51] record.settlmntTyp (by decide) (by decide))
+                    (paired_cons pairing _ _ (paired_optional pairing [54, 53] record.symbolSfx (by decide) (by decide))
+                     (paired_cons pairing _ _ (paired_optional pairing [55, 54] record.execBroker (by decide) (by decide))
+                      (paired_cons pairing _ _ (paired_optional pairing [49, 48, 48] record.exDestination (by decide) (by decide))
+                       (paired_cons pairing _ _ (paired_optional pairing [49, 49, 48] record.minQty (by decide) (by decide))
+                        (paired_cons pairing _ _ (paired_optional pairing [49, 49, 52] record.locateReqd (by decide) (by decide))
+                         (paired_cons pairing _ _ (paired_optional pairing [49, 50, 54] record.expireTime (by decide) (by decide))
+                          (paired_cons pairing _ _ (paired_optional pairing [50, 48, 55] record.securityExchange (by decide) (by decide))
+                           (paired_cons pairing _ _ (paired_optional pairing [50, 49, 49] record.pegDifference (by decide) (by decide))
+                            (paired_cons pairing _ _ (paired_optional pairing [51, 55, 54] record.complianceID (by decide) (by decide))
+                             (paired_cons pairing _ _ (paired_optional pairing [51, 56, 56] record.discretionInst (by decide) (by decide))
+                              (paired_cons pairing _ _ (paired_optional pairing [51, 56, 57] record.discretionOffset (by decide) (by decide))
+                               (paired_cons pairing _ _ (paired_optional pairing [52, 51, 57] record.clearingFirm (by decide) (by decide))
+                                (paired_cons pairing _ _ (paired_optional pairing [52, 52, 56] record.partyID (by decide) (by decide))
+                                 (paired_cons pairing _ _ (paired_optional pairing [52, 52, 55] record.partyIDSource (by decide) (by decide))
+                                  (paired_cons pairing _ _ (paired_optional pairing [52, 53, 50] record.partyRole (by decide) (by decide))
+                                   (paired_cons pairing _ _ (paired_optional pairing [53, 50, 56] record.orderCapacity (by decide) (by decide))
+                                    (paired_cons pairing _ _ (paired_optional pairing [55, 55, 53] record.bookingType (by decide) (by decide))
+                                     (paired_cons pairing _ _ (paired_optional pairing [49, 54, 56, 56] record.shortSaleExemptionReason (by decide) (by decide))
+                                      (paired_cons pairing _ _ (paired_optional pairing [53, 55, 48, 48] record.locateBroker (by decide) (by decide))
+                                       (paired_cons pairing _ _ (paired_optional pairing [53, 55, 48, 49] record.locateIdentifier (by decide) (by decide))
+                                        (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 49, 51] record.partyIDOrderOriginationFirm (by decide) (by decide))
+                                         (paired_none pairing)))))))))))))))))))))))))))))))))))))))
 
 structure OrderCancelReplaceRequest where
   account : Option (Terminated 1)  -- tag 1
@@ -525,6 +585,49 @@ theorem OrderCancelReplaceRequest.decode_agrees (record : OrderCancelReplaceRequ
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 39 (by decide +kernel)))
   simp only [OrderCancelReplaceRequest.decode, account, clOrdID, currency, execInst, handlInst, iDSource, orderID, orderQty, ordType, origClOrdID, price, rule80A, securityID, side, symbol, text, timeInForce, transactTime, settlmntTyp, symbolSfx, execBroker, exDestination, minQty, locateReqd, expireTime, securityExchange, pegDifference, complianceID, discretionInst, discretionOffset, clearingFirm, partyID, partyIDSource, partyRole, orderCapacity, bookingType, shortSaleExemptionReason, locateBroker, locateIdentifier, partyIDOrderOriginationFirm, some_bind] <;> rfl
 
+theorem OrderCancelReplaceRequest.taken (record : OrderCancelReplaceRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [49, 53] record.currency (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [50, 49] record.handlInst (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [50, 50] record.iDSource (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [51, 55] record.orderID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_required pairing [52, 48] record.ordType (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_required pairing [52, 49] record.origClOrdID (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_optional pairing [52, 55] record.rule80A (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_optional pairing [52, 56] record.securityID (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_optional pairing [53, 57] record.timeInForce (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+                    (paired_cons pairing _ _ (paired_optional pairing [54, 51] record.settlmntTyp (by decide) (by decide))
+                     (paired_cons pairing _ _ (paired_optional pairing [54, 53] record.symbolSfx (by decide) (by decide))
+                      (paired_cons pairing _ _ (paired_optional pairing [55, 54] record.execBroker (by decide) (by decide))
+                       (paired_cons pairing _ _ (paired_optional pairing [49, 48, 48] record.exDestination (by decide) (by decide))
+                        (paired_cons pairing _ _ (paired_optional pairing [49, 49, 48] record.minQty (by decide) (by decide))
+                         (paired_cons pairing _ _ (paired_optional pairing [49, 49, 52] record.locateReqd (by decide) (by decide))
+                          (paired_cons pairing _ _ (paired_optional pairing [49, 50, 54] record.expireTime (by decide) (by decide))
+                           (paired_cons pairing _ _ (paired_optional pairing [50, 48, 55] record.securityExchange (by decide) (by decide))
+                            (paired_cons pairing _ _ (paired_optional pairing [50, 49, 49] record.pegDifference (by decide) (by decide))
+                             (paired_cons pairing _ _ (paired_optional pairing [51, 55, 54] record.complianceID (by decide) (by decide))
+                              (paired_cons pairing _ _ (paired_optional pairing [51, 56, 56] record.discretionInst (by decide) (by decide))
+                               (paired_cons pairing _ _ (paired_optional pairing [51, 56, 57] record.discretionOffset (by decide) (by decide))
+                                (paired_cons pairing _ _ (paired_optional pairing [52, 51, 57] record.clearingFirm (by decide) (by decide))
+                                 (paired_cons pairing _ _ (paired_optional pairing [52, 52, 56] record.partyID (by decide) (by decide))
+                                  (paired_cons pairing _ _ (paired_optional pairing [52, 52, 55] record.partyIDSource (by decide) (by decide))
+                                   (paired_cons pairing _ _ (paired_optional pairing [52, 53, 50] record.partyRole (by decide) (by decide))
+                                    (paired_cons pairing _ _ (paired_optional pairing [53, 50, 56] record.orderCapacity (by decide) (by decide))
+                                     (paired_cons pairing _ _ (paired_optional pairing [55, 55, 53] record.bookingType (by decide) (by decide))
+                                      (paired_cons pairing _ _ (paired_optional pairing [49, 54, 56, 56] record.shortSaleExemptionReason (by decide) (by decide))
+                                       (paired_cons pairing _ _ (paired_optional pairing [53, 55, 48, 48] record.locateBroker (by decide) (by decide))
+                                        (paired_cons pairing _ _ (paired_optional pairing [53, 55, 48, 49] record.locateIdentifier (by decide) (by decide))
+                                         (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 49, 51] record.partyIDOrderOriginationFirm (by decide) (by decide))
+                                          (paired_none pairing))))))))))))))))))))))))))))))))))))))))
+
 structure OrderCancelRequest where
   account : Option (Terminated 1)  -- tag 1
   clOrdID : Terminated 1  -- tag 11
@@ -633,33 +736,54 @@ theorem OrderCancelRequest.decode_agrees (record : OrderCancelRequest) (tokens :
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 17 (by decide +kernel)))
   simp only [OrderCancelRequest.decode, account, clOrdID, currency, iDSource, orderID, orderQty, origClOrdID, securityID, side, symbol, text, transactTime, symbolSfx, execBroker, securityExchange, complianceID, clearingFirm, bookingType, some_bind] <;> rfl
 
+theorem OrderCancelRequest.taken (record : OrderCancelRequest) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [49, 53] record.currency (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [50, 50] record.iDSource (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [51, 55] record.orderID (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [51, 56] record.orderQty (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_required pairing [52, 49] record.origClOrdID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [52, 56] record.securityID (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_required pairing [54, 48] record.transactTime (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_optional pairing [54, 53] record.symbolSfx (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_optional pairing [55, 54] record.execBroker (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_optional pairing [50, 48, 55] record.securityExchange (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [51, 55, 54] record.complianceID (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_optional pairing [52, 51, 57] record.clearingFirm (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_optional pairing [55, 55, 53] record.bookingType (by decide) (by decide))
+                    (paired_none pairing))))))))))))))))))
+
 inductive Message where
   | newOrderSingle (header : Header) (r0 : NewOrderSingle)
   | orderCancelReplaceRequest (header : Header) (r0 : OrderCancelReplaceRequest)
   | orderCancelRequest (header : Header) (r0 : OrderCancelRequest)
 
 def Message.tokens : Message → List Token
-  | .newOrderSingle header r0 => ⟨[51, 53], ⟨[68], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .orderCancelReplaceRequest header r0 => ⟨[51, 53], ⟨[71], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .orderCancelRequest header r0 => ⟨[51, 53], ⟨[70], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .newOrderSingle header r0 => ⟨[51, 53], [68]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .orderCancelReplaceRequest header r0 => ⟨[51, 53], [71]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .orderCancelRequest header r0 => ⟨[51, 53], [70]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [68] then
+      if token.value = [68] then
         if known (Header.tags ++ NewOrderSingle.tags) rest then do
           let header ← Header.decode rest
           let r0 ← NewOrderSingle.decode rest
           pure (.newOrderSingle header r0)
         else none
-      else if token.value.val = [71] then
+      else if token.value = [71] then
         if known (Header.tags ++ OrderCancelReplaceRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← OrderCancelReplaceRequest.decode rest
           pure (.orderCancelReplaceRequest header r0)
         else none
-      else if token.value.val = [70] then
+      else if token.value = [70] then
         if known (Header.tags ++ OrderCancelRequest.tags) rest then do
           let header ← Header.decode rest
           let r0 ← OrderCancelRequest.decode rest
@@ -701,29 +825,29 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_newOrderSingle (header : Header) (r0 : NewOrderSingle) :
     Message.decodeBytes (Message.encode (.newOrderSingle header r0)) = some (.newOrderSingle header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[68], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ NewOrderSingle.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [68]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (NewOrderSingle.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_newOrderSingle header r0
 
 theorem Message.decodeBytes_orderCancelReplaceRequest (header : Header) (r0 : OrderCancelReplaceRequest) :
     Message.decodeBytes (Message.encode (.orderCancelReplaceRequest header r0)) = some (.orderCancelReplaceRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[71], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ OrderCancelReplaceRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [71]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (OrderCancelReplaceRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_orderCancelReplaceRequest header r0
 
 theorem Message.decodeBytes_orderCancelRequest (header : Header) (r0 : OrderCancelRequest) :
     Message.decodeBytes (Message.encode (.orderCancelRequest header r0)) = some (.orderCancelRequest header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[70], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ OrderCancelRequest.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [70]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (OrderCancelRequest.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_orderCancelRequest header r0

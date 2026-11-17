@@ -215,7 +215,7 @@ inductive OrderStatus where
   | invalidMpid -- Invalid Mpid
   | invalidPrice -- Invalid Price
   | invalidSize -- Invalid Size
-  | blockedByFirmOverMiaxMemberFirm -- Blocked By Firm Over Miax Member Firm
+  | blockedByFirmOverMiaxMemberFirmPortalOrByHelpdesk -- Blocked By Firm Over Miax Member Firm Portal Or By Helpdesk
   | exceededMaxAllowedSize -- Exceeded Max Allowed Size
   | exceededMaxNotionalValue -- Exceeded Max Notional Value
   | invalidClientOrderId -- Invalid Client Order Id
@@ -232,18 +232,18 @@ inductive OrderStatus where
   | undefinedReason -- Undefined Reason
   | invalidCapacity -- Invalid Capacity
   | invalidTimeInForce -- Invalid Time In Force
-  | invalidRoutingInstructionOrUse -- Invalid Routing Instruction Or Use
+  | invalidRoutingInstructionOrItsUse -- Invalid Routing Instruction Or Its Use
   | invalidSelfTradeProtectionLevel -- Invalid Self Trade Protection Level
-  | invalidSelfTradeProtectionInstructionOrUse -- Invalid Self Trade Protection Instruction Or Use
+  | invalidSelfTradeProtectionInstructionOrItsUse -- Invalid Self Trade Protection Instruction Or Its Use
   | invalidAttributableValueOrUse -- Invalid Attributable Value Or Use
   | invalidPriceSlidingAndRepriceFrequencyValueOrUse -- Invalid Price Sliding And Reprice Frequency Value Or Use
   | invalidUseOfPostOnlyInstruction -- Invalid Use Of Post Only Instruction
   | invalidUseOfDisplayInstruction -- Invalid Use Of Display Instruction
-  | invalidValueOrUseForAvailableWhenLocked -- Invalid Value Or Use For Available When Locked
+  | invalidValueOrUseForAvailableWhenLockedInstruction -- Invalid Value Or Use For Available When Locked Instruction
   | marketOrderPriceProtection -- Market Order Price Protection
   | invalidRoutingStrategyOrItsUse -- Invalid Routing Strategy Or Its Use
-  | invalidValueInAccount -- Invalid Value In Account
-  | invalidValueInClearingAccount -- Invalid Value In Clearing Account
+  | invalidValueInAccountField -- Invalid Value In Account Field
+  | invalidValueInClearingAccountField -- Invalid Value In Clearing Account Field
   | invalidUseOfTradingCollarDollarValue -- Invalid Use Of Trading Collar Dollar Value
   | invalidForCurrentSymbolTradingStatus -- Invalid For Current Symbol Trading Status
   | primaryExchangeIpoNotCompleteIpoInProgress -- Primary Exchange Ipo Not Complete Ipo In Progress
@@ -254,7 +254,7 @@ inductive OrderStatus where
   | featureNotAvailable -- Feature Not Available
   | primaryListingMarketRoutingNotSupported -- Primary Listing Market Routing Not Supported
   | tooLateForPrimaryListingMarketOrder -- Too Late For Primary Listing Market Order
-  | pacOrdersAreNotAllowedRoutingToPrimary -- Pac Orders Are Not Allowed Routing To Primary
+  | pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled -- Pac Orders Are Not Allowed Routing To Primary Listing Market Disabled
   | shortSaleExemptOrdersNotAllowed -- Short Sale Exempt Orders Not Allowed
   | limitPriceMoreAggressiveThanMarketImpactCollar -- Limit Price More Aggressive Than Market Impact Collar
   | marketOrdersNotAllowed -- Market Orders Not Allowed
@@ -263,10 +263,10 @@ inductive OrderStatus where
   | averageDailyVolumeProtection -- Average Daily Volume Protection
   | invalidOffsetForPrimaryPegOrder -- Invalid Offset For Primary Peg Order
   | invalidPurgeGroupSpecified -- Invalid Purge Group Specified
-  | invalidOrNotPermittedValueInLocateAccount -- Invalid Or Not Permitted Value In Locate Account
+  | invalidOrNotPermittedValueInLocateAccountField -- Invalid Or Not Permitted Value In Locate Account Field
   | blockedByDropCopyAcodEvent -- Blocked By Drop Copy Acod Event
   | blockedByDropCopyAcosfEvent -- Blocked By Drop Copy Acosf Event
-  | invalidUseOfCancelOrderIfNotANbboSetter -- Invalid Use Of Cancel Order If Not A Nbbo Setter
+  | invalidUseOfCancelOrderIfNotANbboSetterOrderInstruction -- Invalid Use Of Cancel Order If Not A Nbbo Setter Order Instruction
   | downgradedFromOlderVersion -- Downgraded From Older Version
   | unlisted (byte : { byte : UInt8 // byte ∉ OrderStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -286,7 +286,7 @@ def toByte : OrderStatus → UInt8
   | .invalidMpid => 0x49
   | .invalidPrice => 0x4A
   | .invalidSize => 0x4B
-  | .blockedByFirmOverMiaxMemberFirm => 0x4C
+  | .blockedByFirmOverMiaxMemberFirmPortalOrByHelpdesk => 0x4C
   | .exceededMaxAllowedSize => 0x4D
   | .exceededMaxNotionalValue => 0x4E
   | .invalidClientOrderId => 0x4F
@@ -303,18 +303,18 @@ def toByte : OrderStatus → UInt8
   | .undefinedReason => 0x5A
   | .invalidCapacity => 0x61
   | .invalidTimeInForce => 0x62
-  | .invalidRoutingInstructionOrUse => 0x63
+  | .invalidRoutingInstructionOrItsUse => 0x63
   | .invalidSelfTradeProtectionLevel => 0x64
-  | .invalidSelfTradeProtectionInstructionOrUse => 0x65
+  | .invalidSelfTradeProtectionInstructionOrItsUse => 0x65
   | .invalidAttributableValueOrUse => 0x66
   | .invalidPriceSlidingAndRepriceFrequencyValueOrUse => 0x67
   | .invalidUseOfPostOnlyInstruction => 0x68
   | .invalidUseOfDisplayInstruction => 0x69
-  | .invalidValueOrUseForAvailableWhenLocked => 0x6A
+  | .invalidValueOrUseForAvailableWhenLockedInstruction => 0x6A
   | .marketOrderPriceProtection => 0x6B
   | .invalidRoutingStrategyOrItsUse => 0x6C
-  | .invalidValueInAccount => 0x6D
-  | .invalidValueInClearingAccount => 0x6E
+  | .invalidValueInAccountField => 0x6D
+  | .invalidValueInClearingAccountField => 0x6E
   | .invalidUseOfTradingCollarDollarValue => 0x6F
   | .invalidForCurrentSymbolTradingStatus => 0x70
   | .primaryExchangeIpoNotCompleteIpoInProgress => 0x71
@@ -325,7 +325,7 @@ def toByte : OrderStatus → UInt8
   | .featureNotAvailable => 0x76
   | .primaryListingMarketRoutingNotSupported => 0x77
   | .tooLateForPrimaryListingMarketOrder => 0x78
-  | .pacOrdersAreNotAllowedRoutingToPrimary => 0x79
+  | .pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled => 0x79
   | .shortSaleExemptOrdersNotAllowed => 0x7A
   | .limitPriceMoreAggressiveThanMarketImpactCollar => 0x30
   | .marketOrdersNotAllowed => 0x31
@@ -334,10 +334,10 @@ def toByte : OrderStatus → UInt8
   | .averageDailyVolumeProtection => 0x34
   | .invalidOffsetForPrimaryPegOrder => 0x35
   | .invalidPurgeGroupSpecified => 0x36
-  | .invalidOrNotPermittedValueInLocateAccount => 0x37
+  | .invalidOrNotPermittedValueInLocateAccountField => 0x37
   | .blockedByDropCopyAcodEvent => 0x38
   | .blockedByDropCopyAcosfEvent => 0x39
-  | .invalidUseOfCancelOrderIfNotANbboSetter => 0x21
+  | .invalidUseOfCancelOrderIfNotANbboSetterOrderInstruction => 0x21
   | .downgradedFromOlderVersion => 0x2A
   | .unlisted byte => byte.val
 
@@ -355,7 +355,7 @@ def listed (byte : UInt8) : OrderStatus :=
   else if byte = 0x49 then .invalidMpid
   else if byte = 0x4A then .invalidPrice
   else if byte = 0x4B then .invalidSize
-  else if byte = 0x4C then .blockedByFirmOverMiaxMemberFirm
+  else if byte = 0x4C then .blockedByFirmOverMiaxMemberFirmPortalOrByHelpdesk
   else if byte = 0x4D then .exceededMaxAllowedSize
   else if byte = 0x4E then .exceededMaxNotionalValue
   else if byte = 0x4F then .invalidClientOrderId
@@ -372,18 +372,18 @@ def listed (byte : UInt8) : OrderStatus :=
   else if byte = 0x5A then .undefinedReason
   else if byte = 0x61 then .invalidCapacity
   else if byte = 0x62 then .invalidTimeInForce
-  else if byte = 0x63 then .invalidRoutingInstructionOrUse
+  else if byte = 0x63 then .invalidRoutingInstructionOrItsUse
   else if byte = 0x64 then .invalidSelfTradeProtectionLevel
-  else if byte = 0x65 then .invalidSelfTradeProtectionInstructionOrUse
+  else if byte = 0x65 then .invalidSelfTradeProtectionInstructionOrItsUse
   else if byte = 0x66 then .invalidAttributableValueOrUse
   else if byte = 0x67 then .invalidPriceSlidingAndRepriceFrequencyValueOrUse
   else if byte = 0x68 then .invalidUseOfPostOnlyInstruction
   else if byte = 0x69 then .invalidUseOfDisplayInstruction
-  else if byte = 0x6A then .invalidValueOrUseForAvailableWhenLocked
+  else if byte = 0x6A then .invalidValueOrUseForAvailableWhenLockedInstruction
   else if byte = 0x6B then .marketOrderPriceProtection
   else if byte = 0x6C then .invalidRoutingStrategyOrItsUse
-  else if byte = 0x6D then .invalidValueInAccount
-  else if byte = 0x6E then .invalidValueInClearingAccount
+  else if byte = 0x6D then .invalidValueInAccountField
+  else if byte = 0x6E then .invalidValueInClearingAccountField
   else if byte = 0x6F then .invalidUseOfTradingCollarDollarValue
   else if byte = 0x70 then .invalidForCurrentSymbolTradingStatus
   else if byte = 0x71 then .primaryExchangeIpoNotCompleteIpoInProgress
@@ -394,7 +394,7 @@ def listed (byte : UInt8) : OrderStatus :=
   else if byte = 0x76 then .featureNotAvailable
   else if byte = 0x77 then .primaryListingMarketRoutingNotSupported
   else if byte = 0x78 then .tooLateForPrimaryListingMarketOrder
-  else if byte = 0x79 then .pacOrdersAreNotAllowedRoutingToPrimary
+  else if byte = 0x79 then .pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled
   else if byte = 0x7A then .shortSaleExemptOrdersNotAllowed
   else if byte = 0x30 then .limitPriceMoreAggressiveThanMarketImpactCollar
   else if byte = 0x31 then .marketOrdersNotAllowed
@@ -403,10 +403,10 @@ def listed (byte : UInt8) : OrderStatus :=
   else if byte = 0x34 then .averageDailyVolumeProtection
   else if byte = 0x35 then .invalidOffsetForPrimaryPegOrder
   else if byte = 0x36 then .invalidPurgeGroupSpecified
-  else if byte = 0x37 then .invalidOrNotPermittedValueInLocateAccount
+  else if byte = 0x37 then .invalidOrNotPermittedValueInLocateAccountField
   else if byte = 0x38 then .blockedByDropCopyAcodEvent
   else if byte = 0x39 then .blockedByDropCopyAcosfEvent
-  else if byte = 0x21 then .invalidUseOfCancelOrderIfNotANbboSetter
+  else if byte = 0x21 then .invalidUseOfCancelOrderIfNotANbboSetterOrderInstruction
   else .downgradedFromOlderVersion
 
 def ofByte (byte : UInt8) : OrderStatus :=
@@ -426,7 +426,7 @@ theorem ofByte_toByte (value : OrderStatus) : ofByte value.toByte = value := by
   | invalidMpid => decide
   | invalidPrice => decide
   | invalidSize => decide
-  | blockedByFirmOverMiaxMemberFirm => decide
+  | blockedByFirmOverMiaxMemberFirmPortalOrByHelpdesk => decide
   | exceededMaxAllowedSize => decide
   | exceededMaxNotionalValue => decide
   | invalidClientOrderId => decide
@@ -443,18 +443,18 @@ theorem ofByte_toByte (value : OrderStatus) : ofByte value.toByte = value := by
   | undefinedReason => decide
   | invalidCapacity => decide
   | invalidTimeInForce => decide
-  | invalidRoutingInstructionOrUse => decide
+  | invalidRoutingInstructionOrItsUse => decide
   | invalidSelfTradeProtectionLevel => decide
-  | invalidSelfTradeProtectionInstructionOrUse => decide
+  | invalidSelfTradeProtectionInstructionOrItsUse => decide
   | invalidAttributableValueOrUse => decide
   | invalidPriceSlidingAndRepriceFrequencyValueOrUse => decide
   | invalidUseOfPostOnlyInstruction => decide
   | invalidUseOfDisplayInstruction => decide
-  | invalidValueOrUseForAvailableWhenLocked => decide
+  | invalidValueOrUseForAvailableWhenLockedInstruction => decide
   | marketOrderPriceProtection => decide
   | invalidRoutingStrategyOrItsUse => decide
-  | invalidValueInAccount => decide
-  | invalidValueInClearingAccount => decide
+  | invalidValueInAccountField => decide
+  | invalidValueInClearingAccountField => decide
   | invalidUseOfTradingCollarDollarValue => decide
   | invalidForCurrentSymbolTradingStatus => decide
   | primaryExchangeIpoNotCompleteIpoInProgress => decide
@@ -465,7 +465,7 @@ theorem ofByte_toByte (value : OrderStatus) : ofByte value.toByte = value := by
   | featureNotAvailable => decide
   | primaryListingMarketRoutingNotSupported => decide
   | tooLateForPrimaryListingMarketOrder => decide
-  | pacOrdersAreNotAllowedRoutingToPrimary => decide
+  | pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled => decide
   | shortSaleExemptOrdersNotAllowed => decide
   | limitPriceMoreAggressiveThanMarketImpactCollar => decide
   | marketOrdersNotAllowed => decide
@@ -474,10 +474,10 @@ theorem ofByte_toByte (value : OrderStatus) : ofByte value.toByte = value := by
   | averageDailyVolumeProtection => decide
   | invalidOffsetForPrimaryPegOrder => decide
   | invalidPurgeGroupSpecified => decide
-  | invalidOrNotPermittedValueInLocateAccount => decide
+  | invalidOrNotPermittedValueInLocateAccountField => decide
   | blockedByDropCopyAcodEvent => decide
   | blockedByDropCopyAcosfEvent => decide
-  | invalidUseOfCancelOrderIfNotANbboSetter => decide
+  | invalidUseOfCancelOrderIfNotANbboSetterOrderInstruction => decide
   | downgradedFromOlderVersion => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -537,9 +537,9 @@ inductive ModifyStatus where
   | modificationRequestIsSentToAnotherMarketAndPendingCompletion -- Modification Request Is Sent To Another Market And Pending Completion
   | notAllowedOrderIsAlreadyPendingModification -- Not Allowed Order Is Already Pending Modification
   | invalidMaxFloorQty -- Invalid Max Floor Qty
-  | pacOrdersAreNotAllowedRoutingToPrimary -- Pac Orders Are Not Allowed Routing To Primary
+  | pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled -- Pac Orders Are Not Allowed Routing To Primary Listing Market Disabled
   | shortSaleExemptOrdersNotAllowed -- Short Sale Exempt Orders Not Allowed
-  | limitPriceMoreAggressiveThanMarketImpact -- Limit Price More Aggressive Than Market Impact
+  | limitPriceMoreAggressiveThanMarketImpactCollar -- Limit Price More Aggressive Than Market Impact Collar
   | marketOrdersNotAllowed -- Market Orders Not Allowed
   | restrictedSecurityNotAllowed -- Restricted Security Not Allowed
   | blockedByOrderRateMetrics -- Blocked By Order Rate Metrics
@@ -585,9 +585,9 @@ def toByte : ModifyStatus → UInt8
   | .modificationRequestIsSentToAnotherMarketAndPendingCompletion => 0x63
   | .notAllowedOrderIsAlreadyPendingModification => 0x64
   | .invalidMaxFloorQty => 0x74
-  | .pacOrdersAreNotAllowedRoutingToPrimary => 0x79
+  | .pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled => 0x79
   | .shortSaleExemptOrdersNotAllowed => 0x7A
-  | .limitPriceMoreAggressiveThanMarketImpact => 0x30
+  | .limitPriceMoreAggressiveThanMarketImpactCollar => 0x30
   | .marketOrdersNotAllowed => 0x31
   | .restrictedSecurityNotAllowed => 0x32
   | .blockedByOrderRateMetrics => 0x33
@@ -631,9 +631,9 @@ def listed (byte : UInt8) : ModifyStatus :=
   else if byte = 0x63 then .modificationRequestIsSentToAnotherMarketAndPendingCompletion
   else if byte = 0x64 then .notAllowedOrderIsAlreadyPendingModification
   else if byte = 0x74 then .invalidMaxFloorQty
-  else if byte = 0x79 then .pacOrdersAreNotAllowedRoutingToPrimary
+  else if byte = 0x79 then .pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled
   else if byte = 0x7A then .shortSaleExemptOrdersNotAllowed
-  else if byte = 0x30 then .limitPriceMoreAggressiveThanMarketImpact
+  else if byte = 0x30 then .limitPriceMoreAggressiveThanMarketImpactCollar
   else if byte = 0x31 then .marketOrdersNotAllowed
   else if byte = 0x32 then .restrictedSecurityNotAllowed
   else if byte = 0x33 then .blockedByOrderRateMetrics
@@ -679,9 +679,9 @@ theorem ofByte_toByte (value : ModifyStatus) : ofByte value.toByte = value := by
   | modificationRequestIsSentToAnotherMarketAndPendingCompletion => decide
   | notAllowedOrderIsAlreadyPendingModification => decide
   | invalidMaxFloorQty => decide
-  | pacOrdersAreNotAllowedRoutingToPrimary => decide
+  | pacOrdersAreNotAllowedRoutingToPrimaryListingMarketDisabled => decide
   | shortSaleExemptOrdersNotAllowed => decide
-  | limitPriceMoreAggressiveThanMarketImpact => decide
+  | limitPriceMoreAggressiveThanMarketImpactCollar => decide
   | marketOrdersNotAllowed => decide
   | restrictedSecurityNotAllowed => decide
   | blockedByOrderRateMetrics => decide
@@ -723,16 +723,16 @@ inductive CancelStatus where
   | matchingEngineIsNotAvailable -- Matching Engine Is Not Available
   | cannotFindOrderWithTargetClientOrderId -- Cannot Find Order With Target Client Order Id
   | exceededTestSymbolThrottle -- Exceeded Test Symbol Throttle
-  | orderIsRouted -- Order Is Routed
+  | routedOrderAlreadyPendingCancel -- Routed Order Already Pending Cancel
   | invalidMpid -- Invalid Mpid
   | invalidClientOrderId -- Invalid Client Order Id
   | requestIsNotPermittedForThisSession -- Request Is Not Permitted For This Session
   | specifiedMpidDoesNotMatchTargetOrder -- Specified Mpid Does Not Match Target Order
   | invalidSymbolId -- Invalid Symbol Id
-  | invalidTargetClientOrderId -- Invalid Target Client Order Id
+  | invalidTargetOrderId -- Invalid Target Order Id
   | mpidNotPermitted -- Mpid Not Permitted
   | undefinedReason -- Undefined Reason
-  | modificationRequestIsSentToAnotherMarketAndPendingCompletion -- Modification Request Is Sent To Another Market And Pending Completion
+  | cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion -- Cancellation Request Is Routed To Another Market And Pending Completion
   | downgradedFromOlderVersion -- Downgraded From Older Version
   | unlisted (byte : { byte : UInt8 // byte ∉ CancelStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -746,16 +746,16 @@ def toByte : CancelStatus → UInt8
   | .matchingEngineIsNotAvailable => 0x43
   | .cannotFindOrderWithTargetClientOrderId => 0x44
   | .exceededTestSymbolThrottle => 0x45
-  | .orderIsRouted => 0x46
+  | .routedOrderAlreadyPendingCancel => 0x46
   | .invalidMpid => 0x49
   | .invalidClientOrderId => 0x4F
   | .requestIsNotPermittedForThisSession => 0x50
   | .specifiedMpidDoesNotMatchTargetOrder => 0x51
   | .invalidSymbolId => 0x53
-  | .invalidTargetClientOrderId => 0x54
+  | .invalidTargetOrderId => 0x54
   | .mpidNotPermitted => 0x58
   | .undefinedReason => 0x5A
-  | .modificationRequestIsSentToAnotherMarketAndPendingCompletion => 0x63
+  | .cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion => 0x63
   | .downgradedFromOlderVersion => 0x2A
   | .unlisted byte => byte.val
 
@@ -767,16 +767,16 @@ def listed (byte : UInt8) : CancelStatus :=
   else if byte = 0x43 then .matchingEngineIsNotAvailable
   else if byte = 0x44 then .cannotFindOrderWithTargetClientOrderId
   else if byte = 0x45 then .exceededTestSymbolThrottle
-  else if byte = 0x46 then .orderIsRouted
+  else if byte = 0x46 then .routedOrderAlreadyPendingCancel
   else if byte = 0x49 then .invalidMpid
   else if byte = 0x4F then .invalidClientOrderId
   else if byte = 0x50 then .requestIsNotPermittedForThisSession
   else if byte = 0x51 then .specifiedMpidDoesNotMatchTargetOrder
   else if byte = 0x53 then .invalidSymbolId
-  else if byte = 0x54 then .invalidTargetClientOrderId
+  else if byte = 0x54 then .invalidTargetOrderId
   else if byte = 0x58 then .mpidNotPermitted
   else if byte = 0x5A then .undefinedReason
-  else if byte = 0x63 then .modificationRequestIsSentToAnotherMarketAndPendingCompletion
+  else if byte = 0x63 then .cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion
   else .downgradedFromOlderVersion
 
 def ofByte (byte : UInt8) : CancelStatus :=
@@ -790,16 +790,16 @@ theorem ofByte_toByte (value : CancelStatus) : ofByte value.toByte = value := by
   | matchingEngineIsNotAvailable => decide
   | cannotFindOrderWithTargetClientOrderId => decide
   | exceededTestSymbolThrottle => decide
-  | orderIsRouted => decide
+  | routedOrderAlreadyPendingCancel => decide
   | invalidMpid => decide
   | invalidClientOrderId => decide
   | requestIsNotPermittedForThisSession => decide
   | specifiedMpidDoesNotMatchTargetOrder => decide
   | invalidSymbolId => decide
-  | invalidTargetClientOrderId => decide
+  | invalidTargetOrderId => decide
   | mpidNotPermitted => decide
   | undefinedReason => decide
-  | modificationRequestIsSentToAnotherMarketAndPendingCompletion => decide
+  | cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion => decide
   | downgradedFromOlderVersion => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -822,6 +822,121 @@ theorem encode_length_pos (value : CancelStatus) : (encode value).length > 0 := 
   simp [decode, encode, ofByte_toByte]
 
 end CancelStatus
+
+/-- Cancel By Exchange Order Id Status: one byte code -/
+def CancelByExchangeOrderIdStatus.codes : List UInt8 :=
+  [0x20, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4F, 0x50, 0x51, 0x53, 0x58, 0x5A, 0x63, 0x2A]
+
+inductive CancelByExchangeOrderIdStatus where
+  | successful -- Successful
+  | duplicateClientOrderId -- Duplicate Client Order Id
+  | notInLiveOrderWindow -- Not In Live Order Window
+  | matchingEngineIsNotAvailable -- Matching Engine Is Not Available
+  | cannotFindOrderWithSpecifiedOrderId -- Cannot Find Order With Specified Order Id
+  | exceededTestSymbolThrottle -- Exceeded Test Symbol Throttle
+  | routedOrderAlreadyPendingCancel -- Routed Order Already Pending Cancel
+  | cannotCancelOrderSubmittedByAFixSession -- Cannot Cancel Order Submitted By A Fix Session
+  | invalidOrderId -- Invalid Order Id
+  | invalidMpid -- Invalid Mpid
+  | invalidClientOrderId -- Invalid Client Order Id
+  | requestIsNotPermittedForThisSession -- Request Is Not Permitted For This Session
+  | specifiedMpidDoesNotMatchTargetOrder -- Specified Mpid Does Not Match Target Order
+  | invalidSymbolId -- Invalid Symbol Id
+  | mpidNotPermitted -- Mpid Not Permitted
+  | undefinedReason -- Undefined Reason
+  | cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion -- Cancellation Request Is Routed To Another Market And Pending Completion
+  | downgradedFromOlderVersion -- Downgraded From Older Version
+  | unlisted (byte : { byte : UInt8 // byte ∉ CancelByExchangeOrderIdStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace CancelByExchangeOrderIdStatus
+
+def toByte : CancelByExchangeOrderIdStatus → UInt8
+  | .successful => 0x20
+  | .duplicateClientOrderId => 0x41
+  | .notInLiveOrderWindow => 0x42
+  | .matchingEngineIsNotAvailable => 0x43
+  | .cannotFindOrderWithSpecifiedOrderId => 0x44
+  | .exceededTestSymbolThrottle => 0x45
+  | .routedOrderAlreadyPendingCancel => 0x46
+  | .cannotCancelOrderSubmittedByAFixSession => 0x47
+  | .invalidOrderId => 0x48
+  | .invalidMpid => 0x49
+  | .invalidClientOrderId => 0x4F
+  | .requestIsNotPermittedForThisSession => 0x50
+  | .specifiedMpidDoesNotMatchTargetOrder => 0x51
+  | .invalidSymbolId => 0x53
+  | .mpidNotPermitted => 0x58
+  | .undefinedReason => 0x5A
+  | .cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion => 0x63
+  | .downgradedFromOlderVersion => 0x2A
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : CancelByExchangeOrderIdStatus :=
+  if byte = 0x20 then .successful
+  else if byte = 0x41 then .duplicateClientOrderId
+  else if byte = 0x42 then .notInLiveOrderWindow
+  else if byte = 0x43 then .matchingEngineIsNotAvailable
+  else if byte = 0x44 then .cannotFindOrderWithSpecifiedOrderId
+  else if byte = 0x45 then .exceededTestSymbolThrottle
+  else if byte = 0x46 then .routedOrderAlreadyPendingCancel
+  else if byte = 0x47 then .cannotCancelOrderSubmittedByAFixSession
+  else if byte = 0x48 then .invalidOrderId
+  else if byte = 0x49 then .invalidMpid
+  else if byte = 0x4F then .invalidClientOrderId
+  else if byte = 0x50 then .requestIsNotPermittedForThisSession
+  else if byte = 0x51 then .specifiedMpidDoesNotMatchTargetOrder
+  else if byte = 0x53 then .invalidSymbolId
+  else if byte = 0x58 then .mpidNotPermitted
+  else if byte = 0x5A then .undefinedReason
+  else if byte = 0x63 then .cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion
+  else .downgradedFromOlderVersion
+
+def ofByte (byte : UInt8) : CancelByExchangeOrderIdStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : CancelByExchangeOrderIdStatus) : ofByte value.toByte = value := by
+  cases value with
+  | successful => decide
+  | duplicateClientOrderId => decide
+  | notInLiveOrderWindow => decide
+  | matchingEngineIsNotAvailable => decide
+  | cannotFindOrderWithSpecifiedOrderId => decide
+  | exceededTestSymbolThrottle => decide
+  | routedOrderAlreadyPendingCancel => decide
+  | cannotCancelOrderSubmittedByAFixSession => decide
+  | invalidOrderId => decide
+  | invalidMpid => decide
+  | invalidClientOrderId => decide
+  | requestIsNotPermittedForThisSession => decide
+  | specifiedMpidDoesNotMatchTargetOrder => decide
+  | invalidSymbolId => decide
+  | mpidNotPermitted => decide
+  | undefinedReason => decide
+  | cancellationRequestIsRoutedToAnotherMarketAndPendingCompletion => decide
+  | downgradedFromOlderVersion => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : CancelByExchangeOrderIdStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (CancelByExchangeOrderIdStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : CancelByExchangeOrderIdStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : CancelByExchangeOrderIdStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : CancelByExchangeOrderIdStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end CancelByExchangeOrderIdStatus
 
 /-- System Status: one byte code -/
 def SystemStatus.codes : List UInt8 :=
@@ -1178,8 +1293,8 @@ def PendingModifyStatus.codes : List UInt8 :=
   [0x20, 0x50, 0x58]
 
 inductive PendingModifyStatus where
-  | pendingModificationIsCompletedOr -- Pending Modification Is Completed Or
-  | modificationRequestIsSentToAnother -- Modification Request Is Sent To Another
+  | pendingModificationIsCompletedOrPendingStateIsNotApplicable -- Pending Modification Is Completed Or Pending State Is Not Applicable
+  | modificationRequestIsSentToAnotherMarketAndIsPendingCompletion -- Modification Request Is Sent To Another Market And Is Pending Completion
   | pendingModificationRequestIsRejected -- Pending Modification Request Is Rejected
   | unlisted (byte : { byte : UInt8 // byte ∉ PendingModifyStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -1187,15 +1302,15 @@ inductive PendingModifyStatus where
 namespace PendingModifyStatus
 
 def toByte : PendingModifyStatus → UInt8
-  | .pendingModificationIsCompletedOr => 0x20
-  | .modificationRequestIsSentToAnother => 0x50
+  | .pendingModificationIsCompletedOrPendingStateIsNotApplicable => 0x20
+  | .modificationRequestIsSentToAnotherMarketAndIsPendingCompletion => 0x50
   | .pendingModificationRequestIsRejected => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : PendingModifyStatus :=
-  if byte = 0x20 then .pendingModificationIsCompletedOr
-  else if byte = 0x50 then .modificationRequestIsSentToAnother
+  if byte = 0x20 then .pendingModificationIsCompletedOrPendingStateIsNotApplicable
+  else if byte = 0x50 then .modificationRequestIsSentToAnotherMarketAndIsPendingCompletion
   else .pendingModificationRequestIsRejected
 
 def ofByte (byte : UInt8) : PendingModifyStatus :=
@@ -1203,8 +1318,8 @@ def ofByte (byte : UInt8) : PendingModifyStatus :=
 
 theorem ofByte_toByte (value : PendingModifyStatus) : ofByte value.toByte = value := by
   cases value with
-  | pendingModificationIsCompletedOr => decide
-  | modificationRequestIsSentToAnother => decide
+  | pendingModificationIsCompletedOrPendingStateIsNotApplicable => decide
+  | modificationRequestIsSentToAnotherMarketAndIsPendingCompletion => decide
   | pendingModificationRequestIsRejected => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -1288,27 +1403,27 @@ inductive CancelReason where
   | reservedForFutureUse -- Reserved For Future Use
   | timeInForceCancelled -- Time In Force Cancelled
   | autoCancelOnDisconnectAcod -- Auto Cancel On Disconnect Acod
-  | postOnlyOrderIsLockingcrossingMiax -- Post Only Order Is Lockingcrossing Miax
+  | postOnlyOrderIsLockingcrossingMiaxPearlEquitiesBbo -- Post Only Order Is Lockingcrossing Miax Pearl Equities Bbo
   | autoCancelOnSystemFailureAcosf -- Auto Cancel On System Failure Acosf
   | cancelledDueToPriceSlidingInstruction -- Cancelled Due To Price Sliding Instruction
-  | cancelledByHelpdeskOrOverMiaxMember -- Cancelled By Helpdesk Or Over Miax Member
+  | cancelledByHelpdeskOrOverMiaxMemberFirmPortal -- Cancelled By Helpdesk Or Over Miax Member Firm Portal
   | orderExpired -- Order Expired
-  | symbolTradingStatusMakesPacMarket -- Symbol Trading Status Makes Pac Market
+  | symbolTradingStatusMakesPacMarketOrderNonTradeable -- Symbol Trading Status Makes Pac Market Order Non Tradeable
   | tradingCollarProtection -- Trading Collar Protection
-  | sellShortIsoWhenShortSalePriceTestIs -- Sell Short Iso When Short Sale Price Test Is
+  | sellShortIsoWhenShortSalePriceTestIsInEffect -- Sell Short Iso When Short Sale Price Test Is In Effect
   | symbolIsNotTrading -- Symbol Is Not Trading
   | limitOrderPriceProtection -- Limit Order Price Protection
   | routeToPrimaryListingMarketRejected -- Route To Primary Listing Market Rejected
   | cancelledByAMassCancelRequestOverAPriorityPurgePort -- Cancelled By A Mass Cancel Request Over A Priority Purge Port
   | unexpectedCancelByPrimaryListingMarket -- Unexpected Cancel By Primary Listing Market
-  | cancelledDueToFailedPriceImprovement -- Cancelled Due To Failed Price Improvement
-  | cancelledDueToPrimaryAuctionRoute -- Cancelled Due To Primary Auction Route
+  | cancelledDueToFailedPriceImprovementRoute -- Cancelled Due To Failed Price Improvement Route
+  | cancelledDueToPrimaryAuctionRouteTimeout -- Cancelled Due To Primary Auction Route Timeout
   | cancelledDueToOrderRateProtection -- Cancelled Due To Order Rate Protection
   | cancelledByUserThroughOrderEntrySession -- Cancelled By User Through Order Entry Session
   | invalidPeggedOrderPrice -- Invalid Pegged Order Price
-  | pacOrderCancelledAsSecurityIsHalted -- Pac Order Cancelled As Security Is Halted
-  | notApplicableUsedWhenPendingCancel -- Not Applicable Used When Pending Cancel
-  | primaryAuctionOrderIsCancelledDueToA -- Primary Auction Order Is Cancelled Due To A
+  | pacOrderCancelledAsSecurityIsHaltedAndClosingAuctionAtPrimaryListingMarketWillNotBeConducted -- Pac Order Cancelled As Security Is Halted And Closing Auction At Primary Listing Market Will Not Be Conducted
+  | notApplicableUsedWhenPendingCancelStatusIsX -- Not Applicable Used When Pending Cancel Status Is X
+  | primaryAuctionOrderIsCancelledDueToAModificationRejectFromPrimaryListingMarket -- Primary Auction Order Is Cancelled Due To A Modification Reject From Primary Listing Market
   | cancelledDueToMarketImpactCollar -- Cancelled Due To Market Impact Collar
   | cancelNewestInstruction -- Cancel Newest Instruction
   | cancelOldestInstruction -- Cancel Oldest Instruction
@@ -1317,7 +1432,7 @@ inductive CancelReason where
   | cancelledDueToDropCopyAcodEvent -- Cancelled Due To Drop Copy Acod Event
   | cancelledDueToDropCopyAcosfEvent -- Cancelled Due To Drop Copy Acosf Event
   | cancelledAsOrderDidNotSetNbbo -- Cancelled As Order Did Not Set Nbbo
-  | cancelledByUserThroughASessionOther -- Cancelled By User Through A Session Other
+  | cancelledByUserThroughASessionOtherThanTheOrderEntrySession -- Cancelled By User Through A Session Other Than The Order Entry Session
   | undefinedReason -- Undefined Reason
   | downgradedFromOlderVersion -- Downgraded From Older Version
   | unlisted (byte : { byte : UInt8 // byte ∉ CancelReason.codes }) -- any other code, kept as it is
@@ -1330,27 +1445,27 @@ def toByte : CancelReason → UInt8
   | .reservedForFutureUse => 0x42
   | .timeInForceCancelled => 0x43
   | .autoCancelOnDisconnectAcod => 0x44
-  | .postOnlyOrderIsLockingcrossingMiax => 0x45
+  | .postOnlyOrderIsLockingcrossingMiaxPearlEquitiesBbo => 0x45
   | .autoCancelOnSystemFailureAcosf => 0x46
   | .cancelledDueToPriceSlidingInstruction => 0x47
-  | .cancelledByHelpdeskOrOverMiaxMember => 0x48
+  | .cancelledByHelpdeskOrOverMiaxMemberFirmPortal => 0x48
   | .orderExpired => 0x49
-  | .symbolTradingStatusMakesPacMarket => 0x4A
+  | .symbolTradingStatusMakesPacMarketOrderNonTradeable => 0x4A
   | .tradingCollarProtection => 0x4B
-  | .sellShortIsoWhenShortSalePriceTestIs => 0x4C
+  | .sellShortIsoWhenShortSalePriceTestIsInEffect => 0x4C
   | .symbolIsNotTrading => 0x4D
   | .limitOrderPriceProtection => 0x4E
   | .routeToPrimaryListingMarketRejected => 0x4F
   | .cancelledByAMassCancelRequestOverAPriorityPurgePort => 0x50
   | .unexpectedCancelByPrimaryListingMarket => 0x51
-  | .cancelledDueToFailedPriceImprovement => 0x52
-  | .cancelledDueToPrimaryAuctionRoute => 0x53
+  | .cancelledDueToFailedPriceImprovementRoute => 0x52
+  | .cancelledDueToPrimaryAuctionRouteTimeout => 0x53
   | .cancelledDueToOrderRateProtection => 0x54
   | .cancelledByUserThroughOrderEntrySession => 0x55
   | .invalidPeggedOrderPrice => 0x56
-  | .pacOrderCancelledAsSecurityIsHalted => 0x57
-  | .notApplicableUsedWhenPendingCancel => 0x58
-  | .primaryAuctionOrderIsCancelledDueToA => 0x59
+  | .pacOrderCancelledAsSecurityIsHaltedAndClosingAuctionAtPrimaryListingMarketWillNotBeConducted => 0x57
+  | .notApplicableUsedWhenPendingCancelStatusIsX => 0x58
+  | .primaryAuctionOrderIsCancelledDueToAModificationRejectFromPrimaryListingMarket => 0x59
   | .cancelledDueToMarketImpactCollar => 0x30
   | .cancelNewestInstruction => 0x31
   | .cancelOldestInstruction => 0x32
@@ -1359,7 +1474,7 @@ def toByte : CancelReason → UInt8
   | .cancelledDueToDropCopyAcodEvent => 0x35
   | .cancelledDueToDropCopyAcosfEvent => 0x36
   | .cancelledAsOrderDidNotSetNbbo => 0x37
-  | .cancelledByUserThroughASessionOther => 0x38
+  | .cancelledByUserThroughASessionOtherThanTheOrderEntrySession => 0x38
   | .undefinedReason => 0x5A
   | .downgradedFromOlderVersion => 0x2A
   | .unlisted byte => byte.val
@@ -1370,27 +1485,27 @@ def listed (byte : UInt8) : CancelReason :=
   else if byte = 0x42 then .reservedForFutureUse
   else if byte = 0x43 then .timeInForceCancelled
   else if byte = 0x44 then .autoCancelOnDisconnectAcod
-  else if byte = 0x45 then .postOnlyOrderIsLockingcrossingMiax
+  else if byte = 0x45 then .postOnlyOrderIsLockingcrossingMiaxPearlEquitiesBbo
   else if byte = 0x46 then .autoCancelOnSystemFailureAcosf
   else if byte = 0x47 then .cancelledDueToPriceSlidingInstruction
-  else if byte = 0x48 then .cancelledByHelpdeskOrOverMiaxMember
+  else if byte = 0x48 then .cancelledByHelpdeskOrOverMiaxMemberFirmPortal
   else if byte = 0x49 then .orderExpired
-  else if byte = 0x4A then .symbolTradingStatusMakesPacMarket
+  else if byte = 0x4A then .symbolTradingStatusMakesPacMarketOrderNonTradeable
   else if byte = 0x4B then .tradingCollarProtection
-  else if byte = 0x4C then .sellShortIsoWhenShortSalePriceTestIs
+  else if byte = 0x4C then .sellShortIsoWhenShortSalePriceTestIsInEffect
   else if byte = 0x4D then .symbolIsNotTrading
   else if byte = 0x4E then .limitOrderPriceProtection
   else if byte = 0x4F then .routeToPrimaryListingMarketRejected
   else if byte = 0x50 then .cancelledByAMassCancelRequestOverAPriorityPurgePort
   else if byte = 0x51 then .unexpectedCancelByPrimaryListingMarket
-  else if byte = 0x52 then .cancelledDueToFailedPriceImprovement
-  else if byte = 0x53 then .cancelledDueToPrimaryAuctionRoute
+  else if byte = 0x52 then .cancelledDueToFailedPriceImprovementRoute
+  else if byte = 0x53 then .cancelledDueToPrimaryAuctionRouteTimeout
   else if byte = 0x54 then .cancelledDueToOrderRateProtection
   else if byte = 0x55 then .cancelledByUserThroughOrderEntrySession
   else if byte = 0x56 then .invalidPeggedOrderPrice
-  else if byte = 0x57 then .pacOrderCancelledAsSecurityIsHalted
-  else if byte = 0x58 then .notApplicableUsedWhenPendingCancel
-  else if byte = 0x59 then .primaryAuctionOrderIsCancelledDueToA
+  else if byte = 0x57 then .pacOrderCancelledAsSecurityIsHaltedAndClosingAuctionAtPrimaryListingMarketWillNotBeConducted
+  else if byte = 0x58 then .notApplicableUsedWhenPendingCancelStatusIsX
+  else if byte = 0x59 then .primaryAuctionOrderIsCancelledDueToAModificationRejectFromPrimaryListingMarket
   else if byte = 0x30 then .cancelledDueToMarketImpactCollar
   else if byte = 0x31 then .cancelNewestInstruction
   else if byte = 0x32 then .cancelOldestInstruction
@@ -1399,7 +1514,7 @@ def listed (byte : UInt8) : CancelReason :=
   else if byte = 0x35 then .cancelledDueToDropCopyAcodEvent
   else if byte = 0x36 then .cancelledDueToDropCopyAcosfEvent
   else if byte = 0x37 then .cancelledAsOrderDidNotSetNbbo
-  else if byte = 0x38 then .cancelledByUserThroughASessionOther
+  else if byte = 0x38 then .cancelledByUserThroughASessionOtherThanTheOrderEntrySession
   else if byte = 0x5A then .undefinedReason
   else .downgradedFromOlderVersion
 
@@ -1412,27 +1527,27 @@ theorem ofByte_toByte (value : CancelReason) : ofByte value.toByte = value := by
   | reservedForFutureUse => decide
   | timeInForceCancelled => decide
   | autoCancelOnDisconnectAcod => decide
-  | postOnlyOrderIsLockingcrossingMiax => decide
+  | postOnlyOrderIsLockingcrossingMiaxPearlEquitiesBbo => decide
   | autoCancelOnSystemFailureAcosf => decide
   | cancelledDueToPriceSlidingInstruction => decide
-  | cancelledByHelpdeskOrOverMiaxMember => decide
+  | cancelledByHelpdeskOrOverMiaxMemberFirmPortal => decide
   | orderExpired => decide
-  | symbolTradingStatusMakesPacMarket => decide
+  | symbolTradingStatusMakesPacMarketOrderNonTradeable => decide
   | tradingCollarProtection => decide
-  | sellShortIsoWhenShortSalePriceTestIs => decide
+  | sellShortIsoWhenShortSalePriceTestIsInEffect => decide
   | symbolIsNotTrading => decide
   | limitOrderPriceProtection => decide
   | routeToPrimaryListingMarketRejected => decide
   | cancelledByAMassCancelRequestOverAPriorityPurgePort => decide
   | unexpectedCancelByPrimaryListingMarket => decide
-  | cancelledDueToFailedPriceImprovement => decide
-  | cancelledDueToPrimaryAuctionRoute => decide
+  | cancelledDueToFailedPriceImprovementRoute => decide
+  | cancelledDueToPrimaryAuctionRouteTimeout => decide
   | cancelledDueToOrderRateProtection => decide
   | cancelledByUserThroughOrderEntrySession => decide
   | invalidPeggedOrderPrice => decide
-  | pacOrderCancelledAsSecurityIsHalted => decide
-  | notApplicableUsedWhenPendingCancel => decide
-  | primaryAuctionOrderIsCancelledDueToA => decide
+  | pacOrderCancelledAsSecurityIsHaltedAndClosingAuctionAtPrimaryListingMarketWillNotBeConducted => decide
+  | notApplicableUsedWhenPendingCancelStatusIsX => decide
+  | primaryAuctionOrderIsCancelledDueToAModificationRejectFromPrimaryListingMarket => decide
   | cancelledDueToMarketImpactCollar => decide
   | cancelNewestInstruction => decide
   | cancelOldestInstruction => decide
@@ -1441,7 +1556,7 @@ theorem ofByte_toByte (value : CancelReason) : ofByte value.toByte = value := by
   | cancelledDueToDropCopyAcodEvent => decide
   | cancelledDueToDropCopyAcosfEvent => decide
   | cancelledAsOrderDidNotSetNbbo => decide
-  | cancelledByUserThroughASessionOther => decide
+  | cancelledByUserThroughASessionOtherThanTheOrderEntrySession => decide
   | undefinedReason => decide
   | downgradedFromOlderVersion => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -1860,7 +1975,7 @@ inductive MatchingEngineStatus where
   | invalidScope -- Invalid Scope
   | invalidAction -- Invalid Action
   | matchingEngineNotAvailable -- Matching Engine Not Available
-  | stateOfTheRequestForThisMatchingEngine -- State Of The Request For This Matching Engine
+  | stateOfTheRequestForThisMatchingEngineIsUnknown -- State Of The Request For This Matching Engine Is Unknown
   | invalidClientOrderId -- Invalid Client Order Id
   | undefinedReason -- Undefined Reason
   | invalidPurgeGroupSpecified -- Invalid Purge Group Specified
@@ -1878,7 +1993,7 @@ def toByte : MatchingEngineStatus → UInt8
   | .invalidScope => 0x52
   | .invalidAction => 0x41
   | .matchingEngineNotAvailable => 0x43
-  | .stateOfTheRequestForThisMatchingEngine => 0x55
+  | .stateOfTheRequestForThisMatchingEngineIsUnknown => 0x55
   | .invalidClientOrderId => 0x4F
   | .undefinedReason => 0x5A
   | .invalidPurgeGroupSpecified => 0x36
@@ -1894,7 +2009,7 @@ def listed (byte : UInt8) : MatchingEngineStatus :=
   else if byte = 0x52 then .invalidScope
   else if byte = 0x41 then .invalidAction
   else if byte = 0x43 then .matchingEngineNotAvailable
-  else if byte = 0x55 then .stateOfTheRequestForThisMatchingEngine
+  else if byte = 0x55 then .stateOfTheRequestForThisMatchingEngineIsUnknown
   else if byte = 0x4F then .invalidClientOrderId
   else if byte = 0x5A then .undefinedReason
   else if byte = 0x36 then .invalidPurgeGroupSpecified
@@ -1912,7 +2027,7 @@ theorem ofByte_toByte (value : MatchingEngineStatus) : ofByte value.toByte = val
   | invalidScope => decide
   | invalidAction => decide
   | matchingEngineNotAvailable => decide
-  | stateOfTheRequestForThisMatchingEngine => decide
+  | stateOfTheRequestForThisMatchingEngineIsUnknown => decide
   | invalidClientOrderId => decide
   | undefinedReason => decide
   | invalidPurgeGroupSpecified => decide
@@ -2132,14 +2247,14 @@ theorem encode_length_pos (value : GoodbyeReason) : (encode value).length > 0 :=
 
 end GoodbyeReason
 
-/-- Symbol Update: 59 bytes -/
-structure SymbolUpdate where
+/-- Symbol Update Message: 59 bytes -/
+structure SymbolUpdateMessage where
   matchingEngineTime : BitVec 64
   symbolId : BitVec 32
   tickerSymbol : Alpha 11
   reserved1 : Alpha 1
   testSecurityIndicator : TestSecurityIndicator
-  future : BitVec 8
+  secondReserved1 : Alpha 1
   lotSize : BitVec 32
   openingTime : Alpha 8
   closingTime : Alpha 8
@@ -2147,44 +2262,44 @@ structure SymbolUpdate where
   reserved12 : Alpha 12
   deriving DecidableEq, Repr
 
-namespace SymbolUpdate
+namespace SymbolUpdateMessage
 
-def encode (message : SymbolUpdate) : List UInt8 :=
+def encode (message : SymbolUpdateMessage) : List UInt8 :=
   encodeUIntLE 8 message.matchingEngineTime
     ++ (encodeUIntLE 4 message.symbolId
     ++ (Alpha.encode message.tickerSymbol
     ++ (Alpha.encode message.reserved1
     ++ (TestSecurityIndicator.encode message.testSecurityIndicator
-    ++ (encodeUInt 1 message.future
+    ++ (Alpha.encode message.secondReserved1
     ++ (encodeUIntLE 4 message.lotSize
     ++ (Alpha.encode message.openingTime
     ++ (Alpha.encode message.closingTime
     ++ (PrimaryMarketCode.encode message.primaryMarketCode
     ++ (Alpha.encode message.reserved12))))))))))
 
-def decode (bytes : List UInt8) : Option (SymbolUpdate × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SymbolUpdateMessage × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
   let (symbolId, bytes) ← decodeUIntLE 4 bytes
   let (tickerSymbol, bytes) ← Alpha.decode 11 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (testSecurityIndicator, bytes) ← TestSecurityIndicator.decode bytes
-  let (future, bytes) ← decodeUInt 1 bytes
+  let (secondReserved1, bytes) ← Alpha.decode 1 bytes
   let (lotSize, bytes) ← decodeUIntLE 4 bytes
   let (openingTime, bytes) ← Alpha.decode 8 bytes
   let (closingTime, bytes) ← Alpha.decode 8 bytes
   let (primaryMarketCode, bytes) ← PrimaryMarketCode.decode bytes
   let (reserved12, bytes) ← Alpha.decode 12 bytes
-  pure ({ matchingEngineTime, symbolId, tickerSymbol, reserved1, testSecurityIndicator, future, lotSize, openingTime, closingTime, primaryMarketCode, reserved12 }, bytes)
+  pure ({ matchingEngineTime, symbolId, tickerSymbol, reserved1, testSecurityIndicator, secondReserved1, lotSize, openingTime, closingTime, primaryMarketCode, reserved12 }, bytes)
 
-@[simp] theorem encode_length (message : SymbolUpdate) : (encode message).length = 59 := by
+@[simp] theorem encode_length (message : SymbolUpdateMessage) : (encode message).length = 59 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TestSecurityIndicator.encode_length, encodeUInt_length, PrimaryMarketCode.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, TestSecurityIndicator.encode_length, PrimaryMarketCode.encode_length]
 
-theorem encode_length_pos (message : SymbolUpdate) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SymbolUpdateMessage) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : SymbolUpdate) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SymbolUpdateMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -2197,7 +2312,7 @@ theorem encode_length_pos (message : SymbolUpdate) : (encode message).length > 0
   dsimp only
   rw [List.append_assoc, TestSecurityIndicator.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -2210,9 +2325,9 @@ theorem encode_length_pos (message : SymbolUpdate) : (encode message).length > 0
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end SymbolUpdate
+end SymbolUpdateMessage
 
-/-- New Order Response Message: 76 bytes -/
+/-- New Order Response Message: 67 bytes -/
 structure NewOrderResponseMessage where
   matchingEngineTime : BitVec 64
   mpid : Alpha 4
@@ -2222,7 +2337,7 @@ structure NewOrderResponseMessage where
   price : BitVec 64
   size : BitVec 32
   orderStatus : OrderStatus
-  reserved19 : Alpha 19
+  reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
 namespace NewOrderResponseMessage
@@ -2236,7 +2351,7 @@ def encode (message : NewOrderResponseMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.size
     ++ (OrderStatus.encode message.orderStatus
-    ++ (Alpha.encode message.reserved19))))))))
+    ++ (Alpha.encode message.reserved10))))))))
 
 def decode (bytes : List UInt8) : Option (NewOrderResponseMessage × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
@@ -2247,10 +2362,10 @@ def decode (bytes : List UInt8) : Option (NewOrderResponseMessage × List UInt8)
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (size, bytes) ← decodeUIntLE 4 bytes
   let (orderStatus, bytes) ← OrderStatus.decode bytes
-  let (reserved19, bytes) ← Alpha.decode 19 bytes
-  pure ({ matchingEngineTime, mpid, clientOrderId, symbolId, orderId, price, size, orderStatus, reserved19 }, bytes)
+  let (reserved10, bytes) ← Alpha.decode 10 bytes
+  pure ({ matchingEngineTime, mpid, clientOrderId, symbolId, orderId, price, size, orderStatus, reserved10 }, bytes)
 
-@[simp] theorem encode_length (message : NewOrderResponseMessage) : (encode message).length = 76 := by
+@[simp] theorem encode_length (message : NewOrderResponseMessage) : (encode message).length = 67 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, OrderStatus.encode_length]
 
@@ -2435,7 +2550,7 @@ structure CancelOrderByExchangeOrderIdResponseMessage where
   symbolId : BitVec 32
   orderId : BitVec 64
   leavesQty : BitVec 32
-  cancelStatus : CancelStatus
+  cancelByExchangeOrderIdStatus : CancelByExchangeOrderIdStatus
   reserved10 : Alpha 10
   deriving DecidableEq, Repr
 
@@ -2448,7 +2563,7 @@ def encode (message : CancelOrderByExchangeOrderIdResponseMessage) : List UInt8 
     ++ (encodeUIntLE 4 message.symbolId
     ++ (encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 4 message.leavesQty
-    ++ (CancelStatus.encode message.cancelStatus
+    ++ (CancelByExchangeOrderIdStatus.encode message.cancelByExchangeOrderIdStatus
     ++ (Alpha.encode message.reserved10)))))))
 
 def decode (bytes : List UInt8) : Option (CancelOrderByExchangeOrderIdResponseMessage × List UInt8) := do
@@ -2458,13 +2573,13 @@ def decode (bytes : List UInt8) : Option (CancelOrderByExchangeOrderIdResponseMe
   let (symbolId, bytes) ← decodeUIntLE 4 bytes
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (leavesQty, bytes) ← decodeUIntLE 4 bytes
-  let (cancelStatus, bytes) ← CancelStatus.decode bytes
+  let (cancelByExchangeOrderIdStatus, bytes) ← CancelByExchangeOrderIdStatus.decode bytes
   let (reserved10, bytes) ← Alpha.decode 10 bytes
-  pure ({ matchingEngineTime, mpid, clientOrderId, symbolId, orderId, leavesQty, cancelStatus, reserved10 }, bytes)
+  pure ({ matchingEngineTime, mpid, clientOrderId, symbolId, orderId, leavesQty, cancelByExchangeOrderIdStatus, reserved10 }, bytes)
 
 @[simp] theorem encode_length (message : CancelOrderByExchangeOrderIdResponseMessage) : (encode message).length = 59 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CancelStatus.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, CancelByExchangeOrderIdStatus.encode_length]
 
 theorem encode_length_pos (message : CancelOrderByExchangeOrderIdResponseMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2485,7 +2600,7 @@ theorem encode_length_pos (message : CancelOrderByExchangeOrderIdResponseMessage
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, CancelStatus.decode_encode, some_bind]
+  rw [List.append_assoc, CancelByExchangeOrderIdStatus.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
@@ -3000,7 +3115,7 @@ theorem encode_length_pos (message : ReserveOrderReplenishmentNotification) : (e
 
 end ReserveOrderReplenishmentNotification
 
-/-- Execution Notification: 102 bytes -/
+/-- Execution Notification: 103 bytes -/
 structure ExecutionNotification where
   matchingEngineTime : BitVec 64
   mpid : Alpha 4
@@ -3013,6 +3128,7 @@ structure ExecutionNotification where
   lastPrice : BitVec 64
   lastSize : BitVec 32
   orderExecutionInstructions : BitVec 16
+  reserved1 : Alpha 1
   executingTradingCenter : ExecutingTradingCenter
   secondaryOrderId : BitVec 64
   liquidityIndicator : Alpha 3
@@ -3037,6 +3153,7 @@ def encode (message : ExecutionNotification) : List UInt8 :=
     ++ (encodeUIntLE 8 message.lastPrice
     ++ (encodeUIntLE 4 message.lastSize
     ++ (encodeUIntLE 2 message.orderExecutionInstructions
+    ++ (Alpha.encode message.reserved1
     ++ (ExecutingTradingCenter.encode message.executingTradingCenter
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (Alpha.encode message.liquidityIndicator
@@ -3044,7 +3161,7 @@ def encode (message : ExecutionNotification) : List UInt8 :=
     ++ (OriginalOrderCapacity.encode message.originalOrderCapacity
     ++ (encodeUIntLE 1 message.additionalLiquidityIndicator
     ++ (Alpha.encode message.executingTradingCenterMpid
-    ++ (Alpha.encode message.reserved12))))))))))))))))))
+    ++ (Alpha.encode message.reserved12)))))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (ExecutionNotification × List UInt8) := do
   let (matchingEngineTime, bytes) ← decodeUIntLE 8 bytes
@@ -3058,6 +3175,7 @@ def decode (bytes : List UInt8) : Option (ExecutionNotification × List UInt8) :
   let (lastPrice, bytes) ← decodeUIntLE 8 bytes
   let (lastSize, bytes) ← decodeUIntLE 4 bytes
   let (orderExecutionInstructions, bytes) ← decodeUIntLE 2 bytes
+  let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (executingTradingCenter, bytes) ← ExecutingTradingCenter.decode bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (liquidityIndicator, bytes) ← Alpha.decode 3 bytes
@@ -3066,9 +3184,9 @@ def decode (bytes : List UInt8) : Option (ExecutionNotification × List UInt8) :
   let (additionalLiquidityIndicator, bytes) ← decodeUIntLE 1 bytes
   let (executingTradingCenterMpid, bytes) ← Alpha.decode 4 bytes
   let (reserved12, bytes) ← Alpha.decode 12 bytes
-  pure ({ matchingEngineTime, mpid, symbolId, clientOrderId, tradeId, executionId, correctionNumber, tradeStatus, lastPrice, lastSize, orderExecutionInstructions, executingTradingCenter, secondaryOrderId, liquidityIndicator, locateAccount, originalOrderCapacity, additionalLiquidityIndicator, executingTradingCenterMpid, reserved12 }, bytes)
+  pure ({ matchingEngineTime, mpid, symbolId, clientOrderId, tradeId, executionId, correctionNumber, tradeStatus, lastPrice, lastSize, orderExecutionInstructions, reserved1, executingTradingCenter, secondaryOrderId, liquidityIndicator, locateAccount, originalOrderCapacity, additionalLiquidityIndicator, executingTradingCenterMpid, reserved12 }, bytes)
 
-@[simp] theorem encode_length (message : ExecutionNotification) : (encode message).length = 102 := by
+@[simp] theorem encode_length (message : ExecutionNotification) : (encode message).length = 103 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, TradeStatus.encode_length, ExecutingTradingCenter.encode_length, OriginalOrderCapacity.encode_length]
 
@@ -3101,6 +3219,8 @@ theorem encode_length_pos (message : ExecutionNotification) : (encode message).l
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
   rw [List.append_assoc, ExecutingTradingCenter.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3122,7 +3242,7 @@ end ExecutionNotification
 
 /-- Any Sequenced Message, selected by Sequenced Message Type -/
 inductive SequencedMessage where
-  | symbolUpdate (message : SymbolUpdate) -- "SU" 0x5355
+  | symbolUpdateMessage (message : SymbolUpdateMessage) -- "SU" 0x5355
   | newOrderResponseMessage (message : NewOrderResponseMessage) -- "NR" 0x4E52
   | modifyOrderResponse (message : ModifyOrderResponse) -- "MR" 0x4D52
   | cancelOrderResponse (message : CancelOrderResponse) -- "CR" 0x4352
@@ -3140,7 +3260,7 @@ namespace SequencedMessage
 
 /-- The Sequenced Message Type each message is sent under -/
 def tag : SequencedMessage → BitVec 16
-  | .symbolUpdate _ => 21333
+  | .symbolUpdateMessage _ => 21333
   | .newOrderResponseMessage _ => 20050
   | .modifyOrderResponse _ => 19794
   | .cancelOrderResponse _ => 17234
@@ -3154,7 +3274,7 @@ def tag : SequencedMessage → BitVec 16
   | .executionNotification _ => 17713
 
 def encode : SequencedMessage → List UInt8
-  | .symbolUpdate message => SymbolUpdate.encode message
+  | .symbolUpdateMessage message => SymbolUpdateMessage.encode message
   | .newOrderResponseMessage message => NewOrderResponseMessage.encode message
   | .modifyOrderResponse message => ModifyOrderResponse.encode message
   | .cancelOrderResponse message => CancelOrderResponse.encode message
@@ -3170,8 +3290,8 @@ def encode : SequencedMessage → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : SequencedMessage) : (encode message).length ≤ 137 := by
   cases message with
-  | symbolUpdate inner =>
-    simp only [encode, SymbolUpdate.encode_length]
+  | symbolUpdateMessage inner =>
+    simp only [encode, SymbolUpdateMessage.encode_length]
     omega
   | newOrderResponseMessage inner =>
     simp only [encode, NewOrderResponseMessage.encode_length]
@@ -3208,7 +3328,7 @@ theorem encode_length_le (message : SequencedMessage) : (encode message).length 
     omega
 
 def decode (tag : BitVec 16) (bytes : List UInt8) : Option (SequencedMessage × List UInt8) :=
-  if tag = 21333 then (SymbolUpdate.decode bytes).map fun (message, rest) => (.symbolUpdate message, rest)
+  if tag = 21333 then (SymbolUpdateMessage.decode bytes).map fun (message, rest) => (.symbolUpdateMessage message, rest)
   else if tag = 20050 then (NewOrderResponseMessage.decode bytes).map fun (message, rest) => (.newOrderResponseMessage message, rest)
   else if tag = 19794 then (ModifyOrderResponse.decode bytes).map fun (message, rest) => (.modifyOrderResponse message, rest)
   else if tag = 17234 then (CancelOrderResponse.decode bytes).map fun (message, rest) => (.cancelOrderResponse message, rest)
@@ -3259,8 +3379,8 @@ theorem encode_length_pos (message : SequencedDataPacket) : (encode message).len
 theorem encode_length_le (message : SequencedDataPacket) : (encode message).length ≤ 148 := by
   unfold encode
   cases message.sequencedMessage with
-  | symbolUpdate inner =>
-    simp only [SequencedMessage.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SymbolUpdate.encode_length]
+  | symbolUpdateMessage inner =>
+    simp only [SequencedMessage.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, SymbolUpdateMessage.encode_length]
     omega
   | newOrderResponseMessage inner =>
     simp only [SequencedMessage.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, NewOrderResponseMessage.encode_length]

@@ -13,6 +13,9 @@ Prices with implied decimals are proven as the integers on the wire.
 
 Note: Application Message is not framed: its length Packet Length is not an integer it reads
 
+Note: a Mach Message that ends the session is the last of machMessage: the decoder turns away one
+that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 
@@ -1879,7 +1882,7 @@ structure UnderlyingTradingStatusMessage where
   underlyingSymbol : Alpha 11
   tradingStatus : TradingStatus
   eventReason : EventReason
-  secondsPart : BitVec 32
+  expectedEventTimeSecondsPart : BitVec 32
   expectedEventTimeNanoSecondsPart : BitVec 32
   deriving DecidableEq, Repr
 
@@ -1890,7 +1893,7 @@ def encode (message : UnderlyingTradingStatusMessage) : List UInt8 :=
     ++ (Alpha.encode message.underlyingSymbol
     ++ (TradingStatus.encode message.tradingStatus
     ++ (EventReason.encode message.eventReason
-    ++ (encodeUIntLE 4 message.secondsPart
+    ++ (encodeUIntLE 4 message.expectedEventTimeSecondsPart
     ++ (encodeUIntLE 4 message.expectedEventTimeNanoSecondsPart)))))
 
 def decode (bytes : List UInt8) : Option (UnderlyingTradingStatusMessage × List UInt8) := do
@@ -1898,9 +1901,9 @@ def decode (bytes : List UInt8) : Option (UnderlyingTradingStatusMessage × List
   let (underlyingSymbol, bytes) ← Alpha.decode 11 bytes
   let (tradingStatus, bytes) ← TradingStatus.decode bytes
   let (eventReason, bytes) ← EventReason.decode bytes
-  let (secondsPart, bytes) ← decodeUIntLE 4 bytes
+  let (expectedEventTimeSecondsPart, bytes) ← decodeUIntLE 4 bytes
   let (expectedEventTimeNanoSecondsPart, bytes) ← decodeUIntLE 4 bytes
-  pure ({ nanoseconds, underlyingSymbol, tradingStatus, eventReason, secondsPart, expectedEventTimeNanoSecondsPart }, bytes)
+  pure ({ nanoseconds, underlyingSymbol, tradingStatus, eventReason, expectedEventTimeSecondsPart, expectedEventTimeNanoSecondsPart }, bytes)
 
 @[simp] theorem encode_length (message : UnderlyingTradingStatusMessage) : (encode message).length = 25 := by
   unfold encode
@@ -2133,6 +2136,11 @@ def encode : Payload → List UInt8
   | .endOfSession message => EndOfSession.encode message
   | .applicationMessage message => ApplicationMessage.encode message
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession : Payload → Bool
+  | .endOfSession _ => true
+  | _ => false
+
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 3859 := by
   cases message with
@@ -2232,11 +2240,16 @@ theorem encode_length_pos (message : MachMessage) : (encode message).length > 0 
   simp only [encodeUIntLE_length, List.length_append, encodeFramedLE_length]
   omega
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession (message : MachMessage) : Bool :=
+  Payload.endsSession message.payload
+
 end MachMessage
 
 /-- Packet -/
 structure Packet where
   machMessage : List MachMessage
+  machMessage_last : endsLast MachMessage.endsSession machMessage = true
   deriving DecidableEq, Repr
 
 namespace Packet
@@ -2246,11 +2259,14 @@ def encode (message : Packet) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option Packet := do
   let machMessage ← decodeAll MachMessage.decode bytes.length bytes
-  pure { machMessage }
+  if last_machMessage : endsLast MachMessage.endsSession machMessage = true then
+    pure { machMessage, machMessage_last := last_machMessage }
+  else none
 
 theorem decode_encode (message : Packet) : decode (encode message) = some message := by
   unfold decode encode
   rw [decodeAll_encodeMany MachMessage.encode MachMessage.decode MachMessage.decode_encode MachMessage.encode_length_pos message.machMessage _ (encodeMany_length_ge MachMessage.encode MachMessage.encode_length_pos message.machMessage), some_bind]
+  rw [dite_eq_left message.machMessage_last]
   rfl
 
 end Packet

@@ -173,50 +173,50 @@ theorem encode_length_pos (message : SequenceResetMessage) : (encode message).le
 
 end SequenceResetMessage
 
-/-- Order Book Snapshot Message No M D Entries Group: 57 bytes -/
-structure OrderBookSnapshotMessageNoMDEntriesGroup where
-  mdEntryIdInt64NullOptional : BitVec 64
+/-- Order Book Snapshot Message No Md Entries Group: 57 bytes -/
+structure OrderBookSnapshotMessageNoMdEntriesGroup where
+  mdEntryIdOptional : BitVec 64
   transactTime : BitVec 64
-  mdEntryPxDecimal5NullOptional : BitVec 64
-  mdEntrySizeInt64NullOptional : BitVec 64
-  tradeIdInt64NullOptional : BitVec 64
+  mdEntryPxOptional : BitVec 64
+  mdEntrySizeOptional : BitVec 64
+  tradeIdOptional : BitVec 64
   mdFlags : BitVec 64
   mdFlags2 : BitVec 64
   mdEntryType : MdEntryType
   deriving DecidableEq, Repr
 
-namespace OrderBookSnapshotMessageNoMDEntriesGroup
+namespace OrderBookSnapshotMessageNoMdEntriesGroup
 
-def encode (message : OrderBookSnapshotMessageNoMDEntriesGroup) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryIdInt64NullOptional
+def encode (message : OrderBookSnapshotMessageNoMdEntriesGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryIdOptional
     ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 8 message.mdEntryPxDecimal5NullOptional
-    ++ (encodeUIntLE 8 message.mdEntrySizeInt64NullOptional
-    ++ (encodeUIntLE 8 message.tradeIdInt64NullOptional
+    ++ (encodeUIntLE 8 message.mdEntryPxOptional
+    ++ (encodeUIntLE 8 message.mdEntrySizeOptional
+    ++ (encodeUIntLE 8 message.tradeIdOptional
     ++ (encodeUIntLE 8 message.mdFlags
     ++ (encodeUIntLE 8 message.mdFlags2
     ++ (MdEntryType.encode message.mdEntryType)))))))
 
-def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessageNoMDEntriesGroup × List UInt8) := do
-  let (mdEntryIdInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessageNoMdEntriesGroup × List UInt8) := do
+  let (mdEntryIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntryPxDecimal5NullOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
-  let (tradeIdInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
+  let (tradeIdOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags2, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
-  pure ({ mdEntryIdInt64NullOptional, transactTime, mdEntryPxDecimal5NullOptional, mdEntrySizeInt64NullOptional, tradeIdInt64NullOptional, mdFlags, mdFlags2, mdEntryType }, bytes)
+  pure ({ mdEntryIdOptional, transactTime, mdEntryPxOptional, mdEntrySizeOptional, tradeIdOptional, mdFlags, mdFlags2, mdEntryType }, bytes)
 
-@[simp] theorem encode_length (message : OrderBookSnapshotMessageNoMDEntriesGroup) : (encode message).length = 57 := by
+@[simp] theorem encode_length (message : OrderBookSnapshotMessageNoMdEntriesGroup) : (encode message).length = 57 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, MdEntryType.encode_length]
 
-theorem encode_length_pos (message : OrderBookSnapshotMessageNoMDEntriesGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : OrderBookSnapshotMessageNoMdEntriesGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : OrderBookSnapshotMessageNoMDEntriesGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : OrderBookSnapshotMessageNoMdEntriesGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -236,80 +236,80 @@ theorem encode_length_pos (message : OrderBookSnapshotMessageNoMDEntriesGroup) :
   rw [MdEntryType.decode_encode, some_bind]
   rfl
 
-end OrderBookSnapshotMessageNoMDEntriesGroup
+end OrderBookSnapshotMessageNoMdEntriesGroup
 
-/-- Order Book Snapshot Message No M D Entries Groups -/
-structure OrderBookSnapshotMessageNoMDEntriesGroups where
+/-- Order Book Snapshot Message No Md Entries Groups -/
+structure OrderBookSnapshotMessageNoMdEntriesGroups where
   blockLength : BitVec 16
-  orderBookSnapshotMessageNoMDEntriesGroup : Bounded 1 OrderBookSnapshotMessageNoMDEntriesGroup
+  orderBookSnapshotMessageNoMdEntriesGroup : Bounded 1 OrderBookSnapshotMessageNoMdEntriesGroup
   deriving DecidableEq, Repr
 
-namespace OrderBookSnapshotMessageNoMDEntriesGroups
+namespace OrderBookSnapshotMessageNoMdEntriesGroups
 
-def encode (message : OrderBookSnapshotMessageNoMDEntriesGroups) : List UInt8 :=
+def encode (message : OrderBookSnapshotMessageNoMdEntriesGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.orderBookSnapshotMessageNoMDEntriesGroup.val.length)
-    ++ (encodeMany OrderBookSnapshotMessageNoMDEntriesGroup.encode message.orderBookSnapshotMessageNoMDEntriesGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.orderBookSnapshotMessageNoMdEntriesGroup.val.length)
+    ++ (encodeMany OrderBookSnapshotMessageNoMdEntriesGroup.encode message.orderBookSnapshotMessageNoMdEntriesGroup.val))
 
-def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessageNoMDEntriesGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessageNoMdEntriesGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroupUint8, bytes) ← decodeUInt 1 bytes
-  let (orderBookSnapshotMessageNoMDEntriesGroup_, bytes) ← decodeMany OrderBookSnapshotMessageNoMDEntriesGroup.decode numInGroupUint8.toNat bytes
-  if fits_orderBookSnapshotMessageNoMDEntriesGroup : orderBookSnapshotMessageNoMDEntriesGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, orderBookSnapshotMessageNoMDEntriesGroup := ⟨orderBookSnapshotMessageNoMDEntriesGroup_, fits_orderBookSnapshotMessageNoMDEntriesGroup⟩ }, bytes)
+  let (orderBookSnapshotMessageNoMdEntriesGroup_, bytes) ← decodeMany OrderBookSnapshotMessageNoMdEntriesGroup.decode numInGroupUint8.toNat bytes
+  if fits_orderBookSnapshotMessageNoMdEntriesGroup : orderBookSnapshotMessageNoMdEntriesGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, orderBookSnapshotMessageNoMdEntriesGroup := ⟨orderBookSnapshotMessageNoMdEntriesGroup_, fits_orderBookSnapshotMessageNoMdEntriesGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : OrderBookSnapshotMessageNoMDEntriesGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : OrderBookSnapshotMessageNoMdEntriesGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : OrderBookSnapshotMessageNoMDEntriesGroups) : (encode message).length ≤ 14538 := by
-  have bound_orderBookSnapshotMessageNoMDEntriesGroup := message.orderBookSnapshotMessageNoMDEntriesGroup.length_lt
+theorem encode_length_le (message : OrderBookSnapshotMessageNoMdEntriesGroups) : (encode message).length ≤ 14538 := by
+  have bound_orderBookSnapshotMessageNoMdEntriesGroup := message.orderBookSnapshotMessageNoMdEntriesGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const OrderBookSnapshotMessageNoMDEntriesGroup.encode 57 OrderBookSnapshotMessageNoMDEntriesGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const OrderBookSnapshotMessageNoMdEntriesGroup.encode 57 OrderBookSnapshotMessageNoMdEntriesGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : OrderBookSnapshotMessageNoMDEntriesGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : OrderBookSnapshotMessageNoMdEntriesGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 OrderBookSnapshotMessageNoMDEntriesGroup.encode OrderBookSnapshotMessageNoMDEntriesGroup.decode OrderBookSnapshotMessageNoMDEntriesGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 OrderBookSnapshotMessageNoMdEntriesGroup.encode OrderBookSnapshotMessageNoMdEntriesGroup.decode OrderBookSnapshotMessageNoMdEntriesGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.orderBookSnapshotMessageNoMDEntriesGroup.length_lt]
+  rw [dite_eq_left message.orderBookSnapshotMessageNoMdEntriesGroup.length_lt]
   rfl
 
-end OrderBookSnapshotMessageNoMDEntriesGroups
+end OrderBookSnapshotMessageNoMdEntriesGroups
 
 /-- Order Book Snapshot Message -/
 structure OrderBookSnapshotMessage where
   securityId : BitVec 32
-  lastMsgSeqNumProcessedUInt32 : BitVec 32
+  lastMsgSeqNumProcessed : BitVec 32
   rptSeq : BitVec 32
   exchangeTradingSessionId : BitVec 32
-  orderBookSnapshotMessageNoMDEntriesGroups : OrderBookSnapshotMessageNoMDEntriesGroups
+  orderBookSnapshotMessageNoMdEntriesGroups : OrderBookSnapshotMessageNoMdEntriesGroups
   deriving DecidableEq, Repr
 
 namespace OrderBookSnapshotMessage
 
 def encode (message : OrderBookSnapshotMessage) : List UInt8 :=
   encodeUIntLE 4 message.securityId
-    ++ (encodeUIntLE 4 message.lastMsgSeqNumProcessedUInt32
+    ++ (encodeUIntLE 4 message.lastMsgSeqNumProcessed
     ++ (encodeUIntLE 4 message.rptSeq
     ++ (encodeUIntLE 4 message.exchangeTradingSessionId
-    ++ (OrderBookSnapshotMessageNoMDEntriesGroups.encode message.orderBookSnapshotMessageNoMDEntriesGroups))))
+    ++ (OrderBookSnapshotMessageNoMdEntriesGroups.encode message.orderBookSnapshotMessageNoMdEntriesGroups))))
 
 def decode (bytes : List UInt8) : Option (OrderBookSnapshotMessage × List UInt8) := do
   let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (lastMsgSeqNumProcessedUInt32, bytes) ← decodeUIntLE 4 bytes
+  let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
   let (exchangeTradingSessionId, bytes) ← decodeUIntLE 4 bytes
-  let (orderBookSnapshotMessageNoMDEntriesGroups, bytes) ← OrderBookSnapshotMessageNoMDEntriesGroups.decode bytes
-  pure ({ securityId, lastMsgSeqNumProcessedUInt32, rptSeq, exchangeTradingSessionId, orderBookSnapshotMessageNoMDEntriesGroups }, bytes)
+  let (orderBookSnapshotMessageNoMdEntriesGroups, bytes) ← OrderBookSnapshotMessageNoMdEntriesGroups.decode bytes
+  pure ({ securityId, lastMsgSeqNumProcessed, rptSeq, exchangeTradingSessionId, orderBookSnapshotMessageNoMdEntriesGroups }, bytes)
 
 theorem encode_length_pos (message : OrderBookSnapshotMessage) : (encode message).length > 0 := by
   unfold encode
@@ -318,7 +318,7 @@ theorem encode_length_pos (message : OrderBookSnapshotMessage) : (encode message
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : OrderBookSnapshotMessage) : (encode message).length ≤ 14554 := by
-  have bound_orderBookSnapshotMessageNoMDEntriesGroups := OrderBookSnapshotMessageNoMDEntriesGroups.encode_length_le message.orderBookSnapshotMessageNoMDEntriesGroups
+  have bound_orderBookSnapshotMessageNoMdEntriesGroups := OrderBookSnapshotMessageNoMdEntriesGroups.encode_length_le message.orderBookSnapshotMessageNoMdEntriesGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
   omega
@@ -334,7 +334,7 @@ theorem encode_length_le (message : OrderBookSnapshotMessage) : (encode message)
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [OrderBookSnapshotMessageNoMDEntriesGroups.decode_encode, some_bind]
+  rw [OrderBookSnapshotMessageNoMdEntriesGroups.decode_encode, some_bind]
   rfl
 
 end OrderBookSnapshotMessage

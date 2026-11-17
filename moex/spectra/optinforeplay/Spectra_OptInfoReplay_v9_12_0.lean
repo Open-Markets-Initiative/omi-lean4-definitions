@@ -216,35 +216,35 @@ theorem encode_length_pos (message : SequenceResetMessage) : (encode message).le
 
 end SequenceResetMessage
 
-/-- Security Definition Message No M D Feed Types Group: 33 bytes -/
-structure SecurityDefinitionMessageNoMDFeedTypesGroup where
+/-- Security Definition Message No Md Feed Types Group: 33 bytes -/
+structure SecurityDefinitionMessageNoMdFeedTypesGroup where
   mdFeedType : Alpha 25
   marketDepth : BitVec 32
   mdBookType : BitVec 32
   deriving DecidableEq, Repr
 
-namespace SecurityDefinitionMessageNoMDFeedTypesGroup
+namespace SecurityDefinitionMessageNoMdFeedTypesGroup
 
-def encode (message : SecurityDefinitionMessageNoMDFeedTypesGroup) : List UInt8 :=
+def encode (message : SecurityDefinitionMessageNoMdFeedTypesGroup) : List UInt8 :=
   Alpha.encode message.mdFeedType
     ++ (encodeUIntLE 4 message.marketDepth
     ++ (encodeUIntLE 4 message.mdBookType))
 
-def decode (bytes : List UInt8) : Option (SecurityDefinitionMessageNoMDFeedTypesGroup × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SecurityDefinitionMessageNoMdFeedTypesGroup × List UInt8) := do
   let (mdFeedType, bytes) ← Alpha.decode 25 bytes
   let (marketDepth, bytes) ← decodeUIntLE 4 bytes
   let (mdBookType, bytes) ← decodeUIntLE 4 bytes
   pure ({ mdFeedType, marketDepth, mdBookType }, bytes)
 
-@[simp] theorem encode_length (message : SecurityDefinitionMessageNoMDFeedTypesGroup) : (encode message).length = 33 := by
+@[simp] theorem encode_length (message : SecurityDefinitionMessageNoMdFeedTypesGroup) : (encode message).length = 33 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length]
 
-theorem encode_length_pos (message : SecurityDefinitionMessageNoMDFeedTypesGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SecurityDefinitionMessageNoMdFeedTypesGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : SecurityDefinitionMessageNoMDFeedTypesGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SecurityDefinitionMessageNoMdFeedTypesGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -254,54 +254,54 @@ theorem encode_length_pos (message : SecurityDefinitionMessageNoMDFeedTypesGroup
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end SecurityDefinitionMessageNoMDFeedTypesGroup
+end SecurityDefinitionMessageNoMdFeedTypesGroup
 
-/-- Security Definition Message No M D Feed Types Groups -/
-structure SecurityDefinitionMessageNoMDFeedTypesGroups where
+/-- Security Definition Message No Md Feed Types Groups -/
+structure SecurityDefinitionMessageNoMdFeedTypesGroups where
   blockLength : BitVec 16
-  securityDefinitionMessageNoMDFeedTypesGroup : Bounded 1 SecurityDefinitionMessageNoMDFeedTypesGroup
+  securityDefinitionMessageNoMdFeedTypesGroup : Bounded 1 SecurityDefinitionMessageNoMdFeedTypesGroup
   deriving DecidableEq, Repr
 
-namespace SecurityDefinitionMessageNoMDFeedTypesGroups
+namespace SecurityDefinitionMessageNoMdFeedTypesGroups
 
-def encode (message : SecurityDefinitionMessageNoMDFeedTypesGroups) : List UInt8 :=
+def encode (message : SecurityDefinitionMessageNoMdFeedTypesGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.securityDefinitionMessageNoMDFeedTypesGroup.val.length)
-    ++ (encodeMany SecurityDefinitionMessageNoMDFeedTypesGroup.encode message.securityDefinitionMessageNoMDFeedTypesGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.securityDefinitionMessageNoMdFeedTypesGroup.val.length)
+    ++ (encodeMany SecurityDefinitionMessageNoMdFeedTypesGroup.encode message.securityDefinitionMessageNoMdFeedTypesGroup.val))
 
-def decode (bytes : List UInt8) : Option (SecurityDefinitionMessageNoMDFeedTypesGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SecurityDefinitionMessageNoMdFeedTypesGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroupUint8, bytes) ← decodeUInt 1 bytes
-  let (securityDefinitionMessageNoMDFeedTypesGroup_, bytes) ← decodeMany SecurityDefinitionMessageNoMDFeedTypesGroup.decode numInGroupUint8.toNat bytes
-  if fits_securityDefinitionMessageNoMDFeedTypesGroup : securityDefinitionMessageNoMDFeedTypesGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, securityDefinitionMessageNoMDFeedTypesGroup := ⟨securityDefinitionMessageNoMDFeedTypesGroup_, fits_securityDefinitionMessageNoMDFeedTypesGroup⟩ }, bytes)
+  let (securityDefinitionMessageNoMdFeedTypesGroup_, bytes) ← decodeMany SecurityDefinitionMessageNoMdFeedTypesGroup.decode numInGroupUint8.toNat bytes
+  if fits_securityDefinitionMessageNoMdFeedTypesGroup : securityDefinitionMessageNoMdFeedTypesGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, securityDefinitionMessageNoMdFeedTypesGroup := ⟨securityDefinitionMessageNoMdFeedTypesGroup_, fits_securityDefinitionMessageNoMdFeedTypesGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : SecurityDefinitionMessageNoMDFeedTypesGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SecurityDefinitionMessageNoMdFeedTypesGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : SecurityDefinitionMessageNoMDFeedTypesGroups) : (encode message).length ≤ 8418 := by
-  have bound_securityDefinitionMessageNoMDFeedTypesGroup := message.securityDefinitionMessageNoMDFeedTypesGroup.length_lt
+theorem encode_length_le (message : SecurityDefinitionMessageNoMdFeedTypesGroups) : (encode message).length ≤ 8418 := by
+  have bound_securityDefinitionMessageNoMdFeedTypesGroup := message.securityDefinitionMessageNoMdFeedTypesGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SecurityDefinitionMessageNoMDFeedTypesGroup.encode 33 SecurityDefinitionMessageNoMDFeedTypesGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SecurityDefinitionMessageNoMdFeedTypesGroup.encode 33 SecurityDefinitionMessageNoMdFeedTypesGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : SecurityDefinitionMessageNoMDFeedTypesGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SecurityDefinitionMessageNoMdFeedTypesGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 SecurityDefinitionMessageNoMDFeedTypesGroup.encode SecurityDefinitionMessageNoMDFeedTypesGroup.decode SecurityDefinitionMessageNoMDFeedTypesGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 SecurityDefinitionMessageNoMdFeedTypesGroup.encode SecurityDefinitionMessageNoMdFeedTypesGroup.decode SecurityDefinitionMessageNoMdFeedTypesGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.securityDefinitionMessageNoMDFeedTypesGroup.length_lt]
+  rw [dite_eq_left message.securityDefinitionMessageNoMdFeedTypesGroup.length_lt]
   rfl
 
-end SecurityDefinitionMessageNoMDFeedTypesGroups
+end SecurityDefinitionMessageNoMdFeedTypesGroups
 
 /-- Security Definition Message No Underlyings Group: 37 bytes -/
 structure SecurityDefinitionMessageNoUnderlyingsGroup where
@@ -780,14 +780,14 @@ structure SecurityDefinitionMessage where
   interestRate2RiskDown : Alpha 8
   settlPrice : BitVec 64
   tradeModeId : BitVec 32
-  groupMaskInt64 : BitVec 64
-  sectionIdInt32 : BitVec 32
-  baseContractIdInt32 : BitVec 32
+  groupMask : BitVec 64
+  sectionId : BitVec 32
+  baseContractId : BitVec 32
   tradePeriodAccess : BitVec 64
   highLimitPxWeekend : BitVec 64
   lowLimitPxWeekend : BitVec 64
   clearingSettlPrice : BitVec 64
-  securityDefinitionMessageNoMDFeedTypesGroups : SecurityDefinitionMessageNoMDFeedTypesGroups
+  securityDefinitionMessageNoMdFeedTypesGroups : SecurityDefinitionMessageNoMdFeedTypesGroups
   securityDefinitionMessageNoUnderlyingsGroups : SecurityDefinitionMessageNoUnderlyingsGroups
   securityDefinitionMessageNoLegsGroups : SecurityDefinitionMessageNoLegsGroups
   securityDefinitionMessageNoInstrAttribGroups : SecurityDefinitionMessageNoInstrAttribGroups
@@ -842,14 +842,14 @@ def encode (message : SecurityDefinitionMessage) : List UInt8 :=
     ++ (Alpha.encode message.interestRate2RiskDown
     ++ (encodeUIntLE 8 message.settlPrice
     ++ (encodeUIntLE 4 message.tradeModeId
-    ++ (encodeUIntLE 8 message.groupMaskInt64
-    ++ (encodeUIntLE 4 message.sectionIdInt32
-    ++ (encodeUIntLE 4 message.baseContractIdInt32
+    ++ (encodeUIntLE 8 message.groupMask
+    ++ (encodeUIntLE 4 message.sectionId
+    ++ (encodeUIntLE 4 message.baseContractId
     ++ (encodeUIntLE 8 message.tradePeriodAccess
     ++ (encodeUIntLE 8 message.highLimitPxWeekend
     ++ (encodeUIntLE 8 message.lowLimitPxWeekend
     ++ (encodeUIntLE 8 message.clearingSettlPrice
-    ++ (SecurityDefinitionMessageNoMDFeedTypesGroups.encode message.securityDefinitionMessageNoMDFeedTypesGroups
+    ++ (SecurityDefinitionMessageNoMdFeedTypesGroups.encode message.securityDefinitionMessageNoMdFeedTypesGroups
     ++ (SecurityDefinitionMessageNoUnderlyingsGroups.encode message.securityDefinitionMessageNoUnderlyingsGroups
     ++ (SecurityDefinitionMessageNoLegsGroups.encode message.securityDefinitionMessageNoLegsGroups
     ++ (SecurityDefinitionMessageNoInstrAttribGroups.encode message.securityDefinitionMessageNoInstrAttribGroups
@@ -903,21 +903,21 @@ def decode (bytes : List UInt8) : Option (SecurityDefinitionMessage × List UInt
   let (interestRate2RiskDown, bytes) ← Alpha.decode 8 bytes
   let (settlPrice, bytes) ← decodeUIntLE 8 bytes
   let (tradeModeId, bytes) ← decodeUIntLE 4 bytes
-  let (groupMaskInt64, bytes) ← decodeUIntLE 8 bytes
-  let (sectionIdInt32, bytes) ← decodeUIntLE 4 bytes
-  let (baseContractIdInt32, bytes) ← decodeUIntLE 4 bytes
+  let (groupMask, bytes) ← decodeUIntLE 8 bytes
+  let (sectionId, bytes) ← decodeUIntLE 4 bytes
+  let (baseContractId, bytes) ← decodeUIntLE 4 bytes
   let (tradePeriodAccess, bytes) ← decodeUIntLE 8 bytes
   let (highLimitPxWeekend, bytes) ← decodeUIntLE 8 bytes
   let (lowLimitPxWeekend, bytes) ← decodeUIntLE 8 bytes
   let (clearingSettlPrice, bytes) ← decodeUIntLE 8 bytes
-  let (securityDefinitionMessageNoMDFeedTypesGroups, bytes) ← SecurityDefinitionMessageNoMDFeedTypesGroups.decode bytes
+  let (securityDefinitionMessageNoMdFeedTypesGroups, bytes) ← SecurityDefinitionMessageNoMdFeedTypesGroups.decode bytes
   let (securityDefinitionMessageNoUnderlyingsGroups, bytes) ← SecurityDefinitionMessageNoUnderlyingsGroups.decode bytes
   let (securityDefinitionMessageNoLegsGroups, bytes) ← SecurityDefinitionMessageNoLegsGroups.decode bytes
   let (securityDefinitionMessageNoInstrAttribGroups, bytes) ← SecurityDefinitionMessageNoInstrAttribGroups.decode bytes
   let (securityDefinitionMessageNoEventsGroups, bytes) ← SecurityDefinitionMessageNoEventsGroups.decode bytes
   let (securityDesc, bytes) ← SecurityDesc.decode bytes
   let (quotationList, bytes) ← QuotationList.decode bytes
-  pure ({ totNumReports, symbol, securityId, securityAltId, securityAltIdSource, securityType, cfiCode, strikePrice, contractMultiplier, securityTradingStatus, currency, marketSegmentId, tradingSessionId, exchangeTradingSessionIdInt32NullOptional, volatility, highLimitPx, lowLimitPx, minPriceIncrement, minPriceIncrementAmount, initialMarginOnBuy, initialMarginOnSell, initialMarginSyntetic, theorPrice, theorPriceLimit, underlyingQty, underlyingCurrency, flags, minPriceIncrementAmountCurr, settlPriceOpen, valuationMethod, riskFreeRate, fixedSpotDiscount, projectedSpotDiscount, settlCurrency, negativePrices, derivativeContractMultiplier, interestRateRiskUp, interestRateRiskDown, riskFreeRate2, interestRate2RiskUp, interestRate2RiskDown, settlPrice, tradeModeId, groupMaskInt64, sectionIdInt32, baseContractIdInt32, tradePeriodAccess, highLimitPxWeekend, lowLimitPxWeekend, clearingSettlPrice, securityDefinitionMessageNoMDFeedTypesGroups, securityDefinitionMessageNoUnderlyingsGroups, securityDefinitionMessageNoLegsGroups, securityDefinitionMessageNoInstrAttribGroups, securityDefinitionMessageNoEventsGroups, securityDesc, quotationList }, bytes)
+  pure ({ totNumReports, symbol, securityId, securityAltId, securityAltIdSource, securityType, cfiCode, strikePrice, contractMultiplier, securityTradingStatus, currency, marketSegmentId, tradingSessionId, exchangeTradingSessionIdInt32NullOptional, volatility, highLimitPx, lowLimitPx, minPriceIncrement, minPriceIncrementAmount, initialMarginOnBuy, initialMarginOnSell, initialMarginSyntetic, theorPrice, theorPriceLimit, underlyingQty, underlyingCurrency, flags, minPriceIncrementAmountCurr, settlPriceOpen, valuationMethod, riskFreeRate, fixedSpotDiscount, projectedSpotDiscount, settlCurrency, negativePrices, derivativeContractMultiplier, interestRateRiskUp, interestRateRiskDown, riskFreeRate2, interestRate2RiskUp, interestRate2RiskDown, settlPrice, tradeModeId, groupMask, sectionId, baseContractId, tradePeriodAccess, highLimitPxWeekend, lowLimitPxWeekend, clearingSettlPrice, securityDefinitionMessageNoMdFeedTypesGroups, securityDefinitionMessageNoUnderlyingsGroups, securityDefinitionMessageNoLegsGroups, securityDefinitionMessageNoInstrAttribGroups, securityDefinitionMessageNoEventsGroups, securityDesc, quotationList }, bytes)
 
 theorem encode_length_pos (message : SecurityDefinitionMessage) : (encode message).length > 0 := by
   unfold encode
@@ -926,7 +926,7 @@ theorem encode_length_pos (message : SecurityDefinitionMessage) : (encode messag
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : SecurityDefinitionMessage) : (encode message).length ≤ 170705 := by
-  have bound_securityDefinitionMessageNoMDFeedTypesGroups := SecurityDefinitionMessageNoMDFeedTypesGroups.encode_length_le message.securityDefinitionMessageNoMDFeedTypesGroups
+  have bound_securityDefinitionMessageNoMdFeedTypesGroups := SecurityDefinitionMessageNoMdFeedTypesGroups.encode_length_le message.securityDefinitionMessageNoMdFeedTypesGroups
   have bound_securityDefinitionMessageNoUnderlyingsGroups := SecurityDefinitionMessageNoUnderlyingsGroups.encode_length_le message.securityDefinitionMessageNoUnderlyingsGroups
   have bound_securityDefinitionMessageNoLegsGroups := SecurityDefinitionMessageNoLegsGroups.encode_length_le message.securityDefinitionMessageNoLegsGroups
   have bound_securityDefinitionMessageNoInstrAttribGroups := SecurityDefinitionMessageNoInstrAttribGroups.encode_length_le message.securityDefinitionMessageNoInstrAttribGroups
@@ -1041,7 +1041,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, SecurityDefinitionMessageNoMDFeedTypesGroups.decode_encode, some_bind]
+  rw [List.append_assoc, SecurityDefinitionMessageNoMdFeedTypesGroups.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, SecurityDefinitionMessageNoUnderlyingsGroups.decode_encode, some_bind]
   dsimp only
@@ -1138,9 +1138,9 @@ structure SecurityGroupStatusMessage where
   securityGroupId : BitVec 64
   haltType : BitVec 8
   tradeModeMask : BitVec 32
-  groupMaskInt64NullOptional : BitVec 64
-  sectionIdInt32NullOptional : BitVec 32
-  baseContractIdInt32NullOptional : BitVec 32
+  groupMaskOptional : BitVec 64
+  sectionIdOptional : BitVec 32
+  baseContractIdOptional : BitVec 32
   securityTradingStatus : BitVec 8
   statusChangeTime : BitVec 64
   deriving DecidableEq, Repr
@@ -1151,9 +1151,9 @@ def encode (message : SecurityGroupStatusMessage) : List UInt8 :=
   encodeUIntLE 8 message.securityGroupId
     ++ (encodeUInt 1 message.haltType
     ++ (encodeUIntLE 4 message.tradeModeMask
-    ++ (encodeUIntLE 8 message.groupMaskInt64NullOptional
-    ++ (encodeUIntLE 4 message.sectionIdInt32NullOptional
-    ++ (encodeUIntLE 4 message.baseContractIdInt32NullOptional
+    ++ (encodeUIntLE 8 message.groupMaskOptional
+    ++ (encodeUIntLE 4 message.sectionIdOptional
+    ++ (encodeUIntLE 4 message.baseContractIdOptional
     ++ (encodeUInt 1 message.securityTradingStatus
     ++ (encodeUIntLE 8 message.statusChangeTime)))))))
 
@@ -1161,12 +1161,12 @@ def decode (bytes : List UInt8) : Option (SecurityGroupStatusMessage × List UIn
   let (securityGroupId, bytes) ← decodeUIntLE 8 bytes
   let (haltType, bytes) ← decodeUInt 1 bytes
   let (tradeModeMask, bytes) ← decodeUIntLE 4 bytes
-  let (groupMaskInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
-  let (sectionIdInt32NullOptional, bytes) ← decodeUIntLE 4 bytes
-  let (baseContractIdInt32NullOptional, bytes) ← decodeUIntLE 4 bytes
+  let (groupMaskOptional, bytes) ← decodeUIntLE 8 bytes
+  let (sectionIdOptional, bytes) ← decodeUIntLE 4 bytes
+  let (baseContractIdOptional, bytes) ← decodeUIntLE 4 bytes
   let (securityTradingStatus, bytes) ← decodeUInt 1 bytes
   let (statusChangeTime, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityGroupId, haltType, tradeModeMask, groupMaskInt64NullOptional, sectionIdInt32NullOptional, baseContractIdInt32NullOptional, securityTradingStatus, statusChangeTime }, bytes)
+  pure ({ securityGroupId, haltType, tradeModeMask, groupMaskOptional, sectionIdOptional, baseContractIdOptional, securityTradingStatus, statusChangeTime }, bytes)
 
 @[simp] theorem encode_length (message : SecurityGroupStatusMessage) : (encode message).length = 38 := by
   unfold encode

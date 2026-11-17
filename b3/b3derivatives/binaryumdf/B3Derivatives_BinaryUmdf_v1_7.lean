@@ -2182,7 +2182,7 @@ structure TheoreticalOpeningPrice16Message where
   mdUpdateAction : BitVec 8
   tradeDate : BitVec 16
   mdCorporateOffsetPriceOptional : BitVec 64
-  mdEntrySizeQuantityOptional : BitVec 64
+  mdEntrySizeOptional : BitVec 64
   mdEntryTimestamp : BitVec 64
   rptSeq : BitVec 32
   deriving DecidableEq, Repr
@@ -2195,7 +2195,7 @@ def encode (message : TheoreticalOpeningPrice16Message) : List UInt8 :=
     ++ (encodeUInt 1 message.mdUpdateAction
     ++ (encodeUIntLE 2 message.tradeDate
     ++ (encodeUIntLE 8 message.mdCorporateOffsetPriceOptional
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantityOptional
+    ++ (encodeUIntLE 8 message.mdEntrySizeOptional
     ++ (encodeUIntLE 8 message.mdEntryTimestamp
     ++ (encodeUIntLE 4 message.rptSeq)))))))
 
@@ -2205,10 +2205,10 @@ def decode (bytes : List UInt8) : Option (TheoreticalOpeningPrice16Message × Li
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (tradeDate, bytes) ← decodeUIntLE 2 bytes
   let (mdCorporateOffsetPriceOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantityOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, matchEventIndicator, mdUpdateAction, tradeDate, mdCorporateOffsetPriceOptional, mdEntrySizeQuantityOptional, mdEntryTimestamp, rptSeq }, bytes)
+  pure ({ securityId, matchEventIndicator, mdUpdateAction, tradeDate, mdCorporateOffsetPriceOptional, mdEntrySizeOptional, mdEntryTimestamp, rptSeq }, bytes)
 
 @[simp] theorem encode_length (message : TheoreticalOpeningPrice16Message) : (encode message).length = 40 := by
   unfold encode
@@ -2316,7 +2316,7 @@ structure AuctionImbalance19Message where
   matchEventIndicator : BitVec 8
   mdUpdateAction : BitVec 8
   imbalanceCondition : BitVec 16
-  mdEntrySizeQuantityOptional : BitVec 64
+  mdEntrySizeOptional : BitVec 64
   mdEntryTimestamp : BitVec 64
   rptSeq : BitVec 32
   deriving DecidableEq, Repr
@@ -2328,7 +2328,7 @@ def encode (message : AuctionImbalance19Message) : List UInt8 :=
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (encodeUInt 1 message.mdUpdateAction
     ++ (encodeUIntLE 2 message.imbalanceCondition
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantityOptional
+    ++ (encodeUIntLE 8 message.mdEntrySizeOptional
     ++ (encodeUIntLE 8 message.mdEntryTimestamp
     ++ (encodeUIntLE 4 message.rptSeq))))))
 
@@ -2337,10 +2337,10 @@ def decode (bytes : List UInt8) : Option (AuctionImbalance19Message × List UInt
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (imbalanceCondition, bytes) ← decodeUIntLE 2 bytes
-  let (mdEntrySizeQuantityOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, matchEventIndicator, mdUpdateAction, imbalanceCondition, mdEntrySizeQuantityOptional, mdEntryTimestamp, rptSeq }, bytes)
+  pure ({ securityId, matchEventIndicator, mdUpdateAction, imbalanceCondition, mdEntrySizeOptional, mdEntryTimestamp, rptSeq }, bytes)
 
 @[simp] theorem encode_length (message : AuctionImbalance19Message) : (encode message).length = 32 := by
   unfold encode
@@ -2707,7 +2707,7 @@ structure LastTradePrice27Message where
   tradingSessionId : BitVec 8
   tradeCondition : BitVec 16
   mdFuturePrice : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   tradeId : BitVec 32
   mdEntryBuyer : BitVec 32
   mdEntrySeller : BitVec 32
@@ -2728,7 +2728,7 @@ def encode (message : LastTradePrice27Message) : List UInt8 :=
     ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 2 message.tradeCondition
     ++ (encodeUIntLE 8 message.mdFuturePrice
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.tradeId
     ++ (encodeUIntLE 4 message.mdEntryBuyer
     ++ (encodeUIntLE 4 message.mdEntrySeller
@@ -2746,7 +2746,7 @@ def decode (bytes : List UInt8) : Option (LastTradePrice27Message × List UInt8)
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (tradeCondition, bytes) ← decodeUIntLE 2 bytes
   let (mdFuturePrice, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (tradeId, bytes) ← decodeUIntLE 4 bytes
   let (mdEntryBuyer, bytes) ← decodeUIntLE 4 bytes
   let (mdEntrySeller, bytes) ← decodeUIntLE 4 bytes
@@ -2757,7 +2757,7 @@ def decode (bytes : List UInt8) : Option (LastTradePrice27Message × List UInt8)
   let (mdEntryInterestRate, bytes) ← decodeUIntLE 8 bytes
   let (trdSubType, bytes) ← decodeUInt 1 bytes
   let (padding3, bytes) ← Alpha.decode 3 bytes
-  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySizeQuantity, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, mdEntryTimestamp, rptSeq, sellerDays, mdEntryInterestRate, trdSubType, padding3 }, bytes)
+  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySize, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, mdEntryTimestamp, rptSeq, sellerDays, mdEntryInterestRate, trdSubType, padding3 }, bytes)
 
 @[simp] theorem encode_length (message : LastTradePrice27Message) : (encode message).length = 68 := by
   unfold encode
@@ -2878,7 +2878,7 @@ structure OrderMbO50Message where
   mdEntryType : MdEntryType
   offset11Padding1 : Alpha 1
   mdCorporateOffsetPriceOptional : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   mdEntryPositionNo : BitVec 32
   enteringFirm : BitVec 32
   mdInsertTimestamp : BitVec 64
@@ -2896,7 +2896,7 @@ def encode (message : OrderMbO50Message) : List UInt8 :=
     ++ (MdEntryType.encode message.mdEntryType
     ++ (Alpha.encode message.offset11Padding1
     ++ (encodeUIntLE 8 message.mdCorporateOffsetPriceOptional
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.mdEntryPositionNo
     ++ (encodeUIntLE 4 message.enteringFirm
     ++ (encodeUIntLE 8 message.mdInsertTimestamp
@@ -2911,14 +2911,14 @@ def decode (bytes : List UInt8) : Option (OrderMbO50Message × List UInt8) := do
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
   let (offset11Padding1, bytes) ← Alpha.decode 1 bytes
   let (mdCorporateOffsetPriceOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryPositionNo, bytes) ← decodeUIntLE 4 bytes
   let (enteringFirm, bytes) ← decodeUIntLE 4 bytes
   let (mdInsertTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityId, matchEventIndicator, mdUpdateAction, mdEntryType, offset11Padding1, mdCorporateOffsetPriceOptional, mdEntrySizeQuantity, mdEntryPositionNo, enteringFirm, mdInsertTimestamp, secondaryOrderId, rptSeq, mdEntryTimestamp }, bytes)
+  pure ({ securityId, matchEventIndicator, mdUpdateAction, mdEntryType, offset11Padding1, mdCorporateOffsetPriceOptional, mdEntrySize, mdEntryPositionNo, enteringFirm, mdInsertTimestamp, secondaryOrderId, rptSeq, mdEntryTimestamp }, bytes)
 
 @[simp] theorem encode_length (message : OrderMbO50Message) : (encode message).length = 64 := by
   unfold encode
@@ -2968,7 +2968,7 @@ structure DeleteOrderMbO51Message where
   mdEntryType : MdEntryType
   offset11Padding1 : Alpha 1
   mdEntryPositionNo : BitVec 32
-  mdEntrySizeQuantityOptional : BitVec 64
+  mdEntrySizeOptional : BitVec 64
   secondaryOrderId : BitVec 64
   mdEntryTimestamp : BitVec 64
   rptSeq : BitVec 32
@@ -2983,7 +2983,7 @@ def encode (message : DeleteOrderMbO51Message) : List UInt8 :=
     ++ (MdEntryType.encode message.mdEntryType
     ++ (Alpha.encode message.offset11Padding1
     ++ (encodeUIntLE 4 message.mdEntryPositionNo
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantityOptional
+    ++ (encodeUIntLE 8 message.mdEntrySizeOptional
     ++ (encodeUIntLE 8 message.secondaryOrderId
     ++ (encodeUIntLE 8 message.mdEntryTimestamp
     ++ (encodeUIntLE 4 message.rptSeq)))))))))
@@ -2995,11 +2995,11 @@ def decode (bytes : List UInt8) : Option (DeleteOrderMbO51Message × List UInt8)
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
   let (offset11Padding1, bytes) ← Alpha.decode 1 bytes
   let (mdEntryPositionNo, bytes) ← decodeUIntLE 4 bytes
-  let (mdEntrySizeQuantityOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, matchEventIndicator, offset9Padding1, mdEntryType, offset11Padding1, mdEntryPositionNo, mdEntrySizeQuantityOptional, secondaryOrderId, mdEntryTimestamp, rptSeq }, bytes)
+  pure ({ securityId, matchEventIndicator, offset9Padding1, mdEntryType, offset11Padding1, mdEntryPositionNo, mdEntrySizeOptional, secondaryOrderId, mdEntryTimestamp, rptSeq }, bytes)
 
 @[simp] theorem encode_length (message : DeleteOrderMbO51Message) : (encode message).length = 44 := by
   unfold encode
@@ -3107,7 +3107,7 @@ structure Trade53Message where
   tradingSessionId : BitVec 8
   tradeCondition : BitVec 16
   mdFuturePrice : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   tradeId : BitVec 32
   mdEntryBuyer : BitVec 32
   mdEntrySeller : BitVec 32
@@ -3126,7 +3126,7 @@ def encode (message : Trade53Message) : List UInt8 :=
     ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 2 message.tradeCondition
     ++ (encodeUIntLE 8 message.mdFuturePrice
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.tradeId
     ++ (encodeUIntLE 4 message.mdEntryBuyer
     ++ (encodeUIntLE 4 message.mdEntrySeller
@@ -3142,7 +3142,7 @@ def decode (bytes : List UInt8) : Option (Trade53Message × List UInt8) := do
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (tradeCondition, bytes) ← decodeUIntLE 2 bytes
   let (mdFuturePrice, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (tradeId, bytes) ← decodeUIntLE 4 bytes
   let (mdEntryBuyer, bytes) ← decodeUIntLE 4 bytes
   let (mdEntrySeller, bytes) ← decodeUIntLE 4 bytes
@@ -3151,7 +3151,7 @@ def decode (bytes : List UInt8) : Option (Trade53Message × List UInt8) := do
   let (offset43Padding1, bytes) ← Alpha.decode 1 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySizeQuantity, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, trdSubType, offset43Padding1, mdEntryTimestamp, rptSeq }, bytes)
+  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySize, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, trdSubType, offset43Padding1, mdEntryTimestamp, rptSeq }, bytes)
 
 @[simp] theorem encode_length (message : Trade53Message) : (encode message).length = 56 := by
   unfold encode
@@ -3202,7 +3202,7 @@ structure ForwardTrade54Message where
   tradingSessionId : BitVec 8
   tradeCondition : BitVec 16
   mdFuturePrice : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   tradeId : BitVec 32
   mdEntryBuyer : BitVec 32
   mdEntrySeller : BitVec 32
@@ -3223,7 +3223,7 @@ def encode (message : ForwardTrade54Message) : List UInt8 :=
     ++ (encodeUInt 1 message.tradingSessionId
     ++ (encodeUIntLE 2 message.tradeCondition
     ++ (encodeUIntLE 8 message.mdFuturePrice
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.tradeId
     ++ (encodeUIntLE 4 message.mdEntryBuyer
     ++ (encodeUIntLE 4 message.mdEntrySeller
@@ -3241,7 +3241,7 @@ def decode (bytes : List UInt8) : Option (ForwardTrade54Message × List UInt8) :
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (tradeCondition, bytes) ← decodeUIntLE 2 bytes
   let (mdFuturePrice, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (tradeId, bytes) ← decodeUIntLE 4 bytes
   let (mdEntryBuyer, bytes) ← decodeUIntLE 4 bytes
   let (mdEntrySeller, bytes) ← decodeUIntLE 4 bytes
@@ -3252,7 +3252,7 @@ def decode (bytes : List UInt8) : Option (ForwardTrade54Message × List UInt8) :
   let (mdEntryInterestRate, bytes) ← decodeUIntLE 8 bytes
   let (trdSubType, bytes) ← decodeUInt 1 bytes
   let (padding3, bytes) ← Alpha.decode 3 bytes
-  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySizeQuantity, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, mdEntryTimestamp, rptSeq, sellerDays, mdEntryInterestRate, trdSubType, padding3 }, bytes)
+  pure ({ securityId, matchEventIndicator, tradingSessionId, tradeCondition, mdFuturePrice, mdEntrySize, tradeId, mdEntryBuyer, mdEntrySeller, tradeDate, mdEntryTimestamp, rptSeq, sellerDays, mdEntryInterestRate, trdSubType, padding3 }, bytes)
 
 @[simp] theorem encode_length (message : ForwardTrade54Message) : (encode message).length = 68 := by
   unfold encode
@@ -3462,7 +3462,7 @@ structure TradeBust57Message where
   tradingSessionId : BitVec 8
   offset10Padding2 : Alpha 2
   mdFuturePrice : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   tradeId : BitVec 32
   tradeDate : BitVec 16
   offset34Padding2 : Alpha 2
@@ -3478,7 +3478,7 @@ def encode (message : TradeBust57Message) : List UInt8 :=
     ++ (encodeUInt 1 message.tradingSessionId
     ++ (Alpha.encode message.offset10Padding2
     ++ (encodeUIntLE 8 message.mdFuturePrice
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.tradeId
     ++ (encodeUIntLE 2 message.tradeDate
     ++ (Alpha.encode message.offset34Padding2
@@ -3491,13 +3491,13 @@ def decode (bytes : List UInt8) : Option (TradeBust57Message × List UInt8) := d
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (offset10Padding2, bytes) ← Alpha.decode 2 bytes
   let (mdFuturePrice, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (tradeId, bytes) ← decodeUIntLE 4 bytes
   let (tradeDate, bytes) ← decodeUIntLE 2 bytes
   let (offset34Padding2, bytes) ← Alpha.decode 2 bytes
   let (mdEntryTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ securityId, matchEventIndicator, tradingSessionId, offset10Padding2, mdFuturePrice, mdEntrySizeQuantity, tradeId, tradeDate, offset34Padding2, mdEntryTimestamp, rptSeq }, bytes)
+  pure ({ securityId, matchEventIndicator, tradingSessionId, offset10Padding2, mdFuturePrice, mdEntrySize, tradeId, tradeDate, offset34Padding2, mdEntryTimestamp, rptSeq }, bytes)
 
 @[simp] theorem encode_length (message : TradeBust57Message) : (encode message).length = 48 := by
   unfold encode
@@ -3535,10 +3535,10 @@ theorem encode_length_pos (message : TradeBust57Message) : (encode message).leng
 
 end TradeBust57Message
 
-/-- Snapshot Full Refresh Orders Mb O 71 Message no M D Entries Group: 41 bytes -/
+/-- Snapshot Full Refresh Orders Mb O 71 Message No M D Entries Group: 41 bytes -/
 structure SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup where
   mdCorporateOffsetPriceOptional : BitVec 64
-  mdEntrySizeQuantity : BitVec 64
+  mdEntrySize : BitVec 64
   mdEntryPositionNo : BitVec 32
   enteringFirm : BitVec 32
   mdInsertTimestamp : BitVec 64
@@ -3550,7 +3550,7 @@ namespace SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup
 
 def encode (message : SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup) : List UInt8 :=
   encodeUIntLE 8 message.mdCorporateOffsetPriceOptional
-    ++ (encodeUIntLE 8 message.mdEntrySizeQuantity
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 4 message.mdEntryPositionNo
     ++ (encodeUIntLE 4 message.enteringFirm
     ++ (encodeUIntLE 8 message.mdInsertTimestamp
@@ -3559,13 +3559,13 @@ def encode (message : SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup) : L
 
 def decode (bytes : List UInt8) : Option (SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup × List UInt8) := do
   let (mdCorporateOffsetPriceOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryPositionNo, bytes) ← decodeUIntLE 4 bytes
   let (enteringFirm, bytes) ← decodeUIntLE 4 bytes
   let (mdInsertTimestamp, bytes) ← decodeUIntLE 8 bytes
   let (secondaryOrderId, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
-  pure ({ mdCorporateOffsetPriceOptional, mdEntrySizeQuantity, mdEntryPositionNo, enteringFirm, mdInsertTimestamp, secondaryOrderId, mdEntryType }, bytes)
+  pure ({ mdCorporateOffsetPriceOptional, mdEntrySize, mdEntryPositionNo, enteringFirm, mdInsertTimestamp, secondaryOrderId, mdEntryType }, bytes)
 
 @[simp] theorem encode_length (message : SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup) : (encode message).length = 41 := by
   unfold encode
@@ -3595,7 +3595,7 @@ theorem encode_length_pos (message : SnapshotFullRefreshOrdersMbO71MessageNoMDEn
 
 end SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup
 
-/-- Snapshot Full Refresh Orders Mb O 71 Message no M D Entries Groups -/
+/-- Snapshot Full Refresh Orders Mb O 71 Message No M D Entries Groups -/
 structure SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroups where
   blockLength : BitVec 16
   snapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup : Bounded 1 SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup

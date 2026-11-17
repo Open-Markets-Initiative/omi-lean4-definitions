@@ -970,8 +970,8 @@ structure TradesIncrementalMessage where
   incrementalMessageInstructions : BitVec 16
   lastTradePrice : BitVec 64
   lastTradeSize : BitVec 64
-  lastTradeTimeTimestampOptional : BitVec 64
-  totalVolumeQuantity : BitVec 64
+  lastTradeTimeOptional : BitVec 64
+  totalVolume : BitVec 64
   incrementalTradeGroups : IncrementalTradeGroups
   deriving DecidableEq, Repr
 
@@ -986,8 +986,8 @@ def encode (message : TradesIncrementalMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.incrementalMessageInstructions
     ++ (encodeUIntLE 8 message.lastTradePrice
     ++ (encodeUIntLE 8 message.lastTradeSize
-    ++ (encodeUIntLE 8 message.lastTradeTimeTimestampOptional
-    ++ (encodeUIntLE 8 message.totalVolumeQuantity
+    ++ (encodeUIntLE 8 message.lastTradeTimeOptional
+    ++ (encodeUIntLE 8 message.totalVolume
     ++ (IncrementalTradeGroups.encode message.incrementalTradeGroups))))))))))
 
 def decode (bytes : List UInt8) : Option (TradesIncrementalMessage × List UInt8) := do
@@ -999,10 +999,10 @@ def decode (bytes : List UInt8) : Option (TradesIncrementalMessage × List UInt8
   let (incrementalMessageInstructions, bytes) ← decodeUIntLE 2 bytes
   let (lastTradePrice, bytes) ← decodeUIntLE 8 bytes
   let (lastTradeSize, bytes) ← decodeUIntLE 8 bytes
-  let (lastTradeTimeTimestampOptional, bytes) ← decodeUIntLE 8 bytes
-  let (totalVolumeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (lastTradeTimeOptional, bytes) ← decodeUIntLE 8 bytes
+  let (totalVolume, bytes) ← decodeUIntLE 8 bytes
   let (incrementalTradeGroups, bytes) ← IncrementalTradeGroups.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeTimestampOptional, totalVolumeQuantity, incrementalTradeGroups }, bytes)
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeOptional, totalVolume, incrementalTradeGroups }, bytes)
 
 theorem encode_length_pos (message : TradesIncrementalMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1171,8 +1171,8 @@ structure TradeCorrectMessage where
   incrementalMessageInstructions : BitVec 16
   lastTradePrice : BitVec 64
   lastTradeSize : BitVec 64
-  lastTradeTimeTimestampOptional : BitVec 64
-  totalVolumeQuantity : BitVec 64
+  lastTradeTimeOptional : BitVec 64
+  totalVolume : BitVec 64
   tradeCorrectGroups : TradeCorrectGroups
   deriving DecidableEq, Repr
 
@@ -1187,8 +1187,8 @@ def encode (message : TradeCorrectMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.incrementalMessageInstructions
     ++ (encodeUIntLE 8 message.lastTradePrice
     ++ (encodeUIntLE 8 message.lastTradeSize
-    ++ (encodeUIntLE 8 message.lastTradeTimeTimestampOptional
-    ++ (encodeUIntLE 8 message.totalVolumeQuantity
+    ++ (encodeUIntLE 8 message.lastTradeTimeOptional
+    ++ (encodeUIntLE 8 message.totalVolume
     ++ (TradeCorrectGroups.encode message.tradeCorrectGroups))))))))))
 
 def decode (bytes : List UInt8) : Option (TradeCorrectMessage × List UInt8) := do
@@ -1200,10 +1200,10 @@ def decode (bytes : List UInt8) : Option (TradeCorrectMessage × List UInt8) := 
   let (incrementalMessageInstructions, bytes) ← decodeUIntLE 2 bytes
   let (lastTradePrice, bytes) ← decodeUIntLE 8 bytes
   let (lastTradeSize, bytes) ← decodeUIntLE 8 bytes
-  let (lastTradeTimeTimestampOptional, bytes) ← decodeUIntLE 8 bytes
-  let (totalVolumeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (lastTradeTimeOptional, bytes) ← decodeUIntLE 8 bytes
+  let (totalVolume, bytes) ← decodeUIntLE 8 bytes
   let (tradeCorrectGroups, bytes) ← TradeCorrectGroups.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeTimestampOptional, totalVolumeQuantity, tradeCorrectGroups }, bytes)
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeOptional, totalVolume, tradeCorrectGroups }, bytes)
 
 theorem encode_length_pos (message : TradeCorrectMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1367,8 +1367,8 @@ structure TradeBustMessage where
   incrementalMessageInstructions : BitVec 16
   lastTradePrice : BitVec 64
   lastTradeSize : BitVec 64
-  lastTradeTimeTimestampOptional : BitVec 64
-  totalVolumeQuantity : BitVec 64
+  lastTradeTimeOptional : BitVec 64
+  totalVolume : BitVec 64
   tradeBustGroups : TradeBustGroups
   deriving DecidableEq, Repr
 
@@ -1383,8 +1383,8 @@ def encode (message : TradeBustMessage) : List UInt8 :=
     ++ (encodeUIntLE 2 message.incrementalMessageInstructions
     ++ (encodeUIntLE 8 message.lastTradePrice
     ++ (encodeUIntLE 8 message.lastTradeSize
-    ++ (encodeUIntLE 8 message.lastTradeTimeTimestampOptional
-    ++ (encodeUIntLE 8 message.totalVolumeQuantity
+    ++ (encodeUIntLE 8 message.lastTradeTimeOptional
+    ++ (encodeUIntLE 8 message.totalVolume
     ++ (TradeBustGroups.encode message.tradeBustGroups))))))))))
 
 def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
@@ -1396,10 +1396,10 @@ def decode (bytes : List UInt8) : Option (TradeBustMessage × List UInt8) := do
   let (incrementalMessageInstructions, bytes) ← decodeUIntLE 2 bytes
   let (lastTradePrice, bytes) ← decodeUIntLE 8 bytes
   let (lastTradeSize, bytes) ← decodeUIntLE 8 bytes
-  let (lastTradeTimeTimestampOptional, bytes) ← decodeUIntLE 8 bytes
-  let (totalVolumeQuantity, bytes) ← decodeUIntLE 8 bytes
+  let (lastTradeTimeOptional, bytes) ← decodeUIntLE 8 bytes
+  let (totalVolume, bytes) ← decodeUIntLE 8 bytes
   let (tradeBustGroups, bytes) ← TradeBustGroups.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeTimestampOptional, totalVolumeQuantity, tradeBustGroups }, bytes)
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, incrementalMessageInstructions, lastTradePrice, lastTradeSize, lastTradeTimeOptional, totalVolume, tradeBustGroups }, bytes)
 
 theorem encode_length_pos (message : TradeBustMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1905,8 +1905,8 @@ structure MarketSummarySnapshotMessage where
   lastIncrementalMessageSeq : BitVec 64
   lastTradePrice : BitVec 64
   lastTradeSize : BitVec 64
-  lastTradeTimeTimestamp : BitVec 64
-  totalVolumeQuantityOptional : BitVec 64
+  lastTradeTime : BitVec 64
+  totalVolumeOptional : BitVec 64
   openPrice : BitVec 64
   openPriceType : OpenPriceType
   highPrice : BitVec 64
@@ -1930,8 +1930,8 @@ def encode (message : MarketSummarySnapshotMessage) : List UInt8 :=
     ++ (encodeUIntLE 8 message.lastIncrementalMessageSeq
     ++ (encodeUIntLE 8 message.lastTradePrice
     ++ (encodeUIntLE 8 message.lastTradeSize
-    ++ (encodeUIntLE 8 message.lastTradeTimeTimestamp
-    ++ (encodeUIntLE 8 message.totalVolumeQuantityOptional
+    ++ (encodeUIntLE 8 message.lastTradeTime
+    ++ (encodeUIntLE 8 message.totalVolumeOptional
     ++ (encodeUIntLE 8 message.openPrice
     ++ (OpenPriceType.encode message.openPriceType
     ++ (encodeUIntLE 8 message.highPrice
@@ -1952,8 +1952,8 @@ def decode (bytes : List UInt8) : Option (MarketSummarySnapshotMessage × List U
   let (lastIncrementalMessageSeq, bytes) ← decodeUIntLE 8 bytes
   let (lastTradePrice, bytes) ← decodeUIntLE 8 bytes
   let (lastTradeSize, bytes) ← decodeUIntLE 8 bytes
-  let (lastTradeTimeTimestamp, bytes) ← decodeUIntLE 8 bytes
-  let (totalVolumeQuantityOptional, bytes) ← decodeUIntLE 8 bytes
+  let (lastTradeTime, bytes) ← decodeUIntLE 8 bytes
+  let (totalVolumeOptional, bytes) ← decodeUIntLE 8 bytes
   let (openPrice, bytes) ← decodeUIntLE 8 bytes
   let (openPriceType, bytes) ← OpenPriceType.decode bytes
   let (highPrice, bytes) ← decodeUIntLE 8 bytes
@@ -1962,7 +1962,7 @@ def decode (bytes : List UInt8) : Option (MarketSummarySnapshotMessage × List U
   let (openInterest, bytes) ← decodeUIntLE 8 bytes
   let (settlementPrice, bytes) ← decodeUIntLE 8 bytes
   let (settlementPriceType, bytes) ← SettlementPriceType.decode bytes
-  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, snapshotMessageInstructions, snapshotInstrumentsCount, lastIncrementalMessageSeq, lastTradePrice, lastTradeSize, lastTradeTimeTimestamp, totalVolumeQuantityOptional, openPrice, openPriceType, highPrice, lowPrice, closePrice, openInterest, settlementPrice, settlementPriceType }, bytes)
+  pure ({ instrumentId, instrumentMessageNo, transactTime, tradingSessionDate, instrumentTradingStatus, snapshotMessageInstructions, snapshotInstrumentsCount, lastIncrementalMessageSeq, lastTradePrice, lastTradeSize, lastTradeTime, totalVolumeOptional, openPrice, openPriceType, highPrice, lowPrice, closePrice, openInterest, settlementPrice, settlementPriceType }, bytes)
 
 @[simp] theorem encode_length (message : MarketSummarySnapshotMessage) : (encode message).length = 119 := by
   unfold encode

@@ -113,19 +113,19 @@ end MarketDataPacketHeader
 /-- Incremental Packet Header: 12 bytes -/
 structure IncrementalPacketHeader where
   transactTime : BitVec 64
-  exchangeTradingSessionId : BitVec 32
+  exchangeTradingSessionIdOptional : BitVec 32
   deriving DecidableEq, Repr
 
 namespace IncrementalPacketHeader
 
 def encode (message : IncrementalPacketHeader) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 4 message.exchangeTradingSessionId)
+    ++ (encodeUIntLE 4 message.exchangeTradingSessionIdOptional)
 
 def decode (bytes : List UInt8) : Option (IncrementalPacketHeader × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (exchangeTradingSessionId, bytes) ← decodeUIntLE 4 bytes
-  pure ({ transactTime, exchangeTradingSessionId }, bytes)
+  let (exchangeTradingSessionIdOptional, bytes) ← decodeUIntLE 4 bytes
+  pure ({ transactTime, exchangeTradingSessionIdOptional }, bytes)
 
 @[simp] theorem encode_length (message : IncrementalPacketHeader) : (encode message).length = 12 := by
   unfold encode
@@ -511,9 +511,9 @@ structure SecurityGroupStatusMessage where
   securityGroupId : BitVec 64
   haltType : BitVec 8
   tradeModeMask : BitVec 32
-  groupMaskInt64NullOptional : BitVec 64
-  sectionIdInt32NullOptional : BitVec 32
-  baseContractIdInt32NullOptional : BitVec 32
+  groupMaskOptional : BitVec 64
+  sectionIdOptional : BitVec 32
+  baseContractIdOptional : BitVec 32
   securityTradingStatus : BitVec 8
   statusChangeTime : BitVec 64
   deriving DecidableEq, Repr
@@ -524,9 +524,9 @@ def encode (message : SecurityGroupStatusMessage) : List UInt8 :=
   encodeUIntLE 8 message.securityGroupId
     ++ (encodeUInt 1 message.haltType
     ++ (encodeUIntLE 4 message.tradeModeMask
-    ++ (encodeUIntLE 8 message.groupMaskInt64NullOptional
-    ++ (encodeUIntLE 4 message.sectionIdInt32NullOptional
-    ++ (encodeUIntLE 4 message.baseContractIdInt32NullOptional
+    ++ (encodeUIntLE 8 message.groupMaskOptional
+    ++ (encodeUIntLE 4 message.sectionIdOptional
+    ++ (encodeUIntLE 4 message.baseContractIdOptional
     ++ (encodeUInt 1 message.securityTradingStatus
     ++ (encodeUIntLE 8 message.statusChangeTime)))))))
 
@@ -534,12 +534,12 @@ def decode (bytes : List UInt8) : Option (SecurityGroupStatusMessage × List UIn
   let (securityGroupId, bytes) ← decodeUIntLE 8 bytes
   let (haltType, bytes) ← decodeUInt 1 bytes
   let (tradeModeMask, bytes) ← decodeUIntLE 4 bytes
-  let (groupMaskInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
-  let (sectionIdInt32NullOptional, bytes) ← decodeUIntLE 4 bytes
-  let (baseContractIdInt32NullOptional, bytes) ← decodeUIntLE 4 bytes
+  let (groupMaskOptional, bytes) ← decodeUIntLE 8 bytes
+  let (sectionIdOptional, bytes) ← decodeUIntLE 4 bytes
+  let (baseContractIdOptional, bytes) ← decodeUIntLE 4 bytes
   let (securityTradingStatus, bytes) ← decodeUInt 1 bytes
   let (statusChangeTime, bytes) ← decodeUIntLE 8 bytes
-  pure ({ securityGroupId, haltType, tradeModeMask, groupMaskInt64NullOptional, sectionIdInt32NullOptional, baseContractIdInt32NullOptional, securityTradingStatus, statusChangeTime }, bytes)
+  pure ({ securityGroupId, haltType, tradeModeMask, groupMaskOptional, sectionIdOptional, baseContractIdOptional, securityTradingStatus, statusChangeTime }, bytes)
 
 @[simp] theorem encode_length (message : SecurityGroupStatusMessage) : (encode message).length = 38 := by
   unfold encode

@@ -13,6 +13,9 @@ Prices with implied decimals are proven as the integers on the wire.
 
 Note: Application Message is not framed: its length Packet Length is not an integer it reads
 
+Note: a Mach Message that ends the session is the last of machMessage: the decoder turns away one
+that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 
@@ -23,38 +26,38 @@ def UnderlyingAssetType.codes : List UInt8 :=
   [0x45, 0x41, 0x46, 0x4E]
 
 inductive UnderlyingAssetType where
-  | equity -- Equity
+  | equityIndex -- Equity Index
   | commodityAgriculture -- Commodity Agriculture
-  | futures -- Futures
-  | not -- Not
+  | futuresContract -- Futures Contract
+  | notApplicable -- Not Applicable
   | unlisted (byte : { byte : UInt8 // byte ∉ UnderlyingAssetType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace UnderlyingAssetType
 
 def toByte : UnderlyingAssetType → UInt8
-  | .equity => 0x45
+  | .equityIndex => 0x45
   | .commodityAgriculture => 0x41
-  | .futures => 0x46
-  | .not => 0x4E
+  | .futuresContract => 0x46
+  | .notApplicable => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : UnderlyingAssetType :=
-  if byte = 0x45 then .equity
+  if byte = 0x45 then .equityIndex
   else if byte = 0x41 then .commodityAgriculture
-  else if byte = 0x46 then .futures
-  else .not
+  else if byte = 0x46 then .futuresContract
+  else .notApplicable
 
 def ofByte (byte : UInt8) : UnderlyingAssetType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : UnderlyingAssetType) : ofByte value.toByte = value := by
   cases value with
-  | equity => decide
+  | equityIndex => decide
   | commodityAgriculture => decide
-  | futures => decide
-  | not => decide
+  | futuresContract => decide
+  | notApplicable => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : UnderlyingAssetType) : List UInt8 :=
@@ -130,9 +133,9 @@ def InstrumentType.codes : List UInt8 :=
 
 inductive InstrumentType where
   | futures -- Futures
-  | optionsOn -- Options On
-  | tradeAt -- Trade At
-  | basis -- Basis
+  | optionsOnFutures -- Options On Futures
+  | tradeAtSettlementTas -- Trade At Settlement Tas
+  | basisTradeAtIndexCloseBtic -- Basis Trade At Index Close Btic
   | unlisted (byte : { byte : UInt8 // byte ∉ InstrumentType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -140,17 +143,17 @@ namespace InstrumentType
 
 def toByte : InstrumentType → UInt8
   | .futures => 0x46
-  | .optionsOn => 0x4F
-  | .tradeAt => 0x54
-  | .basis => 0x42
+  | .optionsOnFutures => 0x4F
+  | .tradeAtSettlementTas => 0x54
+  | .basisTradeAtIndexCloseBtic => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : InstrumentType :=
   if byte = 0x46 then .futures
-  else if byte = 0x4F then .optionsOn
-  else if byte = 0x54 then .tradeAt
-  else .basis
+  else if byte = 0x4F then .optionsOnFutures
+  else if byte = 0x54 then .tradeAtSettlementTas
+  else .basisTradeAtIndexCloseBtic
 
 def ofByte (byte : UInt8) : InstrumentType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -158,9 +161,9 @@ def ofByte (byte : UInt8) : InstrumentType :=
 theorem ofByte_toByte (value : InstrumentType) : ofByte value.toByte = value := by
   cases value with
   | futures => decide
-  | optionsOn => decide
-  | tradeAt => decide
-  | basis => decide
+  | optionsOnFutures => decide
+  | tradeAtSettlementTas => decide
+  | basisTradeAtIndexCloseBtic => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : InstrumentType) : List UInt8 :=
@@ -431,34 +434,34 @@ def TradingCollarVariationType.codes : List UInt8 :=
   [0x44, 0x50, 0x4E]
 
 inductive TradingCollarVariationType where
-  | product -- Product
-  | product_50 -- Product
-  | not -- Not
+  | productDollarCollarValue -- Product Dollar Collar Value
+  | productCollarPercentageValue -- Product Collar Percentage Value
+  | notApplicable -- Not Applicable
   | unlisted (byte : { byte : UInt8 // byte ∉ TradingCollarVariationType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace TradingCollarVariationType
 
 def toByte : TradingCollarVariationType → UInt8
-  | .product => 0x44
-  | .product_50 => 0x50
-  | .not => 0x4E
+  | .productDollarCollarValue => 0x44
+  | .productCollarPercentageValue => 0x50
+  | .notApplicable => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradingCollarVariationType :=
-  if byte = 0x44 then .product
-  else if byte = 0x50 then .product_50
-  else .not
+  if byte = 0x44 then .productDollarCollarValue
+  else if byte = 0x50 then .productCollarPercentageValue
+  else .notApplicable
 
 def ofByte (byte : UInt8) : TradingCollarVariationType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : TradingCollarVariationType) : ofByte value.toByte = value := by
   cases value with
-  | product => decide
-  | product_50 => decide
-  | not => decide
+  | productDollarCollarValue => decide
+  | productCollarPercentageValue => decide
+  | notApplicable => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradingCollarVariationType) : List UInt8 :=
@@ -487,7 +490,7 @@ def OptionStrikeCurrency.codes : List UInt8 :=
 
 inductive OptionStrikeCurrency where
   | usDollar -- Us Dollar
-  | naWhen -- Na When
+  | naWhenInstrumentTypeNotEqualToO -- Na When Instrument Type Not Equal To O
   | unlisted (byte : { byte : UInt8 // byte ∉ OptionStrikeCurrency.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -495,13 +498,13 @@ namespace OptionStrikeCurrency
 
 def toByte : OptionStrikeCurrency → UInt8
   | .usDollar => 0x55
-  | .naWhen => 0x4E
+  | .naWhenInstrumentTypeNotEqualToO => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OptionStrikeCurrency :=
   if byte = 0x55 then .usDollar
-  else .naWhen
+  else .naWhenInstrumentTypeNotEqualToO
 
 def ofByte (byte : UInt8) : OptionStrikeCurrency :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -509,7 +512,7 @@ def ofByte (byte : UInt8) : OptionStrikeCurrency :=
 theorem ofByte_toByte (value : OptionStrikeCurrency) : ofByte value.toByte = value := by
   cases value with
   | usDollar => decide
-  | naWhen => decide
+  | naWhenInstrumentTypeNotEqualToO => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OptionStrikeCurrency) : List UInt8 :=
@@ -537,34 +540,34 @@ def OptionType.codes : List UInt8 :=
   [0x43, 0x50, 0x4E]
 
 inductive OptionType where
-  | call -- Call
-  | put -- Put
-  | naWhen -- Na When
+  | callOptions -- Call Options
+  | putOptions -- Put Options
+  | naWhenInstrumentTypeNotEqualToO -- Na When Instrument Type Not Equal To O
   | unlisted (byte : { byte : UInt8 // byte ∉ OptionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace OptionType
 
 def toByte : OptionType → UInt8
-  | .call => 0x43
-  | .put => 0x50
-  | .naWhen => 0x4E
+  | .callOptions => 0x43
+  | .putOptions => 0x50
+  | .naWhenInstrumentTypeNotEqualToO => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OptionType :=
-  if byte = 0x43 then .call
-  else if byte = 0x50 then .put
-  else .naWhen
+  if byte = 0x43 then .callOptions
+  else if byte = 0x50 then .putOptions
+  else .naWhenInstrumentTypeNotEqualToO
 
 def ofByte (byte : UInt8) : OptionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : OptionType) : ofByte value.toByte = value := by
   cases value with
-  | call => decide
-  | put => decide
-  | naWhen => decide
+  | callOptions => decide
+  | putOptions => decide
+  | naWhenInstrumentTypeNotEqualToO => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OptionType) : List UInt8 :=
@@ -592,34 +595,34 @@ def OptionExpirationType.codes : List UInt8 :=
   [0x41, 0x45, 0x4E]
 
 inductive OptionExpirationType where
-  | americanStyle -- American Style
-  | europeanStyle -- European Style
-  | naWhen -- Na When
+  | americanStyleOptions -- American Style Options
+  | europeanStyleOptions -- European Style Options
+  | naWhenInstrumentTypeNotEqualToO -- Na When Instrument Type Not Equal To O
   | unlisted (byte : { byte : UInt8 // byte ∉ OptionExpirationType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace OptionExpirationType
 
 def toByte : OptionExpirationType → UInt8
-  | .americanStyle => 0x41
-  | .europeanStyle => 0x45
-  | .naWhen => 0x4E
+  | .americanStyleOptions => 0x41
+  | .europeanStyleOptions => 0x45
+  | .naWhenInstrumentTypeNotEqualToO => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OptionExpirationType :=
-  if byte = 0x41 then .americanStyle
-  else if byte = 0x45 then .europeanStyle
-  else .naWhen
+  if byte = 0x41 then .americanStyleOptions
+  else if byte = 0x45 then .europeanStyleOptions
+  else .naWhenInstrumentTypeNotEqualToO
 
 def ofByte (byte : UInt8) : OptionExpirationType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : OptionExpirationType) : ofByte value.toByte = value := by
   cases value with
-  | americanStyle => decide
-  | europeanStyle => decide
-  | naWhen => decide
+  | americanStyleOptions => decide
+  | europeanStyleOptions => decide
+  | naWhenInstrumentTypeNotEqualToO => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : OptionExpirationType) : List UInt8 :=
@@ -647,38 +650,38 @@ def SpreadType.codes : List UInt8 :=
   [0x53, 0x45, 0x42, 0x43]
 
 inductive SpreadType where
-  | standard -- Standard
-  | equity -- Equity
-  | butterfly -- Butterfly
-  | cross -- Cross
+  | standardCalendarSpread -- Standard Calendar Spread
+  | equityCalendarSpread -- Equity Calendar Spread
+  | butterflySpread -- Butterfly Spread
+  | crossProductSpread -- Cross Product Spread
   | unlisted (byte : { byte : UInt8 // byte ∉ SpreadType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace SpreadType
 
 def toByte : SpreadType → UInt8
-  | .standard => 0x53
-  | .equity => 0x45
-  | .butterfly => 0x42
-  | .cross => 0x43
+  | .standardCalendarSpread => 0x53
+  | .equityCalendarSpread => 0x45
+  | .butterflySpread => 0x42
+  | .crossProductSpread => 0x43
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SpreadType :=
-  if byte = 0x53 then .standard
-  else if byte = 0x45 then .equity
-  else if byte = 0x42 then .butterfly
-  else .cross
+  if byte = 0x53 then .standardCalendarSpread
+  else if byte = 0x45 then .equityCalendarSpread
+  else if byte = 0x42 then .butterflySpread
+  else .crossProductSpread
 
 def ofByte (byte : UInt8) : SpreadType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : SpreadType) : ofByte value.toByte = value := by
   cases value with
-  | standard => decide
-  | equity => decide
-  | butterfly => decide
-  | cross => decide
+  | standardCalendarSpread => decide
+  | equityCalendarSpread => decide
+  | butterflySpread => decide
+  | crossProductSpread => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SpreadType) : List UInt8 :=
@@ -757,38 +760,38 @@ def SystemStatus.codes : List UInt8 :=
   [0x53, 0x43, 0x31, 0x32]
 
 inductive SystemStatus where
-  | startOf -- Start Of
-  | endOf -- End Of
-  | startOf_31 -- Start Of
-  | endOf_32 -- End Of
+  | startOfSystemHours -- Start Of System Hours
+  | endOfSystemHours -- End Of System Hours
+  | startOfTestSessionSentBeforeTests -- Start Of Test Session Sent Before Tests
+  | endOfTestSession -- End Of Test Session
   | unlisted (byte : { byte : UInt8 // byte ∉ SystemStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace SystemStatus
 
 def toByte : SystemStatus → UInt8
-  | .startOf => 0x53
-  | .endOf => 0x43
-  | .startOf_31 => 0x31
-  | .endOf_32 => 0x32
+  | .startOfSystemHours => 0x53
+  | .endOfSystemHours => 0x43
+  | .startOfTestSessionSentBeforeTests => 0x31
+  | .endOfTestSession => 0x32
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SystemStatus :=
-  if byte = 0x53 then .startOf
-  else if byte = 0x43 then .endOf
-  else if byte = 0x31 then .startOf_31
-  else .endOf_32
+  if byte = 0x53 then .startOfSystemHours
+  else if byte = 0x43 then .endOfSystemHours
+  else if byte = 0x31 then .startOfTestSessionSentBeforeTests
+  else .endOfTestSession
 
 def ofByte (byte : UInt8) : SystemStatus :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : SystemStatus) : ofByte value.toByte = value := by
   cases value with
-  | startOf => decide
-  | endOf => decide
-  | startOf_31 => decide
-  | endOf_32 => decide
+  | startOfSystemHours => decide
+  | endOfSystemHours => decide
+  | startOfTestSessionSentBeforeTests => decide
+  | endOfTestSession => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SystemStatus) : List UInt8 :=
@@ -816,46 +819,46 @@ def TradeType.codes : List UInt8 :=
   [0x4F, 0x53, 0x4D, 0x43, 0x4C, 0x41]
 
 inductive TradeType where
-  | outright -- Outright
-  | strategy -- Strategy
-  | strategy_4d -- Strategy
-  | complex -- Complex
-  | complex_4c -- Complex
-  | adjustedLate -- Adjusted Late
+  | outrightTradeBetweenTwoSimpleOrders -- Outright Trade Between Two Simple Orders
+  | strategyMatchNetLevelTrade -- Strategy Match Net Level Trade
+  | strategyMatchComponentLegTrade -- Strategy Match Component Leg Trade
+  | complexLeggingDerivedNetLevelTrade -- Complex Legging Derived Net Level Trade
+  | complexLeggingDerivedComponentLegTrade -- Complex Legging Derived Component Leg Trade
+  | adjustedLateManualTrade -- Adjusted Late Manual Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace TradeType
 
 def toByte : TradeType → UInt8
-  | .outright => 0x4F
-  | .strategy => 0x53
-  | .strategy_4d => 0x4D
-  | .complex => 0x43
-  | .complex_4c => 0x4C
-  | .adjustedLate => 0x41
+  | .outrightTradeBetweenTwoSimpleOrders => 0x4F
+  | .strategyMatchNetLevelTrade => 0x53
+  | .strategyMatchComponentLegTrade => 0x4D
+  | .complexLeggingDerivedNetLevelTrade => 0x43
+  | .complexLeggingDerivedComponentLegTrade => 0x4C
+  | .adjustedLateManualTrade => 0x41
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradeType :=
-  if byte = 0x4F then .outright
-  else if byte = 0x53 then .strategy
-  else if byte = 0x4D then .strategy_4d
-  else if byte = 0x43 then .complex
-  else if byte = 0x4C then .complex_4c
-  else .adjustedLate
+  if byte = 0x4F then .outrightTradeBetweenTwoSimpleOrders
+  else if byte = 0x53 then .strategyMatchNetLevelTrade
+  else if byte = 0x4D then .strategyMatchComponentLegTrade
+  else if byte = 0x43 then .complexLeggingDerivedNetLevelTrade
+  else if byte = 0x4C then .complexLeggingDerivedComponentLegTrade
+  else .adjustedLateManualTrade
 
 def ofByte (byte : UInt8) : TradeType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : TradeType) : ofByte value.toByte = value := by
   cases value with
-  | outright => decide
-  | strategy => decide
-  | strategy_4d => decide
-  | complex => decide
-  | complex_4c => decide
-  | adjustedLate => decide
+  | outrightTradeBetweenTwoSimpleOrders => decide
+  | strategyMatchNetLevelTrade => decide
+  | strategyMatchComponentLegTrade => decide
+  | complexLeggingDerivedNetLevelTrade => decide
+  | complexLeggingDerivedComponentLegTrade => decide
+  | adjustedLateManualTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeType) : List UInt8 :=
@@ -2023,6 +2026,11 @@ def encode : Payload → List UInt8
   | .startOfSession message => StartOfSession.encode message
   | .endOfSession message => EndOfSession.encode message
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession : Payload → Bool
+  | .endOfSession _ => true
+  | _ => false
+
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 10867 := by
   cases message with
@@ -2122,11 +2130,16 @@ theorem encode_length_pos (message : MachMessage) : (encode message).length > 0 
   simp only [encodeUIntLE_length, List.length_append, encodeFramedLE_length]
   omega
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession (message : MachMessage) : Bool :=
+  Payload.endsSession message.payload
+
 end MachMessage
 
 /-- Packet -/
 structure Packet where
   machMessage : List MachMessage
+  machMessage_last : endsLast MachMessage.endsSession machMessage = true
   deriving DecidableEq, Repr
 
 namespace Packet
@@ -2136,11 +2149,14 @@ def encode (message : Packet) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option Packet := do
   let machMessage ← decodeAll MachMessage.decode bytes.length bytes
-  pure { machMessage }
+  if last_machMessage : endsLast MachMessage.endsSession machMessage = true then
+    pure { machMessage, machMessage_last := last_machMessage }
+  else none
 
 theorem decode_encode (message : Packet) : decode (encode message) = some message := by
   unfold decode encode
   rw [decodeAll_encodeMany MachMessage.encode MachMessage.decode MachMessage.decode_encode MachMessage.encode_length_pos message.machMessage _ (encodeMany_length_ge MachMessage.encode MachMessage.encode_length_pos message.machMessage), some_bind]
+  rw [dite_eq_left message.machMessage_last]
   rfl
 
 end Packet

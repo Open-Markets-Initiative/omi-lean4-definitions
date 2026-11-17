@@ -270,19 +270,19 @@ end ServerSession
 /-- Incremental Packet Header: 12 bytes -/
 structure IncrementalPacketHeader where
   transactTime : BitVec 64
-  exchangeTradingSessionId : BitVec 32
+  exchangeTradingSessionIdOptional : BitVec 32
   deriving DecidableEq, Repr
 
 namespace IncrementalPacketHeader
 
 def encode (message : IncrementalPacketHeader) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 4 message.exchangeTradingSessionId)
+    ++ (encodeUIntLE 4 message.exchangeTradingSessionIdOptional)
 
 def decode (bytes : List UInt8) : Option (IncrementalPacketHeader × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (exchangeTradingSessionId, bytes) ← decodeUIntLE 4 bytes
-  pure ({ transactTime, exchangeTradingSessionId }, bytes)
+  let (exchangeTradingSessionIdOptional, bytes) ← decodeUIntLE 4 bytes
+  pure ({ transactTime, exchangeTradingSessionIdOptional }, bytes)
 
 @[simp] theorem encode_length (message : IncrementalPacketHeader) : (encode message).length = 12 := by
   unfold encode
@@ -302,8 +302,8 @@ theorem encode_length_pos (message : IncrementalPacketHeader) : (encode message)
 
 end IncrementalPacketHeader
 
-/-- Best Prices Message No M D Entries Group: 36 bytes -/
-structure BestPricesMessageNoMDEntriesGroup where
+/-- Best Prices Message No Md Entries Group: 36 bytes -/
+structure BestPricesMessageNoMdEntriesGroup where
   mktBidPx : BitVec 64
   mktOfferPx : BitVec 64
   mktBidSize : BitVec 64
@@ -311,16 +311,16 @@ structure BestPricesMessageNoMDEntriesGroup where
   securityId : BitVec 32
   deriving DecidableEq, Repr
 
-namespace BestPricesMessageNoMDEntriesGroup
+namespace BestPricesMessageNoMdEntriesGroup
 
-def encode (message : BestPricesMessageNoMDEntriesGroup) : List UInt8 :=
+def encode (message : BestPricesMessageNoMdEntriesGroup) : List UInt8 :=
   encodeUIntLE 8 message.mktBidPx
     ++ (encodeUIntLE 8 message.mktOfferPx
     ++ (encodeUIntLE 8 message.mktBidSize
     ++ (encodeUIntLE 8 message.mktOfferSize
     ++ (encodeUIntLE 4 message.securityId))))
 
-def decode (bytes : List UInt8) : Option (BestPricesMessageNoMDEntriesGroup × List UInt8) := do
+def decode (bytes : List UInt8) : Option (BestPricesMessageNoMdEntriesGroup × List UInt8) := do
   let (mktBidPx, bytes) ← decodeUIntLE 8 bytes
   let (mktOfferPx, bytes) ← decodeUIntLE 8 bytes
   let (mktBidSize, bytes) ← decodeUIntLE 8 bytes
@@ -328,15 +328,15 @@ def decode (bytes : List UInt8) : Option (BestPricesMessageNoMDEntriesGroup × L
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   pure ({ mktBidPx, mktOfferPx, mktBidSize, mktOfferSize, securityId }, bytes)
 
-@[simp] theorem encode_length (message : BestPricesMessageNoMDEntriesGroup) : (encode message).length = 36 := by
+@[simp] theorem encode_length (message : BestPricesMessageNoMdEntriesGroup) : (encode message).length = 36 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : BestPricesMessageNoMDEntriesGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : BestPricesMessageNoMdEntriesGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : BestPricesMessageNoMDEntriesGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : BestPricesMessageNoMdEntriesGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -350,101 +350,101 @@ theorem encode_length_pos (message : BestPricesMessageNoMDEntriesGroup) : (encod
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end BestPricesMessageNoMDEntriesGroup
+end BestPricesMessageNoMdEntriesGroup
 
-/-- Best Prices Message No M D Entries Groups -/
-structure BestPricesMessageNoMDEntriesGroups where
+/-- Best Prices Message No Md Entries Groups -/
+structure BestPricesMessageNoMdEntriesGroups where
   blockLength : BitVec 16
-  bestPricesMessageNoMDEntriesGroup : Bounded 1 BestPricesMessageNoMDEntriesGroup
+  bestPricesMessageNoMdEntriesGroup : Bounded 1 BestPricesMessageNoMdEntriesGroup
   deriving DecidableEq, Repr
 
-namespace BestPricesMessageNoMDEntriesGroups
+namespace BestPricesMessageNoMdEntriesGroups
 
-def encode (message : BestPricesMessageNoMDEntriesGroups) : List UInt8 :=
+def encode (message : BestPricesMessageNoMdEntriesGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.bestPricesMessageNoMDEntriesGroup.val.length)
-    ++ (encodeMany BestPricesMessageNoMDEntriesGroup.encode message.bestPricesMessageNoMDEntriesGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.bestPricesMessageNoMdEntriesGroup.val.length)
+    ++ (encodeMany BestPricesMessageNoMdEntriesGroup.encode message.bestPricesMessageNoMdEntriesGroup.val))
 
-def decode (bytes : List UInt8) : Option (BestPricesMessageNoMDEntriesGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (BestPricesMessageNoMdEntriesGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroupUint8, bytes) ← decodeUInt 1 bytes
-  let (bestPricesMessageNoMDEntriesGroup_, bytes) ← decodeMany BestPricesMessageNoMDEntriesGroup.decode numInGroupUint8.toNat bytes
-  if fits_bestPricesMessageNoMDEntriesGroup : bestPricesMessageNoMDEntriesGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, bestPricesMessageNoMDEntriesGroup := ⟨bestPricesMessageNoMDEntriesGroup_, fits_bestPricesMessageNoMDEntriesGroup⟩ }, bytes)
+  let (bestPricesMessageNoMdEntriesGroup_, bytes) ← decodeMany BestPricesMessageNoMdEntriesGroup.decode numInGroupUint8.toNat bytes
+  if fits_bestPricesMessageNoMdEntriesGroup : bestPricesMessageNoMdEntriesGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, bestPricesMessageNoMdEntriesGroup := ⟨bestPricesMessageNoMdEntriesGroup_, fits_bestPricesMessageNoMdEntriesGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : BestPricesMessageNoMDEntriesGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : BestPricesMessageNoMdEntriesGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : BestPricesMessageNoMDEntriesGroups) : (encode message).length ≤ 9183 := by
-  have bound_bestPricesMessageNoMDEntriesGroup := message.bestPricesMessageNoMDEntriesGroup.length_lt
+theorem encode_length_le (message : BestPricesMessageNoMdEntriesGroups) : (encode message).length ≤ 9183 := by
+  have bound_bestPricesMessageNoMdEntriesGroup := message.bestPricesMessageNoMdEntriesGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const BestPricesMessageNoMDEntriesGroup.encode 36 BestPricesMessageNoMDEntriesGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const BestPricesMessageNoMdEntriesGroup.encode 36 BestPricesMessageNoMdEntriesGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : BestPricesMessageNoMDEntriesGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : BestPricesMessageNoMdEntriesGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 BestPricesMessageNoMDEntriesGroup.encode BestPricesMessageNoMDEntriesGroup.decode BestPricesMessageNoMDEntriesGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 BestPricesMessageNoMdEntriesGroup.encode BestPricesMessageNoMdEntriesGroup.decode BestPricesMessageNoMdEntriesGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.bestPricesMessageNoMDEntriesGroup.length_lt]
+  rw [dite_eq_left message.bestPricesMessageNoMdEntriesGroup.length_lt]
   rfl
 
-end BestPricesMessageNoMDEntriesGroups
+end BestPricesMessageNoMdEntriesGroups
 
 /-- Best Prices Message -/
 structure BestPricesMessage where
-  bestPricesMessageNoMDEntriesGroups : BestPricesMessageNoMDEntriesGroups
+  bestPricesMessageNoMdEntriesGroups : BestPricesMessageNoMdEntriesGroups
   deriving DecidableEq, Repr
 
 namespace BestPricesMessage
 
 def encode (message : BestPricesMessage) : List UInt8 :=
-  BestPricesMessageNoMDEntriesGroups.encode message.bestPricesMessageNoMDEntriesGroups
+  BestPricesMessageNoMdEntriesGroups.encode message.bestPricesMessageNoMdEntriesGroups
 
 def decode (bytes : List UInt8) : Option (BestPricesMessage × List UInt8) := do
-  let (bestPricesMessageNoMDEntriesGroups, bytes) ← BestPricesMessageNoMDEntriesGroups.decode bytes
-  pure ({ bestPricesMessageNoMDEntriesGroups }, bytes)
+  let (bestPricesMessageNoMdEntriesGroups, bytes) ← BestPricesMessageNoMdEntriesGroups.decode bytes
+  pure ({ bestPricesMessageNoMdEntriesGroups }, bytes)
 
 theorem encode_length_pos (message : BestPricesMessage) : (encode message).length > 0 := by
-  have positive := BestPricesMessageNoMDEntriesGroups.encode_length_pos message.bestPricesMessageNoMDEntriesGroups
+  have positive := BestPricesMessageNoMdEntriesGroups.encode_length_pos message.bestPricesMessageNoMdEntriesGroups
   unfold encode
   omega
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : BestPricesMessage) : (encode message).length ≤ 9183 := by
-  have bound_bestPricesMessageNoMDEntriesGroups := BestPricesMessageNoMDEntriesGroups.encode_length_le message.bestPricesMessageNoMDEntriesGroups
+  have bound_bestPricesMessageNoMdEntriesGroups := BestPricesMessageNoMdEntriesGroups.encode_length_le message.bestPricesMessageNoMdEntriesGroups
   unfold encode
   omega
 
 @[simp] theorem decode_encode (message : BestPricesMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [BestPricesMessageNoMDEntriesGroups.decode_encode, some_bind]
+  rw [BestPricesMessageNoMdEntriesGroups.decode_encode, some_bind]
   rfl
 
 end BestPricesMessage
 
 /-- Empty Book Message: 4 bytes -/
 structure EmptyBookMessage where
-  lastMsgSeqNumProcessedUInt32NullOptional : BitVec 32
+  lastMsgSeqNumProcessedOptional : BitVec 32
   deriving DecidableEq, Repr
 
 namespace EmptyBookMessage
 
 def encode (message : EmptyBookMessage) : List UInt8 :=
-  encodeUIntLE 4 message.lastMsgSeqNumProcessedUInt32NullOptional
+  encodeUIntLE 4 message.lastMsgSeqNumProcessedOptional
 
 def decode (bytes : List UInt8) : Option (EmptyBookMessage × List UInt8) := do
-  let (lastMsgSeqNumProcessedUInt32NullOptional, bytes) ← decodeUIntLE 4 bytes
-  pure ({ lastMsgSeqNumProcessedUInt32NullOptional }, bytes)
+  let (lastMsgSeqNumProcessedOptional, bytes) ← decodeUIntLE 4 bytes
+  pure ({ lastMsgSeqNumProcessedOptional }, bytes)
 
 @[simp] theorem encode_length (message : EmptyBookMessage) : (encode message).length = 4 := by
   unfold encode
@@ -464,9 +464,9 @@ end EmptyBookMessage
 
 /-- Order Update Message: 50 bytes -/
 structure OrderUpdateMessage where
-  mdEntryIdInt64 : BitVec 64
-  mdEntryPxDecimal5 : BitVec 64
-  mdEntrySizeInt64 : BitVec 64
+  mdEntryId : BitVec 64
+  mdEntryPx : BitVec 64
+  mdEntrySize : BitVec 64
   mdFlags : BitVec 64
   mdFlags2 : BitVec 64
   securityId : BitVec 32
@@ -478,9 +478,9 @@ structure OrderUpdateMessage where
 namespace OrderUpdateMessage
 
 def encode (message : OrderUpdateMessage) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryIdInt64
-    ++ (encodeUIntLE 8 message.mdEntryPxDecimal5
-    ++ (encodeUIntLE 8 message.mdEntrySizeInt64
+  encodeUIntLE 8 message.mdEntryId
+    ++ (encodeUIntLE 8 message.mdEntryPx
+    ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 8 message.mdFlags
     ++ (encodeUIntLE 8 message.mdFlags2
     ++ (encodeUIntLE 4 message.securityId
@@ -489,16 +489,16 @@ def encode (message : OrderUpdateMessage) : List UInt8 :=
     ++ (MdEntryType.encode message.mdEntryType))))))))
 
 def decode (bytes : List UInt8) : Option (OrderUpdateMessage × List UInt8) := do
-  let (mdEntryIdInt64, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntryPxDecimal5, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeInt64, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryId, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags2, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
-  pure ({ mdEntryIdInt64, mdEntryPxDecimal5, mdEntrySizeInt64, mdFlags, mdFlags2, securityId, rptSeq, mdUpdateAction, mdEntryType }, bytes)
+  pure ({ mdEntryId, mdEntryPx, mdEntrySize, mdFlags, mdFlags2, securityId, rptSeq, mdUpdateAction, mdEntryType }, bytes)
 
 @[simp] theorem encode_length (message : OrderUpdateMessage) : (encode message).length = 50 := by
   unfold encode
@@ -534,12 +534,12 @@ end OrderUpdateMessage
 
 /-- Order Execution Message: 74 bytes -/
 structure OrderExecutionMessage where
-  mdEntryIdInt64 : BitVec 64
-  mdEntryPxDecimal5NullOptional : BitVec 64
-  mdEntrySizeInt64NullOptional : BitVec 64
+  mdEntryId : BitVec 64
+  mdEntryPxOptional : BitVec 64
+  mdEntrySizeOptional : BitVec 64
   lastPx : BitVec 64
   lastQty : BitVec 64
-  tradeIdInt64 : BitVec 64
+  tradeId : BitVec 64
   mdFlags : BitVec 64
   mdFlags2 : BitVec 64
   securityId : BitVec 32
@@ -551,12 +551,12 @@ structure OrderExecutionMessage where
 namespace OrderExecutionMessage
 
 def encode (message : OrderExecutionMessage) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryIdInt64
-    ++ (encodeUIntLE 8 message.mdEntryPxDecimal5NullOptional
-    ++ (encodeUIntLE 8 message.mdEntrySizeInt64NullOptional
+  encodeUIntLE 8 message.mdEntryId
+    ++ (encodeUIntLE 8 message.mdEntryPxOptional
+    ++ (encodeUIntLE 8 message.mdEntrySizeOptional
     ++ (encodeUIntLE 8 message.lastPx
     ++ (encodeUIntLE 8 message.lastQty
-    ++ (encodeUIntLE 8 message.tradeIdInt64
+    ++ (encodeUIntLE 8 message.tradeId
     ++ (encodeUIntLE 8 message.mdFlags
     ++ (encodeUIntLE 8 message.mdFlags2
     ++ (encodeUIntLE 4 message.securityId
@@ -565,19 +565,19 @@ def encode (message : OrderExecutionMessage) : List UInt8 :=
     ++ (MdEntryType.encode message.mdEntryType)))))))))))
 
 def decode (bytes : List UInt8) : Option (OrderExecutionMessage × List UInt8) := do
-  let (mdEntryIdInt64, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntryPxDecimal5NullOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdEntrySizeInt64NullOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryId, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
   let (lastPx, bytes) ← decodeUIntLE 8 bytes
   let (lastQty, bytes) ← decodeUIntLE 8 bytes
-  let (tradeIdInt64, bytes) ← decodeUIntLE 8 bytes
+  let (tradeId, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags, bytes) ← decodeUIntLE 8 bytes
   let (mdFlags2, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
-  pure ({ mdEntryIdInt64, mdEntryPxDecimal5NullOptional, mdEntrySizeInt64NullOptional, lastPx, lastQty, tradeIdInt64, mdFlags, mdFlags2, securityId, rptSeq, mdUpdateAction, mdEntryType }, bytes)
+  pure ({ mdEntryId, mdEntryPxOptional, mdEntrySizeOptional, lastPx, lastQty, tradeId, mdFlags, mdFlags2, securityId, rptSeq, mdUpdateAction, mdEntryType }, bytes)
 
 @[simp] theorem encode_length (message : OrderExecutionMessage) : (encode message).length = 74 := by
   unfold encode

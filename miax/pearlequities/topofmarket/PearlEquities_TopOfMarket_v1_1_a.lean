@@ -13,6 +13,9 @@ Prices with implied decimals are proven as the integers on the wire.
 
 Note: Application Message is not framed: its length Mach Packet Length is not an integer it reads
 
+Note: a Mach Message that ends the session is the last of machMessage: the decoder turns away one
+that is followed, and the record carries the proof it is not
+
 License: MIT No Attribution
 -/
 
@@ -189,38 +192,38 @@ def SystemStatus.codes : List UInt8 :=
   [0x53, 0x43, 0x31, 0x32]
 
 inductive SystemStatus where
-  | start -- Start
-  | end_ -- End
-  | start_31 -- Start
-  | end__32 -- End
+  | startOfSystemHours -- Start Of System Hours
+  | endOfSystemHours -- End Of System Hours
+  | startOfTestSession -- Start Of Test Session
+  | endOfTestSession -- End Of Test Session
   | unlisted (byte : { byte : UInt8 // byte ∉ SystemStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace SystemStatus
 
 def toByte : SystemStatus → UInt8
-  | .start => 0x53
-  | .end_ => 0x43
-  | .start_31 => 0x31
-  | .end__32 => 0x32
+  | .startOfSystemHours => 0x53
+  | .endOfSystemHours => 0x43
+  | .startOfTestSession => 0x31
+  | .endOfTestSession => 0x32
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SystemStatus :=
-  if byte = 0x53 then .start
-  else if byte = 0x43 then .end_
-  else if byte = 0x31 then .start_31
-  else .end__32
+  if byte = 0x53 then .startOfSystemHours
+  else if byte = 0x43 then .endOfSystemHours
+  else if byte = 0x31 then .startOfTestSession
+  else .endOfTestSession
 
 def ofByte (byte : UInt8) : SystemStatus :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : SystemStatus) : ofByte value.toByte = value := by
   cases value with
-  | start => decide
-  | end_ => decide
-  | start_31 => decide
-  | end__32 => decide
+  | startOfSystemHours => decide
+  | endOfSystemHours => decide
+  | startOfTestSession => decide
+  | endOfTestSession => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SystemStatus) : List UInt8 :=
@@ -1000,6 +1003,11 @@ def encode : Payload → List UInt8
   | .endOfSession message => EndOfSession.encode message
   | .applicationMessage message => ApplicationMessage.encode message
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession : Payload → Bool
+  | .endOfSession _ => true
+  | _ => false
+
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 65511 := by
   cases message with
@@ -1103,11 +1111,16 @@ theorem encode_length_pos (message : MachMessage) : (encode message).length > 0 
   simp only [encodeUIntLE_length, List.length_append, encodeFramedLE_length]
   omega
 
+/-- Does the message end the session? Nothing in its packet may follow it -/
+def endsSession (message : MachMessage) : Bool :=
+  Payload.endsSession message.payload
+
 end MachMessage
 
 /-- Packet -/
 structure Packet where
   machMessage : List MachMessage
+  machMessage_last : endsLast MachMessage.endsSession machMessage = true
   deriving DecidableEq, Repr
 
 namespace Packet
@@ -1117,11 +1130,14 @@ def encode (message : Packet) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option Packet := do
   let machMessage ← decodeAll MachMessage.decode bytes.length bytes
-  pure { machMessage }
+  if last_machMessage : endsLast MachMessage.endsSession machMessage = true then
+    pure { machMessage, machMessage_last := last_machMessage }
+  else none
 
 theorem decode_encode (message : Packet) : decode (encode message) = some message := by
   unfold decode encode
   rw [decodeAll_encodeMany MachMessage.encode MachMessage.decode MachMessage.decode_encode MachMessage.encode_length_pos message.machMessage _ (encodeMany_length_ge MachMessage.encode MachMessage.encode_length_pos message.machMessage), some_bind]
+  rw [dite_eq_left message.machMessage_last]
   rfl
 
 end Packet

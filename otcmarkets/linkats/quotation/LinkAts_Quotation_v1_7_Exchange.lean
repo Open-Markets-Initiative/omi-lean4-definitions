@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.OtcmarketsLinkatsQuotationFixV17Exchange
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   msgSeqNum : Option (Terminated 1)  -- tag 34
   senderCompID : Option (Terminated 1)  -- tag 49
@@ -74,6 +77,17 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 7 (by decide +kernel)))
   simp only [Header.decode, msgSeqNum, senderCompID, sendingTime, targetCompID, onBehalfOfCompID, onBehalfOfSubID, deliverToCompID, deliverToSubID, some_bind] <;> rfl
 
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [51, 52] record.msgSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [52, 57] record.senderCompID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [53, 50] record.sendingTime (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [53, 54] record.targetCompID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [49, 49, 53] record.onBehalfOfCompID (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [49, 49, 54] record.onBehalfOfSubID (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [49, 50, 56] record.deliverToCompID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [49, 50, 57] record.deliverToSubID (by decide) (by decide))
+          (paired_none pairing))))))))
+
 structure QuoteAcknowledgement where
   msgRefID : Terminated 1  -- tag 9670
   symbol : Option (Terminated 1)  -- tag 55
@@ -127,6 +141,16 @@ theorem QuoteAcknowledgement.decode_agrees (record : QuoteAcknowledgement) (toke
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 6 (by decide +kernel)))
   simp only [QuoteAcknowledgement.decode, msgRefID, symbol, symbolSfx, resultCode, text, quoteID, cATroutedQuoteID, some_bind] <;> rfl
 
+theorem QuoteAcknowledgement.taken (record : QuoteAcknowledgement) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [57, 54, 55, 48] record.msgRefID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [53, 53] record.symbol (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [54, 53] record.symbolSfx (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [57, 53, 52, 56] record.resultCode (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_required pairing [53, 56] record.text (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_required pairing [57, 54, 57, 48] record.quoteID (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [57, 54, 57, 53] record.cATroutedQuoteID (by decide) (by decide))
+         (paired_none pairing)))))))
+
 structure TraderStateAcknowledgement where
   msgRefID : Terminated 1  -- tag 9670
   resultCode : Terminated 1  -- tag 9548
@@ -160,25 +184,31 @@ theorem TraderStateAcknowledgement.decode_agrees (record : TraderStateAcknowledg
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
   simp only [TraderStateAcknowledgement.decode, msgRefID, resultCode, text, some_bind] <;> rfl
 
+theorem TraderStateAcknowledgement.taken (record : TraderStateAcknowledgement) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [57, 54, 55, 48] record.msgRefID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [57, 53, 52, 56] record.resultCode (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [53, 56] record.text (by decide) (by decide))
+     (paired_none pairing)))
+
 inductive Message where
   | quoteAcknowledgement (header : Header) (r0 : QuoteAcknowledgement)
   | traderStateAcknowledgement (header : Header) (r0 : TraderStateAcknowledgement)
 
 def Message.tokens : Message → List Token
-  | .quoteAcknowledgement header r0 => ⟨[51, 53], ⟨[98], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .traderStateAcknowledgement header r0 => ⟨[51, 53], ⟨[79, 84, 65], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .quoteAcknowledgement header r0 => ⟨[51, 53], [98]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .traderStateAcknowledgement header r0 => ⟨[51, 53], [79, 84, 65]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [98] then
+      if token.value = [98] then
         if known (Header.tags ++ QuoteAcknowledgement.tags) rest then do
           let header ← Header.decode rest
           let r0 ← QuoteAcknowledgement.decode rest
           pure (.quoteAcknowledgement header r0)
         else none
-      else if token.value.val = [79, 84, 65] then
+      else if token.value = [79, 84, 65] then
         if known (Header.tags ++ TraderStateAcknowledgement.tags) rest then do
           let header ← Header.decode rest
           let r0 ← TraderStateAcknowledgement.decode rest
@@ -211,21 +241,21 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_quoteAcknowledgement (header : Header) (r0 : QuoteAcknowledgement) :
     Message.decodeBytes (Message.encode (.quoteAcknowledgement header r0)) = some (.quoteAcknowledgement header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[98], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ QuoteAcknowledgement.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [98]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (QuoteAcknowledgement.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_quoteAcknowledgement header r0
 
 theorem Message.decodeBytes_traderStateAcknowledgement (header : Header) (r0 : TraderStateAcknowledgement) :
     Message.decodeBytes (Message.encode (.traderStateAcknowledgement header r0)) = some (.traderStateAcknowledgement header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[79, 84, 65], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ TraderStateAcknowledgement.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [79, 84, 65]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (TraderStateAcknowledgement.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_traderStateAcknowledgement header r0

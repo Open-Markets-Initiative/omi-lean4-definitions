@@ -11,10 +11,12 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
-Note: Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
+Note: Session Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
 
 Note: Session Message and Order Message carry no fields of their own, so their messages are
 dispatched as one, keyed on Schema Id and Template Id
+
+Note: New Order Flags is a bit field set, proven as its 1 byte integer rather than bit by bit
 
 License: MIT No Attribution
 -/
@@ -93,17 +95,17 @@ end LogonConfMessage
 
 /-- Logout Message: 64 bytes -/
 structure LogoutMessage where
-  reason : Alpha 64
+  logoutReason : Alpha 64
   deriving DecidableEq, Repr
 
 namespace LogoutMessage
 
 def encode (message : LogoutMessage) : List UInt8 :=
-  Alpha.encode message.reason
+  Alpha.encode message.logoutReason
 
 def decode (bytes : List UInt8) : Option (LogoutMessage × List UInt8) := do
-  let (reason, bytes) ← Alpha.decode 64 bytes
-  pure ({ reason }, bytes)
+  let (logoutReason, bytes) ← Alpha.decode 64 bytes
+  pure ({ logoutReason }, bytes)
 
 @[simp] theorem encode_length (message : LogoutMessage) : (encode message).length = 64 := by
   unfold encode
@@ -123,17 +125,17 @@ end LogoutMessage
 
 /-- Logged Out Message: 64 bytes -/
 structure LoggedOutMessage where
-  reason : Alpha 64
+  logoutReason : Alpha 64
   deriving DecidableEq, Repr
 
 namespace LoggedOutMessage
 
 def encode (message : LoggedOutMessage) : List UInt8 :=
-  Alpha.encode message.reason
+  Alpha.encode message.logoutReason
 
 def decode (bytes : List UInt8) : Option (LoggedOutMessage × List UInt8) := do
-  let (reason, bytes) ← Alpha.decode 64 bytes
-  pure ({ reason }, bytes)
+  let (logoutReason, bytes) ← Alpha.decode 64 bytes
+  pure ({ logoutReason }, bytes)
 
 @[simp] theorem encode_length (message : LoggedOutMessage) : (encode message).length = 64 := by
   unfold encode
@@ -619,7 +621,7 @@ structure NewOrderMessage where
   quantity : BitVec 32
   instrumentId : BitVec 32
   side : BitVec 8
-  flags : BitVec 8
+  newOrderFlags : BitVec 8
   goodTilDate : BitVec 16
   deriving DecidableEq, Repr
 
@@ -632,7 +634,7 @@ def encode (message : NewOrderMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.quantity
     ++ (encodeUIntLE 4 message.instrumentId
     ++ (encodeUInt 1 message.side
-    ++ (encodeUIntLE 1 message.flags
+    ++ (encodeUIntLE 1 message.newOrderFlags
     ++ (encodeUIntLE 2 message.goodTilDate)))))))
 
 def decode (bytes : List UInt8) : Option (NewOrderMessage × List UInt8) := do
@@ -642,9 +644,9 @@ def decode (bytes : List UInt8) : Option (NewOrderMessage × List UInt8) := do
   let (quantity, bytes) ← decodeUIntLE 4 bytes
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (side, bytes) ← decodeUInt 1 bytes
-  let (flags, bytes) ← decodeUIntLE 1 bytes
+  let (newOrderFlags, bytes) ← decodeUIntLE 1 bytes
   let (goodTilDate, bytes) ← decodeUIntLE 2 bytes
-  pure ({ clientOrderId, correlationId, limitPrice, quantity, instrumentId, side, flags, goodTilDate }, bytes)
+  pure ({ clientOrderId, correlationId, limitPrice, quantity, instrumentId, side, newOrderFlags, goodTilDate }, bytes)
 
 @[simp] theorem encode_length (message : NewOrderMessage) : (encode message).length = 36 := by
   unfold encode
@@ -1805,7 +1807,7 @@ end EventResendCompleteMessage
 structure EventResendRejectMessage where
   correlationId : BitVec 64
   resendRejectReason : BitVec 8
-  detailsString55 : Alpha 55
+  eventResendRejectDetails : Alpha 55
   deriving DecidableEq, Repr
 
 namespace EventResendRejectMessage
@@ -1813,13 +1815,13 @@ namespace EventResendRejectMessage
 def encode (message : EventResendRejectMessage) : List UInt8 :=
   encodeUIntLE 8 message.correlationId
     ++ (encodeUInt 1 message.resendRejectReason
-    ++ (Alpha.encode message.detailsString55))
+    ++ (Alpha.encode message.eventResendRejectDetails))
 
 def decode (bytes : List UInt8) : Option (EventResendRejectMessage × List UInt8) := do
   let (correlationId, bytes) ← decodeUIntLE 8 bytes
   let (resendRejectReason, bytes) ← decodeUInt 1 bytes
-  let (detailsString55, bytes) ← Alpha.decode 55 bytes
-  pure ({ correlationId, resendRejectReason, detailsString55 }, bytes)
+  let (eventResendRejectDetails, bytes) ← Alpha.decode 55 bytes
+  pure ({ correlationId, resendRejectReason, eventResendRejectDetails }, bytes)
 
 @[simp] theorem encode_length (message : EventResendRejectMessage) : (encode message).length = 64 := by
   unfold encode
@@ -2177,7 +2179,7 @@ end Payload
 /-- Sbe Message -/
 structure SbeMessage where
   protocolId : BitVec 8
-  flags : BitVec 8
+  sessionFlags : BitVec 8
   sequenceNumber : BitVec 32
   lastProcessedSeqNo : BitVec 32
   reserved : BitVec 32
@@ -2202,7 +2204,7 @@ def encodeBody (message : SbeMessage) : List UInt8 :=
     ++ (Payload.encode message.payload
     ++ (message.padding.val)))))))))
 
-def decodeBody (protocolId : BitVec 8) (flags : BitVec 8) (bytes : List UInt8) : Option SbeMessage := do
+def decodeBody (protocolId : BitVec 8) (sessionFlags : BitVec 8) (bytes : List UInt8) : Option SbeMessage := do
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (lastProcessedSeqNo, bytes) ← decodeUIntLE 4 bytes
   let (reserved, bytes) ← decodeUIntLE 4 bytes
@@ -2214,10 +2216,10 @@ def decodeBody (protocolId : BitVec 8) (flags : BitVec 8) (bytes : List UInt8) :
   let (payload, bytes) ← Payload.decode schemaId templateId bytes
   let padding_ := bytes
   if fits_padding : padding_.length ≤ 65222 then
-    pure { protocolId, flags, sequenceNumber, lastProcessedSeqNo, reserved, sendTimeEpochNanos, blockLength, version, payload, padding := ⟨padding_, fits_padding⟩ }
+    pure { protocolId, sessionFlags, sequenceNumber, lastProcessedSeqNo, reserved, sendTimeEpochNanos, blockLength, version, payload, padding := ⟨padding_, fits_padding⟩ }
   else none
 
-theorem decodeBody_encodeBody (message : SbeMessage) : decodeBody message.protocolId message.flags (encodeBody message) = some message := by
+theorem decodeBody_encodeBody (message : SbeMessage) : decodeBody message.protocolId message.sessionFlags (encodeBody message) = some message := by
   unfold decodeBody encodeBody
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -2362,16 +2364,16 @@ theorem encodeBody_length_lt (message : SbeMessage) : (encodeBody message).lengt
     simp only [Payload.encode, List.length_append, ← Nat.add_assoc, encodeUIntLE_length, EventResendRejectMessage.encode_length]
     omega
 
-/-- Size rule: Message Length counts the bytes after it plus 4, so it is written from the body and checked on decode; Protocol Id, Flags are read ahead of it -/
+/-- Size rule: Message Length counts the bytes after it plus 4, so it is written from the body and checked on decode; Protocol Id, Session Flags are read ahead of it -/
 def encode (message : SbeMessage) : List UInt8 :=
   encodeUInt 1 message.protocolId
-    ++ (encodeUIntLE 1 message.flags
+    ++ (encodeUIntLE 1 message.sessionFlags
     ++ (encodeFramedLE 2 4 encodeBody message))
 
 def decode (bytes : List UInt8) : Option (SbeMessage × List UInt8) := do
   let (protocolId, bytes) ← decodeUInt 1 bytes
-  let (flags, bytes) ← decodeUIntLE 1 bytes
-  decodeFramedAllLE 2 4 (decodeBody protocolId flags) bytes
+  let (sessionFlags, bytes) ← decodeUIntLE 1 bytes
+  decodeFramedAllLE 2 4 (decodeBody protocolId sessionFlags) bytes
 
 @[simp] theorem decode_encode (message : SbeMessage) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
@@ -2380,7 +2382,7 @@ def decode (bytes : List UInt8) : Option (SbeMessage × List UInt8) := do
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  exact decodeFramedAllLE_encodeFramedLE 2 4 encodeBody (decodeBody message.protocolId message.flags) message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
+  exact decodeFramedAllLE_encodeFramedLE 2 4 encodeBody (decodeBody message.protocolId message.sessionFlags) message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
 theorem encode_length_pos (message : SbeMessage) : (encode message).length > 0 := by
   unfold encode

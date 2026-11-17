@@ -16,6 +16,9 @@ License: MIT No Attribution
 
 namespace Omi.NyseNyseequitiesFloorbrokerFixV26Exchange
 
+/-- No field of this tree is data, so every value ends at the separator -/
+def pairing : Pairing := []
+
 structure Header where
   msgSeqNum : Terminated 1  -- tag 34
   possDupFlag : Option (Terminated 1)  -- tag 43
@@ -93,6 +96,21 @@ theorem Header.decode_agrees (record : Header) (tokens : List Token)
   have delivertoCompID := readOptional_part [49, 50, 56] record.delivertoCompID tokens
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 11 (by decide +kernel)))
   simp only [Header.decode, msgSeqNum, possDupFlag, senderCompID, senderSubID, sendingTime, targetCompID, targetSubID, possResend, onBehalfOfCompID, onBehalfOfSubID, origSendingTime, delivertoCompID, some_bind] <;> rfl
+
+theorem Header.taken (record : Header) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [51, 52] record.msgSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_optional pairing [52, 51] record.possDupFlag (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [52, 57] record.senderCompID (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [53, 48] record.senderSubID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_required pairing [53, 50] record.sendingTime (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_required pairing [53, 54] record.targetCompID (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_optional pairing [53, 55] record.targetSubID (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [57, 55] record.possResend (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [49, 49, 53] record.onBehalfOfCompID (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_optional pairing [49, 49, 54] record.onBehalfOfSubID (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [49, 50, 50] record.origSendingTime (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_optional pairing [49, 50, 56] record.delivertoCompID (by decide) (by decide))
+              (paired_none pairing))))))))))))
 
 structure ExecutionReport where
   account : Option (Terminated 1)  -- tag 1
@@ -472,6 +490,81 @@ theorem ExecutionReport.decode_agrees (record : ExecutionReport) (tokens : List 
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 71 (by decide +kernel)))
   simp only [ExecutionReport.decode, account, clOrdID, cumQty, execID, execInst, execRefID, execTransType, lastMkt, lastPx, lastQty, orderID, orderQty, ordStatus, ordType, origClOrdID, price, side, symbol, text, timeInForce, transactTime, symbolSfx, clientID, minQty, maxFloor, locateReqd, expireTime, execType, leavesQty, effectiveTime, noTradingSessions, tradingSessionID, orderCapacity, participationRate, locateBroker, selfTradeType, specialOrdType, routingInst, offsetPrice, extendedExecInst, displayedLiquidityIndicator, introducingBadgeID, billTo, parentFirmClOrdID, interestType, dealID, dOrderAuctionPrice, liquidityIndicator, attributedQuote, proactiveIfLocked, cancelInsteadOfReprice, workingPrice, flowIndicator, workingAwayFromDisplay, unsolicitedAckType, participantType, nanosecondSendingTime, nanosecondTransactTime, subIDIndicator, cATIMID, targetStrategy, f10b18, auctionEligible, minParticpationRate, maxParticipationRate, wouldPrice, allocationFirmIntroducingBadgeID, allocationFirmMPID, refDealID, allocationIndicator, originalDealID, refExecTimestamp, some_bind] <;> rfl
 
+theorem ExecutionReport.taken (record : ExecutionReport) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [49] record.account (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_optional pairing [49, 52] record.cumQty (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_required pairing [49, 55] record.execID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [49, 56] record.execInst (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [49, 57] record.execRefID (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_required pairing [50, 48] record.execTransType (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_optional pairing [51, 48] record.lastMkt (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_optional pairing [51, 49] record.lastPx (by decide) (by decide))
+           (paired_cons pairing _ _ (paired_optional pairing [51, 50] record.lastQty (by decide) (by decide))
+            (paired_cons pairing _ _ (paired_optional pairing [51, 55] record.orderID (by decide) (by decide))
+             (paired_cons pairing _ _ (paired_required pairing [51, 56] record.orderQty (by decide) (by decide))
+              (paired_cons pairing _ _ (paired_required pairing [51, 57] record.ordStatus (by decide) (by decide))
+               (paired_cons pairing _ _ (paired_required pairing [52, 48] record.ordType (by decide) (by decide))
+                (paired_cons pairing _ _ (paired_optional pairing [52, 49] record.origClOrdID (by decide) (by decide))
+                 (paired_cons pairing _ _ (paired_optional pairing [52, 52] record.price (by decide) (by decide))
+                  (paired_cons pairing _ _ (paired_required pairing [53, 52] record.side (by decide) (by decide))
+                   (paired_cons pairing _ _ (paired_required pairing [53, 53] record.symbol (by decide) (by decide))
+                    (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+                     (paired_cons pairing _ _ (paired_required pairing [53, 57] record.timeInForce (by decide) (by decide))
+                      (paired_cons pairing _ _ (paired_optional pairing [54, 48] record.transactTime (by decide) (by decide))
+                       (paired_cons pairing _ _ (paired_optional pairing [54, 53] record.symbolSfx (by decide) (by decide))
+                        (paired_cons pairing _ _ (paired_optional pairing [49, 48, 57] record.clientID (by decide) (by decide))
+                         (paired_cons pairing _ _ (paired_optional pairing [49, 49, 48] record.minQty (by decide) (by decide))
+                          (paired_cons pairing _ _ (paired_optional pairing [49, 49, 49] record.maxFloor (by decide) (by decide))
+                           (paired_cons pairing _ _ (paired_optional pairing [49, 49, 52] record.locateReqd (by decide) (by decide))
+                            (paired_cons pairing _ _ (paired_optional pairing [49, 50, 54] record.expireTime (by decide) (by decide))
+                             (paired_cons pairing _ _ (paired_required pairing [49, 53, 48] record.execType (by decide) (by decide))
+                              (paired_cons pairing _ _ (paired_optional pairing [49, 53, 49] record.leavesQty (by decide) (by decide))
+                               (paired_cons pairing _ _ (paired_optional pairing [49, 54, 56] record.effectiveTime (by decide) (by decide))
+                                (paired_cons pairing _ _ (paired_required pairing [51, 56, 54] record.noTradingSessions (by decide) (by decide))
+                                 (paired_cons pairing _ _ (paired_required pairing [51, 51, 54] record.tradingSessionID (by decide) (by decide))
+                                  (paired_cons pairing _ _ (paired_required pairing [53, 50, 56] record.orderCapacity (by decide) (by decide))
+                                   (paired_cons pairing _ _ (paired_optional pairing [56, 52, 57] record.participationRate (by decide) (by decide))
+                                    (paired_cons pairing _ _ (paired_optional pairing [53, 55, 48, 48] record.locateBroker (by decide) (by decide))
+                                     (paired_cons pairing _ _ (paired_optional pairing [55, 57, 50, 56] record.selfTradeType (by decide) (by decide))
+                                      (paired_cons pairing _ _ (paired_optional pairing [57, 50, 48, 50] record.specialOrdType (by decide) (by decide))
+                                       (paired_cons pairing _ _ (paired_optional pairing [57, 51, 48, 51] record.routingInst (by decide) (by decide))
+                                        (paired_cons pairing _ _ (paired_optional pairing [57, 52, 48, 51] record.offsetPrice (by decide) (by decide))
+                                         (paired_cons pairing _ _ (paired_optional pairing [57, 52, 49, 54] record.extendedExecInst (by decide) (by decide))
+                                          (paired_cons pairing _ _ (paired_optional pairing [57, 52, 50, 54] record.displayedLiquidityIndicator (by decide) (by decide))
+                                           (paired_cons pairing _ _ (paired_required pairing [57, 52, 52, 56] record.introducingBadgeID (by decide) (by decide))
+                                            (paired_cons pairing _ _ (paired_optional pairing [57, 52, 52, 57] record.billTo (by decide) (by decide))
+                                             (paired_cons pairing _ _ (paired_required pairing [57, 52, 53, 49] record.parentFirmClOrdID (by decide) (by decide))
+                                              (paired_cons pairing _ _ (paired_optional pairing [57, 52, 55, 56] record.interestType (by decide) (by decide))
+                                               (paired_cons pairing _ _ (paired_optional pairing [57, 52, 56, 51] record.dealID (by decide) (by decide))
+                                                (paired_cons pairing _ _ (paired_optional pairing [57, 53, 54, 53] record.dOrderAuctionPrice (by decide) (by decide))
+                                                 (paired_cons pairing _ _ (paired_optional pairing [57, 55, 51, 48] record.liquidityIndicator (by decide) (by decide))
+                                                  (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 49] record.attributedQuote (by decide) (by decide))
+                                                   (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 50] record.proactiveIfLocked (by decide) (by decide))
+                                                    (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 51] record.cancelInsteadOfReprice (by decide) (by decide))
+                                                     (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 52] record.workingPrice (by decide) (by decide))
+                                                      (paired_cons pairing _ _ (paired_required pairing [50, 48, 48, 48, 53] record.flowIndicator (by decide) (by decide))
+                                                       (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 54] record.workingAwayFromDisplay (by decide) (by decide))
+                                                        (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 55] record.unsolicitedAckType (by decide) (by decide))
+                                                         (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 48, 56] record.participantType (by decide) (by decide))
+                                                          (paired_cons pairing _ _ (paired_required pairing [50, 48, 48, 48, 57] record.nanosecondSendingTime (by decide) (by decide))
+                                                           (paired_cons pairing _ _ (paired_required pairing [50, 48, 48, 49, 48] record.nanosecondTransactTime (by decide) (by decide))
+                                                            (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 49, 51] record.subIDIndicator (by decide) (by decide))
+                                                             (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 52, 50] record.cATIMID (by decide) (by decide))
+                                                              (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 52, 54] record.targetStrategy (by decide) (by decide))
+                                                               (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 52, 55] record.f10b18 (by decide) (by decide))
+                                                                (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 52, 56] record.auctionEligible (by decide) (by decide))
+                                                                 (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 52, 57] record.minParticpationRate (by decide) (by decide))
+                                                                  (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 53, 48] record.maxParticipationRate (by decide) (by decide))
+                                                                   (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 53, 49] record.wouldPrice (by decide) (by decide))
+                                                                    (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 50, 52] record.allocationFirmIntroducingBadgeID (by decide) (by decide))
+                                                                     (paired_cons pairing _ _ (paired_optional pairing [50, 48, 48, 50, 50] record.allocationFirmMPID (by decide) (by decide))
+                                                                      (paired_cons pairing _ _ (paired_required pairing [51, 48, 48, 48, 50] record.refDealID (by decide) (by decide))
+                                                                       (paired_cons pairing _ _ (paired_optional pairing [51, 48, 48, 48, 51] record.allocationIndicator (by decide) (by decide))
+                                                                        (paired_cons pairing _ _ (paired_optional pairing [51, 48, 48, 48, 54] record.originalDealID (by decide) (by decide))
+                                                                         (paired_cons pairing _ _ (paired_optional pairing [51, 48, 48, 49, 54] record.refExecTimestamp (by decide) (by decide))
+                                                                          (paired_none pairing))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
 structure OrderCancelReject where
   clOrdID : Terminated 1  -- tag 11
   orderID : Terminated 1  -- tag 37
@@ -535,25 +628,37 @@ theorem OrderCancelReject.decode_agrees (record : OrderCancelReject) (tokens : L
     ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 8 (by decide +kernel)))
   simp only [OrderCancelReject.decode, clOrdID, orderID, ordStatus, origClOrdID, text, transactTime, cxlRejResponseTo, nanosecondSendingTime, nanosecondTransactTime, some_bind] <;> rfl
 
+theorem OrderCancelReject.taken (record : OrderCancelReject) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_required pairing [49, 49] record.clOrdID (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [51, 55] record.orderID (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [51, 57] record.ordStatus (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [52, 49] record.origClOrdID (by decide) (by decide))
+      (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+       (paired_cons pairing _ _ (paired_optional pairing [54, 48] record.transactTime (by decide) (by decide))
+        (paired_cons pairing _ _ (paired_required pairing [52, 51, 52] record.cxlRejResponseTo (by decide) (by decide))
+         (paired_cons pairing _ _ (paired_required pairing [50, 48, 48, 48, 57] record.nanosecondSendingTime (by decide) (by decide))
+          (paired_cons pairing _ _ (paired_required pairing [50, 48, 48, 49, 48] record.nanosecondTransactTime (by decide) (by decide))
+           (paired_none pairing)))))))))
+
 inductive Message where
   | executionReport (header : Header) (r0 : ExecutionReport)
   | orderCancelReject (header : Header) (r0 : OrderCancelReject)
 
 def Message.tokens : Message → List Token
-  | .executionReport header r0 => ⟨[51, 53], ⟨[56], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
-  | .orderCancelReject header r0 => ⟨[51, 53], ⟨[57], by decide⟩⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .executionReport header r0 => ⟨[51, 53], [56]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .orderCancelReject header r0 => ⟨[51, 53], [57]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
   | token :: rest =>
     if token.tag = [51, 53] then
-      if token.value.val = [56] then
+      if token.value = [56] then
         if known (Header.tags ++ ExecutionReport.tags) rest then do
           let header ← Header.decode rest
           let r0 ← ExecutionReport.decode rest
           pure (.executionReport header r0)
         else none
-      else if token.value.val = [57] then
+      else if token.value = [57] then
         if known (Header.tags ++ OrderCancelReject.tags) rest then do
           let header ← Header.decode rest
           let r0 ← OrderCancelReject.decode rest
@@ -586,21 +691,21 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
 def Message.decodeBytes (bytes : List UInt8) : Option Message := do
-  let tokens ← decodeTokens bytes.length bytes
+  let tokens ← decodeTokens pairing bytes.length bytes
   Message.decode tokens
 
 theorem Message.decodeBytes_executionReport (header : Header) (r0 : ExecutionReport) :
     Message.decodeBytes (Message.encode (.executionReport header r0)) = some (.executionReport header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[56], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ ExecutionReport.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [56]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (ExecutionReport.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_executionReport header r0
 
 theorem Message.decodeBytes_orderCancelReject (header : Header) (r0 : OrderCancelReject) :
     Message.decodeBytes (Message.encode (.orderCancelReject header r0)) = some (.orderCancelReject header r0) := by
-  have tokens := decodeTokens_message ⟨[51, 53], ⟨[57], by decide⟩⟩ (header.parts ++ r0.parts) (Header.tags ++ OrderCancelReject.tags)
-    rfl (by decide +kernel) (by decide +kernel)
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [57]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (OrderCancelReject.taken r0))
   simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
   rw [tokens, some_bind]
   exact Message.decode_orderCancelReject header r0

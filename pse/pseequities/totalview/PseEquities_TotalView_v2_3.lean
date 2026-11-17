@@ -839,7 +839,7 @@ end TradingScheduleMessage
 structure PriceTickSizeMessage where
   timestamp : BitVec 32
   tickSizeTableId : BitVec 32
-  tickSizeInteger4 : BitVec 32
+  priceTickSize : BitVec 32
   priceStart : BitVec 32
   deriving DecidableEq, Repr
 
@@ -848,15 +848,15 @@ namespace PriceTickSizeMessage
 def encode (message : PriceTickSizeMessage) : List UInt8 :=
   encodeUInt 4 message.timestamp
     ++ (encodeUInt 4 message.tickSizeTableId
-    ++ (encodeUInt 4 message.tickSizeInteger4
+    ++ (encodeUInt 4 message.priceTickSize
     ++ (encodeUInt 4 message.priceStart)))
 
 def decode (bytes : List UInt8) : Option (PriceTickSizeMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUInt 4 bytes
   let (tickSizeTableId, bytes) ← decodeUInt 4 bytes
-  let (tickSizeInteger4, bytes) ← decodeUInt 4 bytes
+  let (priceTickSize, bytes) ← decodeUInt 4 bytes
   let (priceStart, bytes) ← decodeUInt 4 bytes
-  pure ({ timestamp, tickSizeTableId, tickSizeInteger4, priceStart }, bytes)
+  pure ({ timestamp, tickSizeTableId, priceTickSize, priceStart }, bytes)
 
 @[simp] theorem encode_length (message : PriceTickSizeMessage) : (encode message).length = 16 := by
   unfold encode
@@ -884,7 +884,7 @@ end PriceTickSizeMessage
 structure QuantityTickSizeMessage where
   timestamp : BitVec 32
   tickSizeTableId : BitVec 32
-  tickSizeInteger8 : BitVec 64
+  quantityTickSize : BitVec 64
   quantityStart : BitVec 64
   deriving DecidableEq, Repr
 
@@ -893,15 +893,15 @@ namespace QuantityTickSizeMessage
 def encode (message : QuantityTickSizeMessage) : List UInt8 :=
   encodeUInt 4 message.timestamp
     ++ (encodeUInt 4 message.tickSizeTableId
-    ++ (encodeUInt 8 message.tickSizeInteger8
+    ++ (encodeUInt 8 message.quantityTickSize
     ++ (encodeUInt 8 message.quantityStart)))
 
 def decode (bytes : List UInt8) : Option (QuantityTickSizeMessage × List UInt8) := do
   let (timestamp, bytes) ← decodeUInt 4 bytes
   let (tickSizeTableId, bytes) ← decodeUInt 4 bytes
-  let (tickSizeInteger8, bytes) ← decodeUInt 8 bytes
+  let (quantityTickSize, bytes) ← decodeUInt 8 bytes
   let (quantityStart, bytes) ← decodeUInt 8 bytes
-  pure ({ timestamp, tickSizeTableId, tickSizeInteger8, quantityStart }, bytes)
+  pure ({ timestamp, tickSizeTableId, quantityTickSize, quantityStart }, bytes)
 
 @[simp] theorem encode_length (message : QuantityTickSizeMessage) : (encode message).length = 24 := by
   unfold encode
