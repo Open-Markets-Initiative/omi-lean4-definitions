@@ -7321,7 +7321,7 @@ structure MassQuoteResponseEntriesGroup where
   quoteEntryId : BitVec 32
   quoteSetId : BitVec 16
   securityId : BitVec 32
-  sideSide : BitVec 8
+  quoteSide : BitVec 8
   quoteEntryRejectReasonOptional : BitVec 8
   deriving DecidableEq, Repr
 
@@ -7332,7 +7332,7 @@ def encode (message : MassQuoteResponseEntriesGroup) : List UInt8 :=
     ++ (encodeUIntLE 4 message.quoteEntryId
     ++ (encodeUIntLE 2 message.quoteSetId
     ++ (encodeUIntLE 4 message.securityId
-    ++ (encodeUInt 1 message.sideSide
+    ++ (encodeUInt 1 message.quoteSide
     ++ (encodeUInt 1 message.quoteEntryRejectReasonOptional)))))
 
 def decode (bytes : List UInt8) : Option (MassQuoteResponseEntriesGroup × List UInt8) := do
@@ -7340,9 +7340,9 @@ def decode (bytes : List UInt8) : Option (MassQuoteResponseEntriesGroup × List 
   let (quoteEntryId, bytes) ← decodeUIntLE 4 bytes
   let (quoteSetId, bytes) ← decodeUIntLE 2 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (sideSide, bytes) ← decodeUInt 1 bytes
+  let (quoteSide, bytes) ← decodeUInt 1 bytes
   let (quoteEntryRejectReasonOptional, bytes) ← decodeUInt 1 bytes
-  pure ({ orderIdOptional, quoteEntryId, quoteSetId, securityId, sideSide, quoteEntryRejectReasonOptional }, bytes)
+  pure ({ orderIdOptional, quoteEntryId, quoteSetId, securityId, quoteSide, quoteEntryRejectReasonOptional }, bytes)
 
 @[simp] theorem encode_length (message : MassQuoteResponseEntriesGroup) : (encode message).length = 20 := by
   unfold encode

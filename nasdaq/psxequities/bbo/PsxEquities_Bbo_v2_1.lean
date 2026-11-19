@@ -417,8 +417,8 @@ def IpoFlag.codes : List UInt8 :=
   [0x59, 0x4E, 0x20]
 
 inductive IpoFlag where
-  | nasdaqListedInstrument -- Nasdaq Listed Instrument
-  | nasdaqListedInstrument_4e -- Nasdaq Listed Instrument
+  | newIpoSecurity -- New IPO Security
+  | notNewIpoSecurity -- Not New IPO Security
   | na -- Na
   | unlisted (byte : { byte : UInt8 // byte ∉ IpoFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -426,15 +426,15 @@ inductive IpoFlag where
 namespace IpoFlag
 
 def toByte : IpoFlag → UInt8
-  | .nasdaqListedInstrument => 0x59
-  | .nasdaqListedInstrument_4e => 0x4E
+  | .newIpoSecurity => 0x59
+  | .notNewIpoSecurity => 0x4E
   | .na => 0x20
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IpoFlag :=
-  if byte = 0x59 then .nasdaqListedInstrument
-  else if byte = 0x4E then .nasdaqListedInstrument_4e
+  if byte = 0x59 then .newIpoSecurity
+  else if byte = 0x4E then .notNewIpoSecurity
   else .na
 
 def ofByte (byte : UInt8) : IpoFlag :=
@@ -442,8 +442,8 @@ def ofByte (byte : UInt8) : IpoFlag :=
 
 theorem ofByte_toByte (value : IpoFlag) : ofByte value.toByte = value := by
   cases value with
-  | nasdaqListedInstrument => decide
-  | nasdaqListedInstrument_4e => decide
+  | newIpoSecurity => decide
+  | notNewIpoSecurity => decide
   | na => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -630,7 +630,7 @@ end InverseIndicator
 
 /-- Security Class: one byte code -/
 def SecurityClass.codes : List UInt8 :=
-  [0x51, 0x4E, 0x41, 0x50, 0x5A, 0x56, 0x20]
+  [0x51, 0x4E, 0x41, 0x50, 0x5A, 0x56]
 
 inductive SecurityClass where
   | nasdaqListedIssue -- Nasdaq Listed Issue
@@ -639,7 +639,6 @@ inductive SecurityClass where
   | nyseArca -- Nyse Arca
   | bats -- Bats
   | iexg -- Iexg
-  | na -- Na
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityClass.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -652,7 +651,6 @@ def toByte : SecurityClass → UInt8
   | .nyseArca => 0x50
   | .bats => 0x5A
   | .iexg => 0x56
-  | .na => 0x20
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -662,8 +660,7 @@ def listed (byte : UInt8) : SecurityClass :=
   else if byte = 0x41 then .nyseAmerican
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .bats
-  else if byte = 0x56 then .iexg
-  else .na
+  else .iexg
 
 def ofByte (byte : UInt8) : SecurityClass :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -676,7 +673,6 @@ theorem ofByte_toByte (value : SecurityClass) : ofByte value.toByte = value := b
   | nyseArca => decide
   | bats => decide
   | iexg => decide
-  | na => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SecurityClass) : List UInt8 :=

@@ -120,7 +120,7 @@ inductive SecurityType where
   | rights -- Rights
   | sharesOfBeneficiaryInterest -- Shares Of Beneficiary Interest
   | test -- Test
-  | units_55 -- Units
+  | closedEndFund -- Closed End Fund
   | warrant -- Warrant
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -142,7 +142,7 @@ def toByte : SecurityType → UInt8
   | .rights => 0x52
   | .sharesOfBeneficiaryInterest => 0x53
   | .test => 0x54
-  | .units_55 => 0x55
+  | .closedEndFund => 0x55
   | .warrant => 0x57
   | .unlisted byte => byte.val
 
@@ -162,7 +162,7 @@ def listed (byte : UInt8) : SecurityType :=
   else if byte = 0x52 then .rights
   else if byte = 0x53 then .sharesOfBeneficiaryInterest
   else if byte = 0x54 then .test
-  else if byte = 0x55 then .units_55
+  else if byte = 0x55 then .closedEndFund
   else .warrant
 
 def ofByte (byte : UInt8) : SecurityType :=
@@ -184,7 +184,7 @@ theorem ofByte_toByte (value : SecurityType) : ofByte value.toByte = value := by
   | rights => decide
   | sharesOfBeneficiaryInterest => decide
   | test => decide
-  | units_55 => decide
+  | closedEndFund => decide
   | warrant => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

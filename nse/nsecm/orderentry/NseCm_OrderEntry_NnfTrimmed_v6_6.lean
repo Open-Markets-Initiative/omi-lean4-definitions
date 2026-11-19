@@ -211,7 +211,7 @@ structure OrderModifyCancelRequestTrimmedMessage where
   logTime : BitVec 32
   userId : BitVec 32
   errorCode : BitVec 16
-  timeStamp1LongLong8 : BitVec 64
+  timeStamp1 : BitVec 64
   timeStamp2 : Alpha 1
   modifiedCancelledBy : Alpha 1
   reasonCode : BitVec 16
@@ -252,7 +252,7 @@ def encode (message : OrderModifyCancelRequestTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.logTime
     ++ (encodeUInt 4 message.userId
     ++ (encodeUInt 2 message.errorCode
-    ++ (encodeUInt 8 message.timeStamp1LongLong8
+    ++ (encodeUInt 8 message.timeStamp1
     ++ (Alpha.encode message.timeStamp2
     ++ (Alpha.encode message.modifiedCancelledBy
     ++ (encodeUInt 2 message.reasonCode
@@ -292,7 +292,7 @@ def decode (bytes : List UInt8) : Option (OrderModifyCancelRequestTrimmedMessage
   let (logTime, bytes) ← decodeUInt 4 bytes
   let (userId, bytes) ← decodeUInt 4 bytes
   let (errorCode, bytes) ← decodeUInt 2 bytes
-  let (timeStamp1LongLong8, bytes) ← decodeUInt 8 bytes
+  let (timeStamp1, bytes) ← decodeUInt 8 bytes
   let (timeStamp2, bytes) ← Alpha.decode 1 bytes
   let (modifiedCancelledBy, bytes) ← Alpha.decode 1 bytes
   let (reasonCode, bytes) ← decodeUInt 2 bytes
@@ -324,7 +324,7 @@ def decode (bytes : List UInt8) : Option (OrderModifyCancelRequestTrimmedMessage
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved24, bytes) ← Alpha.decode 24 bytes
-  pure ({ transactionCode, logTime, userId, errorCode, timeStamp1LongLong8, timeStamp2, modifiedCancelledBy, reasonCode, secInfo, orderNumber, accountNumber, bookType, buySell, disclosedVol, disclosedVolRemaining, totalVolRemaining, volume, volumeFilledToday, price, entryDateTime, lastModified, stOrderFlags, branchId, secondUserId, brokerId, suspended, settlor, proClient, settlementType, nnfField, transactionId, pan, algoId, reserved2, lastActivityReference, reserved24 }, bytes)
+  pure ({ transactionCode, logTime, userId, errorCode, timeStamp1, timeStamp2, modifiedCancelledBy, reasonCode, secInfo, orderNumber, accountNumber, bookType, buySell, disclosedVol, disclosedVolRemaining, totalVolRemaining, volume, volumeFilledToday, price, entryDateTime, lastModified, stOrderFlags, branchId, secondUserId, brokerId, suspended, settlor, proClient, settlementType, nnfField, transactionId, pan, algoId, reserved2, lastActivityReference, reserved24 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyCancelRequestTrimmedMessage) : (encode message).length = 180 := by
   unfold encode
@@ -419,7 +419,7 @@ structure OrderModifyCancelResponseTrimmedMessage where
   logTime : BitVec 32
   userId : BitVec 32
   errorCode : BitVec 16
-  timeStamp1LongLong8 : BitVec 64
+  timeStamp1 : BitVec 64
   timeStamp2 : Alpha 1
   modifiedCancelledBy : Alpha 1
   reasonCode : BitVec 16
@@ -461,7 +461,7 @@ def encode (message : OrderModifyCancelResponseTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.logTime
     ++ (encodeUInt 4 message.userId
     ++ (encodeUInt 2 message.errorCode
-    ++ (encodeUInt 8 message.timeStamp1LongLong8
+    ++ (encodeUInt 8 message.timeStamp1
     ++ (Alpha.encode message.timeStamp2
     ++ (Alpha.encode message.modifiedCancelledBy
     ++ (encodeUInt 2 message.reasonCode
@@ -502,7 +502,7 @@ def decode (bytes : List UInt8) : Option (OrderModifyCancelResponseTrimmedMessag
   let (logTime, bytes) ← decodeUInt 4 bytes
   let (userId, bytes) ← decodeUInt 4 bytes
   let (errorCode, bytes) ← decodeUInt 2 bytes
-  let (timeStamp1LongLong8, bytes) ← decodeUInt 8 bytes
+  let (timeStamp1, bytes) ← decodeUInt 8 bytes
   let (timeStamp2, bytes) ← Alpha.decode 1 bytes
   let (modifiedCancelledBy, bytes) ← Alpha.decode 1 bytes
   let (reasonCode, bytes) ← decodeUInt 2 bytes
@@ -535,7 +535,7 @@ def decode (bytes : List UInt8) : Option (OrderModifyCancelResponseTrimmedMessag
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ transactionCode, logTime, userId, errorCode, timeStamp1LongLong8, timeStamp2, modifiedCancelledBy, reasonCode, secInfo, orderNumber, accountNumber, bookType, buySell, disclosedVol, disclosedVolRemaining, totalVolRemaining, volume, volumeFilledToday, price, entryDateTime, lastModified, stOrderFlags, branchId, secondUserId, brokerId, suspended, settlor, proClient, settlementType, nnfField, transactionId, timestamp, pan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ transactionCode, logTime, userId, errorCode, timeStamp1, timeStamp2, modifiedCancelledBy, reasonCode, secInfo, orderNumber, accountNumber, bookType, buySell, disclosedVol, disclosedVolRemaining, totalVolRemaining, volume, volumeFilledToday, price, entryDateTime, lastModified, stOrderFlags, branchId, secondUserId, brokerId, suspended, settlor, proClient, settlementType, nnfField, transactionId, timestamp, pan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyCancelResponseTrimmedMessage) : (encode message).length = 216 := by
   unfold encode
@@ -632,7 +632,7 @@ structure TradeConfirmationTrimmedMessage where
   logTime : BitVec 32
   userId : BitVec 32
   timestamp : BitVec 64
-  timeStamp1Char8 : Alpha 8
+  timeStamp1Char : Alpha 8
   responseOrderNumber : Alpha 8
   timeStamp2 : Alpha 1
   brokerId : Alpha 5
@@ -668,7 +668,7 @@ def encode (message : TradeConfirmationTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.logTime
     ++ (encodeUInt 4 message.userId
     ++ (encodeUInt 8 message.timestamp
-    ++ (Alpha.encode message.timeStamp1Char8
+    ++ (Alpha.encode message.timeStamp1Char
     ++ (Alpha.encode message.responseOrderNumber
     ++ (Alpha.encode message.timeStamp2
     ++ (Alpha.encode message.brokerId
@@ -703,7 +703,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationTrimmedMessage × Lis
   let (logTime, bytes) ← decodeUInt 4 bytes
   let (userId, bytes) ← decodeUInt 4 bytes
   let (timestamp, bytes) ← decodeUInt 8 bytes
-  let (timeStamp1Char8, bytes) ← Alpha.decode 8 bytes
+  let (timeStamp1Char, bytes) ← Alpha.decode 8 bytes
   let (responseOrderNumber, bytes) ← Alpha.decode 8 bytes
   let (timeStamp2, bytes) ← Alpha.decode 1 bytes
   let (brokerId, bytes) ← Alpha.decode 5 bytes
@@ -730,7 +730,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationTrimmedMessage × Lis
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ transactionCode, logTime, userId, timestamp, timeStamp1Char8, responseOrderNumber, timeStamp2, brokerId, traderNum, buySell, accountNum, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, secInfo, bookType, proClient, pan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ transactionCode, logTime, userId, timestamp, timeStamp1Char, responseOrderNumber, timeStamp2, brokerId, traderNum, buySell, accountNum, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, secInfo, bookType, proClient, pan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeConfirmationTrimmedMessage) : (encode message).length = 192 := by
   unfold encode

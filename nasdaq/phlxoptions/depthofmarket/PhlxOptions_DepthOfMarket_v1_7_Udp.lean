@@ -27,54 +27,54 @@ def EventCode.codes : List UInt8 :=
   [0x4F, 0x53, 0x51, 0x4E, 0x4C, 0x45, 0x43, 0x57]
 
 inductive EventCode where
-  | startOfMessagesThisIsAlwaysTheFirstMessageSentInAnyTradingDay -- Start Of Messages This Is Always The First Message Sent In Any Trading Day
-  | startOfSystemHoursThisMessageIndicatesThatPhlxIsOpenAndReadyToStartAcceptingOrders -- Start Of System Hours This Message Indicates That Phlx® Is Open And Ready To Start Accepting Orders
-  | startOfOpeningProcessThisMessageIsIntendedToIndicateThatPhlxHasStartedItsOpeningAuctionProcess -- Start Of Opening Process This Message Is Intended To Indicate That Phlx® Has Started Its Opening Auction Process
-  | endOfNormalHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringNormalTradingHours -- End Of Normal Hours Processing This Message Is Intended To Indicate That Phlx® Will No Longer Accept Any New Orders Or Changes To Existing Orders For Options That Trade During Normal Trading Hours
-  | endOfLateHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringExtendedHours -- End Of Late Hours Processing This Message Is Intended To Indicate That Phlx® Will No Longer Accept Any New Orders Or Changes To Existing Orders For Options That Trade During Extended Hours
-  | endOfSystemHoursThisMessageIndicatesThatPhlxOptionsSystemIsNowClosed -- End Of System Hours This Message Indicates That Phlx® Options System Is Now Closed
-  | endOfMessagesThisIsAlwaysTheLastMessageSentInAnyTradingDay -- End Of Messages This Is Always The Last Message Sent In Any Trading Day
-  | endOfWcoEarlyClosingThisMessageIsIntendedToIndicateThatTheExchangeWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersOnLastTradingDateOfWcoOptions -- End Of Wco Early Closing This Message Is Intended To Indicate That The Exchange Will No Longer Accept Any New Orders Or Changes To Existing Orders On Last Trading Date Of Wco Options
+  | startOfMessages -- Start Of Messages
+  | startOfSystemHours -- Start Of System Hours
+  | startOfOpeningProcess -- Start Of Opening Process
+  | endOfNormalHoursProcessing -- End Of Normal Hours Processing
+  | endOfLateHoursProcessing -- End Of Late Hours Processing
+  | endOfSystemHours -- End Of System Hours
+  | endOfMessages -- End Of Messages
+  | endOfWcoEarlyClosing -- End Of WCO Early Closing
   | unlisted (byte : { byte : UInt8 // byte ∉ EventCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace EventCode
 
 def toByte : EventCode → UInt8
-  | .startOfMessagesThisIsAlwaysTheFirstMessageSentInAnyTradingDay => 0x4F
-  | .startOfSystemHoursThisMessageIndicatesThatPhlxIsOpenAndReadyToStartAcceptingOrders => 0x53
-  | .startOfOpeningProcessThisMessageIsIntendedToIndicateThatPhlxHasStartedItsOpeningAuctionProcess => 0x51
-  | .endOfNormalHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringNormalTradingHours => 0x4E
-  | .endOfLateHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringExtendedHours => 0x4C
-  | .endOfSystemHoursThisMessageIndicatesThatPhlxOptionsSystemIsNowClosed => 0x45
-  | .endOfMessagesThisIsAlwaysTheLastMessageSentInAnyTradingDay => 0x43
-  | .endOfWcoEarlyClosingThisMessageIsIntendedToIndicateThatTheExchangeWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersOnLastTradingDateOfWcoOptions => 0x57
+  | .startOfMessages => 0x4F
+  | .startOfSystemHours => 0x53
+  | .startOfOpeningProcess => 0x51
+  | .endOfNormalHoursProcessing => 0x4E
+  | .endOfLateHoursProcessing => 0x4C
+  | .endOfSystemHours => 0x45
+  | .endOfMessages => 0x43
+  | .endOfWcoEarlyClosing => 0x57
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : EventCode :=
-  if byte = 0x4F then .startOfMessagesThisIsAlwaysTheFirstMessageSentInAnyTradingDay
-  else if byte = 0x53 then .startOfSystemHoursThisMessageIndicatesThatPhlxIsOpenAndReadyToStartAcceptingOrders
-  else if byte = 0x51 then .startOfOpeningProcessThisMessageIsIntendedToIndicateThatPhlxHasStartedItsOpeningAuctionProcess
-  else if byte = 0x4E then .endOfNormalHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringNormalTradingHours
-  else if byte = 0x4C then .endOfLateHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringExtendedHours
-  else if byte = 0x45 then .endOfSystemHoursThisMessageIndicatesThatPhlxOptionsSystemIsNowClosed
-  else if byte = 0x43 then .endOfMessagesThisIsAlwaysTheLastMessageSentInAnyTradingDay
-  else .endOfWcoEarlyClosingThisMessageIsIntendedToIndicateThatTheExchangeWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersOnLastTradingDateOfWcoOptions
+  if byte = 0x4F then .startOfMessages
+  else if byte = 0x53 then .startOfSystemHours
+  else if byte = 0x51 then .startOfOpeningProcess
+  else if byte = 0x4E then .endOfNormalHoursProcessing
+  else if byte = 0x4C then .endOfLateHoursProcessing
+  else if byte = 0x45 then .endOfSystemHours
+  else if byte = 0x43 then .endOfMessages
+  else .endOfWcoEarlyClosing
 
 def ofByte (byte : UInt8) : EventCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : EventCode) : ofByte value.toByte = value := by
   cases value with
-  | startOfMessagesThisIsAlwaysTheFirstMessageSentInAnyTradingDay => decide
-  | startOfSystemHoursThisMessageIndicatesThatPhlxIsOpenAndReadyToStartAcceptingOrders => decide
-  | startOfOpeningProcessThisMessageIsIntendedToIndicateThatPhlxHasStartedItsOpeningAuctionProcess => decide
-  | endOfNormalHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringNormalTradingHours => decide
-  | endOfLateHoursProcessingThisMessageIsIntendedToIndicateThatPhlxWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersForOptionsThatTradeDuringExtendedHours => decide
-  | endOfSystemHoursThisMessageIndicatesThatPhlxOptionsSystemIsNowClosed => decide
-  | endOfMessagesThisIsAlwaysTheLastMessageSentInAnyTradingDay => decide
-  | endOfWcoEarlyClosingThisMessageIsIntendedToIndicateThatTheExchangeWillNoLongerAcceptAnyNewOrdersOrChangesToExistingOrdersOnLastTradingDateOfWcoOptions => decide
+  | startOfMessages => decide
+  | startOfSystemHours => decide
+  | startOfOpeningProcess => decide
+  | endOfNormalHoursProcessing => decide
+  | endOfLateHoursProcessing => decide
+  | endOfSystemHours => decide
+  | endOfMessages => decide
+  | endOfWcoEarlyClosing => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : EventCode) : List UInt8 :=
@@ -426,10 +426,10 @@ def MarketSide.codes : List UInt8 :=
 inductive MarketSide where
   | buy -- Buy
   | sell -- Sell
-  | buy_58 -- Buy
-  | sell_59 -- Sell
-  | buy_4d -- Buy
-  | sell_4e -- Sell
+  | buyAon -- Buy AON
+  | sellAon -- Sell AON
+  | buyImplied -- Buy Implied
+  | sellImplied -- Sell Implied
   | unlisted (byte : { byte : UInt8 // byte ∉ MarketSide.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -438,20 +438,20 @@ namespace MarketSide
 def toByte : MarketSide → UInt8
   | .buy => 0x42
   | .sell => 0x53
-  | .buy_58 => 0x58
-  | .sell_59 => 0x59
-  | .buy_4d => 0x4D
-  | .sell_4e => 0x4E
+  | .buyAon => 0x58
+  | .sellAon => 0x59
+  | .buyImplied => 0x4D
+  | .sellImplied => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : MarketSide :=
   if byte = 0x42 then .buy
   else if byte = 0x53 then .sell
-  else if byte = 0x58 then .buy_58
-  else if byte = 0x59 then .sell_59
-  else if byte = 0x4D then .buy_4d
-  else .sell_4e
+  else if byte = 0x58 then .buyAon
+  else if byte = 0x59 then .sellAon
+  else if byte = 0x4D then .buyImplied
+  else .sellImplied
 
 def ofByte (byte : UInt8) : MarketSide :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -460,10 +460,10 @@ theorem ofByte_toByte (value : MarketSide) : ofByte value.toByte = value := by
   cases value with
   | buy => decide
   | sell => decide
-  | buy_58 => decide
-  | sell_59 => decide
-  | buy_4d => decide
-  | sell_4e => decide
+  | buyAon => decide
+  | sellAon => decide
+  | buyImplied => decide
+  | sellImplied => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : MarketSide) : List UInt8 :=
@@ -809,7 +809,7 @@ inductive CustomerIndicator where
   | firm -- Firm
   | onFloor -- On Floor
   | professional -- Professional
-  | nonPhlx -- Non Phlx
+  | brokerDealerNonPhlx -- Broker Dealer Non PHLX
   | unlisted (byte : { byte : UInt8 // byte ∉ CustomerIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -820,7 +820,7 @@ def toByte : CustomerIndicator → UInt8
   | .firm => 0x46
   | .onFloor => 0x4D
   | .professional => 0x50
-  | .nonPhlx => 0x42
+  | .brokerDealerNonPhlx => 0x42
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -829,7 +829,7 @@ def listed (byte : UInt8) : CustomerIndicator :=
   else if byte = 0x46 then .firm
   else if byte = 0x4D then .onFloor
   else if byte = 0x50 then .professional
-  else .nonPhlx
+  else .brokerDealerNonPhlx
 
 def ofByte (byte : UInt8) : CustomerIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -840,7 +840,7 @@ theorem ofByte_toByte (value : CustomerIndicator) : ofByte value.toByte = value 
   | firm => decide
   | onFloor => decide
   | professional => decide
-  | nonPhlx => decide
+  | brokerDealerNonPhlx => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CustomerIndicator) : List UInt8 :=

@@ -239,7 +239,7 @@ inductive SecurityType where
   | rights -- Rights
   | sharesOfBeneficiaryInterest -- Shares Of Beneficiary Interest
   | test -- Test
-  | units_55 -- Units
+  | closedEndFund -- Closed End Fund
   | warrant -- Warrant
   | index -- Index
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityType.codes }) -- any other code, kept as it is
@@ -261,7 +261,7 @@ def toByte : SecurityType → UInt8
   | .rights => 0x52
   | .sharesOfBeneficiaryInterest => 0x53
   | .test => 0x54
-  | .units_55 => 0x55
+  | .closedEndFund => 0x55
   | .warrant => 0x57
   | .index => 0x58
   | .unlisted byte => byte.val
@@ -281,7 +281,7 @@ def listed (byte : UInt8) : SecurityType :=
   else if byte = 0x52 then .rights
   else if byte = 0x53 then .sharesOfBeneficiaryInterest
   else if byte = 0x54 then .test
-  else if byte = 0x55 then .units_55
+  else if byte = 0x55 then .closedEndFund
   else if byte = 0x57 then .warrant
   else .index
 
@@ -303,7 +303,7 @@ theorem ofByte_toByte (value : SecurityType) : ofByte value.toByte = value := by
   | rights => decide
   | sharesOfBeneficiaryInterest => decide
   | test => decide
-  | units_55 => decide
+  | closedEndFund => decide
   | warrant => decide
   | index => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -1118,12 +1118,13 @@ theorem encode_length_pos (message : StreamIdMessage) : (encode message).length 
 
 end StreamIdMessage
 
-/-- Sequence Number Reset Message: 10 bytes -/
+/-- Sequence Number Reset Message: 12 bytes -/
 structure SequenceNumberResetMessage where
   sourceTime : BitVec 32
   sourceTimeNs : BitVec 32
   productId : BitVec 8
   channelId : BitVec 8
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace SequenceNumberResetMessage
@@ -1132,18 +1133,20 @@ def encode (message : SequenceNumberResetMessage) : List UInt8 :=
   encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
     ++ (encodeUInt 1 message.productId
-    ++ (encodeUInt 1 message.channelId)))
+    ++ (encodeUInt 1 message.channelId
+    ++ (Alpha.encode message.reserved2))))
 
 def decode (bytes : List UInt8) : Option (SequenceNumberResetMessage × List UInt8) := do
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
   let (productId, bytes) ← decodeUInt 1 bytes
   let (channelId, bytes) ← decodeUInt 1 bytes
-  pure ({ sourceTime, sourceTimeNs, productId, channelId }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ sourceTime, sourceTimeNs, productId, channelId, reserved2 }, bytes)
 
-@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 10 := by
+@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 12 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1158,7 +1161,9 @@ theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end SequenceNumberResetMessage

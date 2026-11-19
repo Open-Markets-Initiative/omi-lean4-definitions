@@ -23,7 +23,7 @@ namespace Omi.NyseNyseequitiesBqtXdpV21A
 
 /-- Exchange Code: one byte code -/
 def ExchangeCode.codes : List UInt8 :=
-  [0x41, 0x42, 0x4E, 0x50, 0x51, 0x55, 0x56, 0x5A]
+  [0x41, 0x42, 0x4E, 0x50, 0x51, 0x55, 0x56, 0x5A, 0x43]
 
 inductive ExchangeCode where
   | nyseAmerican -- Nyse American
@@ -34,6 +34,7 @@ inductive ExchangeCode where
   | otcbb -- Otcbb
   | otherOtc -- Other Otc
   | bats -- Bats
+  | nyseNational -- NYSE National
   | unlisted (byte : { byte : UInt8 // byte ∉ ExchangeCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -48,6 +49,7 @@ def toByte : ExchangeCode → UInt8
   | .otcbb => 0x55
   | .otherOtc => 0x56
   | .bats => 0x5A
+  | .nyseNational => 0x43
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -59,7 +61,8 @@ def listed (byte : UInt8) : ExchangeCode :=
   else if byte = 0x51 then .nasdaq
   else if byte = 0x55 then .otcbb
   else if byte = 0x56 then .otherOtc
-  else .bats
+  else if byte = 0x5A then .bats
+  else .nyseNational
 
 def ofByte (byte : UInt8) : ExchangeCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -74,6 +77,7 @@ theorem ofByte_toByte (value : ExchangeCode) : ofByte value.toByte = value := by
   | otcbb => decide
   | otherOtc => decide
   | bats => decide
+  | nyseNational => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ExchangeCode) : List UInt8 :=
@@ -115,7 +119,7 @@ inductive SecurityType where
   | rights -- Rights
   | sharesOfBeneficiaryInterest -- Shares Of Beneficiary Interest
   | test -- Test
-  | units_55 -- Units
+  | closedEndFund -- Closed End Fund
   | warrant -- Warrant
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -137,7 +141,7 @@ def toByte : SecurityType → UInt8
   | .rights => 0x52
   | .sharesOfBeneficiaryInterest => 0x53
   | .test => 0x54
-  | .units_55 => 0x55
+  | .closedEndFund => 0x55
   | .warrant => 0x57
   | .unlisted byte => byte.val
 
@@ -157,7 +161,7 @@ def listed (byte : UInt8) : SecurityType :=
   else if byte = 0x52 then .rights
   else if byte = 0x53 then .sharesOfBeneficiaryInterest
   else if byte = 0x54 then .test
-  else if byte = 0x55 then .units_55
+  else if byte = 0x55 then .closedEndFund
   else .warrant
 
 def ofByte (byte : UInt8) : SecurityType :=
@@ -179,7 +183,7 @@ theorem ofByte_toByte (value : SecurityType) : ofByte value.toByte = value := by
   | rights => decide
   | sharesOfBeneficiaryInterest => decide
   | test => decide
-  | units_55 => decide
+  | closedEndFund => decide
   | warrant => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

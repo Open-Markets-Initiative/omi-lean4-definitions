@@ -1210,8 +1210,8 @@ inductive CancelReason where
   | complexStrategyLegHasRouteTimer -- Complex Strategy Leg Has Route Timer
   | complexStrategyLegHasLiquidityRefreshTimer -- Complex Strategy Leg Has Liquidity Refresh Timer
   | complexStrategyAuctionInProgress -- Complex Strategy Auction In Progress
-  | reserved -- Reserved
-  | reserved_51 -- Reserved
+  | reservedP -- Reserved P
+  | reservedQ -- Reserved Q
   | unlisted (byte : { byte : UInt8 // byte ∉ CancelReason.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -1226,8 +1226,8 @@ def toByte : CancelReason → UInt8
   | .complexStrategyLegHasRouteTimer => 0x4D
   | .complexStrategyLegHasLiquidityRefreshTimer => 0x4E
   | .complexStrategyAuctionInProgress => 0x4A
-  | .reserved => 0x50
-  | .reserved_51 => 0x51
+  | .reservedP => 0x50
+  | .reservedQ => 0x51
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -1240,8 +1240,8 @@ def listed (byte : UInt8) : CancelReason :=
   else if byte = 0x4D then .complexStrategyLegHasRouteTimer
   else if byte = 0x4E then .complexStrategyLegHasLiquidityRefreshTimer
   else if byte = 0x4A then .complexStrategyAuctionInProgress
-  else if byte = 0x50 then .reserved
-  else .reserved_51
+  else if byte = 0x50 then .reservedP
+  else .reservedQ
 
 def ofByte (byte : UInt8) : CancelReason :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1256,8 +1256,8 @@ theorem ofByte_toByte (value : CancelReason) : ofByte value.toByte = value := by
   | complexStrategyLegHasRouteTimer => decide
   | complexStrategyLegHasLiquidityRefreshTimer => decide
   | complexStrategyAuctionInProgress => decide
-  | reserved => decide
-  | reserved_51 => decide
+  | reservedP => decide
+  | reservedQ => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CancelReason) : List UInt8 :=

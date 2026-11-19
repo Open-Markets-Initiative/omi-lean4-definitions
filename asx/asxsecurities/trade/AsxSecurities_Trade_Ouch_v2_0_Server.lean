@@ -245,8 +245,8 @@ def OuchOrderType.codes : List UInt8 :=
 
 inductive OuchOrderType where
   | limitOrder -- Limit Order
-  | centrePointOrder -- Centre Point Order
-  | centrePointOrder_44 -- Centre Point Order
+  | centrePointOrderMidPointOnly -- Centre Point Order Mid Point Only
+  | centrePointOrderDarkLimitOrder -- Centre Point Order Dark Limit Order
   | sweepOrder -- Sweep Order
   | dualPostedSweepOrder -- Dual Posted Sweep Order
   | centrePointBlockOrderWithSingleFillMaq -- Centre Point Block Order With Single Fill Maq
@@ -261,8 +261,8 @@ namespace OuchOrderType
 
 def toByte : OuchOrderType → UInt8
   | .limitOrder => 0x59
-  | .centrePointOrder => 0x4E
-  | .centrePointOrder_44 => 0x44
+  | .centrePointOrderMidPointOnly => 0x4E
+  | .centrePointOrderDarkLimitOrder => 0x44
   | .sweepOrder => 0x53
   | .dualPostedSweepOrder => 0x50
   | .centrePointBlockOrderWithSingleFillMaq => 0x42
@@ -275,8 +275,8 @@ def toByte : OuchOrderType → UInt8
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : OuchOrderType :=
   if byte = 0x59 then .limitOrder
-  else if byte = 0x4E then .centrePointOrder
-  else if byte = 0x44 then .centrePointOrder_44
+  else if byte = 0x4E then .centrePointOrderMidPointOnly
+  else if byte = 0x44 then .centrePointOrderDarkLimitOrder
   else if byte = 0x53 then .sweepOrder
   else if byte = 0x50 then .dualPostedSweepOrder
   else if byte = 0x42 then .centrePointBlockOrderWithSingleFillMaq
@@ -291,8 +291,8 @@ def ofByte (byte : UInt8) : OuchOrderType :=
 theorem ofByte_toByte (value : OuchOrderType) : ofByte value.toByte = value := by
   cases value with
   | limitOrder => decide
-  | centrePointOrder => decide
-  | centrePointOrder_44 => decide
+  | centrePointOrderMidPointOnly => decide
+  | centrePointOrderDarkLimitOrder => decide
   | sweepOrder => decide
   | dualPostedSweepOrder => decide
   | centrePointBlockOrderWithSingleFillMaq => decide

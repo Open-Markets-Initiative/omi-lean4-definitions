@@ -229,7 +229,7 @@ structure TradeConfirmationMessage where
   contractDesc : ContractDesc
   openClose : OpenClose
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -277,7 +277,7 @@ def encode (message : TradeConfirmationMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -324,7 +324,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -341,7 +341,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationMessage × List UInt8
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (reserved44, bytes) ← Alpha.decode 44 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
 
 @[simp] theorem encode_length (message : TradeConfirmationMessage) : (encode message).length = 256 := by
   unfold encode
@@ -472,7 +472,7 @@ structure TradeCancelConfirmMessage where
   contractDesc : ContractDesc
   openClose : OpenClose
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -520,7 +520,7 @@ def encode (message : TradeCancelConfirmMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -567,7 +567,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelConfirmMessage × List UInt
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -584,7 +584,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelConfirmMessage × List UInt
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (reserved44, bytes) ← Alpha.decode 44 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelConfirmMessage) : (encode message).length = 256 := by
   unfold encode
@@ -715,7 +715,7 @@ structure TradeCancelRejectMessage where
   contractDesc : ContractDesc
   openClose : OpenClose
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -763,7 +763,7 @@ def encode (message : TradeCancelRejectMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -810,7 +810,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelRejectMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -827,7 +827,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelRejectMessage × List UInt8
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (reserved44, bytes) ← Alpha.decode 44 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelRejectMessage) : (encode message).length = 256 := by
   unfold encode
@@ -958,7 +958,7 @@ structure TradeModifyConfirmMessage where
   contractDesc : ContractDesc
   openClose : OpenClose
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -1006,7 +1006,7 @@ def encode (message : TradeModifyConfirmMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -1053,7 +1053,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyConfirmMessage × List UInt
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -1070,7 +1070,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyConfirmMessage × List UInt
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (reserved44, bytes) ← Alpha.decode 44 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
 
 @[simp] theorem encode_length (message : TradeModifyConfirmMessage) : (encode message).length = 256 := by
   unfold encode
@@ -1201,7 +1201,7 @@ structure TradeModifyRejectMessage where
   contractDesc : ContractDesc
   openClose : OpenClose
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -1249,7 +1249,7 @@ def encode (message : TradeModifyRejectMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (OpenClose.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -1296,7 +1296,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyRejectMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← OpenClose.decode bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -1313,7 +1313,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyRejectMessage × List UInt8
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (reserved44, bytes) ← Alpha.decode 44 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNum, accountNum, buySell, originalVol, disclosedVol, remainingVol, disclosedVolRemaining, price, stOrderFlags, gtd, fillNumber, fillQty, fillPrice, volFilledToday, activityType, activityTime, opOrderNumber, opBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, nnfField, reserved44 }, bytes)
 
 @[simp] theorem encode_length (message : TradeModifyRejectMessage) : (encode message).length = 256 := by
   unfold encode
@@ -1432,7 +1432,7 @@ structure GiveupAppConfirmTmMessage where
   brokerId : Alpha 5
   filler : Alpha 1
   buySell : BitVec 16
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   lastModifiedDateTime : BitVec 32
   initiatedByControl : Alpha 1
   openClose : OpenClose
@@ -1460,7 +1460,7 @@ def encode (message : GiveupAppConfirmTmMessage) : List UInt8 :=
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (encodeUInt 2 message.buySell
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 4 message.lastModifiedDateTime
     ++ (Alpha.encode message.initiatedByControl
     ++ (OpenClose.encode message.openClose
@@ -1485,7 +1485,7 @@ def decode (bytes : List UInt8) : Option (GiveupAppConfirmTmMessage × List UInt
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (buySell, bytes) ← decodeUInt 2 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (lastModifiedDateTime, bytes) ← decodeUInt 4 bytes
   let (initiatedByControl, bytes) ← Alpha.decode 1 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
@@ -1494,7 +1494,7 @@ def decode (bytes : List UInt8) : Option (GiveupAppConfirmTmMessage × List UInt
   let (giveupFlag, bytes) ← Alpha.decode 1 bytes
   let (deleted, bytes) ← Alpha.decode 1 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reasonCode, orderNumber, fillNumber, instrumentName, symbol, expiryDate, strikePrice, optionType, caLevel, fillVolume, fillPrice, brokerId, filler, buySell, bookTypeShort2, lastModifiedDateTime, initiatedByControl, openClose, reserved1, participant, giveupFlag, deleted, secondReserved1 }, bytes)
+  pure ({ reasonCode, orderNumber, fillNumber, instrumentName, symbol, expiryDate, strikePrice, optionType, caLevel, fillVolume, fillPrice, brokerId, filler, buySell, bookType, lastModifiedDateTime, initiatedByControl, openClose, reserved1, participant, giveupFlag, deleted, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : GiveupAppConfirmTmMessage) : (encode message).length = 82 := by
   unfold encode
@@ -1572,7 +1572,7 @@ structure GiveupRejConfirmTmMessage where
   brokerId : Alpha 5
   filler : Alpha 1
   buySell : BitVec 16
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   lastModifiedDateTime : BitVec 32
   initiatedByControl : Alpha 1
   openClose : OpenClose
@@ -1600,7 +1600,7 @@ def encode (message : GiveupRejConfirmTmMessage) : List UInt8 :=
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (encodeUInt 2 message.buySell
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 4 message.lastModifiedDateTime
     ++ (Alpha.encode message.initiatedByControl
     ++ (OpenClose.encode message.openClose
@@ -1625,7 +1625,7 @@ def decode (bytes : List UInt8) : Option (GiveupRejConfirmTmMessage × List UInt
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (buySell, bytes) ← decodeUInt 2 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (lastModifiedDateTime, bytes) ← decodeUInt 4 bytes
   let (initiatedByControl, bytes) ← Alpha.decode 1 bytes
   let (openClose, bytes) ← OpenClose.decode bytes
@@ -1634,7 +1634,7 @@ def decode (bytes : List UInt8) : Option (GiveupRejConfirmTmMessage × List UInt
   let (giveupFlag, bytes) ← Alpha.decode 1 bytes
   let (deleted, bytes) ← Alpha.decode 1 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reasonCode, orderNumber, fillNumber, instrumentName, symbol, expiryDate, strikePrice, optionType, caLevel, fillVolume, fillPrice, brokerId, filler, buySell, bookTypeShort2, lastModifiedDateTime, initiatedByControl, openClose, reserved1, participant, giveupFlag, deleted, secondReserved1 }, bytes)
+  pure ({ reasonCode, orderNumber, fillNumber, instrumentName, symbol, expiryDate, strikePrice, optionType, caLevel, fillVolume, fillPrice, brokerId, filler, buySell, bookType, lastModifiedDateTime, initiatedByControl, openClose, reserved1, participant, giveupFlag, deleted, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : GiveupRejConfirmTmMessage) : (encode message).length = 82 := by
   unfold encode

@@ -91,25 +91,22 @@ end EventCode
 
 /-- Market Center Identifier: one byte code -/
 def MarketCenterIdentifier.codes : List UInt8 :=
-  [0x42, 0x58]
+  [0x58]
 
 inductive MarketCenterIdentifier where
   | psxExecutionSystem -- Psx Execution System
-  | psxExecutionSystem_58 -- Psx Execution System
   | unlisted (byte : { byte : UInt8 // byte ∉ MarketCenterIdentifier.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace MarketCenterIdentifier
 
 def toByte : MarketCenterIdentifier → UInt8
-  | .psxExecutionSystem => 0x42
-  | .psxExecutionSystem_58 => 0x58
+  | .psxExecutionSystem => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : MarketCenterIdentifier :=
-  if byte = 0x42 then .psxExecutionSystem
-  else .psxExecutionSystem_58
+def listed (_ : UInt8) : MarketCenterIdentifier :=
+  .psxExecutionSystem
 
 def ofByte (byte : UInt8) : MarketCenterIdentifier :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -117,7 +114,6 @@ def ofByte (byte : UInt8) : MarketCenterIdentifier :=
 theorem ofByte_toByte (value : MarketCenterIdentifier) : ofByte value.toByte = value := by
   cases value with
   | psxExecutionSystem => decide
-  | psxExecutionSystem_58 => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : MarketCenterIdentifier) : List UInt8 :=
@@ -147,7 +143,7 @@ def SecurityClass.codes : List UInt8 :=
 inductive SecurityClass where
   | nasdaq -- Nasdaq
   | nyse -- Nyse
-  | nyseAmex -- Nyse Amex
+  | nyseAmerican -- NYSE American
   | nyseArca -- Nyse Arca
   | bats -- Bats
   | investorsExchange -- Investors Exchange
@@ -159,7 +155,7 @@ namespace SecurityClass
 def toByte : SecurityClass → UInt8
   | .nasdaq => 0x51
   | .nyse => 0x4E
-  | .nyseAmex => 0x41
+  | .nyseAmerican => 0x41
   | .nyseArca => 0x50
   | .bats => 0x5A
   | .investorsExchange => 0x56
@@ -169,7 +165,7 @@ def toByte : SecurityClass → UInt8
 def listed (byte : UInt8) : SecurityClass :=
   if byte = 0x51 then .nasdaq
   else if byte = 0x4E then .nyse
-  else if byte = 0x41 then .nyseAmex
+  else if byte = 0x41 then .nyseAmerican
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .bats
   else .investorsExchange
@@ -181,7 +177,7 @@ theorem ofByte_toByte (value : SecurityClass) : ofByte value.toByte = value := b
   cases value with
   | nasdaq => decide
   | nyse => decide
-  | nyseAmex => decide
+  | nyseAmerican => decide
   | nyseArca => decide
   | bats => decide
   | investorsExchange => decide
@@ -614,7 +610,7 @@ inductive MarketCategory where
   | nasdaqGlobalMarket -- Nasdaq Global Market
   | nasdaqCapitalMarket -- Nasdaq Capital Market
   | nyse -- Nyse
-  | nyseMkt -- Nyse Mkt
+  | nyseAmerican -- NYSE American
   | nyseArca -- Nyse Arca
   | batsZ -- Bats Z
   | investorsExchange -- Investors Exchange
@@ -629,7 +625,7 @@ def toByte : MarketCategory → UInt8
   | .nasdaqGlobalMarket => 0x47
   | .nasdaqCapitalMarket => 0x53
   | .nyse => 0x4E
-  | .nyseMkt => 0x41
+  | .nyseAmerican => 0x41
   | .nyseArca => 0x50
   | .batsZ => 0x5A
   | .investorsExchange => 0x56
@@ -642,7 +638,7 @@ def listed (byte : UInt8) : MarketCategory :=
   else if byte = 0x47 then .nasdaqGlobalMarket
   else if byte = 0x53 then .nasdaqCapitalMarket
   else if byte = 0x4E then .nyse
-  else if byte = 0x41 then .nyseMkt
+  else if byte = 0x41 then .nyseAmerican
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .batsZ
   else if byte = 0x56 then .investorsExchange
@@ -657,7 +653,7 @@ theorem ofByte_toByte (value : MarketCategory) : ofByte value.toByte = value := 
   | nasdaqGlobalMarket => decide
   | nasdaqCapitalMarket => decide
   | nyse => decide
-  | nyseMkt => decide
+  | nyseAmerican => decide
   | nyseArca => decide
   | batsZ => decide
   | investorsExchange => decide
@@ -1040,8 +1036,8 @@ def IpoFlag.codes : List UInt8 :=
   [0x59, 0x4E, 0x20]
 
 inductive IpoFlag where
-  | nasdaqListedInstrument -- Nasdaq Listed Instrument
-  | nasdaqListedInstrument_4e -- Nasdaq Listed Instrument
+  | newIpoSecurity -- New IPO Security
+  | notNewIpoSecurity -- Not New IPO Security
   | na -- Na
   | unlisted (byte : { byte : UInt8 // byte ∉ IpoFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -1049,15 +1045,15 @@ inductive IpoFlag where
 namespace IpoFlag
 
 def toByte : IpoFlag → UInt8
-  | .nasdaqListedInstrument => 0x59
-  | .nasdaqListedInstrument_4e => 0x4E
+  | .newIpoSecurity => 0x59
+  | .notNewIpoSecurity => 0x4E
   | .na => 0x20
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : IpoFlag :=
-  if byte = 0x59 then .nasdaqListedInstrument
-  else if byte = 0x4E then .nasdaqListedInstrument_4e
+  if byte = 0x59 then .newIpoSecurity
+  else if byte = 0x4E then .notNewIpoSecurity
   else .na
 
 def ofByte (byte : UInt8) : IpoFlag :=
@@ -1065,8 +1061,8 @@ def ofByte (byte : UInt8) : IpoFlag :=
 
 theorem ofByte_toByte (value : IpoFlag) : ofByte value.toByte = value := by
   cases value with
-  | nasdaqListedInstrument => decide
-  | nasdaqListedInstrument_4e => decide
+  | newIpoSecurity => decide
+  | notNewIpoSecurity => decide
   | na => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

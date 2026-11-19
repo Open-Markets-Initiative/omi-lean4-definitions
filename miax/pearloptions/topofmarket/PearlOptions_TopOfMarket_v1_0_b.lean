@@ -230,34 +230,34 @@ def PearlBboPostingIncrementIndicator.codes : List UInt8 :=
   [0x50, 0x4E, 0x44]
 
 inductive PearlBboPostingIncrementIndicator where
-  | penny001 -- Penny 001
-  | penny001_4e -- Penny 001
-  | nickel005 -- Nickel 005
+  | penny -- Penny
+  | pennyOrNickel -- Penny Or Nickel
+  | nickelOrDime -- Nickel Or Dime
   | unlisted (byte : { byte : UInt8 // byte ∉ PearlBboPostingIncrementIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace PearlBboPostingIncrementIndicator
 
 def toByte : PearlBboPostingIncrementIndicator → UInt8
-  | .penny001 => 0x50
-  | .penny001_4e => 0x4E
-  | .nickel005 => 0x44
+  | .penny => 0x50
+  | .pennyOrNickel => 0x4E
+  | .nickelOrDime => 0x44
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : PearlBboPostingIncrementIndicator :=
-  if byte = 0x50 then .penny001
-  else if byte = 0x4E then .penny001_4e
-  else .nickel005
+  if byte = 0x50 then .penny
+  else if byte = 0x4E then .pennyOrNickel
+  else .nickelOrDime
 
 def ofByte (byte : UInt8) : PearlBboPostingIncrementIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : PearlBboPostingIncrementIndicator) : ofByte value.toByte = value := by
   cases value with
-  | penny001 => decide
-  | penny001_4e => decide
-  | nickel005 => decide
+  | penny => decide
+  | pennyOrNickel => decide
+  | nickelOrDime => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : PearlBboPostingIncrementIndicator) : List UInt8 :=
@@ -285,34 +285,34 @@ def LiquidityAcceptanceIncrementIndicator.codes : List UInt8 :=
   [0x50, 0x4E, 0x44]
 
 inductive LiquidityAcceptanceIncrementIndicator where
-  | penny001 -- Penny 001
-  | penny001_4e -- Penny 001
-  | nickel005 -- Nickel 005
+  | penny -- Penny
+  | pennyOrNickel -- Penny Or Nickel
+  | nickelOrDime -- Nickel Or Dime
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityAcceptanceIncrementIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace LiquidityAcceptanceIncrementIndicator
 
 def toByte : LiquidityAcceptanceIncrementIndicator → UInt8
-  | .penny001 => 0x50
-  | .penny001_4e => 0x4E
-  | .nickel005 => 0x44
+  | .penny => 0x50
+  | .pennyOrNickel => 0x4E
+  | .nickelOrDime => 0x44
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : LiquidityAcceptanceIncrementIndicator :=
-  if byte = 0x50 then .penny001
-  else if byte = 0x4E then .penny001_4e
-  else .nickel005
+  if byte = 0x50 then .penny
+  else if byte = 0x4E then .pennyOrNickel
+  else .nickelOrDime
 
 def ofByte (byte : UInt8) : LiquidityAcceptanceIncrementIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : LiquidityAcceptanceIncrementIndicator) : ofByte value.toByte = value := by
   cases value with
-  | penny001 => decide
-  | penny001_4e => decide
-  | nickel005 => decide
+  | penny => decide
+  | pennyOrNickel => decide
+  | nickelOrDime => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : LiquidityAcceptanceIncrementIndicator) : List UInt8 :=
@@ -351,8 +351,8 @@ inductive OpeningUnderlyingMarketCode where
   | chicagoStock -- Chicago Stock
   | nyseEuronext -- Nyse Euronext
   | nyseArca -- Nyse Arca
-  | nasdaqOmx -- Nasdaq Omx
-  | nasdaqOmx_54 -- Nasdaq Omx
+  | nasdaqOmxUtp -- Nasdaq Omx Utp
+  | nasdaqOmxCta -- Nasdaq Omx Cta
   | iex -- Iex
   | nasdaqOmxPhlx -- Nasdaq Omx Phlx
   | batsYExchange -- Bats Y Exchange
@@ -374,8 +374,8 @@ def toByte : OpeningUnderlyingMarketCode → UInt8
   | .chicagoStock => 0x4D
   | .nyseEuronext => 0x4E
   | .nyseArca => 0x50
-  | .nasdaqOmx => 0x51
-  | .nasdaqOmx_54 => 0x54
+  | .nasdaqOmxUtp => 0x51
+  | .nasdaqOmxCta => 0x54
   | .iex => 0x56
   | .nasdaqOmxPhlx => 0x58
   | .batsYExchange => 0x59
@@ -395,8 +395,8 @@ def listed (byte : UInt8) : OpeningUnderlyingMarketCode :=
   else if byte = 0x4D then .chicagoStock
   else if byte = 0x4E then .nyseEuronext
   else if byte = 0x50 then .nyseArca
-  else if byte = 0x51 then .nasdaqOmx
-  else if byte = 0x54 then .nasdaqOmx_54
+  else if byte = 0x51 then .nasdaqOmxUtp
+  else if byte = 0x54 then .nasdaqOmxCta
   else if byte = 0x56 then .iex
   else if byte = 0x58 then .nasdaqOmxPhlx
   else if byte = 0x59 then .batsYExchange
@@ -418,8 +418,8 @@ theorem ofByte_toByte (value : OpeningUnderlyingMarketCode) : ofByte value.toByt
   | chicagoStock => decide
   | nyseEuronext => decide
   | nyseArca => decide
-  | nasdaqOmx => decide
-  | nasdaqOmx_54 => decide
+  | nasdaqOmxUtp => decide
+  | nasdaqOmxCta => decide
   | iex => decide
   | nasdaqOmxPhlx => decide
   | batsYExchange => decide
@@ -708,18 +708,18 @@ inductive TradeCondition where
   | tradeThatIsLateReportOfTheOpeningTradeAndIsOutOfSequence -- Trade That Is Late Report Of The Opening Trade And Is Out Of Sequence
   | cancelOfTheOnlyReportedTrade -- Cancel Of The Only Reported Trade
   | tradeThatIsLateReportOfTheOpeningTradeAndIsInCorrectSequence -- Trade That Is Late Report Of The Opening Trade And Is In Correct Sequence
-  | reservedForFutureUse -- Reserved For Future Use
+  | reservedForFutureUseI -- Reserved For Future Use I
   | tradeDueToReopeningOfAnOptionInWhichTradingHasBeenPreviouslyHalted -- Trade Due To Reopening Of An Option In Which Trading Has Been Previously Halted
-  | reservedForFutureUse_4b -- Reserved For Future Use
-  | reservedForFutureUse_4c -- Reserved For Future Use
-  | reservedForFutureUse_4d -- Reserved For Future Use
-  | reservedForFutureUse_4e -- Reserved For Future Use
-  | reservedForFutureUse_4f -- Reserved For Future Use
-  | reservedForFutureUse_50 -- Reserved For Future Use
-  | reservedForFutureUse_51 -- Reserved For Future Use
+  | reservedForFutureUseK -- Reserved For Future Use K
+  | reservedForFutureUseL -- Reserved For Future Use L
+  | reservedForFutureUseM -- Reserved For Future Use M
+  | reservedForFutureUseN -- Reserved For Future Use N
+  | reservedForFutureUseO -- Reserved For Future Use O
+  | reservedForFutureUseP -- Reserved For Future Use P
+  | reservedForFutureUseQ -- Reserved For Future Use Q
   | tradeWasTheExecutionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop -- Trade Was The Execution Of An Order Which Was Stopped At A Price That Did Not Constitute A Trade Through On Another Market At The Time Of The Stop
   | tradeWasTheExecutionOfAnOrderIdentified -- Trade Was The Execution Of An Order Identified
-  | reservedForFutureUse_54 -- Reserved For Future Use
+  | reservedForFutureUseT -- Reserved For Future Use T
   | tradeThatIsTradeThroughExempt -- Trade That Is Trade Through Exempt
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -736,18 +736,18 @@ def toByte : TradeCondition → UInt8
   | .tradeThatIsLateReportOfTheOpeningTradeAndIsOutOfSequence => 0x46
   | .cancelOfTheOnlyReportedTrade => 0x47
   | .tradeThatIsLateReportOfTheOpeningTradeAndIsInCorrectSequence => 0x48
-  | .reservedForFutureUse => 0x49
+  | .reservedForFutureUseI => 0x49
   | .tradeDueToReopeningOfAnOptionInWhichTradingHasBeenPreviouslyHalted => 0x4A
-  | .reservedForFutureUse_4b => 0x4B
-  | .reservedForFutureUse_4c => 0x4C
-  | .reservedForFutureUse_4d => 0x4D
-  | .reservedForFutureUse_4e => 0x4E
-  | .reservedForFutureUse_4f => 0x4F
-  | .reservedForFutureUse_50 => 0x50
-  | .reservedForFutureUse_51 => 0x51
+  | .reservedForFutureUseK => 0x4B
+  | .reservedForFutureUseL => 0x4C
+  | .reservedForFutureUseM => 0x4D
+  | .reservedForFutureUseN => 0x4E
+  | .reservedForFutureUseO => 0x4F
+  | .reservedForFutureUseP => 0x50
+  | .reservedForFutureUseQ => 0x51
   | .tradeWasTheExecutionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => 0x52
   | .tradeWasTheExecutionOfAnOrderIdentified => 0x53
-  | .reservedForFutureUse_54 => 0x54
+  | .reservedForFutureUseT => 0x54
   | .tradeThatIsTradeThroughExempt => 0x58
   | .unlisted byte => byte.val
 
@@ -762,18 +762,18 @@ def listed (byte : UInt8) : TradeCondition :=
   else if byte = 0x46 then .tradeThatIsLateReportOfTheOpeningTradeAndIsOutOfSequence
   else if byte = 0x47 then .cancelOfTheOnlyReportedTrade
   else if byte = 0x48 then .tradeThatIsLateReportOfTheOpeningTradeAndIsInCorrectSequence
-  else if byte = 0x49 then .reservedForFutureUse
+  else if byte = 0x49 then .reservedForFutureUseI
   else if byte = 0x4A then .tradeDueToReopeningOfAnOptionInWhichTradingHasBeenPreviouslyHalted
-  else if byte = 0x4B then .reservedForFutureUse_4b
-  else if byte = 0x4C then .reservedForFutureUse_4c
-  else if byte = 0x4D then .reservedForFutureUse_4d
-  else if byte = 0x4E then .reservedForFutureUse_4e
-  else if byte = 0x4F then .reservedForFutureUse_4f
-  else if byte = 0x50 then .reservedForFutureUse_50
-  else if byte = 0x51 then .reservedForFutureUse_51
+  else if byte = 0x4B then .reservedForFutureUseK
+  else if byte = 0x4C then .reservedForFutureUseL
+  else if byte = 0x4D then .reservedForFutureUseM
+  else if byte = 0x4E then .reservedForFutureUseN
+  else if byte = 0x4F then .reservedForFutureUseO
+  else if byte = 0x50 then .reservedForFutureUseP
+  else if byte = 0x51 then .reservedForFutureUseQ
   else if byte = 0x52 then .tradeWasTheExecutionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop
   else if byte = 0x53 then .tradeWasTheExecutionOfAnOrderIdentified
-  else if byte = 0x54 then .reservedForFutureUse_54
+  else if byte = 0x54 then .reservedForFutureUseT
   else .tradeThatIsTradeThroughExempt
 
 def ofByte (byte : UInt8) : TradeCondition :=
@@ -790,18 +790,18 @@ theorem ofByte_toByte (value : TradeCondition) : ofByte value.toByte = value := 
   | tradeThatIsLateReportOfTheOpeningTradeAndIsOutOfSequence => decide
   | cancelOfTheOnlyReportedTrade => decide
   | tradeThatIsLateReportOfTheOpeningTradeAndIsInCorrectSequence => decide
-  | reservedForFutureUse => decide
+  | reservedForFutureUseI => decide
   | tradeDueToReopeningOfAnOptionInWhichTradingHasBeenPreviouslyHalted => decide
-  | reservedForFutureUse_4b => decide
-  | reservedForFutureUse_4c => decide
-  | reservedForFutureUse_4d => decide
-  | reservedForFutureUse_4e => decide
-  | reservedForFutureUse_4f => decide
-  | reservedForFutureUse_50 => decide
-  | reservedForFutureUse_51 => decide
+  | reservedForFutureUseK => decide
+  | reservedForFutureUseL => decide
+  | reservedForFutureUseM => decide
+  | reservedForFutureUseN => decide
+  | reservedForFutureUseO => decide
+  | reservedForFutureUseP => decide
+  | reservedForFutureUseQ => decide
   | tradeWasTheExecutionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => decide
   | tradeWasTheExecutionOfAnOrderIdentified => decide
-  | reservedForFutureUse_54 => decide
+  | reservedForFutureUseT => decide
   | tradeThatIsTradeThroughExempt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

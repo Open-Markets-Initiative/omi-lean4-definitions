@@ -1625,7 +1625,7 @@ structure StatusInformationMessage where
   reserved2 : Alpha 2
   changeFlag : ChangeFlag
   statusInformation : StatusInformation
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   reserved4 : Alpha 4
   deriving DecidableEq, Repr
 
@@ -1635,16 +1635,16 @@ def encode (message : StatusInformationMessage) : List UInt8 :=
   Alpha.encode message.reserved2
     ++ (ChangeFlag.encode message.changeFlag
     ++ (StatusInformation.encode message.statusInformation
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (Alpha.encode message.reserved4))))
 
 def decode (bytes : List UInt8) : Option (StatusInformationMessage × List UInt8) := do
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
   let (statusInformation, bytes) ← StatusInformation.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (reserved4, bytes) ← Alpha.decode 4 bytes
-  pure ({ reserved2, changeFlag, statusInformation, timeC12, reserved4 }, bytes)
+  pure ({ reserved2, changeFlag, statusInformation, preciseTime, reserved4 }, bytes)
 
 @[simp] theorem encode_length (message : StatusInformationMessage) : (encode message).length = 24 := by
   unfold encode
@@ -1673,7 +1673,7 @@ end StatusInformationMessage
 /-- Price: 16 bytes -/
 structure Price where
   unitFlag : UnitFlag
-  priceC14 : Alpha 14
+  priceValue : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -1681,14 +1681,14 @@ namespace Price
 
 def encode (message : Price) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.priceC14
+    ++ (Alpha.encode message.priceValue
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (Price × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (priceC14, bytes) ← Alpha.decode 14 bytes
+  let (priceValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, priceC14, sign }, bytes)
+  pure ({ unitFlag, priceValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : Price) : (encode message).length = 16 := by
   unfold encode
@@ -1713,7 +1713,7 @@ end Price
 /-- Open: 23 bytes -/
 structure Open where
   price : Price
-  timeC6 : Alpha 6
+  time : Alpha 6
   changeFlag : ChangeFlag
   deriving DecidableEq, Repr
 
@@ -1721,14 +1721,14 @@ namespace Open
 
 def encode (message : Open) : List UInt8 :=
   Price.encode message.price
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (ChangeFlag.encode message.changeFlag))
 
 def decode (bytes : List UInt8) : Option (Open × List UInt8) := do
   let (price, bytes) ← Price.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  pure ({ price, timeC6, changeFlag }, bytes)
+  pure ({ price, time, changeFlag }, bytes)
 
 @[simp] theorem encode_length (message : Open) : (encode message).length = 23 := by
   unfold encode
@@ -1754,7 +1754,7 @@ end Open
 structure High where
   limitUpFlag : LimitUpFlag
   price : Price
-  timeC6 : Alpha 6
+  time : Alpha 6
   changeFlag : ChangeFlag
   deriving DecidableEq, Repr
 
@@ -1763,15 +1763,15 @@ namespace High
 def encode (message : High) : List UInt8 :=
   LimitUpFlag.encode message.limitUpFlag
     ++ (Price.encode message.price
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (ChangeFlag.encode message.changeFlag)))
 
 def decode (bytes : List UInt8) : Option (High × List UInt8) := do
   let (limitUpFlag, bytes) ← LimitUpFlag.decode bytes
   let (price, bytes) ← Price.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  pure ({ limitUpFlag, price, timeC6, changeFlag }, bytes)
+  pure ({ limitUpFlag, price, time, changeFlag }, bytes)
 
 @[simp] theorem encode_length (message : High) : (encode message).length = 24 := by
   unfold encode
@@ -1799,7 +1799,7 @@ end High
 structure Low where
   limitDownFlag : LimitDownFlag
   price : Price
-  timeC6 : Alpha 6
+  time : Alpha 6
   changeFlag : ChangeFlag
   deriving DecidableEq, Repr
 
@@ -1808,15 +1808,15 @@ namespace Low
 def encode (message : Low) : List UInt8 :=
   LimitDownFlag.encode message.limitDownFlag
     ++ (Price.encode message.price
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (ChangeFlag.encode message.changeFlag)))
 
 def decode (bytes : List UInt8) : Option (Low × List UInt8) := do
   let (limitDownFlag, bytes) ← LimitDownFlag.decode bytes
   let (price, bytes) ← Price.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  pure ({ limitDownFlag, price, timeC6, changeFlag }, bytes)
+  pure ({ limitDownFlag, price, time, changeFlag }, bytes)
 
 @[simp] theorem encode_length (message : Low) : (encode message).length = 24 := by
   unfold encode
@@ -1843,7 +1843,7 @@ end Low
 /-- Current: 32 bytes -/
 structure Current where
   price : Price
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   currentChangeFlag : CurrentChangeFlag
   stqReferencePointFlag : StqReferencePointFlag
   reserved1 : Alpha 1
@@ -1854,7 +1854,7 @@ namespace Current
 
 def encode (message : Current) : List UInt8 :=
   Price.encode message.price
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (CurrentChangeFlag.encode message.currentChangeFlag
     ++ (StqReferencePointFlag.encode message.stqReferencePointFlag
     ++ (Alpha.encode message.reserved1
@@ -1862,12 +1862,12 @@ def encode (message : Current) : List UInt8 :=
 
 def decode (bytes : List UInt8) : Option (Current × List UInt8) := do
   let (price, bytes) ← Price.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (currentChangeFlag, bytes) ← CurrentChangeFlag.decode bytes
   let (stqReferencePointFlag, bytes) ← StqReferencePointFlag.decode bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (closingPriceInputFlag, bytes) ← ClosingPriceInputFlag.decode bytes
-  pure ({ price, timeC12, currentChangeFlag, stqReferencePointFlag, reserved1, closingPriceInputFlag }, bytes)
+  pure ({ price, preciseTime, currentChangeFlag, stqReferencePointFlag, reserved1, closingPriceInputFlag }, bytes)
 
 @[simp] theorem encode_length (message : Current) : (encode message).length = 32 := by
   unfold encode
@@ -1989,7 +1989,7 @@ end QuoteQuantity
 structure AskQuote where
   changeFlag : ChangeFlag
   price : Price
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteFlag : QuoteFlag
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
@@ -1999,17 +1999,17 @@ namespace AskQuote
 def encode (message : AskQuote) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
     ++ (Price.encode message.price
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteFlag.encode message.quoteFlag
     ++ (QuoteQuantity.encode message.quoteQuantity))))
 
 def decode (bytes : List UInt8) : Option (AskQuote × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
   let (price, bytes) ← Price.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteFlag, bytes) ← QuoteFlag.decode bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, price, timeC12, quoteFlag, quoteQuantity }, bytes)
+  pure ({ changeFlag, price, preciseTime, quoteFlag, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : AskQuote) : (encode message).length = 46 := by
   unfold encode
@@ -2039,7 +2039,7 @@ end AskQuote
 structure BidQuote where
   changeFlag : ChangeFlag
   price : Price
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteFlag : QuoteFlag
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
@@ -2049,17 +2049,17 @@ namespace BidQuote
 def encode (message : BidQuote) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
     ++ (Price.encode message.price
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteFlag.encode message.quoteFlag
     ++ (QuoteQuantity.encode message.quoteQuantity))))
 
 def decode (bytes : List UInt8) : Option (BidQuote × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
   let (price, bytes) ← Price.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteFlag, bytes) ← QuoteFlag.decode bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, price, timeC12, quoteFlag, quoteQuantity }, bytes)
+  pure ({ changeFlag, price, preciseTime, quoteFlag, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : BidQuote) : (encode message).length = 46 := by
   unfold encode
@@ -2488,7 +2488,7 @@ end Quote10Message
 /-- Sell Order: 29 bytes -/
 structure SellOrder where
   changeFlag : ChangeFlag
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
 
@@ -2496,14 +2496,14 @@ namespace SellOrder
 
 def encode (message : SellOrder) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteQuantity.encode message.quoteQuantity))
 
 def decode (bytes : List UInt8) : Option (SellOrder × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, timeC12, quoteQuantity }, bytes)
+  pure ({ changeFlag, preciseTime, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : SellOrder) : (encode message).length = 29 := by
   unfold encode
@@ -2528,7 +2528,7 @@ end SellOrder
 /-- Buy Order: 29 bytes -/
 structure BuyOrder where
   changeFlag : ChangeFlag
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
 
@@ -2536,14 +2536,14 @@ namespace BuyOrder
 
 def encode (message : BuyOrder) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteQuantity.encode message.quoteQuantity))
 
 def decode (bytes : List UInt8) : Option (BuyOrder × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, timeC12, quoteQuantity }, bytes)
+  pure ({ changeFlag, preciseTime, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : BuyOrder) : (encode message).length = 29 := by
   unfold encode
@@ -2608,7 +2608,7 @@ end MarketOrderMessage
 /-- Over Quote: 29 bytes -/
 structure OverQuote where
   changeFlag : ChangeFlag
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
 
@@ -2616,14 +2616,14 @@ namespace OverQuote
 
 def encode (message : OverQuote) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteQuantity.encode message.quoteQuantity))
 
 def decode (bytes : List UInt8) : Option (OverQuote × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, timeC12, quoteQuantity }, bytes)
+  pure ({ changeFlag, preciseTime, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : OverQuote) : (encode message).length = 29 := by
   unfold encode
@@ -2648,7 +2648,7 @@ end OverQuote
 /-- Under Quote: 29 bytes -/
 structure UnderQuote where
   changeFlag : ChangeFlag
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   quoteQuantity : QuoteQuantity
   deriving DecidableEq, Repr
 
@@ -2656,14 +2656,14 @@ namespace UnderQuote
 
 def encode (message : UnderQuote) : List UInt8 :=
   ChangeFlag.encode message.changeFlag
-    ++ (Alpha.encode message.timeC12
+    ++ (Alpha.encode message.preciseTime
     ++ (QuoteQuantity.encode message.quoteQuantity))
 
 def decode (bytes : List UInt8) : Option (UnderQuote × List UInt8) := do
   let (changeFlag, bytes) ← ChangeFlag.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
   let (quoteQuantity, bytes) ← QuoteQuantity.decode bytes
-  pure ({ changeFlag, timeC12, quoteQuantity }, bytes)
+  pure ({ changeFlag, preciseTime, quoteQuantity }, bytes)
 
 @[simp] theorem encode_length (message : UnderQuote) : (encode message).length = 29 := by
   unfold encode
@@ -2729,8 +2729,8 @@ end OverUnderMessage
 structure TradingVolume where
   reserved1 : Alpha 1
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  tradingVolumeC14 : Alpha 14
-  timeC6 : Alpha 6
+  tradingVolumeValue : Alpha 14
+  time : Alpha 6
   secondReserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -2739,17 +2739,17 @@ namespace TradingVolume
 def encode (message : TradingVolume) : List UInt8 :=
   Alpha.encode message.reserved1
     ++ (TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.tradingVolumeC14
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.tradingVolumeValue
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.secondReserved1))))
 
 def decode (bytes : List UInt8) : Option (TradingVolume × List UInt8) := do
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (tradingVolumeC14, bytes) ← Alpha.decode 14 bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (tradingVolumeValue, bytes) ← Alpha.decode 14 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reserved1, tradingVolumeTurnoverUnitFlag, tradingVolumeC14, timeC6, secondReserved1 }, bytes)
+  pure ({ reserved1, tradingVolumeTurnoverUnitFlag, tradingVolumeValue, time, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : TradingVolume) : (encode message).length = 23 := by
   unfold encode
@@ -2815,7 +2815,7 @@ structure TurnoverInYenValue where
   reserved1 : Alpha 1
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
   turnoverValue : Alpha 14
-  timeC6 : Alpha 6
+  time : Alpha 6
   secondReserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -2825,16 +2825,16 @@ def encode (message : TurnoverInYenValue) : List UInt8 :=
   Alpha.encode message.reserved1
     ++ (TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
     ++ (Alpha.encode message.turnoverValue
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.secondReserved1))))
 
 def decode (bytes : List UInt8) : Option (TurnoverInYenValue × List UInt8) := do
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
   let (turnoverValue, bytes) ← Alpha.decode 14 bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reserved1, tradingVolumeTurnoverUnitFlag, turnoverValue, timeC6, secondReserved1 }, bytes)
+  pure ({ reserved1, tradingVolumeTurnoverUnitFlag, turnoverValue, time, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : TurnoverInYenValue) : (encode message).length = 23 := by
   unfold encode
@@ -2899,9 +2899,9 @@ end TurnoverMessage
 structure AllDayVwap where
   reserved1 : Alpha 1
   lotSizeUnitFlag : LotSizeUnitFlag
-  allDayVwapC14 : Alpha 14
+  allDayVwapValue : Alpha 14
   sign : Sign
-  timeC6 : Alpha 6
+  time : Alpha 6
   secondReserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -2910,19 +2910,19 @@ namespace AllDayVwap
 def encode (message : AllDayVwap) : List UInt8 :=
   Alpha.encode message.reserved1
     ++ (LotSizeUnitFlag.encode message.lotSizeUnitFlag
-    ++ (Alpha.encode message.allDayVwapC14
+    ++ (Alpha.encode message.allDayVwapValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.secondReserved1)))))
 
 def decode (bytes : List UInt8) : Option (AllDayVwap × List UInt8) := do
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (lotSizeUnitFlag, bytes) ← LotSizeUnitFlag.decode bytes
-  let (allDayVwapC14, bytes) ← Alpha.decode 14 bytes
+  let (allDayVwapValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reserved1, lotSizeUnitFlag, allDayVwapC14, sign, timeC6, secondReserved1 }, bytes)
+  pure ({ reserved1, lotSizeUnitFlag, allDayVwapValue, sign, time, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : AllDayVwap) : (encode message).length = 24 := by
   unfold encode
@@ -2954,9 +2954,9 @@ end AllDayVwap
 structure CurrentSessionVwap where
   reserved1 : Alpha 1
   lotSizeUnitFlag : LotSizeUnitFlag
-  currentSessionVwapC14 : Alpha 14
+  currentSessionVwapValue : Alpha 14
   sign : Sign
-  timeC6 : Alpha 6
+  time : Alpha 6
   secondReserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -2965,19 +2965,19 @@ namespace CurrentSessionVwap
 def encode (message : CurrentSessionVwap) : List UInt8 :=
   Alpha.encode message.reserved1
     ++ (LotSizeUnitFlag.encode message.lotSizeUnitFlag
-    ++ (Alpha.encode message.currentSessionVwapC14
+    ++ (Alpha.encode message.currentSessionVwapValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.secondReserved1)))))
 
 def decode (bytes : List UInt8) : Option (CurrentSessionVwap × List UInt8) := do
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (lotSizeUnitFlag, bytes) ← LotSizeUnitFlag.decode bytes
-  let (currentSessionVwapC14, bytes) ← Alpha.decode 14 bytes
+  let (currentSessionVwapValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reserved1, lotSizeUnitFlag, currentSessionVwapC14, sign, timeC6, secondReserved1 }, bytes)
+  pure ({ reserved1, lotSizeUnitFlag, currentSessionVwapValue, sign, time, secondReserved1 }, bytes)
 
 @[simp] theorem encode_length (message : CurrentSessionVwap) : (encode message).length = 24 := by
   unfold encode
@@ -3048,9 +3048,9 @@ end VwapMessage
 /-- Parity Estimated Price: 23 bytes -/
 structure ParityEstimatedPrice where
   unitFlag : UnitFlag
-  parityEstimatedPriceC14 : Alpha 14
+  parityEstimatedPriceValue : Alpha 14
   sign : Sign
-  timeC6 : Alpha 6
+  time : Alpha 6
   reserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -3058,18 +3058,18 @@ namespace ParityEstimatedPrice
 
 def encode (message : ParityEstimatedPrice) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.parityEstimatedPriceC14
+    ++ (Alpha.encode message.parityEstimatedPriceValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.reserved1))))
 
 def decode (bytes : List UInt8) : Option (ParityEstimatedPrice × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (parityEstimatedPriceC14, bytes) ← Alpha.decode 14 bytes
+  let (parityEstimatedPriceValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ unitFlag, parityEstimatedPriceC14, sign, timeC6, reserved1 }, bytes)
+  pure ({ unitFlag, parityEstimatedPriceValue, sign, time, reserved1 }, bytes)
 
 @[simp] theorem encode_length (message : ParityEstimatedPrice) : (encode message).length = 23 := by
   unfold encode
@@ -3132,20 +3132,20 @@ end ParityMessage
 
 /-- Direct Yield: 9 bytes -/
 structure DirectYield where
-  directYieldC8 : Alpha 8
+  directYieldValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace DirectYield
 
 def encode (message : DirectYield) : List UInt8 :=
-  Alpha.encode message.directYieldC8
+  Alpha.encode message.directYieldValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (DirectYield × List UInt8) := do
-  let (directYieldC8, bytes) ← Alpha.decode 8 bytes
+  let (directYieldValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ directYieldC8, sign }, bytes)
+  pure ({ directYieldValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : DirectYield) : (encode message).length = 9 := by
   unfold encode
@@ -3167,20 +3167,20 @@ end DirectYield
 
 /-- Final Yield: 9 bytes -/
 structure FinalYield where
-  finalYieldC8 : Alpha 8
+  finalYieldValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace FinalYield
 
 def encode (message : FinalYield) : List UInt8 :=
-  Alpha.encode message.finalYieldC8
+  Alpha.encode message.finalYieldValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (FinalYield × List UInt8) := do
-  let (finalYieldC8, bytes) ← Alpha.decode 8 bytes
+  let (finalYieldValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ finalYieldC8, sign }, bytes)
+  pure ({ finalYieldValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : FinalYield) : (encode message).length = 9 := by
   unfold encode
@@ -3205,7 +3205,7 @@ structure YieldMessage where
   reserved2 : Alpha 2
   directYield : DirectYield
   finalYield : FinalYield
-  timeC6 : Alpha 6
+  time : Alpha 6
   reserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -3215,16 +3215,16 @@ def encode (message : YieldMessage) : List UInt8 :=
   Alpha.encode message.reserved2
     ++ (DirectYield.encode message.directYield
     ++ (FinalYield.encode message.finalYield
-    ++ (Alpha.encode message.timeC6
+    ++ (Alpha.encode message.time
     ++ (Alpha.encode message.reserved1))))
 
 def decode (bytes : List UInt8) : Option (YieldMessage × List UInt8) := do
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (directYield, bytes) ← DirectYield.decode bytes
   let (finalYield, bytes) ← FinalYield.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
+  let (time, bytes) ← Alpha.decode 6 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ reserved2, directYield, finalYield, timeC6, reserved1 }, bytes)
+  pure ({ reserved2, directYield, finalYield, time, reserved1 }, bytes)
 
 @[simp] theorem encode_length (message : YieldMessage) : (encode message).length = 27 := by
   unfold encode
@@ -3255,7 +3255,7 @@ structure ControlMessage where
   reserved2 : Alpha 2
   testModeFlag : TestModeFlag
   startEndFlag : StartEndFlag
-  timeC6 : Alpha 6
+  time : Alpha 6
   deriving DecidableEq, Repr
 
 namespace ControlMessage
@@ -3264,14 +3264,14 @@ def encode (message : ControlMessage) : List UInt8 :=
   Alpha.encode message.reserved2
     ++ (TestModeFlag.encode message.testModeFlag
     ++ (StartEndFlag.encode message.startEndFlag
-    ++ (Alpha.encode message.timeC6)))
+    ++ (Alpha.encode message.time)))
 
 def decode (bytes : List UInt8) : Option (ControlMessage × List UInt8) := do
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (testModeFlag, bytes) ← TestModeFlag.decode bytes
   let (startEndFlag, bytes) ← StartEndFlag.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
-  pure ({ reserved2, testModeFlag, startEndFlag, timeC6 }, bytes)
+  let (time, bytes) ← Alpha.decode 6 bytes
+  pure ({ reserved2, testModeFlag, startEndFlag, time }, bytes)
 
 @[simp] theorem encode_length (message : ControlMessage) : (encode message).length = 10 := by
   unfold encode

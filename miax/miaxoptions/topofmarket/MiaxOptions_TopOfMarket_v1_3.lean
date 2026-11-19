@@ -578,18 +578,18 @@ inductive TradeCondition where
   | lateReportOfTheOpeningTradeAndIsOutOfSequence -- Late Report Of The Opening Trade And Is Out Of Sequence
   | cancelOfTheOnlyReportedTrade -- Cancel Of The Only Reported Trade
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence -- Late Report Of The Opening Trade And Is In Correct Sequence
-  | reserved -- Reserved
+  | reservedI -- Reserved I
   | reopeningOfAnOption -- Reopening Of An Option
-  | reserved_4b -- Reserved
-  | reserved_4c -- Reserved
-  | reserved_4d -- Reserved
-  | reserved_4e -- Reserved
-  | reserved_4f -- Reserved
-  | reserved_50 -- Reserved
-  | reserved_51 -- Reserved
+  | reservedK -- Reserved K
+  | reservedL -- Reserved L
+  | reservedM -- Reserved M
+  | reservedN -- Reserved N
+  | reservedO -- Reserved O
+  | reservedP -- Reserved P
+  | reservedQ -- Reserved Q
   | executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop -- Execution Of An Order Which Was Stopped At A Price That Did Not Constitute A Trade Through On Another Market At The Time Of The Stop
   | executionOfAnIsoOrder -- Execution Of An Iso Order
-  | reserved_54 -- Reserved
+  | reservedT -- Reserved T
   | tradeThroughExempt -- Trade Through Exempt
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -606,18 +606,18 @@ def toByte : TradeCondition → UInt8
   | .lateReportOfTheOpeningTradeAndIsOutOfSequence => 0x46
   | .cancelOfTheOnlyReportedTrade => 0x47
   | .lateReportOfTheOpeningTradeAndIsInCorrectSequence => 0x48
-  | .reserved => 0x49
+  | .reservedI => 0x49
   | .reopeningOfAnOption => 0x4A
-  | .reserved_4b => 0x4B
-  | .reserved_4c => 0x4C
-  | .reserved_4d => 0x4D
-  | .reserved_4e => 0x4E
-  | .reserved_4f => 0x4F
-  | .reserved_50 => 0x50
-  | .reserved_51 => 0x51
+  | .reservedK => 0x4B
+  | .reservedL => 0x4C
+  | .reservedM => 0x4D
+  | .reservedN => 0x4E
+  | .reservedO => 0x4F
+  | .reservedP => 0x50
+  | .reservedQ => 0x51
   | .executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => 0x52
   | .executionOfAnIsoOrder => 0x53
-  | .reserved_54 => 0x54
+  | .reservedT => 0x54
   | .tradeThroughExempt => 0x58
   | .unlisted byte => byte.val
 
@@ -632,18 +632,18 @@ def listed (byte : UInt8) : TradeCondition :=
   else if byte = 0x46 then .lateReportOfTheOpeningTradeAndIsOutOfSequence
   else if byte = 0x47 then .cancelOfTheOnlyReportedTrade
   else if byte = 0x48 then .lateReportOfTheOpeningTradeAndIsInCorrectSequence
-  else if byte = 0x49 then .reserved
+  else if byte = 0x49 then .reservedI
   else if byte = 0x4A then .reopeningOfAnOption
-  else if byte = 0x4B then .reserved_4b
-  else if byte = 0x4C then .reserved_4c
-  else if byte = 0x4D then .reserved_4d
-  else if byte = 0x4E then .reserved_4e
-  else if byte = 0x4F then .reserved_4f
-  else if byte = 0x50 then .reserved_50
-  else if byte = 0x51 then .reserved_51
+  else if byte = 0x4B then .reservedK
+  else if byte = 0x4C then .reservedL
+  else if byte = 0x4D then .reservedM
+  else if byte = 0x4E then .reservedN
+  else if byte = 0x4F then .reservedO
+  else if byte = 0x50 then .reservedP
+  else if byte = 0x51 then .reservedQ
   else if byte = 0x52 then .executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop
   else if byte = 0x53 then .executionOfAnIsoOrder
-  else if byte = 0x54 then .reserved_54
+  else if byte = 0x54 then .reservedT
   else .tradeThroughExempt
 
 def ofByte (byte : UInt8) : TradeCondition :=
@@ -660,18 +660,18 @@ theorem ofByte_toByte (value : TradeCondition) : ofByte value.toByte = value := 
   | lateReportOfTheOpeningTradeAndIsOutOfSequence => decide
   | cancelOfTheOnlyReportedTrade => decide
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence => decide
-  | reserved => decide
+  | reservedI => decide
   | reopeningOfAnOption => decide
-  | reserved_4b => decide
-  | reserved_4c => decide
-  | reserved_4d => decide
-  | reserved_4e => decide
-  | reserved_4f => decide
-  | reserved_50 => decide
-  | reserved_51 => decide
+  | reservedK => decide
+  | reservedL => decide
+  | reservedM => decide
+  | reservedN => decide
+  | reservedO => decide
+  | reservedP => decide
+  | reservedQ => decide
   | executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => decide
   | executionOfAnIsoOrder => decide
-  | reserved_54 => decide
+  | reservedT => decide
   | tradeThroughExempt => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

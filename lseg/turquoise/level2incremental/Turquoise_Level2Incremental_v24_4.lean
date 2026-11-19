@@ -201,16 +201,11 @@ end AuctionType
 
 /-- Trade Qualifier: one byte code -/
 def TradeQualifier.codes : List UInt8 :=
-  [0x20, 0x54, 0x41, 0x42, 0x45, 0x46, 0x47]
+  [0x20, 0x54]
 
 inductive TradeQualifier where
   | notApplicable -- Not Applicable
   | tradeAtLast -- Trade At Last
-  | aesp -- Aesp
-  | edsp -- Edsp
-  | resumeAuction -- Resume Auction
-  | periodicAuction -- Periodic Auction
-  | scheduledLevel1OnlyAuction -- Scheduled Level 1 Only Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeQualifier.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -219,22 +214,12 @@ namespace TradeQualifier
 def toByte : TradeQualifier → UInt8
   | .notApplicable => 0x20
   | .tradeAtLast => 0x54
-  | .aesp => 0x41
-  | .edsp => 0x42
-  | .resumeAuction => 0x45
-  | .periodicAuction => 0x46
-  | .scheduledLevel1OnlyAuction => 0x47
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradeQualifier :=
   if byte = 0x20 then .notApplicable
-  else if byte = 0x54 then .tradeAtLast
-  else if byte = 0x41 then .aesp
-  else if byte = 0x42 then .edsp
-  else if byte = 0x45 then .resumeAuction
-  else if byte = 0x46 then .periodicAuction
-  else .scheduledLevel1OnlyAuction
+  else .tradeAtLast
 
 def ofByte (byte : UInt8) : TradeQualifier :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -243,11 +228,6 @@ theorem ofByte_toByte (value : TradeQualifier) : ofByte value.toByte = value := 
   cases value with
   | notApplicable => decide
   | tradeAtLast => decide
-  | aesp => decide
-  | edsp => decide
-  | resumeAuction => decide
-  | periodicAuction => decide
-  | scheduledLevel1OnlyAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeQualifier) : List UInt8 :=

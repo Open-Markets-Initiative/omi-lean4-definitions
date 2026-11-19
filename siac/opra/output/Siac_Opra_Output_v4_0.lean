@@ -145,7 +145,7 @@ inductive ParticipantId where
   | bostonOptionsExchange -- Boston Options Exchange
   | cboeOptionsExchange -- Cboe Options Exchange
   | miaxEmerald -- Miax Emerald
-  | cboeEdgxOptions -- Cboe Edgx Options
+  | cboeEdgxOptionsExchange -- Cboe EDGX Options Exchange
   | nasdaqGemx -- Nasdaq Gemx
   | nasdaqIse -- Nasdaq Ise
   | nasdaqMrx -- Nasdaq Mrx
@@ -155,7 +155,7 @@ inductive ParticipantId where
   | miaxPearl -- Miax Pearl
   | nasdaqOptionsMarket -- Nasdaq Options Market
   | nasdaqBxOptions -- Nasdaq Bx Options
-  | cboeC2Options -- Cboe C 2 Options
+  | cboeC2OptionsExchange -- Cboe C2 Options Exchange
   | nasdaqPhlx -- Nasdaq Phlx
   | cboeBzxOptionsExchange -- Cboe Bzx Options Exchange
   | unlisted (byte : { byte : UInt8 // byte ∉ ParticipantId.codes }) -- any other code, kept as it is
@@ -168,7 +168,7 @@ def toByte : ParticipantId → UInt8
   | .bostonOptionsExchange => 0x42
   | .cboeOptionsExchange => 0x43
   | .miaxEmerald => 0x44
-  | .cboeEdgxOptions => 0x45
+  | .cboeEdgxOptionsExchange => 0x45
   | .nasdaqGemx => 0x48
   | .nasdaqIse => 0x49
   | .nasdaqMrx => 0x4A
@@ -178,7 +178,7 @@ def toByte : ParticipantId → UInt8
   | .miaxPearl => 0x50
   | .nasdaqOptionsMarket => 0x51
   | .nasdaqBxOptions => 0x54
-  | .cboeC2Options => 0x57
+  | .cboeC2OptionsExchange => 0x57
   | .nasdaqPhlx => 0x58
   | .cboeBzxOptionsExchange => 0x5A
   | .unlisted byte => byte.val
@@ -189,7 +189,7 @@ def listed (byte : UInt8) : ParticipantId :=
   else if byte = 0x42 then .bostonOptionsExchange
   else if byte = 0x43 then .cboeOptionsExchange
   else if byte = 0x44 then .miaxEmerald
-  else if byte = 0x45 then .cboeEdgxOptions
+  else if byte = 0x45 then .cboeEdgxOptionsExchange
   else if byte = 0x48 then .nasdaqGemx
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .nasdaqMrx
@@ -199,7 +199,7 @@ def listed (byte : UInt8) : ParticipantId :=
   else if byte = 0x50 then .miaxPearl
   else if byte = 0x51 then .nasdaqOptionsMarket
   else if byte = 0x54 then .nasdaqBxOptions
-  else if byte = 0x57 then .cboeC2Options
+  else if byte = 0x57 then .cboeC2OptionsExchange
   else if byte = 0x58 then .nasdaqPhlx
   else .cboeBzxOptionsExchange
 
@@ -212,7 +212,7 @@ theorem ofByte_toByte (value : ParticipantId) : ofByte value.toByte = value := b
   | bostonOptionsExchange => decide
   | cboeOptionsExchange => decide
   | miaxEmerald => decide
-  | cboeEdgxOptions => decide
+  | cboeEdgxOptionsExchange => decide
   | nasdaqGemx => decide
   | nasdaqIse => decide
   | nasdaqMrx => decide
@@ -222,7 +222,7 @@ theorem ofByte_toByte (value : ParticipantId) : ofByte value.toByte = value := b
   | miaxPearl => decide
   | nasdaqOptionsMarket => decide
   | nasdaqBxOptions => decide
-  | cboeC2Options => decide
+  | cboeC2OptionsExchange => decide
   | nasdaqPhlx => decide
   | cboeBzxOptionsExchange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -252,118 +252,118 @@ def ExpirationMonth.codes : List UInt8 :=
   [0x41, 0x4D, 0x42, 0x4E, 0x43, 0x4F, 0x44, 0x50, 0x45, 0x51, 0x46, 0x52, 0x47, 0x53, 0x48, 0x54, 0x49, 0x55, 0x4A, 0x56, 0x4B, 0x57, 0x4C, 0x58]
 
 inductive ExpirationMonth where
-  | january -- January
-  | january_4d -- January
-  | february -- February
-  | february_4e -- February
-  | march -- March
-  | march_4f -- March
-  | april -- April
-  | april_50 -- April
-  | may -- May
-  | may_51 -- May
-  | june -- June
-  | june_52 -- June
-  | july -- July
-  | july_53 -- July
-  | august -- August
-  | august_54 -- August
-  | september -- September
-  | september_55 -- September
-  | october -- October
-  | october_56 -- October
-  | november -- November
-  | november_57 -- November
-  | december -- December
-  | december_58 -- December
+  | januaryCall -- January Call
+  | januaryPut -- January Put
+  | februaryCall -- February Call
+  | februaryPut -- February Put
+  | marchCall -- March Call
+  | marchPut -- March Put
+  | aprilCall -- April Call
+  | aprilPut -- April Put
+  | mayCall -- May Call
+  | mayPut -- May Put
+  | juneCall -- June Call
+  | junePut -- June Put
+  | julyCall -- July Call
+  | julyPut -- July Put
+  | augustCall -- August Call
+  | augustPut -- August Put
+  | septemberCall -- September Call
+  | septemberPut -- September Put
+  | octoberCall -- October Call
+  | octoberPut -- October Put
+  | novemberCall -- November Call
+  | novemberPut -- November Put
+  | decemberCall -- December Call
+  | decemberPut -- December Put
   | unlisted (byte : { byte : UInt8 // byte ∉ ExpirationMonth.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace ExpirationMonth
 
 def toByte : ExpirationMonth → UInt8
-  | .january => 0x41
-  | .january_4d => 0x4D
-  | .february => 0x42
-  | .february_4e => 0x4E
-  | .march => 0x43
-  | .march_4f => 0x4F
-  | .april => 0x44
-  | .april_50 => 0x50
-  | .may => 0x45
-  | .may_51 => 0x51
-  | .june => 0x46
-  | .june_52 => 0x52
-  | .july => 0x47
-  | .july_53 => 0x53
-  | .august => 0x48
-  | .august_54 => 0x54
-  | .september => 0x49
-  | .september_55 => 0x55
-  | .october => 0x4A
-  | .october_56 => 0x56
-  | .november => 0x4B
-  | .november_57 => 0x57
-  | .december => 0x4C
-  | .december_58 => 0x58
+  | .januaryCall => 0x41
+  | .januaryPut => 0x4D
+  | .februaryCall => 0x42
+  | .februaryPut => 0x4E
+  | .marchCall => 0x43
+  | .marchPut => 0x4F
+  | .aprilCall => 0x44
+  | .aprilPut => 0x50
+  | .mayCall => 0x45
+  | .mayPut => 0x51
+  | .juneCall => 0x46
+  | .junePut => 0x52
+  | .julyCall => 0x47
+  | .julyPut => 0x53
+  | .augustCall => 0x48
+  | .augustPut => 0x54
+  | .septemberCall => 0x49
+  | .septemberPut => 0x55
+  | .octoberCall => 0x4A
+  | .octoberPut => 0x56
+  | .novemberCall => 0x4B
+  | .novemberPut => 0x57
+  | .decemberCall => 0x4C
+  | .decemberPut => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ExpirationMonth :=
-  if byte = 0x41 then .january
-  else if byte = 0x4D then .january_4d
-  else if byte = 0x42 then .february
-  else if byte = 0x4E then .february_4e
-  else if byte = 0x43 then .march
-  else if byte = 0x4F then .march_4f
-  else if byte = 0x44 then .april
-  else if byte = 0x50 then .april_50
-  else if byte = 0x45 then .may
-  else if byte = 0x51 then .may_51
-  else if byte = 0x46 then .june
-  else if byte = 0x52 then .june_52
-  else if byte = 0x47 then .july
-  else if byte = 0x53 then .july_53
-  else if byte = 0x48 then .august
-  else if byte = 0x54 then .august_54
-  else if byte = 0x49 then .september
-  else if byte = 0x55 then .september_55
-  else if byte = 0x4A then .october
-  else if byte = 0x56 then .october_56
-  else if byte = 0x4B then .november
-  else if byte = 0x57 then .november_57
-  else if byte = 0x4C then .december
-  else .december_58
+  if byte = 0x41 then .januaryCall
+  else if byte = 0x4D then .januaryPut
+  else if byte = 0x42 then .februaryCall
+  else if byte = 0x4E then .februaryPut
+  else if byte = 0x43 then .marchCall
+  else if byte = 0x4F then .marchPut
+  else if byte = 0x44 then .aprilCall
+  else if byte = 0x50 then .aprilPut
+  else if byte = 0x45 then .mayCall
+  else if byte = 0x51 then .mayPut
+  else if byte = 0x46 then .juneCall
+  else if byte = 0x52 then .junePut
+  else if byte = 0x47 then .julyCall
+  else if byte = 0x53 then .julyPut
+  else if byte = 0x48 then .augustCall
+  else if byte = 0x54 then .augustPut
+  else if byte = 0x49 then .septemberCall
+  else if byte = 0x55 then .septemberPut
+  else if byte = 0x4A then .octoberCall
+  else if byte = 0x56 then .octoberPut
+  else if byte = 0x4B then .novemberCall
+  else if byte = 0x57 then .novemberPut
+  else if byte = 0x4C then .decemberCall
+  else .decemberPut
 
 def ofByte (byte : UInt8) : ExpirationMonth :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : ExpirationMonth) : ofByte value.toByte = value := by
   cases value with
-  | january => decide
-  | january_4d => decide
-  | february => decide
-  | february_4e => decide
-  | march => decide
-  | march_4f => decide
-  | april => decide
-  | april_50 => decide
-  | may => decide
-  | may_51 => decide
-  | june => decide
-  | june_52 => decide
-  | july => decide
-  | july_53 => decide
-  | august => decide
-  | august_54 => decide
-  | september => decide
-  | september_55 => decide
-  | october => decide
-  | october_56 => decide
-  | november => decide
-  | november_57 => decide
-  | december => decide
-  | december_58 => decide
+  | januaryCall => decide
+  | januaryPut => decide
+  | februaryCall => decide
+  | februaryPut => decide
+  | marchCall => decide
+  | marchPut => decide
+  | aprilCall => decide
+  | aprilPut => decide
+  | mayCall => decide
+  | mayPut => decide
+  | juneCall => decide
+  | junePut => decide
+  | julyCall => decide
+  | julyPut => decide
+  | augustCall => decide
+  | augustPut => decide
+  | septemberCall => decide
+  | septemberPut => decide
+  | octoberCall => decide
+  | octoberPut => decide
+  | novemberCall => decide
+  | novemberPut => decide
+  | decemberCall => decide
+  | decemberPut => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ExpirationMonth) : List UInt8 :=
@@ -616,7 +616,7 @@ inductive BestBidParticipantId where
   | bostonOptionsExchange -- Boston Options Exchange
   | cboeOptionsExchange -- Cboe Options Exchange
   | miaxEmerald -- Miax Emerald
-  | cboeEdgxOptions -- Cboe Edgx Options
+  | cboeEdgxOptionsExchange -- Cboe EDGX Options Exchange
   | nasdaqGemx -- Nasdaq Gemx
   | nasdaqIse -- Nasdaq Ise
   | nasdaqMrx -- Nasdaq Mrx
@@ -626,7 +626,7 @@ inductive BestBidParticipantId where
   | miaxPearl -- Miax Pearl
   | nasdaqOptionsMarket -- Nasdaq Options Market
   | nasdaqBxOptions -- Nasdaq Bx Options
-  | cboeC2Options -- Cboe C 2 Options
+  | cboeC2OptionsExchange -- Cboe C2 Options Exchange
   | nasdaqPhlx -- Nasdaq Phlx
   | cboeBzxOptionsExchange -- Cboe Bzx Options Exchange
   | unlisted (byte : { byte : UInt8 // byte ∉ BestBidParticipantId.codes }) -- any other code, kept as it is
@@ -639,7 +639,7 @@ def toByte : BestBidParticipantId → UInt8
   | .bostonOptionsExchange => 0x42
   | .cboeOptionsExchange => 0x43
   | .miaxEmerald => 0x44
-  | .cboeEdgxOptions => 0x45
+  | .cboeEdgxOptionsExchange => 0x45
   | .nasdaqGemx => 0x48
   | .nasdaqIse => 0x49
   | .nasdaqMrx => 0x4A
@@ -649,7 +649,7 @@ def toByte : BestBidParticipantId → UInt8
   | .miaxPearl => 0x50
   | .nasdaqOptionsMarket => 0x51
   | .nasdaqBxOptions => 0x54
-  | .cboeC2Options => 0x57
+  | .cboeC2OptionsExchange => 0x57
   | .nasdaqPhlx => 0x58
   | .cboeBzxOptionsExchange => 0x5A
   | .unlisted byte => byte.val
@@ -660,7 +660,7 @@ def listed (byte : UInt8) : BestBidParticipantId :=
   else if byte = 0x42 then .bostonOptionsExchange
   else if byte = 0x43 then .cboeOptionsExchange
   else if byte = 0x44 then .miaxEmerald
-  else if byte = 0x45 then .cboeEdgxOptions
+  else if byte = 0x45 then .cboeEdgxOptionsExchange
   else if byte = 0x48 then .nasdaqGemx
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .nasdaqMrx
@@ -670,7 +670,7 @@ def listed (byte : UInt8) : BestBidParticipantId :=
   else if byte = 0x50 then .miaxPearl
   else if byte = 0x51 then .nasdaqOptionsMarket
   else if byte = 0x54 then .nasdaqBxOptions
-  else if byte = 0x57 then .cboeC2Options
+  else if byte = 0x57 then .cboeC2OptionsExchange
   else if byte = 0x58 then .nasdaqPhlx
   else .cboeBzxOptionsExchange
 
@@ -683,7 +683,7 @@ theorem ofByte_toByte (value : BestBidParticipantId) : ofByte value.toByte = val
   | bostonOptionsExchange => decide
   | cboeOptionsExchange => decide
   | miaxEmerald => decide
-  | cboeEdgxOptions => decide
+  | cboeEdgxOptionsExchange => decide
   | nasdaqGemx => decide
   | nasdaqIse => decide
   | nasdaqMrx => decide
@@ -693,7 +693,7 @@ theorem ofByte_toByte (value : BestBidParticipantId) : ofByte value.toByte = val
   | miaxPearl => decide
   | nasdaqOptionsMarket => decide
   | nasdaqBxOptions => decide
-  | cboeC2Options => decide
+  | cboeC2OptionsExchange => decide
   | nasdaqPhlx => decide
   | cboeBzxOptionsExchange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -806,7 +806,7 @@ inductive BestOfferParticipantId where
   | bostonOptionsExchange -- Boston Options Exchange
   | cboeOptionsExchange -- Cboe Options Exchange
   | miaxEmerald -- Miax Emerald
-  | cboeEdgxOptions -- Cboe Edgx Options
+  | cboeEdgxOptionsExchange -- Cboe EDGX Options Exchange
   | nasdaqGemx -- Nasdaq Gemx
   | nasdaqIse -- Nasdaq Ise
   | nasdaqMrx -- Nasdaq Mrx
@@ -816,7 +816,7 @@ inductive BestOfferParticipantId where
   | miaxPearl -- Miax Pearl
   | nasdaqOptionsMarket -- Nasdaq Options Market
   | nasdaqBxOptions -- Nasdaq Bx Options
-  | cboeC2Options -- Cboe C 2 Options
+  | cboeC2OptionsExchange -- Cboe C2 Options Exchange
   | nasdaqPhlx -- Nasdaq Phlx
   | cboeBzxOptionsExchange -- Cboe Bzx Options Exchange
   | unlisted (byte : { byte : UInt8 // byte ∉ BestOfferParticipantId.codes }) -- any other code, kept as it is
@@ -829,7 +829,7 @@ def toByte : BestOfferParticipantId → UInt8
   | .bostonOptionsExchange => 0x42
   | .cboeOptionsExchange => 0x43
   | .miaxEmerald => 0x44
-  | .cboeEdgxOptions => 0x45
+  | .cboeEdgxOptionsExchange => 0x45
   | .nasdaqGemx => 0x48
   | .nasdaqIse => 0x49
   | .nasdaqMrx => 0x4A
@@ -839,7 +839,7 @@ def toByte : BestOfferParticipantId → UInt8
   | .miaxPearl => 0x50
   | .nasdaqOptionsMarket => 0x51
   | .nasdaqBxOptions => 0x54
-  | .cboeC2Options => 0x57
+  | .cboeC2OptionsExchange => 0x57
   | .nasdaqPhlx => 0x58
   | .cboeBzxOptionsExchange => 0x5A
   | .unlisted byte => byte.val
@@ -850,7 +850,7 @@ def listed (byte : UInt8) : BestOfferParticipantId :=
   else if byte = 0x42 then .bostonOptionsExchange
   else if byte = 0x43 then .cboeOptionsExchange
   else if byte = 0x44 then .miaxEmerald
-  else if byte = 0x45 then .cboeEdgxOptions
+  else if byte = 0x45 then .cboeEdgxOptionsExchange
   else if byte = 0x48 then .nasdaqGemx
   else if byte = 0x49 then .nasdaqIse
   else if byte = 0x4A then .nasdaqMrx
@@ -860,7 +860,7 @@ def listed (byte : UInt8) : BestOfferParticipantId :=
   else if byte = 0x50 then .miaxPearl
   else if byte = 0x51 then .nasdaqOptionsMarket
   else if byte = 0x54 then .nasdaqBxOptions
-  else if byte = 0x57 then .cboeC2Options
+  else if byte = 0x57 then .cboeC2OptionsExchange
   else if byte = 0x58 then .nasdaqPhlx
   else .cboeBzxOptionsExchange
 
@@ -873,7 +873,7 @@ theorem ofByte_toByte (value : BestOfferParticipantId) : ofByte value.toByte = v
   | bostonOptionsExchange => decide
   | cboeOptionsExchange => decide
   | miaxEmerald => decide
-  | cboeEdgxOptions => decide
+  | cboeEdgxOptionsExchange => decide
   | nasdaqGemx => decide
   | nasdaqIse => decide
   | nasdaqMrx => decide
@@ -883,7 +883,7 @@ theorem ofByte_toByte (value : BestOfferParticipantId) : ofByte value.toByte = v
   | miaxPearl => decide
   | nasdaqOptionsMarket => decide
   | nasdaqBxOptions => decide
-  | cboeC2Options => decide
+  | cboeC2OptionsExchange => decide
   | nasdaqPhlx => decide
   | cboeBzxOptionsExchange => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -2008,7 +2008,7 @@ inductive BboChoice where
   | bestBidAppendage (message : BestBidAppendage) -- "M" 0x4D
   | bestOfferAppendage (message : BestOfferAppendage) -- "C" 0x43
   | bestBidAndOfferAppendage (message : BestBidAndOfferAppendage) -- "O" 0x4F
-  | noBestBidChangeOrBestOfferChange (message : BboAbsent) -- "A" 0x41
+  | noBestBidChangeNoBestOfferChange (message : BboAbsent) -- "A" 0x41
   | noBestBidChangeQuoteContainsBestOffer (message : BboAbsent) -- "B" 0x42
   | noBestBidChangeNoBestOffer (message : BboAbsent) -- "D" 0x44
   | quoteContainsBestBidNoBestOfferChange (message : BboAbsent) -- "E" 0x45
@@ -2031,7 +2031,7 @@ def tag : BboChoice → BitVec 8
   | .bestBidAppendage _ => 77
   | .bestOfferAppendage _ => 67
   | .bestBidAndOfferAppendage _ => 79
-  | .noBestBidChangeOrBestOfferChange _ => 65
+  | .noBestBidChangeNoBestOfferChange _ => 65
   | .noBestBidChangeQuoteContainsBestOffer _ => 66
   | .noBestBidChangeNoBestOffer _ => 68
   | .quoteContainsBestBidNoBestOfferChange _ => 69
@@ -2050,7 +2050,7 @@ def encode : BboChoice → List UInt8
   | .bestBidAppendage message => BestBidAppendage.encode message
   | .bestOfferAppendage message => BestOfferAppendage.encode message
   | .bestBidAndOfferAppendage message => BestBidAndOfferAppendage.encode message
-  | .noBestBidChangeOrBestOfferChange message => BboAbsent.encode message
+  | .noBestBidChangeNoBestOfferChange message => BboAbsent.encode message
   | .noBestBidChangeQuoteContainsBestOffer message => BboAbsent.encode message
   | .noBestBidChangeNoBestOffer message => BboAbsent.encode message
   | .quoteContainsBestBidNoBestOfferChange message => BboAbsent.encode message
@@ -2077,7 +2077,7 @@ theorem encode_length_le (message : BboChoice) : (encode message).length ≤ 20 
   | bestBidAndOfferAppendage inner =>
     simp only [encode, BestBidAndOfferAppendage.encode_length]
     omega
-  | noBestBidChangeOrBestOfferChange inner =>
+  | noBestBidChangeNoBestOfferChange inner =>
     simp only [encode, BboAbsent.encode_length]
     omega
   | noBestBidChangeQuoteContainsBestOffer inner =>
@@ -2124,7 +2124,7 @@ def decode (tag : BitVec 8) (bytes : List UInt8) : Option (BboChoice × List UIn
   if tag = 77 then (BestBidAppendage.decode bytes).map fun (message, rest) => (.bestBidAppendage message, rest)
   else if tag = 67 then (BestOfferAppendage.decode bytes).map fun (message, rest) => (.bestOfferAppendage message, rest)
   else if tag = 79 then (BestBidAndOfferAppendage.decode bytes).map fun (message, rest) => (.bestBidAndOfferAppendage message, rest)
-  else if tag = 65 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeOrBestOfferChange message, rest)
+  else if tag = 65 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeNoBestOfferChange message, rest)
   else if tag = 66 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeQuoteContainsBestOffer message, rest)
   else if tag = 68 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeNoBestOffer message, rest)
   else if tag = 69 then (BboAbsent.decode bytes).map fun (message, rest) => (.quoteContainsBestBidNoBestOfferChange message, rest)
@@ -2213,7 +2213,7 @@ theorem encode_length_le (message : LongEquityAndIndexQuoteMessage) : (encode me
   | bestBidAndOfferAppendage inner =>
     simp only [BboChoice.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, ExpirationBlock.encode_length, StrikePriceDenominatorCode.encode_length, PremiumPriceDenominatorCode.encode_length, BestBidAndOfferAppendage.encode_length]
     omega
-  | noBestBidChangeOrBestOfferChange inner =>
+  | noBestBidChangeNoBestOfferChange inner =>
     simp only [BboChoice.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, ExpirationBlock.encode_length, StrikePriceDenominatorCode.encode_length, PremiumPriceDenominatorCode.encode_length, BboAbsent.encode_length]
     omega
   | noBestBidChangeQuoteContainsBestOffer inner =>
@@ -2484,7 +2484,7 @@ end LongEquityAndIndexQuoteCategory
 inductive ShortEquityAndIndexQuoteMessageBboChoice where
   | bestBidAppendage (message : BestBidAppendage) -- "M" 0x4D
   | bestOfferAppendage (message : BestOfferAppendage) -- "C" 0x43
-  | noBestBidChangeOrBestOfferChange (message : BboAbsent) -- "A" 0x41
+  | noBestBidChangeNoBestOfferChange (message : BboAbsent) -- "A" 0x41
   | noBestBidChangeQuoteContainsBestOffer (message : BboAbsent) -- "B" 0x42
   | noBestBidChangeNoBestOffer (message : BboAbsent) -- "D" 0x44
   | quoteContainsBestBidNoBestOfferChange (message : BboAbsent) -- "E" 0x45
@@ -2507,7 +2507,7 @@ namespace ShortEquityAndIndexQuoteMessageBboChoice
 def tag : ShortEquityAndIndexQuoteMessageBboChoice → BitVec 8
   | .bestBidAppendage _ => 77
   | .bestOfferAppendage _ => 67
-  | .noBestBidChangeOrBestOfferChange _ => 65
+  | .noBestBidChangeNoBestOfferChange _ => 65
   | .noBestBidChangeQuoteContainsBestOffer _ => 66
   | .noBestBidChangeNoBestOffer _ => 68
   | .quoteContainsBestBidNoBestOfferChange _ => 69
@@ -2526,7 +2526,7 @@ def tag : ShortEquityAndIndexQuoteMessageBboChoice → BitVec 8
 def encode : ShortEquityAndIndexQuoteMessageBboChoice → List UInt8
   | .bestBidAppendage message => BestBidAppendage.encode message
   | .bestOfferAppendage message => BestOfferAppendage.encode message
-  | .noBestBidChangeOrBestOfferChange message => BboAbsent.encode message
+  | .noBestBidChangeNoBestOfferChange message => BboAbsent.encode message
   | .noBestBidChangeQuoteContainsBestOffer message => BboAbsent.encode message
   | .noBestBidChangeNoBestOffer message => BboAbsent.encode message
   | .quoteContainsBestBidNoBestOfferChange message => BboAbsent.encode message
@@ -2551,7 +2551,7 @@ theorem encode_length_le (message : ShortEquityAndIndexQuoteMessageBboChoice) : 
   | bestOfferAppendage inner =>
     simp only [encode, BestOfferAppendage.encode_length]
     omega
-  | noBestBidChangeOrBestOfferChange inner =>
+  | noBestBidChangeNoBestOfferChange inner =>
     simp only [encode, BboAbsent.encode_length]
     omega
   | noBestBidChangeQuoteContainsBestOffer inner =>
@@ -2600,7 +2600,7 @@ theorem encode_length_le (message : ShortEquityAndIndexQuoteMessageBboChoice) : 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (ShortEquityAndIndexQuoteMessageBboChoice × List UInt8) :=
   if tag = 77 then (BestBidAppendage.decode bytes).map fun (message, rest) => (.bestBidAppendage message, rest)
   else if tag = 67 then (BestOfferAppendage.decode bytes).map fun (message, rest) => (.bestOfferAppendage message, rest)
-  else if tag = 65 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeOrBestOfferChange message, rest)
+  else if tag = 65 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeNoBestOfferChange message, rest)
   else if tag = 66 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeQuoteContainsBestOffer message, rest)
   else if tag = 68 then (BboAbsent.decode bytes).map fun (message, rest) => (.noBestBidChangeNoBestOffer message, rest)
   else if tag = 69 then (BboAbsent.decode bytes).map fun (message, rest) => (.quoteContainsBestBidNoBestOfferChange message, rest)
@@ -2678,7 +2678,7 @@ theorem encode_length_le (message : ShortEquityAndIndexQuoteMessage) : (encode m
   | bestOfferAppendage inner =>
     simp only [ShortEquityAndIndexQuoteMessageBboChoice.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, ExpirationBlock.encode_length, BestOfferAppendage.encode_length]
     omega
-  | noBestBidChangeOrBestOfferChange inner =>
+  | noBestBidChangeNoBestOfferChange inner =>
     simp only [ShortEquityAndIndexQuoteMessageBboChoice.encode, List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, ExpirationBlock.encode_length, BboAbsent.encode_length]
     omega
   | noBestBidChangeQuoteContainsBestOffer inner =>

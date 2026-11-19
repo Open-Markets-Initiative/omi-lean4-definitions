@@ -80,8 +80,8 @@ inductive TradingStatus where
   | haltedMatchingPartitionSuspended -- Halted Matching Partition Suspended
   | haltedSystemSuspended -- Halted System Suspended
   | haltedRegulatoryHalt -- Halted Regulatory Halt
-  | regularTradingStartOfTrqbSession -- Regular Trading Start Of Trqb Session
-  | endOfRegularTradingEndOfTrqbSession -- End Of Regular Trading End Of Trqb Session
+  | regularTrading -- Regular Trading
+  | endOfRegularTrading -- End Of Regular Trading
   | closed -- Closed
   | suspended -- Suspended
   | noActiveSession -- No Active Session
@@ -95,8 +95,8 @@ def toByte : TradingStatus → UInt8
   | .haltedMatchingPartitionSuspended => 0x4A
   | .haltedSystemSuspended => 0x4B
   | .haltedRegulatoryHalt => 0x50
-  | .regularTradingStartOfTrqbSession => 0x54
-  | .endOfRegularTradingEndOfTrqbSession => 0x74
+  | .regularTrading => 0x54
+  | .endOfRegularTrading => 0x74
   | .closed => 0x63
   | .suspended => 0x32
   | .noActiveSession => 0x77
@@ -108,8 +108,8 @@ def listed (byte : UInt8) : TradingStatus :=
   else if byte = 0x4A then .haltedMatchingPartitionSuspended
   else if byte = 0x4B then .haltedSystemSuspended
   else if byte = 0x50 then .haltedRegulatoryHalt
-  else if byte = 0x54 then .regularTradingStartOfTrqbSession
-  else if byte = 0x74 then .endOfRegularTradingEndOfTrqbSession
+  else if byte = 0x54 then .regularTrading
+  else if byte = 0x74 then .endOfRegularTrading
   else if byte = 0x63 then .closed
   else if byte = 0x32 then .suspended
   else .noActiveSession
@@ -123,8 +123,8 @@ theorem ofByte_toByte (value : TradingStatus) : ofByte value.toByte = value := b
   | haltedMatchingPartitionSuspended => decide
   | haltedSystemSuspended => decide
   | haltedRegulatoryHalt => decide
-  | regularTradingStartOfTrqbSession => decide
-  | endOfRegularTradingEndOfTrqbSession => decide
+  | regularTrading => decide
+  | endOfRegularTrading => decide
   | closed => decide
   | suspended => decide
   | noActiveSession => decide

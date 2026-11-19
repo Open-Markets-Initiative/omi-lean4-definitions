@@ -726,37 +726,37 @@ inductive TradeCondition where
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence -- Late Report Of The Opening Trade And Is In Correct Sequence
   | auto -- Auto
   | reopeningOfAnOption -- Reopening Of An Option
-  | reserved -- Reserved
-  | reserved_4c -- Reserved
-  | reserved_4d -- Reserved
-  | reserved_4e -- Reserved
-  | reserved_4f -- Reserved
-  | reserved_50 -- Reserved
-  | reserved_51 -- Reserved
+  | reservedK -- Reserved K
+  | reservedL -- Reserved L
+  | reservedM -- Reserved M
+  | reservedN -- Reserved N
+  | reservedO -- Reserved O
+  | reservedP -- Reserved P
+  | reservedQ -- Reserved Q
   | executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop -- Execution Of An Order Which Was Stopped At A Price That Did Not Constitute A Trade Through On Another Market At The Time Of The Stop
   | executionOfAnIsoOrder -- Execution Of An Iso Order
-  | reserved_54 -- Reserved
+  | reservedT -- Reserved T
   | tradeThroughExempt -- Trade Through Exempt
-  | reserved_61 -- Reserved
-  | reserved_62 -- Reserved
+  | reservedA -- Reserved a
+  | reservedB -- Reserved b
   | customerToCustomerCrossOrQcc -- Customer To Customer Cross Or Qcc
-  | reserved_64 -- Reserved
+  | reservedD -- Reserved d
   | crossTransactionOnTheExchangeFloor -- Cross Transaction On The Exchange Floor
   | complexTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging -- Complex Transaction That Is Not Complex Stock Tied And Does Not Involve Legging
-  | reserved_67 -- Reserved
+  | reservedG -- Reserved g
   | complexCustomerToCustomerCrossOrComplexQccTransactionThatIsNotComplexStockTied -- Complex Customer To Customer Cross Or Complex Qcc Transaction That Is Not Complex Stock Tied
   | complexCrossTransactionOnTheExchangeFloorThatIsNotComplexStockTied -- Complex Cross Transaction On The Exchange Floor That Is Not Complex Stock Tied
-  | complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied -- Complex Cross Transaction On The Exchange Floor That Has Legging Occurred On The Floor And Not Complex Stock Tied
-  | reserved_6b -- Reserved
-  | reserved_6c -- Reserved
-  | complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied_6d -- Complex Cross Transaction On The Exchange Floor That Has Legging Occurred On The Floor And Not Complex Stock Tied
+  | electronicExecutionFromComplexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied -- Electronic Execution From Complex Cross Transaction On The Exchange Floor That Has Legging Occurred On The Floor And Not Complex Stock Tied
+  | reservedLowerCaseK -- Reserved Lower Case K
+  | reservedLowerCaseL -- Reserved Lower Case L
+  | complexCrossTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied -- Complex Cross Transaction On The Exchange Floor Including Customer To Customer Cross And Qcc That Has Legging Occurred On The Floor And Not Complex Stock Tied
   | complexStockTiedTransactionThatDoesNotInvolveLegging -- Complex Stock Tied Transaction That Does Not Involve Legging
   | complexCustomerToCustomerCrossStockTiedOrComplexQccStockTiedTransaction -- Complex Customer To Customer Cross Stock Tied Or Complex Qcc Stock Tied Transaction
   | complexCrossStockTiedTransactionOnTheExchangeFloorThatDoesNotInvolveLegging -- Complex Cross Stock Tied Transaction On The Exchange Floor That Does Not Involve Legging
-  | complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor -- Complex Cross Stock Tied Transaction On The Exchange Floor That Has Legging Occurred On The Floor
-  | reserved_72 -- Reserved
-  | complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor_73 -- Complex Cross Stock Tied Transaction On The Exchange Floor That Has Legging Occurred On The Floor
-  | reserved_74 -- Reserved
+  | electronicExecutionFromComplexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor -- Electronic Execution From Complex Cross Stock Tied Transaction On The Exchange Floor That Has Legging Occurred On The Floor
+  | reservedR -- Reserved r
+  | complexCrossStockTiedTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloor -- Complex Cross Stock Tied Transaction On The Exchange Floor Including Customer To Customer Cross And Qcc That Has Legging Occurred On The Floor
+  | reservedLowerCaseT -- Reserved Lower Case T
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -774,37 +774,37 @@ def toByte : TradeCondition → UInt8
   | .lateReportOfTheOpeningTradeAndIsInCorrectSequence => 0x48
   | .auto => 0x49
   | .reopeningOfAnOption => 0x4A
-  | .reserved => 0x4B
-  | .reserved_4c => 0x4C
-  | .reserved_4d => 0x4D
-  | .reserved_4e => 0x4E
-  | .reserved_4f => 0x4F
-  | .reserved_50 => 0x50
-  | .reserved_51 => 0x51
+  | .reservedK => 0x4B
+  | .reservedL => 0x4C
+  | .reservedM => 0x4D
+  | .reservedN => 0x4E
+  | .reservedO => 0x4F
+  | .reservedP => 0x50
+  | .reservedQ => 0x51
   | .executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => 0x52
   | .executionOfAnIsoOrder => 0x53
-  | .reserved_54 => 0x54
+  | .reservedT => 0x54
   | .tradeThroughExempt => 0x58
-  | .reserved_61 => 0x61
-  | .reserved_62 => 0x62
+  | .reservedA => 0x61
+  | .reservedB => 0x62
   | .customerToCustomerCrossOrQcc => 0x63
-  | .reserved_64 => 0x64
+  | .reservedD => 0x64
   | .crossTransactionOnTheExchangeFloor => 0x65
   | .complexTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging => 0x66
-  | .reserved_67 => 0x67
+  | .reservedG => 0x67
   | .complexCustomerToCustomerCrossOrComplexQccTransactionThatIsNotComplexStockTied => 0x68
   | .complexCrossTransactionOnTheExchangeFloorThatIsNotComplexStockTied => 0x69
-  | .complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => 0x6A
-  | .reserved_6b => 0x6B
-  | .reserved_6c => 0x6C
-  | .complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied_6d => 0x6D
+  | .electronicExecutionFromComplexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => 0x6A
+  | .reservedLowerCaseK => 0x6B
+  | .reservedLowerCaseL => 0x6C
+  | .complexCrossTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => 0x6D
   | .complexStockTiedTransactionThatDoesNotInvolveLegging => 0x6E
   | .complexCustomerToCustomerCrossStockTiedOrComplexQccStockTiedTransaction => 0x6F
   | .complexCrossStockTiedTransactionOnTheExchangeFloorThatDoesNotInvolveLegging => 0x70
-  | .complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor => 0x71
-  | .reserved_72 => 0x72
-  | .complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor_73 => 0x73
-  | .reserved_74 => 0x74
+  | .electronicExecutionFromComplexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor => 0x71
+  | .reservedR => 0x72
+  | .complexCrossStockTiedTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloor => 0x73
+  | .reservedLowerCaseT => 0x74
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -820,37 +820,37 @@ def listed (byte : UInt8) : TradeCondition :=
   else if byte = 0x48 then .lateReportOfTheOpeningTradeAndIsInCorrectSequence
   else if byte = 0x49 then .auto
   else if byte = 0x4A then .reopeningOfAnOption
-  else if byte = 0x4B then .reserved
-  else if byte = 0x4C then .reserved_4c
-  else if byte = 0x4D then .reserved_4d
-  else if byte = 0x4E then .reserved_4e
-  else if byte = 0x4F then .reserved_4f
-  else if byte = 0x50 then .reserved_50
-  else if byte = 0x51 then .reserved_51
+  else if byte = 0x4B then .reservedK
+  else if byte = 0x4C then .reservedL
+  else if byte = 0x4D then .reservedM
+  else if byte = 0x4E then .reservedN
+  else if byte = 0x4F then .reservedO
+  else if byte = 0x50 then .reservedP
+  else if byte = 0x51 then .reservedQ
   else if byte = 0x52 then .executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop
   else if byte = 0x53 then .executionOfAnIsoOrder
-  else if byte = 0x54 then .reserved_54
+  else if byte = 0x54 then .reservedT
   else if byte = 0x58 then .tradeThroughExempt
-  else if byte = 0x61 then .reserved_61
-  else if byte = 0x62 then .reserved_62
+  else if byte = 0x61 then .reservedA
+  else if byte = 0x62 then .reservedB
   else if byte = 0x63 then .customerToCustomerCrossOrQcc
-  else if byte = 0x64 then .reserved_64
+  else if byte = 0x64 then .reservedD
   else if byte = 0x65 then .crossTransactionOnTheExchangeFloor
   else if byte = 0x66 then .complexTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging
-  else if byte = 0x67 then .reserved_67
+  else if byte = 0x67 then .reservedG
   else if byte = 0x68 then .complexCustomerToCustomerCrossOrComplexQccTransactionThatIsNotComplexStockTied
   else if byte = 0x69 then .complexCrossTransactionOnTheExchangeFloorThatIsNotComplexStockTied
-  else if byte = 0x6A then .complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied
-  else if byte = 0x6B then .reserved_6b
-  else if byte = 0x6C then .reserved_6c
-  else if byte = 0x6D then .complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied_6d
+  else if byte = 0x6A then .electronicExecutionFromComplexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied
+  else if byte = 0x6B then .reservedLowerCaseK
+  else if byte = 0x6C then .reservedLowerCaseL
+  else if byte = 0x6D then .complexCrossTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied
   else if byte = 0x6E then .complexStockTiedTransactionThatDoesNotInvolveLegging
   else if byte = 0x6F then .complexCustomerToCustomerCrossStockTiedOrComplexQccStockTiedTransaction
   else if byte = 0x70 then .complexCrossStockTiedTransactionOnTheExchangeFloorThatDoesNotInvolveLegging
-  else if byte = 0x71 then .complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor
-  else if byte = 0x72 then .reserved_72
-  else if byte = 0x73 then .complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor_73
-  else .reserved_74
+  else if byte = 0x71 then .electronicExecutionFromComplexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor
+  else if byte = 0x72 then .reservedR
+  else if byte = 0x73 then .complexCrossStockTiedTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloor
+  else .reservedLowerCaseT
 
 def ofByte (byte : UInt8) : TradeCondition :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -868,37 +868,37 @@ theorem ofByte_toByte (value : TradeCondition) : ofByte value.toByte = value := 
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence => decide
   | auto => decide
   | reopeningOfAnOption => decide
-  | reserved => decide
-  | reserved_4c => decide
-  | reserved_4d => decide
-  | reserved_4e => decide
-  | reserved_4f => decide
-  | reserved_50 => decide
-  | reserved_51 => decide
+  | reservedK => decide
+  | reservedL => decide
+  | reservedM => decide
+  | reservedN => decide
+  | reservedO => decide
+  | reservedP => decide
+  | reservedQ => decide
   | executionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop => decide
   | executionOfAnIsoOrder => decide
-  | reserved_54 => decide
+  | reservedT => decide
   | tradeThroughExempt => decide
-  | reserved_61 => decide
-  | reserved_62 => decide
+  | reservedA => decide
+  | reservedB => decide
   | customerToCustomerCrossOrQcc => decide
-  | reserved_64 => decide
+  | reservedD => decide
   | crossTransactionOnTheExchangeFloor => decide
   | complexTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging => decide
-  | reserved_67 => decide
+  | reservedG => decide
   | complexCustomerToCustomerCrossOrComplexQccTransactionThatIsNotComplexStockTied => decide
   | complexCrossTransactionOnTheExchangeFloorThatIsNotComplexStockTied => decide
-  | complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => decide
-  | reserved_6b => decide
-  | reserved_6c => decide
-  | complexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied_6d => decide
+  | electronicExecutionFromComplexCrossTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => decide
+  | reservedLowerCaseK => decide
+  | reservedLowerCaseL => decide
+  | complexCrossTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloorAndNotComplexStockTied => decide
   | complexStockTiedTransactionThatDoesNotInvolveLegging => decide
   | complexCustomerToCustomerCrossStockTiedOrComplexQccStockTiedTransaction => decide
   | complexCrossStockTiedTransactionOnTheExchangeFloorThatDoesNotInvolveLegging => decide
-  | complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor => decide
-  | reserved_72 => decide
-  | complexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor_73 => decide
-  | reserved_74 => decide
+  | electronicExecutionFromComplexCrossStockTiedTransactionOnTheExchangeFloorThatHasLeggingOccurredOnTheFloor => decide
+  | reservedR => decide
+  | complexCrossStockTiedTransactionOnTheExchangeFloorIncludingCustomerToCustomerCrossAndQccThatHasLeggingOccurredOnTheFloor => decide
+  | reservedLowerCaseT => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeCondition) : List UInt8 :=

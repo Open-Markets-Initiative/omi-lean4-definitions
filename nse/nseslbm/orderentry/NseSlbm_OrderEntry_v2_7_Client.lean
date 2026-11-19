@@ -267,7 +267,7 @@ structure LogonRequestMessage where
   brokerStatus : BrokerStatus
   showIndex : Alpha 1
   brokerEligibilityPerMarket : BitVec 16
-  brokerNameChar26 : Alpha 26
+  logonRequestBrokerName : Alpha 26
   deriving DecidableEq, Repr
 
 namespace LogonRequestMessage
@@ -289,7 +289,7 @@ def encode (message : LogonRequestMessage) : List UInt8 :=
     ++ (BrokerStatus.encode message.brokerStatus
     ++ (Alpha.encode message.showIndex
     ++ (encodeUInt 2 message.brokerEligibilityPerMarket
-    ++ (Alpha.encode message.brokerNameChar26))))))))))))))))
+    ++ (Alpha.encode message.logonRequestBrokerName))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (LogonRequestMessage × List UInt8) := do
   let (userId, bytes) ← decodeUInt 4 bytes
@@ -308,8 +308,8 @@ def decode (bytes : List UInt8) : Option (LogonRequestMessage × List UInt8) := 
   let (brokerStatus, bytes) ← BrokerStatus.decode bytes
   let (showIndex, bytes) ← Alpha.decode 1 bytes
   let (brokerEligibilityPerMarket, bytes) ← decodeUInt 2 bytes
-  let (brokerNameChar26, bytes) ← Alpha.decode 26 bytes
-  pure ({ userId, password, newPassword, traderName, lastPasswordChangeDateTime, brokerId, reserved1, branchId, versionNumber, reserved56, userType, sequenceNumber, workstationNumber, brokerStatus, showIndex, brokerEligibilityPerMarket, brokerNameChar26 }, bytes)
+  let (logonRequestBrokerName, bytes) ← Alpha.decode 26 bytes
+  pure ({ userId, password, newPassword, traderName, lastPasswordChangeDateTime, brokerId, reserved1, branchId, versionNumber, reserved56, userType, sequenceNumber, workstationNumber, brokerStatus, showIndex, brokerEligibilityPerMarket, logonRequestBrokerName }, bytes)
 
 @[simp] theorem encode_length (message : LogonRequestMessage) : (encode message).length = 172 := by
   unfold encode

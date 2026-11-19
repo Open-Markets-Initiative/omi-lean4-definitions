@@ -387,7 +387,7 @@ inductive ConcertationType where
   | sellLegAutoEntryOfForeignCurrencyStrategy -- Sell Leg Auto Entry Of Foreign Currency Strategy
   | buyLegAutoEntryOfForeignCurrencyStrategy -- Buy Leg Auto Entry Of Foreign Currency Strategy
   | legOfForeignCurrencyStrategy -- Leg Of Foreign Currency Strategy
-  | legOfForeignCurrencyStrategy_51 -- Leg Of Foreign Currency Strategy
+  | legOfRoundOfForeignCurrencyStrategy -- Leg Of Round Of Foreign Currency Strategy
   | legOfCrossingOfChainOfForwards -- Leg Of Crossing Of Chain Of Forwards
   | sellLegAutoEntryOfChainOfForwards -- Sell Leg Auto Entry Of Chain Of Forwards
   | buyLegAutoEntryOfChainOfForwards -- Buy Leg Auto Entry Of Chain Of Forwards
@@ -399,7 +399,7 @@ inductive ConcertationType where
   | buyLegAutoEntryOfRollover -- Buy Leg Auto Entry Of Rollover
   | legOfRoundOfRollover -- Leg Of Round Of Rollover
   | depthOfRoundOfChainOfForwards -- Depth Of Round Of Chain Of Forwards
-  | tradingOfChainOfForwards -- Trading Of Chain Of Forwards
+  | auctionOfChainOfForwards -- Auction Of Chain Of Forwards
   | depthOfRound -- Depth Of Round
   | roundOfChainOfForwards -- Round Of Chain Of Forwards
   | rolloverSentra -- Rollover Sentra
@@ -451,7 +451,7 @@ def toByte : ConcertationType → UInt8
   | .sellLegAutoEntryOfForeignCurrencyStrategy => 0x4B
   | .buyLegAutoEntryOfForeignCurrencyStrategy => 0x4C
   | .legOfForeignCurrencyStrategy => 0x4E
-  | .legOfForeignCurrencyStrategy_51 => 0x51
+  | .legOfRoundOfForeignCurrencyStrategy => 0x51
   | .legOfCrossingOfChainOfForwards => 0x52
   | .sellLegAutoEntryOfChainOfForwards => 0x53
   | .buyLegAutoEntryOfChainOfForwards => 0x54
@@ -463,7 +463,7 @@ def toByte : ConcertationType → UInt8
   | .buyLegAutoEntryOfRollover => 0x61
   | .legOfRoundOfRollover => 0x62
   | .depthOfRoundOfChainOfForwards => 0x63
-  | .tradingOfChainOfForwards => 0x64
+  | .auctionOfChainOfForwards => 0x64
   | .depthOfRound => 0x65
   | .roundOfChainOfForwards => 0x66
   | .rolloverSentra => 0x67
@@ -513,7 +513,7 @@ def listed (byte : UInt8) : ConcertationType :=
   else if byte = 0x4B then .sellLegAutoEntryOfForeignCurrencyStrategy
   else if byte = 0x4C then .buyLegAutoEntryOfForeignCurrencyStrategy
   else if byte = 0x4E then .legOfForeignCurrencyStrategy
-  else if byte = 0x51 then .legOfForeignCurrencyStrategy_51
+  else if byte = 0x51 then .legOfRoundOfForeignCurrencyStrategy
   else if byte = 0x52 then .legOfCrossingOfChainOfForwards
   else if byte = 0x53 then .sellLegAutoEntryOfChainOfForwards
   else if byte = 0x54 then .buyLegAutoEntryOfChainOfForwards
@@ -525,7 +525,7 @@ def listed (byte : UInt8) : ConcertationType :=
   else if byte = 0x61 then .buyLegAutoEntryOfRollover
   else if byte = 0x62 then .legOfRoundOfRollover
   else if byte = 0x63 then .depthOfRoundOfChainOfForwards
-  else if byte = 0x64 then .tradingOfChainOfForwards
+  else if byte = 0x64 then .auctionOfChainOfForwards
   else if byte = 0x65 then .depthOfRound
   else if byte = 0x66 then .roundOfChainOfForwards
   else if byte = 0x67 then .rolloverSentra
@@ -577,7 +577,7 @@ theorem ofByte_toByte (value : ConcertationType) : ofByte value.toByte = value :
   | sellLegAutoEntryOfForeignCurrencyStrategy => decide
   | buyLegAutoEntryOfForeignCurrencyStrategy => decide
   | legOfForeignCurrencyStrategy => decide
-  | legOfForeignCurrencyStrategy_51 => decide
+  | legOfRoundOfForeignCurrencyStrategy => decide
   | legOfCrossingOfChainOfForwards => decide
   | sellLegAutoEntryOfChainOfForwards => decide
   | buyLegAutoEntryOfChainOfForwards => decide
@@ -589,7 +589,7 @@ theorem ofByte_toByte (value : ConcertationType) : ofByte value.toByte = value :
   | buyLegAutoEntryOfRollover => decide
   | legOfRoundOfRollover => decide
   | depthOfRoundOfChainOfForwards => decide
-  | tradingOfChainOfForwards => decide
+  | auctionOfChainOfForwards => decide
   | depthOfRound => decide
   | roundOfChainOfForwards => decide
   | rolloverSentra => decide
@@ -930,7 +930,7 @@ inductive Concertation where
   | sellLegAutoEntryOfForeignCurrencyStrategy -- Sell Leg Auto Entry Of Foreign Currency Strategy
   | buyLegAutoEntryOfForeignCurrencyStrategy -- Buy Leg Auto Entry Of Foreign Currency Strategy
   | legOfForeignCurrencyStrategy -- Leg Of Foreign Currency Strategy
-  | legOfForeignCurrencyStrategy_51 -- Leg Of Foreign Currency Strategy
+  | legOfRoundOfForeignCurrencyStrategy -- Leg Of Round Of Foreign Currency Strategy
   | legOfCrossingOfChainOfForwards -- Leg Of Crossing Of Chain Of Forwards
   | sellLegAutoEntryOfChainOfForwards -- Sell Leg Auto Entry Of Chain Of Forwards
   | buyLegAutoEntryOfChainOfForwards -- Buy Leg Auto Entry Of Chain Of Forwards
@@ -942,7 +942,7 @@ inductive Concertation where
   | buyLegAutoEntryOfRollover -- Buy Leg Auto Entry Of Rollover
   | legOfRoundOfRollover -- Leg Of Round Of Rollover
   | depthOfRoundOfChainOfForwards -- Depth Of Round Of Chain Of Forwards
-  | tradingOfChainOfForwards -- Trading Of Chain Of Forwards
+  | auctionOfChainOfForwards -- Auction Of Chain Of Forwards
   | depthOfRound -- Depth Of Round
   | roundOfChainOfForwards -- Round Of Chain Of Forwards
   | rolloverSentra -- Rollover Sentra
@@ -994,7 +994,7 @@ def toByte : Concertation → UInt8
   | .sellLegAutoEntryOfForeignCurrencyStrategy => 0x4B
   | .buyLegAutoEntryOfForeignCurrencyStrategy => 0x4C
   | .legOfForeignCurrencyStrategy => 0x4E
-  | .legOfForeignCurrencyStrategy_51 => 0x51
+  | .legOfRoundOfForeignCurrencyStrategy => 0x51
   | .legOfCrossingOfChainOfForwards => 0x52
   | .sellLegAutoEntryOfChainOfForwards => 0x53
   | .buyLegAutoEntryOfChainOfForwards => 0x54
@@ -1006,7 +1006,7 @@ def toByte : Concertation → UInt8
   | .buyLegAutoEntryOfRollover => 0x61
   | .legOfRoundOfRollover => 0x62
   | .depthOfRoundOfChainOfForwards => 0x63
-  | .tradingOfChainOfForwards => 0x64
+  | .auctionOfChainOfForwards => 0x64
   | .depthOfRound => 0x65
   | .roundOfChainOfForwards => 0x66
   | .rolloverSentra => 0x67
@@ -1056,7 +1056,7 @@ def listed (byte : UInt8) : Concertation :=
   else if byte = 0x4B then .sellLegAutoEntryOfForeignCurrencyStrategy
   else if byte = 0x4C then .buyLegAutoEntryOfForeignCurrencyStrategy
   else if byte = 0x4E then .legOfForeignCurrencyStrategy
-  else if byte = 0x51 then .legOfForeignCurrencyStrategy_51
+  else if byte = 0x51 then .legOfRoundOfForeignCurrencyStrategy
   else if byte = 0x52 then .legOfCrossingOfChainOfForwards
   else if byte = 0x53 then .sellLegAutoEntryOfChainOfForwards
   else if byte = 0x54 then .buyLegAutoEntryOfChainOfForwards
@@ -1068,7 +1068,7 @@ def listed (byte : UInt8) : Concertation :=
   else if byte = 0x61 then .buyLegAutoEntryOfRollover
   else if byte = 0x62 then .legOfRoundOfRollover
   else if byte = 0x63 then .depthOfRoundOfChainOfForwards
-  else if byte = 0x64 then .tradingOfChainOfForwards
+  else if byte = 0x64 then .auctionOfChainOfForwards
   else if byte = 0x65 then .depthOfRound
   else if byte = 0x66 then .roundOfChainOfForwards
   else if byte = 0x67 then .rolloverSentra
@@ -1120,7 +1120,7 @@ theorem ofByte_toByte (value : Concertation) : ofByte value.toByte = value := by
   | sellLegAutoEntryOfForeignCurrencyStrategy => decide
   | buyLegAutoEntryOfForeignCurrencyStrategy => decide
   | legOfForeignCurrencyStrategy => decide
-  | legOfForeignCurrencyStrategy_51 => decide
+  | legOfRoundOfForeignCurrencyStrategy => decide
   | legOfCrossingOfChainOfForwards => decide
   | sellLegAutoEntryOfChainOfForwards => decide
   | buyLegAutoEntryOfChainOfForwards => decide
@@ -1132,7 +1132,7 @@ theorem ofByte_toByte (value : Concertation) : ofByte value.toByte = value := by
   | buyLegAutoEntryOfRollover => decide
   | legOfRoundOfRollover => decide
   | depthOfRoundOfChainOfForwards => decide
-  | tradingOfChainOfForwards => decide
+  | auctionOfChainOfForwards => decide
   | depthOfRound => decide
   | roundOfChainOfForwards => decide
   | rolloverSentra => decide

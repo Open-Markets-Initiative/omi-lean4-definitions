@@ -88,7 +88,7 @@ inductive Display where
   | postOnly -- Post Only
   | imbalanceOnly -- Imbalance Only
   | changedToNonDisplayed -- Changed To Non Displayed
-  | midPoint -- Mid Point
+  | midPointPeg -- Mid Point Peg
   | retailOrderType1 -- Retail Order Type 1
   | retailOrderType2 -- Retail Order Type 2
   | retailPriceImprovementOrder -- Retail Price Improvement Order
@@ -104,7 +104,7 @@ def toByte : Display → UInt8
   | .postOnly => 0x50
   | .imbalanceOnly => 0x49
   | .changedToNonDisplayed => 0x5A
-  | .midPoint => 0x4D
+  | .midPointPeg => 0x4D
   | .retailOrderType1 => 0x4F
   | .retailOrderType2 => 0x54
   | .retailPriceImprovementOrder => 0x51
@@ -118,7 +118,7 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x50 then .postOnly
   else if byte = 0x49 then .imbalanceOnly
   else if byte = 0x5A then .changedToNonDisplayed
-  else if byte = 0x4D then .midPoint
+  else if byte = 0x4D then .midPointPeg
   else if byte = 0x4F then .retailOrderType1
   else if byte = 0x54 then .retailOrderType2
   else .retailPriceImprovementOrder
@@ -134,7 +134,7 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | postOnly => decide
   | imbalanceOnly => decide
   | changedToNonDisplayed => decide
-  | midPoint => decide
+  | midPointPeg => decide
   | retailOrderType1 => decide
   | retailOrderType2 => decide
   | retailPriceImprovementOrder => decide

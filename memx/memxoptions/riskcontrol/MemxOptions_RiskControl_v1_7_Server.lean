@@ -627,9 +627,9 @@ end ActiveRiskThresholdStateMessage
 
 /-- Active Risk Threshold Change Rejected Message: 36 bytes -/
 structure ActiveRiskThresholdChangeRejectedMessage where
-  clOrdIdActiveRiskThresholdChangeRejectedClOrdId : Alpha 20
-  underlierActiveRiskThresholdChangeRejectedUnderlierOptional : Alpha 6
-  efidActiveRiskThresholdChangeRejectedEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   thresholdQuantity : BitVec 32
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -637,19 +637,19 @@ structure ActiveRiskThresholdChangeRejectedMessage where
 namespace ActiveRiskThresholdChangeRejectedMessage
 
 def encode (message : ActiveRiskThresholdChangeRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdActiveRiskThresholdChangeRejectedClOrdId
-    ++ (Alpha.encode message.underlierActiveRiskThresholdChangeRejectedUnderlierOptional
-    ++ (Alpha.encode message.efidActiveRiskThresholdChangeRejectedEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 4 message.thresholdQuantity
     ++ (encodeUInt 2 message.rejectReason))))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskThresholdChangeRejectedMessage × List UInt8) := do
-  let (clOrdIdActiveRiskThresholdChangeRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskThresholdChangeRejectedUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskThresholdChangeRejectedEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (thresholdQuantity, bytes) ← decodeUInt 4 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdActiveRiskThresholdChangeRejectedClOrdId, underlierActiveRiskThresholdChangeRejectedUnderlierOptional, efidActiveRiskThresholdChangeRejectedEfidOptional, thresholdQuantity, rejectReason }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, thresholdQuantity, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskThresholdChangeRejectedMessage) : (encode message).length = 36 := by
   unfold encode
@@ -727,9 +727,9 @@ end ActiveRiskAcknowledgedMessage
 
 /-- Active Risk Acknowledge Rejected Message: 36 bytes -/
 structure ActiveRiskAcknowledgeRejectedMessage where
-  clOrdIdActiveRiskAcknowledgeRejectedClOrdId : Alpha 20
-  underlierActiveRiskAcknowledgeRejectedUnderlier : Alpha 6
-  efidActiveRiskAcknowledgeRejectedEfid : Alpha 4
+  clordid : Alpha 20
+  underlier : Alpha 6
+  efid : Alpha 4
   thresholdQuantity : BitVec 32
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -737,19 +737,19 @@ structure ActiveRiskAcknowledgeRejectedMessage where
 namespace ActiveRiskAcknowledgeRejectedMessage
 
 def encode (message : ActiveRiskAcknowledgeRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdActiveRiskAcknowledgeRejectedClOrdId
-    ++ (Alpha.encode message.underlierActiveRiskAcknowledgeRejectedUnderlier
-    ++ (Alpha.encode message.efidActiveRiskAcknowledgeRejectedEfid
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efid
     ++ (encodeUInt 4 message.thresholdQuantity
     ++ (encodeUInt 2 message.rejectReason))))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskAcknowledgeRejectedMessage × List UInt8) := do
-  let (clOrdIdActiveRiskAcknowledgeRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskAcknowledgeRejectedUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskAcknowledgeRejectedEfid, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efid, bytes) ← Alpha.decode 4 bytes
   let (thresholdQuantity, bytes) ← decodeUInt 4 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdActiveRiskAcknowledgeRejectedClOrdId, underlierActiveRiskAcknowledgeRejectedUnderlier, efidActiveRiskAcknowledgeRejectedEfid, thresholdQuantity, rejectReason }, bytes)
+  pure ({ clordid, underlier, efid, thresholdQuantity, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskAcknowledgeRejectedMessage) : (encode message).length = 36 := by
   unfold encode
@@ -1227,7 +1227,7 @@ end ManualCpBreachTriggerDoneMessage
 
 /-- Risk Threshold Update Rejected Message: 23 bytes -/
 structure RiskThresholdUpdateRejectedMessage where
-  clOrdIdRiskThresholdUpdateRejectedClOrdId : Alpha 20
+  clordid : Alpha 20
   riskType : BitVec 8
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -1235,15 +1235,15 @@ structure RiskThresholdUpdateRejectedMessage where
 namespace RiskThresholdUpdateRejectedMessage
 
 def encode (message : RiskThresholdUpdateRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdRiskThresholdUpdateRejectedClOrdId
+  Alpha.encode message.clordid
     ++ (encodeUInt 1 message.riskType
     ++ (encodeUInt 2 message.rejectReason))
 
 def decode (bytes : List UInt8) : Option (RiskThresholdUpdateRejectedMessage × List UInt8) := do
-  let (clOrdIdRiskThresholdUpdateRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
   let (riskType, bytes) ← decodeUInt 1 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdRiskThresholdUpdateRejectedClOrdId, riskType, rejectReason }, bytes)
+  pure ({ clordid, riskType, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : RiskThresholdUpdateRejectedMessage) : (encode message).length = 23 := by
   unfold encode
@@ -1527,9 +1527,9 @@ end SingleOrderMaxContractsThresholdStateMessage
 
 /-- Single Order Allow Market Orders State Message: 33 bytes -/
 structure SingleOrderAllowMarketOrdersStateMessage where
-  clOrdIdSingleOrderAllowMarketOrdersStateClOrdIdOptional : Alpha 20
-  underlierSingleOrderAllowMarketOrdersStateUnderlierOptional : Alpha 6
-  efidSingleOrderAllowMarketOrdersStateEfidOptional : Alpha 4
+  clordidOptional : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   marketOrders : BitVec 8
   deriving DecidableEq, Repr
@@ -1537,19 +1537,19 @@ structure SingleOrderAllowMarketOrdersStateMessage where
 namespace SingleOrderAllowMarketOrdersStateMessage
 
 def encode (message : SingleOrderAllowMarketOrdersStateMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderAllowMarketOrdersStateClOrdIdOptional
-    ++ (Alpha.encode message.underlierSingleOrderAllowMarketOrdersStateUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderAllowMarketOrdersStateEfidOptional
+  Alpha.encode message.clordidOptional
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.marketOrders))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderAllowMarketOrdersStateMessage × List UInt8) := do
-  let (clOrdIdSingleOrderAllowMarketOrdersStateClOrdIdOptional, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderAllowMarketOrdersStateUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderAllowMarketOrdersStateEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordidOptional, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (marketOrders, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderAllowMarketOrdersStateClOrdIdOptional, underlierSingleOrderAllowMarketOrdersStateUnderlierOptional, efidSingleOrderAllowMarketOrdersStateEfidOptional, riskGroupId, marketOrders }, bytes)
+  pure ({ clordidOptional, underlierOptional, efidOptional, riskGroupId, marketOrders }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderAllowMarketOrdersStateMessage) : (encode message).length = 33 := by
   unfold encode
@@ -1577,9 +1577,9 @@ end SingleOrderAllowMarketOrdersStateMessage
 
 /-- Single Order Restricted Underlier State Message: 33 bytes -/
 structure SingleOrderRestrictedUnderlierStateMessage where
-  clOrdIdSingleOrderRestrictedUnderlierStateClOrdIdOptional : Alpha 20
-  underlierSingleOrderRestrictedUnderlierStateUnderlier : Alpha 6
-  efidSingleOrderRestrictedUnderlierStateEfidOptional : Alpha 4
+  clordidOptional : Alpha 20
+  underlier : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   restricted : BitVec 8
   deriving DecidableEq, Repr
@@ -1587,19 +1587,19 @@ structure SingleOrderRestrictedUnderlierStateMessage where
 namespace SingleOrderRestrictedUnderlierStateMessage
 
 def encode (message : SingleOrderRestrictedUnderlierStateMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderRestrictedUnderlierStateClOrdIdOptional
-    ++ (Alpha.encode message.underlierSingleOrderRestrictedUnderlierStateUnderlier
-    ++ (Alpha.encode message.efidSingleOrderRestrictedUnderlierStateEfidOptional
+  Alpha.encode message.clordidOptional
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.restricted))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderRestrictedUnderlierStateMessage × List UInt8) := do
-  let (clOrdIdSingleOrderRestrictedUnderlierStateClOrdIdOptional, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderRestrictedUnderlierStateUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderRestrictedUnderlierStateEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordidOptional, bytes) ← Alpha.decode 20 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (restricted, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderRestrictedUnderlierStateClOrdIdOptional, underlierSingleOrderRestrictedUnderlierStateUnderlier, efidSingleOrderRestrictedUnderlierStateEfidOptional, riskGroupId, restricted }, bytes)
+  pure ({ clordidOptional, underlier, efidOptional, riskGroupId, restricted }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderRestrictedUnderlierStateMessage) : (encode message).length = 33 := by
   unfold encode
@@ -1662,20 +1662,20 @@ end RiskSettingsQueryDoneMessage
 
 /-- Risk Settings Query Rejected Message: 22 bytes -/
 structure RiskSettingsQueryRejectedMessage where
-  clOrdIdRiskSettingsQueryRejectedClOrdId : Alpha 20
+  clordid : Alpha 20
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
 
 namespace RiskSettingsQueryRejectedMessage
 
 def encode (message : RiskSettingsQueryRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdRiskSettingsQueryRejectedClOrdId
+  Alpha.encode message.clordid
     ++ (encodeUInt 2 message.rejectReason)
 
 def decode (bytes : List UInt8) : Option (RiskSettingsQueryRejectedMessage × List UInt8) := do
-  let (clOrdIdRiskSettingsQueryRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdRiskSettingsQueryRejectedClOrdId, rejectReason }, bytes)
+  pure ({ clordid, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : RiskSettingsQueryRejectedMessage) : (encode message).length = 22 := by
   unfold encode
@@ -1697,9 +1697,9 @@ end RiskSettingsQueryRejectedMessage
 
 /-- Manual Cp Breach Trigger Rejected Message: 34 bytes -/
 structure ManualCpBreachTriggerRejectedMessage where
-  clOrdIdManualCpBreachTriggerRejectedClOrdId : Alpha 20
-  underlierManualCpBreachTriggerRejectedUnderlierOptional : Alpha 6
-  efidManualCpBreachTriggerRejectedEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -1707,19 +1707,19 @@ structure ManualCpBreachTriggerRejectedMessage where
 namespace ManualCpBreachTriggerRejectedMessage
 
 def encode (message : ManualCpBreachTriggerRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdManualCpBreachTriggerRejectedClOrdId
-    ++ (Alpha.encode message.underlierManualCpBreachTriggerRejectedUnderlierOptional
-    ++ (Alpha.encode message.efidManualCpBreachTriggerRejectedEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 2 message.rejectReason))))
 
 def decode (bytes : List UInt8) : Option (ManualCpBreachTriggerRejectedMessage × List UInt8) := do
-  let (clOrdIdManualCpBreachTriggerRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierManualCpBreachTriggerRejectedUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidManualCpBreachTriggerRejectedEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdManualCpBreachTriggerRejectedClOrdId, underlierManualCpBreachTriggerRejectedUnderlierOptional, efidManualCpBreachTriggerRejectedEfidOptional, riskGroupId, rejectReason }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : ManualCpBreachTriggerRejectedMessage) : (encode message).length = 34 := by
   unfold encode
@@ -1747,7 +1747,7 @@ end ManualCpBreachTriggerRejectedMessage
 
 /-- Breach Clear Rejected Message: 30 bytes -/
 structure BreachClearRejectedMessage where
-  clOrdIdBreachClearRejectedClOrdId : Alpha 20
+  clordid : Alpha 20
   breachIdOptional : BitVec 64
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -1755,15 +1755,15 @@ structure BreachClearRejectedMessage where
 namespace BreachClearRejectedMessage
 
 def encode (message : BreachClearRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdBreachClearRejectedClOrdId
+  Alpha.encode message.clordid
     ++ (encodeUInt 8 message.breachIdOptional
     ++ (encodeUInt 2 message.rejectReason))
 
 def decode (bytes : List UInt8) : Option (BreachClearRejectedMessage × List UInt8) := do
-  let (clOrdIdBreachClearRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
   let (breachIdOptional, bytes) ← decodeUInt 8 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdBreachClearRejectedClOrdId, breachIdOptional, rejectReason }, bytes)
+  pure ({ clordid, breachIdOptional, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : BreachClearRejectedMessage) : (encode message).length = 30 := by
   unfold encode
@@ -1822,17 +1822,17 @@ end BreachClearedMessage
 
 /-- Breach Clear All Accepted Message: 20 bytes -/
 structure BreachClearAllAcceptedMessage where
-  clOrdIdBreachClearAllAcceptedClOrdId : Alpha 20
+  clordid : Alpha 20
   deriving DecidableEq, Repr
 
 namespace BreachClearAllAcceptedMessage
 
 def encode (message : BreachClearAllAcceptedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdBreachClearAllAcceptedClOrdId
+  Alpha.encode message.clordid
 
 def decode (bytes : List UInt8) : Option (BreachClearAllAcceptedMessage × List UInt8) := do
-  let (clOrdIdBreachClearAllAcceptedClOrdId, bytes) ← Alpha.decode 20 bytes
-  pure ({ clOrdIdBreachClearAllAcceptedClOrdId }, bytes)
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  pure ({ clordid }, bytes)
 
 @[simp] theorem encode_length (message : BreachClearAllAcceptedMessage) : (encode message).length = 20 := by
   unfold encode
@@ -1852,20 +1852,20 @@ end BreachClearAllAcceptedMessage
 
 /-- Breach Clear All Rejected Message: 22 bytes -/
 structure BreachClearAllRejectedMessage where
-  clOrdIdBreachClearAllRejectedClOrdId : Alpha 20
+  clordid : Alpha 20
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
 
 namespace BreachClearAllRejectedMessage
 
 def encode (message : BreachClearAllRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdBreachClearAllRejectedClOrdId
+  Alpha.encode message.clordid
     ++ (encodeUInt 2 message.rejectReason)
 
 def decode (bytes : List UInt8) : Option (BreachClearAllRejectedMessage × List UInt8) := do
-  let (clOrdIdBreachClearAllRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdBreachClearAllRejectedClOrdId, rejectReason }, bytes)
+  pure ({ clordid, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : BreachClearAllRejectedMessage) : (encode message).length = 22 := by
   unfold encode
@@ -1887,23 +1887,23 @@ end BreachClearAllRejectedMessage
 
 /-- Breach Clear All By Efid Or Underlier Accepted Message: 30 bytes -/
 structure BreachClearAllByEfidOrUnderlierAcceptedMessage where
-  clOrdIdBreachClearAllByEfidOrUnderlierAcceptedClOrdId : Alpha 20
-  underlierBreachClearAllByEfidOrUnderlierAcceptedUnderlierOptional : Alpha 6
-  efidBreachClearAllByEfidOrUnderlierAcceptedEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   deriving DecidableEq, Repr
 
 namespace BreachClearAllByEfidOrUnderlierAcceptedMessage
 
 def encode (message : BreachClearAllByEfidOrUnderlierAcceptedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdBreachClearAllByEfidOrUnderlierAcceptedClOrdId
-    ++ (Alpha.encode message.underlierBreachClearAllByEfidOrUnderlierAcceptedUnderlierOptional
-    ++ (Alpha.encode message.efidBreachClearAllByEfidOrUnderlierAcceptedEfidOptional))
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional))
 
 def decode (bytes : List UInt8) : Option (BreachClearAllByEfidOrUnderlierAcceptedMessage × List UInt8) := do
-  let (clOrdIdBreachClearAllByEfidOrUnderlierAcceptedClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierBreachClearAllByEfidOrUnderlierAcceptedUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidBreachClearAllByEfidOrUnderlierAcceptedEfidOptional, bytes) ← Alpha.decode 4 bytes
-  pure ({ clOrdIdBreachClearAllByEfidOrUnderlierAcceptedClOrdId, underlierBreachClearAllByEfidOrUnderlierAcceptedUnderlierOptional, efidBreachClearAllByEfidOrUnderlierAcceptedEfidOptional }, bytes)
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
+  pure ({ clordid, underlierOptional, efidOptional }, bytes)
 
 @[simp] theorem encode_length (message : BreachClearAllByEfidOrUnderlierAcceptedMessage) : (encode message).length = 30 := by
   unfold encode
@@ -1927,26 +1927,26 @@ end BreachClearAllByEfidOrUnderlierAcceptedMessage
 
 /-- Breach Clear All By Efid Or Underlier Rejected Message: 32 bytes -/
 structure BreachClearAllByEfidOrUnderlierRejectedMessage where
-  clOrdIdBreachClearAllByEfidOrUnderlierRejectedClOrdId : Alpha 20
-  underlierBreachClearAllByEfidOrUnderlierRejectedUnderlierOptional : Alpha 6
-  efidBreachClearAllByEfidOrUnderlierRejectedEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
 
 namespace BreachClearAllByEfidOrUnderlierRejectedMessage
 
 def encode (message : BreachClearAllByEfidOrUnderlierRejectedMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdBreachClearAllByEfidOrUnderlierRejectedClOrdId
-    ++ (Alpha.encode message.underlierBreachClearAllByEfidOrUnderlierRejectedUnderlierOptional
-    ++ (Alpha.encode message.efidBreachClearAllByEfidOrUnderlierRejectedEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.rejectReason)))
 
 def decode (bytes : List UInt8) : Option (BreachClearAllByEfidOrUnderlierRejectedMessage × List UInt8) := do
-  let (clOrdIdBreachClearAllByEfidOrUnderlierRejectedClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierBreachClearAllByEfidOrUnderlierRejectedUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidBreachClearAllByEfidOrUnderlierRejectedEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clOrdIdBreachClearAllByEfidOrUnderlierRejectedClOrdId, underlierBreachClearAllByEfidOrUnderlierRejectedUnderlierOptional, efidBreachClearAllByEfidOrUnderlierRejectedEfidOptional, rejectReason }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : BreachClearAllByEfidOrUnderlierRejectedMessage) : (encode message).length = 32 := by
   unfold encode

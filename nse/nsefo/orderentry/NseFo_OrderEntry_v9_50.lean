@@ -104,7 +104,7 @@ structure BoardLotInTrimmedMessage where
   proClientIndicator : BitVec 16
   additionalOrderFlags : BitVec 8
   reserved1 : Alpha 1
-  filler : BitVec 32
+  filler : Alpha 4
   nnfField : Alpha 8
   pan : Alpha 10
   algoId : BitVec 32
@@ -135,7 +135,7 @@ def encode (message : BoardLotInTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.proClientIndicator
     ++ (encodeUIntLE 1 message.additionalOrderFlags
     ++ (Alpha.encode message.reserved1
-    ++ (encodeUInt 4 message.filler
+    ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.nnfField
     ++ (Alpha.encode message.pan
     ++ (encodeUInt 4 message.algoId
@@ -165,7 +165,7 @@ def decode (bytes : List UInt8) : Option (BoardLotInTrimmedMessage × List UInt8
   let (proClientIndicator, bytes) ← decodeUInt 2 bytes
   let (additionalOrderFlags, bytes) ← decodeUIntLE 1 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
-  let (filler, bytes) ← decodeUInt 4 bytes
+  let (filler, bytes) ← Alpha.decode 4 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
@@ -225,7 +225,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -269,7 +269,7 @@ structure OrderModifyCancelTrimmedMessage where
   proClientIndicator : BitVec 16
   additionalOrderFlags : BitVec 8
   secondReserved1 : Alpha 1
-  filler : BitVec 32
+  filler : Alpha 4
   nnfField : Alpha 8
   pan : Alpha 10
   algoId : BitVec 32
@@ -308,7 +308,7 @@ def encode (message : OrderModifyCancelTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.proClientIndicator
     ++ (encodeUIntLE 1 message.additionalOrderFlags
     ++ (Alpha.encode message.secondReserved1
-    ++ (encodeUInt 4 message.filler
+    ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.nnfField
     ++ (Alpha.encode message.pan
     ++ (encodeUInt 4 message.algoId
@@ -346,7 +346,7 @@ def decode (bytes : List UInt8) : Option (OrderModifyCancelTrimmedMessage × Lis
   let (proClientIndicator, bytes) ← decodeUInt 2 bytes
   let (additionalOrderFlags, bytes) ← decodeUIntLE 1 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  let (filler, bytes) ← decodeUInt 4 bytes
+  let (filler, bytes) ← Alpha.decode 4 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
@@ -421,7 +421,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -473,7 +473,7 @@ structure OrderConfirmationTrimmedMessage where
   proClientIndicator : BitVec 16
   additionalOrderFlags : BitVec 8
   secondReserved1 : Alpha 1
-  filler : BitVec 32
+  filler : Alpha 4
   nnfField : Alpha 8
   timeStamp : BitVec 64
   pan : Alpha 10
@@ -519,7 +519,7 @@ def encode (message : OrderConfirmationTrimmedMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.proClientIndicator
     ++ (encodeUIntLE 1 message.additionalOrderFlags
     ++ (Alpha.encode message.secondReserved1
-    ++ (encodeUInt 4 message.filler
+    ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.nnfField
     ++ (encodeUInt 8 message.timeStamp
     ++ (Alpha.encode message.pan
@@ -564,7 +564,7 @@ def decode (bytes : List UInt8) : Option (OrderConfirmationTrimmedMessage × Lis
   let (proClientIndicator, bytes) ← decodeUInt 2 bytes
   let (additionalOrderFlags, bytes) ← decodeUIntLE 1 bytes
   let (secondReserved1, bytes) ← Alpha.decode 1 bytes
-  let (filler, bytes) ← decodeUInt 4 bytes
+  let (filler, bytes) ← Alpha.decode 4 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
   let (timeStamp, bytes) ← decodeUInt 8 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
@@ -652,7 +652,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

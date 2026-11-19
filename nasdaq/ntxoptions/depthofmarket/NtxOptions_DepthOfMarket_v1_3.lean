@@ -24,15 +24,16 @@ namespace Omi.NasdaqNtxoptionsDepthofmarketItchV13
 
 /-- Event Code: one byte code -/
 def EventCode.codes : List UInt8 :=
-  [0x4F, 0x53, 0x51, 0x4D, 0x45, 0x43]
+  [0x4F, 0x53, 0x51, 0x45, 0x43, 0x4E, 0x4C]
 
 inductive EventCode where
   | startOfMessages -- Start Of Messages
   | startOfSystemHours -- Start Of System Hours
-  | startOfMarketHours -- Start Of Market Hours
-  | endOfMarketHours -- End Of Market Hours
+  | startOfOpeningProcess -- Start Of Opening Process
   | endOfSystemHours -- End Of System Hours
   | endOfMessages -- End Of Messages
+  | endOfNormalHoursProcessing -- End Of Normal Hours Processing
+  | endOfLateHoursProcessing -- End Of Late Hours Processing
   | unlisted (byte : { byte : UInt8 // byte ∉ EventCode.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -41,20 +42,22 @@ namespace EventCode
 def toByte : EventCode → UInt8
   | .startOfMessages => 0x4F
   | .startOfSystemHours => 0x53
-  | .startOfMarketHours => 0x51
-  | .endOfMarketHours => 0x4D
+  | .startOfOpeningProcess => 0x51
   | .endOfSystemHours => 0x45
   | .endOfMessages => 0x43
+  | .endOfNormalHoursProcessing => 0x4E
+  | .endOfLateHoursProcessing => 0x4C
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : EventCode :=
   if byte = 0x4F then .startOfMessages
   else if byte = 0x53 then .startOfSystemHours
-  else if byte = 0x51 then .startOfMarketHours
-  else if byte = 0x4D then .endOfMarketHours
+  else if byte = 0x51 then .startOfOpeningProcess
   else if byte = 0x45 then .endOfSystemHours
-  else .endOfMessages
+  else if byte = 0x43 then .endOfMessages
+  else if byte = 0x4E then .endOfNormalHoursProcessing
+  else .endOfLateHoursProcessing
 
 def ofByte (byte : UInt8) : EventCode :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -63,10 +66,11 @@ theorem ofByte_toByte (value : EventCode) : ofByte value.toByte = value := by
   cases value with
   | startOfMessages => decide
   | startOfSystemHours => decide
-  | startOfMarketHours => decide
-  | endOfMarketHours => decide
+  | startOfOpeningProcess => decide
   | endOfSystemHours => decide
   | endOfMessages => decide
+  | endOfNormalHoursProcessing => decide
+  | endOfLateHoursProcessing => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : EventCode) : List UInt8 :=
@@ -299,15 +303,13 @@ end Mpv
 
 /-- Current Trading State: one byte code -/
 def CurrentTradingState.codes : List UInt8 :=
-  [0x48, 0x54, 0x42, 0x53, 0x59, 0x4E]
+  [0x48, 0x54, 0x42, 0x53]
 
 inductive CurrentTradingState where
   | halt -- Halt
   | trading -- Trading
   | buySideTradingSuspended -- Buy Side Trading Suspended
   | sellSideTradingSuspended -- Sell Side Trading Suspended
-  | open_ -- Open
-  | closed -- Closed
   | unlisted (byte : { byte : UInt8 // byte ∉ CurrentTradingState.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -318,8 +320,6 @@ def toByte : CurrentTradingState → UInt8
   | .trading => 0x54
   | .buySideTradingSuspended => 0x42
   | .sellSideTradingSuspended => 0x53
-  | .open_ => 0x59
-  | .closed => 0x4E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -327,9 +327,7 @@ def listed (byte : UInt8) : CurrentTradingState :=
   if byte = 0x48 then .halt
   else if byte = 0x54 then .trading
   else if byte = 0x42 then .buySideTradingSuspended
-  else if byte = 0x53 then .sellSideTradingSuspended
-  else if byte = 0x59 then .open_
-  else .closed
+  else .sellSideTradingSuspended
 
 def ofByte (byte : UInt8) : CurrentTradingState :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -340,8 +338,6 @@ theorem ofByte_toByte (value : CurrentTradingState) : ofByte value.toByte = valu
   | trading => decide
   | buySideTradingSuspended => decide
   | sellSideTradingSuspended => decide
-  | open_ => decide
-  | closed => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CurrentTradingState) : List UInt8 :=
@@ -363,6 +359,57 @@ theorem encode_length_pos (value : CurrentTradingState) : (encode value).length 
   simp [decode, encode, ofByte_toByte]
 
 end CurrentTradingState
+
+/-- Open State: one byte code -/
+def OpenState.codes : List UInt8 :=
+  [0x59, 0x4E]
+
+inductive OpenState where
+  | open_ -- Open
+  | closed -- Closed
+  | unlisted (byte : { byte : UInt8 // byte ∉ OpenState.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace OpenState
+
+def toByte : OpenState → UInt8
+  | .open_ => 0x59
+  | .closed => 0x4E
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : OpenState :=
+  if byte = 0x59 then .open_
+  else .closed
+
+def ofByte (byte : UInt8) : OpenState :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : OpenState) : ofByte value.toByte = value := by
+  cases value with
+  | open_ => decide
+  | closed => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : OpenState) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (OpenState × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : OpenState) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : OpenState) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : OpenState) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end OpenState
 
 /-- Market Side: one byte code -/
 def MarketSide.codes : List UInt8 :=
@@ -578,7 +625,7 @@ def CrossType.codes : List UInt8 :=
 
 inductive CrossType where
   | bxOpeningReopening -- Bx Opening Reopening
-  | bxOpeningReopening_50 -- Bx Opening Reopening
+  | priceImprovementPrismAuction -- Price Improvement PRISM Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -586,13 +633,13 @@ namespace CrossType
 
 def toByte : CrossType → UInt8
   | .bxOpeningReopening => 0x4F
-  | .bxOpeningReopening_50 => 0x50
+  | .priceImprovementPrismAuction => 0x50
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
   if byte = 0x4F then .bxOpeningReopening
-  else .bxOpeningReopening_50
+  else .priceImprovementPrismAuction
 
 def ofByte (byte : UInt8) : CrossType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -600,7 +647,7 @@ def ofByte (byte : UInt8) : CrossType :=
 theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
   | bxOpeningReopening => decide
-  | bxOpeningReopening_50 => decide
+  | priceImprovementPrismAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CrossType) : List UInt8 :=
@@ -1030,7 +1077,7 @@ end TradingActionMessage
 structure OptionOpenMessage where
   nanoseconds : BitVec 32
   optionId : BitVec 32
-  openState : Alpha 1
+  openState : OpenState
   deriving DecidableEq, Repr
 
 namespace OptionOpenMessage
@@ -1038,17 +1085,17 @@ namespace OptionOpenMessage
 def encode (message : OptionOpenMessage) : List UInt8 :=
   encodeUInt 4 message.nanoseconds
     ++ (encodeUInt 4 message.optionId
-    ++ (Alpha.encode message.openState))
+    ++ (OpenState.encode message.openState))
 
 def decode (bytes : List UInt8) : Option (OptionOpenMessage × List UInt8) := do
   let (nanoseconds, bytes) ← decodeUInt 4 bytes
   let (optionId, bytes) ← decodeUInt 4 bytes
-  let (openState, bytes) ← Alpha.decode 1 bytes
+  let (openState, bytes) ← OpenState.decode bytes
   pure ({ nanoseconds, optionId, openState }, bytes)
 
 @[simp] theorem encode_length (message : OptionOpenMessage) : (encode message).length = 9 := by
   unfold encode
-  simp only [List.length_append, encodeUInt_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUInt_length, OpenState.encode_length]
 
 theorem encode_length_pos (message : OptionOpenMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1061,7 +1108,7 @@ theorem encode_length_pos (message : OptionOpenMessage) : (encode message).lengt
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [Alpha.decode_encode, some_bind]
+  rw [OpenState.decode_encode, some_bind]
   rfl
 
 end OptionOpenMessage

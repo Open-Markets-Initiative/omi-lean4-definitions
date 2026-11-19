@@ -21,14 +21,13 @@ namespace Omi.NyseAmexoptionsComplexfeedXdpV13A
 
 /-- Quote Condition: one byte code -/
 def QuoteCondition.codes : List UInt8 :=
-  [0x31, 0x32, 0x33, 0x34, 0x35]
+  [0x31, 0x32, 0x33, 0x34]
 
 inductive QuoteCondition where
   | regularTrading -- Regular Trading
   | rotation -- Rotation
   | tradingHalted -- Trading Halted
   | preOpen -- Pre Open
-  | rotationLegalWidthQuotePending -- Rotation Legal Width Quote Pending
   | unlisted (byte : { byte : UInt8 // byte ∉ QuoteCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -39,7 +38,6 @@ def toByte : QuoteCondition → UInt8
   | .rotation => 0x32
   | .tradingHalted => 0x33
   | .preOpen => 0x34
-  | .rotationLegalWidthQuotePending => 0x35
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -47,8 +45,7 @@ def listed (byte : UInt8) : QuoteCondition :=
   if byte = 0x31 then .regularTrading
   else if byte = 0x32 then .rotation
   else if byte = 0x33 then .tradingHalted
-  else if byte = 0x34 then .preOpen
-  else .rotationLegalWidthQuotePending
+  else .preOpen
 
 def ofByte (byte : UInt8) : QuoteCondition :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -59,7 +56,6 @@ theorem ofByte_toByte (value : QuoteCondition) : ofByte value.toByte = value := 
   | rotation => decide
   | tradingHalted => decide
   | preOpen => decide
-  | rotationLegalWidthQuotePending => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : QuoteCondition) : List UInt8 :=
@@ -90,7 +86,7 @@ inductive TradeCond1 where
   | regularTrade -- Regular Trade
   | lateReport -- Late Report
   | floorTrade -- Floor Trade
-  | soSweepTrade -- So Sweep Trade
+  | isoSweepTrade -- ISO Sweep Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCond1.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -100,7 +96,7 @@ def toByte : TradeCond1 → UInt8
   | .regularTrade => 0x20
   | .lateReport => 0x49
   | .floorTrade => 0x52
-  | .soSweepTrade => 0x53
+  | .isoSweepTrade => 0x53
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -108,7 +104,7 @@ def listed (byte : UInt8) : TradeCond1 :=
   if byte = 0x20 then .regularTrade
   else if byte = 0x49 then .lateReport
   else if byte = 0x52 then .floorTrade
-  else .soSweepTrade
+  else .isoSweepTrade
 
 def ofByte (byte : UInt8) : TradeCond1 :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -118,7 +114,7 @@ theorem ofByte_toByte (value : TradeCond1) : ofByte value.toByte = value := by
   | regularTrade => decide
   | lateReport => decide
   | floorTrade => decide
-  | soSweepTrade => decide
+  | isoSweepTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeCond1) : List UInt8 :=
@@ -194,16 +190,12 @@ end Side
 
 /-- Security Status: one byte code -/
 def SecurityStatus.codes : List UInt8 :=
-  [0x4C, 0x4E, 0x4F, 0x58, 0x53, 0x55, 0x54, 0x51]
+  [0x4F, 0x58, 0x53, 0x51]
 
 inductive SecurityStatus where
-  | lightUpADarkSeries -- Light Up A Dark Series
-  | openADarkSeries -- Open A Dark Series
   | open_ -- Open
   | close -- Close
   | halt -- Halt
-  | unhalt -- Unhalt
-  | unhaltADarkSeries -- Unhalt A Dark Series
   | endOfRfqAuction -- End Of Rfq Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityStatus.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -211,25 +203,17 @@ inductive SecurityStatus where
 namespace SecurityStatus
 
 def toByte : SecurityStatus → UInt8
-  | .lightUpADarkSeries => 0x4C
-  | .openADarkSeries => 0x4E
   | .open_ => 0x4F
   | .close => 0x58
   | .halt => 0x53
-  | .unhalt => 0x55
-  | .unhaltADarkSeries => 0x54
   | .endOfRfqAuction => 0x51
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SecurityStatus :=
-  if byte = 0x4C then .lightUpADarkSeries
-  else if byte = 0x4E then .openADarkSeries
-  else if byte = 0x4F then .open_
+  if byte = 0x4F then .open_
   else if byte = 0x58 then .close
   else if byte = 0x53 then .halt
-  else if byte = 0x55 then .unhalt
-  else if byte = 0x54 then .unhaltADarkSeries
   else .endOfRfqAuction
 
 def ofByte (byte : UInt8) : SecurityStatus :=
@@ -237,13 +221,9 @@ def ofByte (byte : UInt8) : SecurityStatus :=
 
 theorem ofByte_toByte (value : SecurityStatus) : ofByte value.toByte = value := by
   cases value with
-  | lightUpADarkSeries => decide
-  | openADarkSeries => decide
   | open_ => decide
   | close => decide
   | halt => decide
-  | unhalt => decide
-  | unhaltADarkSeries => decide
   | endOfRfqAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -1035,12 +1015,13 @@ theorem encode_length_pos (message : StreamIdMessage) : (encode message).length 
 
 end StreamIdMessage
 
-/-- Sequence Number Reset Message: 10 bytes -/
+/-- Sequence Number Reset Message: 12 bytes -/
 structure SequenceNumberResetMessage where
   sourceTime : BitVec 32
   sourceTimeNs : BitVec 32
   productId : BitVec 8
   channelId : BitVec 8
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace SequenceNumberResetMessage
@@ -1049,18 +1030,20 @@ def encode (message : SequenceNumberResetMessage) : List UInt8 :=
   encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
     ++ (encodeUInt 1 message.productId
-    ++ (encodeUInt 1 message.channelId)))
+    ++ (encodeUInt 1 message.channelId
+    ++ (Alpha.encode message.reserved2))))
 
 def decode (bytes : List UInt8) : Option (SequenceNumberResetMessage × List UInt8) := do
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
   let (productId, bytes) ← decodeUInt 1 bytes
   let (channelId, bytes) ← decodeUInt 1 bytes
-  pure ({ sourceTime, sourceTimeNs, productId, channelId }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ sourceTime, sourceTimeNs, productId, channelId, reserved2 }, bytes)
 
-@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 10 := by
+@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 12 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1075,7 +1058,9 @@ theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end SequenceNumberResetMessage

@@ -148,11 +148,12 @@ end SettlementType
 
 /-- Risk User Type: one byte code -/
 def RiskUserType.codes : List UInt8 :=
-  [0x45, 0x43]
+  [0x45, 0x43, 0x4F]
 
 inductive RiskUserType where
   | enteringFirm -- Entering Firm
   | clearingFirm -- Clearing Firm
+  | optionsMarketMakerFirm -- Options Market Maker Firm
   | unlisted (byte : { byte : UInt8 // byte ∉ RiskUserType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -161,12 +162,14 @@ namespace RiskUserType
 def toByte : RiskUserType → UInt8
   | .enteringFirm => 0x45
   | .clearingFirm => 0x43
+  | .optionsMarketMakerFirm => 0x4F
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : RiskUserType :=
   if byte = 0x45 then .enteringFirm
-  else .clearingFirm
+  else if byte = 0x43 then .clearingFirm
+  else .optionsMarketMakerFirm
 
 def ofByte (byte : UInt8) : RiskUserType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -175,6 +178,7 @@ theorem ofByte_toByte (value : RiskUserType) : ofByte value.toByte = value := by
   cases value with
   | enteringFirm => decide
   | clearingFirm => decide
+  | optionsMarketMakerFirm => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : RiskUserType) : List UInt8 :=

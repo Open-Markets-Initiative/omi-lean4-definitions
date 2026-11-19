@@ -87,7 +87,7 @@ inductive TradeCond1 where
   | regularTrade -- Regular Trade
   | lateReport -- Late Report
   | floorTrade -- Floor Trade
-  | soSweepTrade -- So Sweep Trade
+  | isoSweepTrade -- ISO Sweep Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCond1.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -97,7 +97,7 @@ def toByte : TradeCond1 → UInt8
   | .regularTrade => 0x20
   | .lateReport => 0x49
   | .floorTrade => 0x52
-  | .soSweepTrade => 0x53
+  | .isoSweepTrade => 0x53
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -105,7 +105,7 @@ def listed (byte : UInt8) : TradeCond1 :=
   if byte = 0x20 then .regularTrade
   else if byte = 0x49 then .lateReport
   else if byte = 0x52 then .floorTrade
-  else .soSweepTrade
+  else .isoSweepTrade
 
 def ofByte (byte : UInt8) : TradeCond1 :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -115,7 +115,7 @@ theorem ofByte_toByte (value : TradeCond1) : ofByte value.toByte = value := by
   | regularTrade => decide
   | lateReport => decide
   | floorTrade => decide
-  | soSweepTrade => decide
+  | isoSweepTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeCond1) : List UInt8 :=
@@ -143,7 +143,7 @@ def TradeCond2.codes : List UInt8 :=
   [0x50, 0x4C]
 
 inductive TradeCond2 where
-  | complexTradeWithEquity -- Complex Trade With Equity
+  | complexTradeWithEquityTrade -- Complex Trade With Equity Trade
   | complexTrade -- Complex Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCond2.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -151,13 +151,13 @@ inductive TradeCond2 where
 namespace TradeCond2
 
 def toByte : TradeCond2 → UInt8
-  | .complexTradeWithEquity => 0x50
+  | .complexTradeWithEquityTrade => 0x50
   | .complexTrade => 0x4C
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradeCond2 :=
-  if byte = 0x50 then .complexTradeWithEquity
+  if byte = 0x50 then .complexTradeWithEquityTrade
   else .complexTrade
 
 def ofByte (byte : UInt8) : TradeCond2 :=
@@ -165,7 +165,7 @@ def ofByte (byte : UInt8) : TradeCond2 :=
 
 theorem ofByte_toByte (value : TradeCond2) : ofByte value.toByte = value := by
   cases value with
-  | complexTradeWithEquity => decide
+  | complexTradeWithEquityTrade => decide
   | complexTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -628,7 +628,7 @@ inductive SecurityType where
   | rights -- Rights
   | sharesOfBeneficiaryInterest -- Shares Of Beneficiary Interest
   | test -- Test
-  | units_55 -- Units
+  | closedEndFund -- Closed End Fund
   | warrant -- Warrant
   | index -- Index
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityType.codes }) -- any other code, kept as it is
@@ -650,7 +650,7 @@ def toByte : SecurityType → UInt8
   | .rights => 0x52
   | .sharesOfBeneficiaryInterest => 0x53
   | .test => 0x54
-  | .units_55 => 0x55
+  | .closedEndFund => 0x55
   | .warrant => 0x57
   | .index => 0x58
   | .unlisted byte => byte.val
@@ -670,7 +670,7 @@ def listed (byte : UInt8) : SecurityType :=
   else if byte = 0x52 then .rights
   else if byte = 0x53 then .sharesOfBeneficiaryInterest
   else if byte = 0x54 then .test
-  else if byte = 0x55 then .units_55
+  else if byte = 0x55 then .closedEndFund
   else if byte = 0x57 then .warrant
   else .index
 
@@ -692,7 +692,7 @@ theorem ofByte_toByte (value : SecurityType) : ofByte value.toByte = value := by
   | rights => decide
   | sharesOfBeneficiaryInterest => decide
   | test => decide
-  | units_55 => decide
+  | closedEndFund => decide
   | warrant => decide
   | index => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
@@ -1922,12 +1922,13 @@ theorem encode_length_pos (message : StreamIdMessage) : (encode message).length 
 
 end StreamIdMessage
 
-/-- Sequence Number Reset Message: 10 bytes -/
+/-- Sequence Number Reset Message: 12 bytes -/
 structure SequenceNumberResetMessage where
   sourceTime : BitVec 32
   sourceTimeNs : BitVec 32
   productId : BitVec 8
   channelId : BitVec 8
+  reserved2 : Alpha 2
   deriving DecidableEq, Repr
 
 namespace SequenceNumberResetMessage
@@ -1936,18 +1937,20 @@ def encode (message : SequenceNumberResetMessage) : List UInt8 :=
   encodeUIntLE 4 message.sourceTime
     ++ (encodeUIntLE 4 message.sourceTimeNs
     ++ (encodeUInt 1 message.productId
-    ++ (encodeUInt 1 message.channelId)))
+    ++ (encodeUInt 1 message.channelId
+    ++ (Alpha.encode message.reserved2))))
 
 def decode (bytes : List UInt8) : Option (SequenceNumberResetMessage × List UInt8) := do
   let (sourceTime, bytes) ← decodeUIntLE 4 bytes
   let (sourceTimeNs, bytes) ← decodeUIntLE 4 bytes
   let (productId, bytes) ← decodeUInt 1 bytes
   let (channelId, bytes) ← decodeUInt 1 bytes
-  pure ({ sourceTime, sourceTimeNs, productId, channelId }, bytes)
+  let (reserved2, bytes) ← Alpha.decode 2 bytes
+  pure ({ sourceTime, sourceTimeNs, productId, channelId, reserved2 }, bytes)
 
-@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 10 := by
+@[simp] theorem encode_length (message : SequenceNumberResetMessage) : (encode message).length = 12 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1962,7 +1965,9 @@ theorem encode_length_pos (message : SequenceNumberResetMessage) : (encode messa
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
   rfl
 
 end SequenceNumberResetMessage

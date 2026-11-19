@@ -343,7 +343,7 @@ structure TradeFullInformationMessage where
   publicationDateTime : Alpha 27
   instrumentIdCodeType : Alpha 4
   instrumentIdCode : Alpha 12
-  priceAsciiCh20 : Alpha 20
+  tradedPrice : Alpha 20
   quantity : Alpha 20
   notionalAmount : Alpha 20
   notionalCurrency : Alpha 3
@@ -387,7 +387,7 @@ def encode (message : TradeFullInformationMessage) : List UInt8 :=
     ++ (Alpha.encode message.publicationDateTime
     ++ (Alpha.encode message.instrumentIdCodeType
     ++ (Alpha.encode message.instrumentIdCode
-    ++ (Alpha.encode message.priceAsciiCh20
+    ++ (Alpha.encode message.tradedPrice
     ++ (Alpha.encode message.quantity
     ++ (Alpha.encode message.notionalAmount
     ++ (Alpha.encode message.notionalCurrency
@@ -430,7 +430,7 @@ def decode (bytes : List UInt8) : Option (TradeFullInformationMessage × List UI
   let (publicationDateTime, bytes) ← Alpha.decode 27 bytes
   let (instrumentIdCodeType, bytes) ← Alpha.decode 4 bytes
   let (instrumentIdCode, bytes) ← Alpha.decode 12 bytes
-  let (priceAsciiCh20, bytes) ← Alpha.decode 20 bytes
+  let (tradedPrice, bytes) ← Alpha.decode 20 bytes
   let (quantity, bytes) ← Alpha.decode 20 bytes
   let (notionalAmount, bytes) ← Alpha.decode 20 bytes
   let (notionalCurrency, bytes) ← Alpha.decode 3 bytes
@@ -444,7 +444,7 @@ def decode (bytes : List UInt8) : Option (TradeFullInformationMessage × List UI
   let (mmtSpecialDividendIndicator, bytes) ← Alpha.decode 4 bytes
   let (mmtContributionToPrice, bytes) ← Alpha.decode 4 bytes
   let (mmtBenchmarkIndicator, bytes) ← Alpha.decode 4 bytes
-  pure ({ symbolIndex, sourceTime, tradeIdNumber, venueOfExecution, sourceSeqNum, priceNotation, transactionToBeCleared, cumulativeQuantity, highestPrice, lowestPrice, variationLastPrice, systemId, sourceTimeMicroSecs, priceCurrency, lastTradeIndicator, typeOfTrade, tradeOrigin, tickDirection, openingTradeIndicator, variationScaleCode, priceScaleCode, tradingDateTime, publicationDateTime, instrumentIdCodeType, instrumentIdCode, priceAsciiCh20, quantity, notionalAmount, notionalCurrency, reserved1, transactionIdCode, mmtMarketMechanism, mmtTradingMode, mmtAlgorithmicIndicator, mmtModificationIndicator, mmtNegotiationIndicator, mmtSpecialDividendIndicator, mmtContributionToPrice, mmtBenchmarkIndicator }, bytes)
+  pure ({ symbolIndex, sourceTime, tradeIdNumber, venueOfExecution, sourceSeqNum, priceNotation, transactionToBeCleared, cumulativeQuantity, highestPrice, lowestPrice, variationLastPrice, systemId, sourceTimeMicroSecs, priceCurrency, lastTradeIndicator, typeOfTrade, tradeOrigin, tickDirection, openingTradeIndicator, variationScaleCode, priceScaleCode, tradingDateTime, publicationDateTime, instrumentIdCodeType, instrumentIdCode, tradedPrice, quantity, notionalAmount, notionalCurrency, reserved1, transactionIdCode, mmtMarketMechanism, mmtTradingMode, mmtAlgorithmicIndicator, mmtModificationIndicator, mmtNegotiationIndicator, mmtSpecialDividendIndicator, mmtContributionToPrice, mmtBenchmarkIndicator }, bytes)
 
 @[simp] theorem encode_length (message : TradeFullInformationMessage) : (encode message).length = 272 := by
   unfold encode
@@ -544,7 +544,7 @@ structure PriceUpdateMessage where
   symbolIndex : BitVec 32
   sourceTime : BitVec 32
   sourceSeqNum : BitVec 32
-  priceBinaryInt4 : BitVec 32
+  price : BitVec 32
   highestPrice : BitVec 32
   lowestPrice : BitVec 32
   variationLastPrice : BitVec 32
@@ -562,7 +562,7 @@ def encode (message : PriceUpdateMessage) : List UInt8 :=
   encodeUInt 4 message.symbolIndex
     ++ (encodeUInt 4 message.sourceTime
     ++ (encodeUInt 4 message.sourceSeqNum
-    ++ (encodeUInt 4 message.priceBinaryInt4
+    ++ (encodeUInt 4 message.price
     ++ (encodeUInt 4 message.highestPrice
     ++ (encodeUInt 4 message.lowestPrice
     ++ (encodeUInt 4 message.variationLastPrice
@@ -577,7 +577,7 @@ def decode (bytes : List UInt8) : Option (PriceUpdateMessage × List UInt8) := d
   let (symbolIndex, bytes) ← decodeUInt 4 bytes
   let (sourceTime, bytes) ← decodeUInt 4 bytes
   let (sourceSeqNum, bytes) ← decodeUInt 4 bytes
-  let (priceBinaryInt4, bytes) ← decodeUInt 4 bytes
+  let (price, bytes) ← decodeUInt 4 bytes
   let (highestPrice, bytes) ← decodeUInt 4 bytes
   let (lowestPrice, bytes) ← decodeUInt 4 bytes
   let (variationLastPrice, bytes) ← decodeUInt 4 bytes
@@ -587,7 +587,7 @@ def decode (bytes : List UInt8) : Option (PriceUpdateMessage × List UInt8) := d
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (priceScaleCode, bytes) ← decodeUInt 1 bytes
   let (variationScaleCode, bytes) ← decodeUInt 1 bytes
-  pure ({ symbolIndex, sourceTime, sourceSeqNum, priceBinaryInt4, highestPrice, lowestPrice, variationLastPrice, systemId, sourceTimeMicroSecs, typeOfPrice, reserved2, priceScaleCode, variationScaleCode }, bytes)
+  pure ({ symbolIndex, sourceTime, sourceSeqNum, price, highestPrice, lowestPrice, variationLastPrice, systemId, sourceTimeMicroSecs, typeOfPrice, reserved2, priceScaleCode, variationScaleCode }, bytes)
 
 @[simp] theorem encode_length (message : PriceUpdateMessage) : (encode message).length = 40 := by
   unfold encode

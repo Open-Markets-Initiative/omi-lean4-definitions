@@ -176,8 +176,8 @@ inductive TradingStatus where
   | haltedMatchingPartitionSuspended -- Halted Matching Partition Suspended
   | haltedSystemSuspended -- Halted System Suspended
   | haltedRegulatoryHalt -- Halted Regulatory Halt
-  | regularTradingStartOfTrqbSession -- Regular Trading Start Of Trqb Session
-  | endOfRegularTradingEndOfTrqbSession -- End Of Regular Trading End Of Trqb Session
+  | regularTrading -- Regular Trading
+  | endOfRegularTrading -- End Of Regular Trading
   | closed -- Closed
   | suspended -- Suspended
   | noActiveSession -- No Active Session
@@ -191,8 +191,8 @@ def toByte : TradingStatus → UInt8
   | .haltedMatchingPartitionSuspended => 0x4A
   | .haltedSystemSuspended => 0x4B
   | .haltedRegulatoryHalt => 0x50
-  | .regularTradingStartOfTrqbSession => 0x54
-  | .endOfRegularTradingEndOfTrqbSession => 0x74
+  | .regularTrading => 0x54
+  | .endOfRegularTrading => 0x74
   | .closed => 0x63
   | .suspended => 0x32
   | .noActiveSession => 0x77
@@ -204,8 +204,8 @@ def listed (byte : UInt8) : TradingStatus :=
   else if byte = 0x4A then .haltedMatchingPartitionSuspended
   else if byte = 0x4B then .haltedSystemSuspended
   else if byte = 0x50 then .haltedRegulatoryHalt
-  else if byte = 0x54 then .regularTradingStartOfTrqbSession
-  else if byte = 0x74 then .endOfRegularTradingEndOfTrqbSession
+  else if byte = 0x54 then .regularTrading
+  else if byte = 0x74 then .endOfRegularTrading
   else if byte = 0x63 then .closed
   else if byte = 0x32 then .suspended
   else .noActiveSession
@@ -219,8 +219,8 @@ theorem ofByte_toByte (value : TradingStatus) : ofByte value.toByte = value := b
   | haltedMatchingPartitionSuspended => decide
   | haltedSystemSuspended => decide
   | haltedRegulatoryHalt => decide
-  | regularTradingStartOfTrqbSession => decide
-  | endOfRegularTradingEndOfTrqbSession => decide
+  | regularTrading => decide
+  | endOfRegularTrading => decide
   | closed => decide
   | suspended => decide
   | noActiveSession => decide
@@ -302,26 +302,26 @@ def AuctionType.codes : List UInt8 :=
   [0x4C]
 
 inductive AuctionType where
-  | frequentLitAuctions -- Frequent Lit Auctions
+  | frequentPeriodicAuctions -- Frequent Periodic Auctions
   | unlisted (byte : { byte : UInt8 // byte ∉ AuctionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace AuctionType
 
 def toByte : AuctionType → UInt8
-  | .frequentLitAuctions => 0x4C
+  | .frequentPeriodicAuctions => 0x4C
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (_ : UInt8) : AuctionType :=
-  .frequentLitAuctions
+  .frequentPeriodicAuctions
 
 def ofByte (byte : UInt8) : AuctionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : AuctionType) : ofByte value.toByte = value := by
   cases value with
-  | frequentLitAuctions => decide
+  | frequentPeriodicAuctions => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AuctionType) : List UInt8 :=
@@ -346,16 +346,11 @@ end AuctionType
 
 /-- Trade Qualifier: one byte code -/
 def TradeQualifier.codes : List UInt8 :=
-  [0x20, 0x54, 0x41, 0x42, 0x45, 0x46, 0x47]
+  [0x20, 0x54]
 
 inductive TradeQualifier where
   | notApplicable -- Not Applicable
   | tradeAtLast -- Trade At Last
-  | aesp -- Aesp
-  | edsp -- Edsp
-  | resumeAuction -- Resume Auction
-  | periodicAuction -- Periodic Auction
-  | scheduledLevel1OnlyAuction -- Scheduled Level 1 Only Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeQualifier.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -364,22 +359,12 @@ namespace TradeQualifier
 def toByte : TradeQualifier → UInt8
   | .notApplicable => 0x20
   | .tradeAtLast => 0x54
-  | .aesp => 0x41
-  | .edsp => 0x42
-  | .resumeAuction => 0x45
-  | .periodicAuction => 0x46
-  | .scheduledLevel1OnlyAuction => 0x47
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradeQualifier :=
   if byte = 0x20 then .notApplicable
-  else if byte = 0x54 then .tradeAtLast
-  else if byte = 0x41 then .aesp
-  else if byte = 0x42 then .edsp
-  else if byte = 0x45 then .resumeAuction
-  else if byte = 0x46 then .periodicAuction
-  else .scheduledLevel1OnlyAuction
+  else .tradeAtLast
 
 def ofByte (byte : UInt8) : TradeQualifier :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -388,11 +373,6 @@ theorem ofByte_toByte (value : TradeQualifier) : ofByte value.toByte = value := 
   cases value with
   | notApplicable => decide
   | tradeAtLast => decide
-  | aesp => decide
-  | edsp => decide
-  | resumeAuction => decide
-  | periodicAuction => decide
-  | scheduledLevel1OnlyAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeQualifier) : List UInt8 :=
@@ -727,11 +707,10 @@ end AgencyCrossIndicator
 
 /-- Modification Indicator: one byte code -/
 def ModificationIndicator.codes : List UInt8 :=
-  [0x43, 0x41, 0x2D]
+  [0x43, 0x2D]
 
 inductive ModificationIndicator where
   | tradeCancellation -- Trade Cancellation
-  | tradeAmendment -- Trade Amendment
   | newTrade -- New Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ ModificationIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -740,14 +719,12 @@ namespace ModificationIndicator
 
 def toByte : ModificationIndicator → UInt8
   | .tradeCancellation => 0x43
-  | .tradeAmendment => 0x41
   | .newTrade => 0x2D
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ModificationIndicator :=
   if byte = 0x43 then .tradeCancellation
-  else if byte = 0x41 then .tradeAmendment
   else .newTrade
 
 def ofByte (byte : UInt8) : ModificationIndicator :=
@@ -756,7 +733,6 @@ def ofByte (byte : UInt8) : ModificationIndicator :=
 theorem ofByte_toByte (value : ModificationIndicator) : ofByte value.toByte = value := by
   cases value with
   | tradeCancellation => decide
-  | tradeAmendment => decide
   | newTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -782,12 +758,13 @@ end ModificationIndicator
 
 /-- Reference Price Indicator: one byte code -/
 def ReferencePriceIndicator.codes : List UInt8 :=
-  [0x53, 0x31, 0x2D]
+  [0x53, 0x31, 0x2D, 0x36]
 
 inductive ReferencePriceIndicator where
   | referencePriceTrade -- Reference Price Trade
   | marketClosingPriceTrade -- Market Closing Price Trade
   | notAReferencePriceTrade -- Not A Reference Price Trade
+  | referencePriceTradeAndMarketClosingPriceTrade -- Reference Price Trade And Market Closing Price Trade
   | unlisted (byte : { byte : UInt8 // byte ∉ ReferencePriceIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -797,13 +774,15 @@ def toByte : ReferencePriceIndicator → UInt8
   | .referencePriceTrade => 0x53
   | .marketClosingPriceTrade => 0x31
   | .notAReferencePriceTrade => 0x2D
+  | .referencePriceTradeAndMarketClosingPriceTrade => 0x36
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ReferencePriceIndicator :=
   if byte = 0x53 then .referencePriceTrade
   else if byte = 0x31 then .marketClosingPriceTrade
-  else .notAReferencePriceTrade
+  else if byte = 0x2D then .notAReferencePriceTrade
+  else .referencePriceTradeAndMarketClosingPriceTrade
 
 def ofByte (byte : UInt8) : ReferencePriceIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -813,6 +792,7 @@ theorem ofByte_toByte (value : ReferencePriceIndicator) : ofByte value.toByte = 
   | referencePriceTrade => decide
   | marketClosingPriceTrade => decide
   | notAReferencePriceTrade => decide
+  | referencePriceTradeAndMarketClosingPriceTrade => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ReferencePriceIndicator) : List UInt8 :=
@@ -1073,6 +1053,53 @@ theorem encode_length_pos (value : PostTradeDeferralReason) : (encode value).len
   simp [decode, encode, ofByte_toByte]
 
 end PostTradeDeferralReason
+
+/-- Deferral Enrichment Type: one byte code -/
+def DeferralEnrichmentType.codes : List UInt8 :=
+  [0x2D]
+
+inductive DeferralEnrichmentType where
+  | notApplicable -- Not Applicable
+  | unlisted (byte : { byte : UInt8 // byte ∉ DeferralEnrichmentType.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace DeferralEnrichmentType
+
+def toByte : DeferralEnrichmentType → UInt8
+  | .notApplicable => 0x2D
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (_ : UInt8) : DeferralEnrichmentType :=
+  .notApplicable
+
+def ofByte (byte : UInt8) : DeferralEnrichmentType :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : DeferralEnrichmentType) : ofByte value.toByte = value := by
+  cases value with
+  | notApplicable => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : DeferralEnrichmentType) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (DeferralEnrichmentType × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : DeferralEnrichmentType) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : DeferralEnrichmentType) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : DeferralEnrichmentType) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end DeferralEnrichmentType
 
 /-- Duplicative Indicator: one byte code -/
 def DuplicativeIndicator.codes : List UInt8 :=
@@ -2293,7 +2320,7 @@ structure MifidIiTradeMessage where
   priceFormationIndicator : PriceFormationIndicator
   algorithmicIndicator : AlgorithmicIndicator
   postTradeDeferralReason : PostTradeDeferralReason
-  deferralEnrichmentType : Alpha 1
+  deferralEnrichmentType : DeferralEnrichmentType
   duplicativeIndicator : DuplicativeIndicator
   deriving DecidableEq, Repr
 
@@ -2340,7 +2367,7 @@ def encode (message : MifidIiTradeMessage) : List UInt8 :=
     ++ (PriceFormationIndicator.encode message.priceFormationIndicator
     ++ (AlgorithmicIndicator.encode message.algorithmicIndicator
     ++ (PostTradeDeferralReason.encode message.postTradeDeferralReason
-    ++ (Alpha.encode message.deferralEnrichmentType
+    ++ (DeferralEnrichmentType.encode message.deferralEnrichmentType
     ++ (DuplicativeIndicator.encode message.duplicativeIndicator)))))))))))))))))))))))))))))))))))))))))
 
 -- a long run of fields nests deeper than the elaborator's default limit
@@ -2386,13 +2413,13 @@ def decode (bytes : List UInt8) : Option (MifidIiTradeMessage × List UInt8) := 
   let (priceFormationIndicator, bytes) ← PriceFormationIndicator.decode bytes
   let (algorithmicIndicator, bytes) ← AlgorithmicIndicator.decode bytes
   let (postTradeDeferralReason, bytes) ← PostTradeDeferralReason.decode bytes
-  let (deferralEnrichmentType, bytes) ← Alpha.decode 1 bytes
+  let (deferralEnrichmentType, bytes) ← DeferralEnrichmentType.decode bytes
   let (duplicativeIndicator, bytes) ← DuplicativeIndicator.decode bytes
   pure ({ timestamp, sourceVenue, instrument, transactionIdentificationCode, tradeType, auctionType, miFidPrice, miFidQuantity, tradingDateAndTime, instrumentIdentificationCodeType, instrumentIdentificationCode, priceNotation, priceMajorCurrency, notionalAmount, notionalCurrency, venueOfExecutionAlpha4, publicationDateAndTime, ptRefPriceWaiverFlag, tradingSystem, marketClosingPriceFlag, ptAlgoTrade, ptCancellationFlag, ptAmendmentFlag, reserved1, reserved3, reserved20, reserved4, tradeQualifier, marketMechanism, tradingMode, transactionCategory, negotiationIndicator, agencyCrossIndicator, modificationIndicator, referencePriceIndicator, specialDividendIndicator, offBookAutomatedIndicator, priceFormationIndicator, algorithmicIndicator, postTradeDeferralReason, deferralEnrichmentType, duplicativeIndicator }, bytes)
 
 @[simp] theorem encode_length (message : MifidIiTradeMessage) : (encode message).length = 289 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, AuctionType.encode_length, TradeQualifier.encode_length, MarketMechanism.encode_length, TradingMode.encode_length, TransactionCategory.encode_length, NegotiationIndicator.encode_length, AgencyCrossIndicator.encode_length, ModificationIndicator.encode_length, ReferencePriceIndicator.encode_length, SpecialDividendIndicator.encode_length, OffBookAutomatedIndicator.encode_length, PriceFormationIndicator.encode_length, AlgorithmicIndicator.encode_length, PostTradeDeferralReason.encode_length, DuplicativeIndicator.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, AuctionType.encode_length, TradeQualifier.encode_length, MarketMechanism.encode_length, TradingMode.encode_length, TransactionCategory.encode_length, NegotiationIndicator.encode_length, AgencyCrossIndicator.encode_length, ModificationIndicator.encode_length, ReferencePriceIndicator.encode_length, SpecialDividendIndicator.encode_length, OffBookAutomatedIndicator.encode_length, PriceFormationIndicator.encode_length, AlgorithmicIndicator.encode_length, PostTradeDeferralReason.encode_length, DeferralEnrichmentType.encode_length, DuplicativeIndicator.encode_length]
 
 theorem encode_length_pos (message : MifidIiTradeMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2482,7 +2509,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, PostTradeDeferralReason.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, DeferralEnrichmentType.decode_encode, some_bind]
   dsimp only
   rw [DuplicativeIndicator.decode_encode, some_bind]
   rfl
@@ -2530,7 +2557,7 @@ structure MifidIiTradeCrossMessage where
   priceFormationIndicator : PriceFormationIndicator
   algorithmicIndicator : AlgorithmicIndicator
   postTradeDeferralReason : PostTradeDeferralReason
-  deferralEnrichmentType : Alpha 1
+  deferralEnrichmentType : DeferralEnrichmentType
   duplicativeIndicator : DuplicativeIndicator
   deriving DecidableEq, Repr
 
@@ -2576,7 +2603,7 @@ def encode (message : MifidIiTradeCrossMessage) : List UInt8 :=
     ++ (PriceFormationIndicator.encode message.priceFormationIndicator
     ++ (AlgorithmicIndicator.encode message.algorithmicIndicator
     ++ (PostTradeDeferralReason.encode message.postTradeDeferralReason
-    ++ (Alpha.encode message.deferralEnrichmentType
+    ++ (DeferralEnrichmentType.encode message.deferralEnrichmentType
     ++ (DuplicativeIndicator.encode message.duplicativeIndicator))))))))))))))))))))))))))))))))))))))))
 
 -- a long run of fields nests deeper than the elaborator's default limit
@@ -2621,13 +2648,13 @@ def decode (bytes : List UInt8) : Option (MifidIiTradeCrossMessage × List UInt8
   let (priceFormationIndicator, bytes) ← PriceFormationIndicator.decode bytes
   let (algorithmicIndicator, bytes) ← AlgorithmicIndicator.decode bytes
   let (postTradeDeferralReason, bytes) ← PostTradeDeferralReason.decode bytes
-  let (deferralEnrichmentType, bytes) ← Alpha.decode 1 bytes
+  let (deferralEnrichmentType, bytes) ← DeferralEnrichmentType.decode bytes
   let (duplicativeIndicator, bytes) ← DuplicativeIndicator.decode bytes
   pure ({ timestamp, sourceVenue, instrument, transactionIdentificationCode, crossId, crossType, miFidPrice, miFidQuantity, tradingDateAndTime, instrumentIdentificationCodeType, instrumentIdentificationCode, priceNotation, priceMajorCurrency, notionalAmount, notionalCurrency, venueOfExecutionAlpha4, publicationDateAndTime, reserved4, ntPreTradeWaiverFlag, ptAlgoTrade, secondReserved4, ptCancellationFlag, ptAmendmentFlag, reserved1, reserved3, reserved20, tradingSystem, marketMechanism, tradingMode, transactionCategory, negotiationIndicator, agencyCrossIndicator, modificationIndicator, referencePriceIndicator, specialDividendIndicator, offBookAutomatedIndicator, priceFormationIndicator, algorithmicIndicator, postTradeDeferralReason, deferralEnrichmentType, duplicativeIndicator }, bytes)
 
 @[simp] theorem encode_length (message : MifidIiTradeCrossMessage) : (encode message).length = 307 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, MarketMechanism.encode_length, TradingMode.encode_length, TransactionCategory.encode_length, NegotiationIndicator.encode_length, AgencyCrossIndicator.encode_length, ModificationIndicator.encode_length, ReferencePriceIndicator.encode_length, SpecialDividendIndicator.encode_length, OffBookAutomatedIndicator.encode_length, PriceFormationIndicator.encode_length, AlgorithmicIndicator.encode_length, PostTradeDeferralReason.encode_length, DuplicativeIndicator.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, MarketMechanism.encode_length, TradingMode.encode_length, TransactionCategory.encode_length, NegotiationIndicator.encode_length, AgencyCrossIndicator.encode_length, ModificationIndicator.encode_length, ReferencePriceIndicator.encode_length, SpecialDividendIndicator.encode_length, OffBookAutomatedIndicator.encode_length, PriceFormationIndicator.encode_length, AlgorithmicIndicator.encode_length, PostTradeDeferralReason.encode_length, DeferralEnrichmentType.encode_length, DuplicativeIndicator.encode_length]
 
 theorem encode_length_pos (message : MifidIiTradeCrossMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2715,7 +2742,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, PostTradeDeferralReason.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, DeferralEnrichmentType.decode_encode, some_bind]
   dsimp only
   rw [DuplicativeIndicator.decode_encode, some_bind]
   rfl

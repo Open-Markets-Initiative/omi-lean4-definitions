@@ -1637,19 +1637,19 @@ end ServiceHeader
 /-- Total Market Value: 15 bytes -/
 structure TotalMarketValue where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  totalMarketValueC14 : Alpha 14
+  totalMarketValueAmount : Alpha 14
   deriving DecidableEq, Repr
 
 namespace TotalMarketValue
 
 def encode (message : TotalMarketValue) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.totalMarketValueC14)
+    ++ (Alpha.encode message.totalMarketValueAmount)
 
 def decode (bytes : List UInt8) : Option (TotalMarketValue × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (totalMarketValueC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, totalMarketValueC14 }, bytes)
+  let (totalMarketValueAmount, bytes) ← Alpha.decode 14 bytes
+  pure ({ tradingVolumeTurnoverUnitFlag, totalMarketValueAmount }, bytes)
 
 @[simp] theorem encode_length (message : TotalMarketValue) : (encode message).length = 15 := by
   unfold encode
@@ -1672,7 +1672,7 @@ end TotalMarketValue
 /-- Market Value Day On Day Comparison: 16 bytes -/
 structure MarketValueDayOnDayComparison where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  dayOnDayComparisonC14 : Alpha 14
+  dayOnDayComparison : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -1680,14 +1680,14 @@ namespace MarketValueDayOnDayComparison
 
 def encode (message : MarketValueDayOnDayComparison) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.dayOnDayComparisonC14
+    ++ (Alpha.encode message.dayOnDayComparison
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (MarketValueDayOnDayComparison × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (dayOnDayComparisonC14, bytes) ← Alpha.decode 14 bytes
+  let (dayOnDayComparison, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, dayOnDayComparisonC14, sign }, bytes)
+  pure ({ tradingVolumeTurnoverUnitFlag, dayOnDayComparison, sign }, bytes)
 
 @[simp] theorem encode_length (message : MarketValueDayOnDayComparison) : (encode message).length = 16 := by
   unfold encode
@@ -1761,20 +1761,20 @@ end MarketValueMessage
 
 /-- Simple Yield: 9 bytes -/
 structure SimpleYield where
-  simpleYieldC8 : Alpha 8
+  simpleYieldValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace SimpleYield
 
 def encode (message : SimpleYield) : List UInt8 :=
-  Alpha.encode message.simpleYieldC8
+  Alpha.encode message.simpleYieldValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (SimpleYield × List UInt8) := do
-  let (simpleYieldC8, bytes) ← Alpha.decode 8 bytes
+  let (simpleYieldValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ simpleYieldC8, sign }, bytes)
+  pure ({ simpleYieldValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : SimpleYield) : (encode message).length = 9 := by
   unfold encode
@@ -1796,20 +1796,20 @@ end SimpleYield
 
 /-- Yield Day On Day Comparison: 9 bytes -/
 structure YieldDayOnDayComparison where
-  dayOnDayComparisonC8 : Alpha 8
+  dayOnDayComparisonRate : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace YieldDayOnDayComparison
 
 def encode (message : YieldDayOnDayComparison) : List UInt8 :=
-  Alpha.encode message.dayOnDayComparisonC8
+  Alpha.encode message.dayOnDayComparisonRate
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (YieldDayOnDayComparison × List UInt8) := do
-  let (dayOnDayComparisonC8, bytes) ← Alpha.decode 8 bytes
+  let (dayOnDayComparisonRate, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ dayOnDayComparisonC8, sign }, bytes)
+  pure ({ dayOnDayComparisonRate, sign }, bytes)
 
 @[simp] theorem encode_length (message : YieldDayOnDayComparison) : (encode message).length = 9 := by
   unfold encode
@@ -1881,20 +1881,20 @@ end SimpleYieldMessage
 
 /-- Weighted Yield: 9 bytes -/
 structure WeightedYield where
-  weightedYieldC8 : Alpha 8
+  weightedYieldValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace WeightedYield
 
 def encode (message : WeightedYield) : List UInt8 :=
-  Alpha.encode message.weightedYieldC8
+  Alpha.encode message.weightedYieldValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (WeightedYield × List UInt8) := do
-  let (weightedYieldC8, bytes) ← Alpha.decode 8 bytes
+  let (weightedYieldValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ weightedYieldC8, sign }, bytes)
+  pure ({ weightedYieldValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : WeightedYield) : (encode message).length = 9 := by
   unfold encode
@@ -1967,7 +1967,7 @@ end WeightedYieldMessage
 /-- Simple Stock Price Average: 16 bytes -/
 structure SimpleStockPriceAverage where
   unitFlag : UnitFlag
-  simpleStockPriceAverageC14 : Alpha 14
+  simpleStockPriceAverageValue : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -1975,14 +1975,14 @@ namespace SimpleStockPriceAverage
 
 def encode (message : SimpleStockPriceAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.simpleStockPriceAverageC14
+    ++ (Alpha.encode message.simpleStockPriceAverageValue
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (SimpleStockPriceAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (simpleStockPriceAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (simpleStockPriceAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, simpleStockPriceAverageC14, sign }, bytes)
+  pure ({ unitFlag, simpleStockPriceAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : SimpleStockPriceAverage) : (encode message).length = 16 := by
   unfold encode
@@ -2007,7 +2007,7 @@ end SimpleStockPriceAverage
 /-- Stock Price Average Day On Day Comparison: 16 bytes -/
 structure StockPriceAverageDayOnDayComparison where
   unitFlag : UnitFlag
-  dayOnDayComparisonC14 : Alpha 14
+  dayOnDayComparison : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -2015,14 +2015,14 @@ namespace StockPriceAverageDayOnDayComparison
 
 def encode (message : StockPriceAverageDayOnDayComparison) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.dayOnDayComparisonC14
+    ++ (Alpha.encode message.dayOnDayComparison
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (StockPriceAverageDayOnDayComparison × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (dayOnDayComparisonC14, bytes) ← Alpha.decode 14 bytes
+  let (dayOnDayComparison, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, dayOnDayComparisonC14, sign }, bytes)
+  pure ({ unitFlag, dayOnDayComparison, sign }, bytes)
 
 @[simp] theorem encode_length (message : StockPriceAverageDayOnDayComparison) : (encode message).length = 16 := by
   unfold encode
@@ -2097,7 +2097,7 @@ end SimpleStockPriceAverageMessage
 /-- Weighted Stock Price Average: 16 bytes -/
 structure WeightedStockPriceAverage where
   unitFlag : UnitFlag
-  weightedStockPriceAverageC14 : Alpha 14
+  weightedStockPriceAverageValue : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -2105,14 +2105,14 @@ namespace WeightedStockPriceAverage
 
 def encode (message : WeightedStockPriceAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.weightedStockPriceAverageC14
+    ++ (Alpha.encode message.weightedStockPriceAverageValue
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (WeightedStockPriceAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (weightedStockPriceAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (weightedStockPriceAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, weightedStockPriceAverageC14, sign }, bytes)
+  pure ({ unitFlag, weightedStockPriceAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : WeightedStockPriceAverage) : (encode message).length = 16 := by
   unfold encode
@@ -2237,10 +2237,10 @@ end SimpleStockPriceAverageByIndustryMessage
 /-- Overall Simple Average: 32 bytes -/
 structure OverallSimpleAverage where
   unitFlag : UnitFlag
-  simpleAverageC14 : Alpha 14
+  simpleAverageValue : Alpha 14
   sign : Sign
   secondUnitFlag : SecondUnitFlag
-  dayOnDayComparisonC14 : Alpha 14
+  dayOnDayComparison : Alpha 14
   secondSign : SecondSign
   deriving DecidableEq, Repr
 
@@ -2248,20 +2248,20 @@ namespace OverallSimpleAverage
 
 def encode (message : OverallSimpleAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.simpleAverageC14
+    ++ (Alpha.encode message.simpleAverageValue
     ++ (Sign.encode message.sign
     ++ (SecondUnitFlag.encode message.secondUnitFlag
-    ++ (Alpha.encode message.dayOnDayComparisonC14
+    ++ (Alpha.encode message.dayOnDayComparison
     ++ (SecondSign.encode message.secondSign)))))
 
 def decode (bytes : List UInt8) : Option (OverallSimpleAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (simpleAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (simpleAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
   let (secondUnitFlag, bytes) ← SecondUnitFlag.decode bytes
-  let (dayOnDayComparisonC14, bytes) ← Alpha.decode 14 bytes
+  let (dayOnDayComparison, bytes) ← Alpha.decode 14 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ unitFlag, simpleAverageC14, sign, secondUnitFlag, dayOnDayComparisonC14, secondSign }, bytes)
+  pure ({ unitFlag, simpleAverageValue, sign, secondUnitFlag, dayOnDayComparison, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : OverallSimpleAverage) : (encode message).length = 32 := by
   unfold encode
@@ -2291,26 +2291,26 @@ end OverallSimpleAverage
 
 /-- Overall Divergence Average: 18 bytes -/
 structure OverallDivergenceAverage where
-  divergenceAverageC8 : Alpha 8
+  divergenceAverageValue : Alpha 8
   sign : Sign
-  dayOnDayComparisonC8 : Alpha 8
+  dayOnDayComparisonRate : Alpha 8
   secondSign : SecondSign
   deriving DecidableEq, Repr
 
 namespace OverallDivergenceAverage
 
 def encode (message : OverallDivergenceAverage) : List UInt8 :=
-  Alpha.encode message.divergenceAverageC8
+  Alpha.encode message.divergenceAverageValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.dayOnDayComparisonC8
+    ++ (Alpha.encode message.dayOnDayComparisonRate
     ++ (SecondSign.encode message.secondSign)))
 
 def decode (bytes : List UInt8) : Option (OverallDivergenceAverage × List UInt8) := do
-  let (divergenceAverageC8, bytes) ← Alpha.decode 8 bytes
+  let (divergenceAverageValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (dayOnDayComparisonC8, bytes) ← Alpha.decode 8 bytes
+  let (dayOnDayComparisonRate, bytes) ← Alpha.decode 8 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ divergenceAverageC8, sign, dayOnDayComparisonC8, secondSign }, bytes)
+  pure ({ divergenceAverageValue, sign, dayOnDayComparisonRate, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : OverallDivergenceAverage) : (encode message).length = 18 := by
   unfold encode
@@ -2337,10 +2337,10 @@ end OverallDivergenceAverage
 /-- Overall Parity Average: 32 bytes -/
 structure OverallParityAverage where
   unitFlag : UnitFlag
-  parityAverageC14 : Alpha 14
+  parityAverageValue : Alpha 14
   sign : Sign
   secondUnitFlag : SecondUnitFlag
-  dayOnDayComparisonC14 : Alpha 14
+  dayOnDayComparison : Alpha 14
   secondSign : SecondSign
   deriving DecidableEq, Repr
 
@@ -2348,20 +2348,20 @@ namespace OverallParityAverage
 
 def encode (message : OverallParityAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.parityAverageC14
+    ++ (Alpha.encode message.parityAverageValue
     ++ (Sign.encode message.sign
     ++ (SecondUnitFlag.encode message.secondUnitFlag
-    ++ (Alpha.encode message.dayOnDayComparisonC14
+    ++ (Alpha.encode message.dayOnDayComparison
     ++ (SecondSign.encode message.secondSign)))))
 
 def decode (bytes : List UInt8) : Option (OverallParityAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (parityAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (parityAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
   let (secondUnitFlag, bytes) ← SecondUnitFlag.decode bytes
-  let (dayOnDayComparisonC14, bytes) ← Alpha.decode 14 bytes
+  let (dayOnDayComparison, bytes) ← Alpha.decode 14 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ unitFlag, parityAverageC14, sign, secondUnitFlag, dayOnDayComparisonC14, secondSign }, bytes)
+  pure ({ unitFlag, parityAverageValue, sign, secondUnitFlag, dayOnDayComparison, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : OverallParityAverage) : (encode message).length = 32 := by
   unfold encode
@@ -2391,26 +2391,26 @@ end OverallParityAverage
 
 /-- Overall Direct Yield Average: 18 bytes -/
 structure OverallDirectYieldAverage where
-  directYieldAverageC8 : Alpha 8
+  directYieldAverageValue : Alpha 8
   sign : Sign
-  dayOnDayComparisonC8 : Alpha 8
+  dayOnDayComparisonRate : Alpha 8
   secondSign : SecondSign
   deriving DecidableEq, Repr
 
 namespace OverallDirectYieldAverage
 
 def encode (message : OverallDirectYieldAverage) : List UInt8 :=
-  Alpha.encode message.directYieldAverageC8
+  Alpha.encode message.directYieldAverageValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.dayOnDayComparisonC8
+    ++ (Alpha.encode message.dayOnDayComparisonRate
     ++ (SecondSign.encode message.secondSign)))
 
 def decode (bytes : List UInt8) : Option (OverallDirectYieldAverage × List UInt8) := do
-  let (directYieldAverageC8, bytes) ← Alpha.decode 8 bytes
+  let (directYieldAverageValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (dayOnDayComparisonC8, bytes) ← Alpha.decode 8 bytes
+  let (dayOnDayComparisonRate, bytes) ← Alpha.decode 8 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ directYieldAverageC8, sign, dayOnDayComparisonC8, secondSign }, bytes)
+  pure ({ directYieldAverageValue, sign, dayOnDayComparisonRate, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : OverallDirectYieldAverage) : (encode message).length = 18 := by
   unfold encode
@@ -2482,7 +2482,7 @@ end Overall
 /-- Simple Average: 16 bytes -/
 structure SimpleAverage where
   unitFlag : UnitFlag
-  simpleAverageC14 : Alpha 14
+  simpleAverageValue : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -2490,14 +2490,14 @@ namespace SimpleAverage
 
 def encode (message : SimpleAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.simpleAverageC14
+    ++ (Alpha.encode message.simpleAverageValue
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (SimpleAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (simpleAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (simpleAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, simpleAverageC14, sign }, bytes)
+  pure ({ unitFlag, simpleAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : SimpleAverage) : (encode message).length = 16 := by
   unfold encode
@@ -2521,20 +2521,20 @@ end SimpleAverage
 
 /-- Divergence Average: 9 bytes -/
 structure DivergenceAverage where
-  divergenceAverageC8 : Alpha 8
+  divergenceAverageValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace DivergenceAverage
 
 def encode (message : DivergenceAverage) : List UInt8 :=
-  Alpha.encode message.divergenceAverageC8
+  Alpha.encode message.divergenceAverageValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (DivergenceAverage × List UInt8) := do
-  let (divergenceAverageC8, bytes) ← Alpha.decode 8 bytes
+  let (divergenceAverageValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ divergenceAverageC8, sign }, bytes)
+  pure ({ divergenceAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : DivergenceAverage) : (encode message).length = 9 := by
   unfold encode
@@ -2557,7 +2557,7 @@ end DivergenceAverage
 /-- Parity Average: 16 bytes -/
 structure ParityAverage where
   unitFlag : UnitFlag
-  parityAverageC14 : Alpha 14
+  parityAverageValue : Alpha 14
   sign : Sign
   deriving DecidableEq, Repr
 
@@ -2565,14 +2565,14 @@ namespace ParityAverage
 
 def encode (message : ParityAverage) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.parityAverageC14
+    ++ (Alpha.encode message.parityAverageValue
     ++ (Sign.encode message.sign))
 
 def decode (bytes : List UInt8) : Option (ParityAverage × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (parityAverageC14, bytes) ← Alpha.decode 14 bytes
+  let (parityAverageValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ unitFlag, parityAverageC14, sign }, bytes)
+  pure ({ unitFlag, parityAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : ParityAverage) : (encode message).length = 16 := by
   unfold encode
@@ -2596,20 +2596,20 @@ end ParityAverage
 
 /-- Direct Yield Average: 9 bytes -/
 structure DirectYieldAverage where
-  directYieldAverageC8 : Alpha 8
+  directYieldAverageValue : Alpha 8
   sign : Sign
   deriving DecidableEq, Repr
 
 namespace DirectYieldAverage
 
 def encode (message : DirectYieldAverage) : List UInt8 :=
-  Alpha.encode message.directYieldAverageC8
+  Alpha.encode message.directYieldAverageValue
     ++ (Sign.encode message.sign)
 
 def decode (bytes : List UInt8) : Option (DirectYieldAverage × List UInt8) := do
-  let (directYieldAverageC8, bytes) ← Alpha.decode 8 bytes
+  let (directYieldAverageValue, bytes) ← Alpha.decode 8 bytes
   let (sign, bytes) ← Sign.decode bytes
-  pure ({ directYieldAverageC8, sign }, bytes)
+  pure ({ directYieldAverageValue, sign }, bytes)
 
 @[simp] theorem encode_length (message : DirectYieldAverage) : (encode message).length = 9 := by
   unfold encode
@@ -3062,19 +3062,19 @@ end NumberOfGainersDeclinersMessage
 /-- Estimated Total Trading Volume: 15 bytes -/
 structure EstimatedTotalTradingVolume where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  estimatedTotalTradingVolumeC14 : Alpha 14
+  estimatedTotalTradingVolumeValue : Alpha 14
   deriving DecidableEq, Repr
 
 namespace EstimatedTotalTradingVolume
 
 def encode (message : EstimatedTotalTradingVolume) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.estimatedTotalTradingVolumeC14)
+    ++ (Alpha.encode message.estimatedTotalTradingVolumeValue)
 
 def decode (bytes : List UInt8) : Option (EstimatedTotalTradingVolume × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (estimatedTotalTradingVolumeC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, estimatedTotalTradingVolumeC14 }, bytes)
+  let (estimatedTotalTradingVolumeValue, bytes) ← Alpha.decode 14 bytes
+  pure ({ tradingVolumeTurnoverUnitFlag, estimatedTotalTradingVolumeValue }, bytes)
 
 @[simp] theorem encode_length (message : EstimatedTotalTradingVolume) : (encode message).length = 15 := by
   unfold encode
@@ -3147,7 +3147,7 @@ end EstimatedTotalTradingVolumeMessage
 /-- Estimated Total Turnover: 16 bytes -/
 structure EstimatedTotalTurnover where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  estimatedTotalTurnoverC14 : Alpha 14
+  estimatedTotalTurnoverValue : Alpha 14
   reserved1 : Alpha 1
   deriving DecidableEq, Repr
 
@@ -3155,14 +3155,14 @@ namespace EstimatedTotalTurnover
 
 def encode (message : EstimatedTotalTurnover) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.estimatedTotalTurnoverC14
+    ++ (Alpha.encode message.estimatedTotalTurnoverValue
     ++ (Alpha.encode message.reserved1))
 
 def decode (bytes : List UInt8) : Option (EstimatedTotalTurnover × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (estimatedTotalTurnoverC14, bytes) ← Alpha.decode 14 bytes
+  let (estimatedTotalTurnoverValue, bytes) ← Alpha.decode 14 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, estimatedTotalTurnoverC14, reserved1 }, bytes)
+  pure ({ tradingVolumeTurnoverUnitFlag, estimatedTotalTurnoverValue, reserved1 }, bytes)
 
 @[simp] theorem encode_length (message : EstimatedTotalTurnover) : (encode message).length = 16 := by
   unfold encode
@@ -3237,11 +3237,11 @@ end EstimatedTotalTurnoverMessage
 /-- Vwap By Market: 33 bytes -/
 structure VwapByMarket where
   unitFlag : UnitFlag
-  vwapByMarketC14 : Alpha 14
+  vwapByMarketValue : Alpha 14
   sign : Sign
   reserved1 : Alpha 1
   secondUnitFlag : SecondUnitFlag
-  dayOnDayComparisonC14 : Alpha 14
+  dayOnDayComparison : Alpha 14
   secondSign : SecondSign
   deriving DecidableEq, Repr
 
@@ -3249,22 +3249,22 @@ namespace VwapByMarket
 
 def encode (message : VwapByMarket) : List UInt8 :=
   UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.vwapByMarketC14
+    ++ (Alpha.encode message.vwapByMarketValue
     ++ (Sign.encode message.sign
     ++ (Alpha.encode message.reserved1
     ++ (SecondUnitFlag.encode message.secondUnitFlag
-    ++ (Alpha.encode message.dayOnDayComparisonC14
+    ++ (Alpha.encode message.dayOnDayComparison
     ++ (SecondSign.encode message.secondSign))))))
 
 def decode (bytes : List UInt8) : Option (VwapByMarket × List UInt8) := do
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (vwapByMarketC14, bytes) ← Alpha.decode 14 bytes
+  let (vwapByMarketValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (secondUnitFlag, bytes) ← SecondUnitFlag.decode bytes
-  let (dayOnDayComparisonC14, bytes) ← Alpha.decode 14 bytes
+  let (dayOnDayComparison, bytes) ← Alpha.decode 14 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ unitFlag, vwapByMarketC14, sign, reserved1, secondUnitFlag, dayOnDayComparisonC14, secondSign }, bytes)
+  pure ({ unitFlag, vwapByMarketValue, sign, reserved1, secondUnitFlag, dayOnDayComparison, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : VwapByMarket) : (encode message).length = 33 := by
   unfold encode
@@ -3345,7 +3345,7 @@ structure TopRankByTradingVolume where
   rankedIssueCode : Alpha 12
   reserved1 : Alpha 1
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  tradingVolumeC14 : Alpha 14
+  tradingVolumeValue : Alpha 14
   deriving DecidableEq, Repr
 
 namespace TopRankByTradingVolume
@@ -3355,15 +3355,15 @@ def encode (message : TopRankByTradingVolume) : List UInt8 :=
     ++ (Alpha.encode message.rankedIssueCode
     ++ (Alpha.encode message.reserved1
     ++ (TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.tradingVolumeC14))))
+    ++ (Alpha.encode message.tradingVolumeValue))))
 
 def decode (bytes : List UInt8) : Option (TopRankByTradingVolume × List UInt8) := do
   let (rank, bytes) ← Alpha.decode 2 bytes
   let (rankedIssueCode, bytes) ← Alpha.decode 12 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (tradingVolumeC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ rank, rankedIssueCode, reserved1, tradingVolumeTurnoverUnitFlag, tradingVolumeC14 }, bytes)
+  let (tradingVolumeValue, bytes) ← Alpha.decode 14 bytes
+  pure ({ rank, rankedIssueCode, reserved1, tradingVolumeTurnoverUnitFlag, tradingVolumeValue }, bytes)
 
 @[simp] theorem encode_length (message : TopRankByTradingVolume) : (encode message).length = 30 := by
   unfold encode
@@ -3444,7 +3444,7 @@ structure TopRankByTurnover where
   rankedIssueCode : Alpha 12
   reserved1 : Alpha 1
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  turnoverC14 : Alpha 14
+  turnoverValue : Alpha 14
   deriving DecidableEq, Repr
 
 namespace TopRankByTurnover
@@ -3454,15 +3454,15 @@ def encode (message : TopRankByTurnover) : List UInt8 :=
     ++ (Alpha.encode message.rankedIssueCode
     ++ (Alpha.encode message.reserved1
     ++ (TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.turnoverC14))))
+    ++ (Alpha.encode message.turnoverValue))))
 
 def decode (bytes : List UInt8) : Option (TopRankByTurnover × List UInt8) := do
   let (rank, bytes) ← Alpha.decode 2 bytes
   let (rankedIssueCode, bytes) ← Alpha.decode 12 bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (turnoverC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ rank, rankedIssueCode, reserved1, tradingVolumeTurnoverUnitFlag, turnoverC14 }, bytes)
+  let (turnoverValue, bytes) ← Alpha.decode 14 bytes
+  pure ({ rank, rankedIssueCode, reserved1, tradingVolumeTurnoverUnitFlag, turnoverValue }, bytes)
 
 @[simp] theorem encode_length (message : TopRankByTurnover) : (encode message).length = 30 := by
   unfold encode
@@ -3543,7 +3543,7 @@ structure TopRankByNetChange where
   rankedIssueCode : Alpha 12
   stateSign : StateSign
   unitFlag : UnitFlag
-  currentPriceC14 : Alpha 14
+  currentPriceValue : Alpha 14
   sign : Sign
   comparisonType : ComparisonType
   secondUnitFlag : SecondUnitFlag
@@ -3558,7 +3558,7 @@ def encode (message : TopRankByNetChange) : List UInt8 :=
     ++ (Alpha.encode message.rankedIssueCode
     ++ (StateSign.encode message.stateSign
     ++ (UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.currentPriceC14
+    ++ (Alpha.encode message.currentPriceValue
     ++ (Sign.encode message.sign
     ++ (ComparisonType.encode message.comparisonType
     ++ (SecondUnitFlag.encode message.secondUnitFlag
@@ -3570,13 +3570,13 @@ def decode (bytes : List UInt8) : Option (TopRankByNetChange × List UInt8) := d
   let (rankedIssueCode, bytes) ← Alpha.decode 12 bytes
   let (stateSign, bytes) ← StateSign.decode bytes
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (currentPriceC14, bytes) ← Alpha.decode 14 bytes
+  let (currentPriceValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
   let (comparisonType, bytes) ← ComparisonType.decode bytes
   let (secondUnitFlag, bytes) ← SecondUnitFlag.decode bytes
   let (netChange, bytes) ← Alpha.decode 14 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ rank, rankedIssueCode, stateSign, unitFlag, currentPriceC14, sign, comparisonType, secondUnitFlag, netChange, secondSign }, bytes)
+  pure ({ rank, rankedIssueCode, stateSign, unitFlag, currentPriceValue, sign, comparisonType, secondUnitFlag, netChange, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : TopRankByNetChange) : (encode message).length = 48 := by
   unfold encode
@@ -3672,7 +3672,7 @@ structure TopRankByNetChangeRate where
   rankedIssueCode : Alpha 12
   stateSign : StateSign
   unitFlag : UnitFlag
-  currentPriceC14 : Alpha 14
+  currentPriceValue : Alpha 14
   sign : Sign
   comparisonType : ComparisonType
   netChangeRate : Alpha 8
@@ -3686,7 +3686,7 @@ def encode (message : TopRankByNetChangeRate) : List UInt8 :=
     ++ (Alpha.encode message.rankedIssueCode
     ++ (StateSign.encode message.stateSign
     ++ (UnitFlag.encode message.unitFlag
-    ++ (Alpha.encode message.currentPriceC14
+    ++ (Alpha.encode message.currentPriceValue
     ++ (Sign.encode message.sign
     ++ (ComparisonType.encode message.comparisonType
     ++ (Alpha.encode message.netChangeRate
@@ -3697,12 +3697,12 @@ def decode (bytes : List UInt8) : Option (TopRankByNetChangeRate × List UInt8) 
   let (rankedIssueCode, bytes) ← Alpha.decode 12 bytes
   let (stateSign, bytes) ← StateSign.decode bytes
   let (unitFlag, bytes) ← UnitFlag.decode bytes
-  let (currentPriceC14, bytes) ← Alpha.decode 14 bytes
+  let (currentPriceValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
   let (comparisonType, bytes) ← ComparisonType.decode bytes
   let (netChangeRate, bytes) ← Alpha.decode 8 bytes
   let (secondSign, bytes) ← SecondSign.decode bytes
-  pure ({ rank, rankedIssueCode, stateSign, unitFlag, currentPriceC14, sign, comparisonType, netChangeRate, secondSign }, bytes)
+  pure ({ rank, rankedIssueCode, stateSign, unitFlag, currentPriceValue, sign, comparisonType, netChangeRate, secondSign }, bytes)
 
 @[simp] theorem encode_length (message : TopRankByNetChangeRate) : (encode message).length = 41 := by
   unfold encode
@@ -3793,11 +3793,11 @@ end RankingByNetChangeRateMessage
 /-- Trading Volume: 60 bytes -/
 structure TradingVolume where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  singleIssueTransactionC14 : Alpha 14
+  singleIssueTransaction : Alpha 14
   secondTradingVolumeturnoverUnitFlag : SecondTradingVolumeturnoverUnitFlag
   closingPriceTransaction : Alpha 14
   thirdTradingVolumeturnoverUnitFlag : ThirdTradingVolumeturnoverUnitFlag
-  basketTransactionC14 : Alpha 14
+  basketTransaction : Alpha 14
   fourthTradingVolumeturnoverUnitFlag : FourthTradingVolumeturnoverUnitFlag
   aggregateTradingVolume : Alpha 14
   deriving DecidableEq, Repr
@@ -3806,24 +3806,24 @@ namespace TradingVolume
 
 def encode (message : TradingVolume) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.singleIssueTransactionC14
+    ++ (Alpha.encode message.singleIssueTransaction
     ++ (SecondTradingVolumeturnoverUnitFlag.encode message.secondTradingVolumeturnoverUnitFlag
     ++ (Alpha.encode message.closingPriceTransaction
     ++ (ThirdTradingVolumeturnoverUnitFlag.encode message.thirdTradingVolumeturnoverUnitFlag
-    ++ (Alpha.encode message.basketTransactionC14
+    ++ (Alpha.encode message.basketTransaction
     ++ (FourthTradingVolumeturnoverUnitFlag.encode message.fourthTradingVolumeturnoverUnitFlag
     ++ (Alpha.encode message.aggregateTradingVolume)))))))
 
 def decode (bytes : List UInt8) : Option (TradingVolume × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (singleIssueTransactionC14, bytes) ← Alpha.decode 14 bytes
+  let (singleIssueTransaction, bytes) ← Alpha.decode 14 bytes
   let (secondTradingVolumeturnoverUnitFlag, bytes) ← SecondTradingVolumeturnoverUnitFlag.decode bytes
   let (closingPriceTransaction, bytes) ← Alpha.decode 14 bytes
   let (thirdTradingVolumeturnoverUnitFlag, bytes) ← ThirdTradingVolumeturnoverUnitFlag.decode bytes
-  let (basketTransactionC14, bytes) ← Alpha.decode 14 bytes
+  let (basketTransaction, bytes) ← Alpha.decode 14 bytes
   let (fourthTradingVolumeturnoverUnitFlag, bytes) ← FourthTradingVolumeturnoverUnitFlag.decode bytes
   let (aggregateTradingVolume, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, singleIssueTransactionC14, secondTradingVolumeturnoverUnitFlag, closingPriceTransaction, thirdTradingVolumeturnoverUnitFlag, basketTransactionC14, fourthTradingVolumeturnoverUnitFlag, aggregateTradingVolume }, bytes)
+  pure ({ tradingVolumeTurnoverUnitFlag, singleIssueTransaction, secondTradingVolumeturnoverUnitFlag, closingPriceTransaction, thirdTradingVolumeturnoverUnitFlag, basketTransaction, fourthTradingVolumeturnoverUnitFlag, aggregateTradingVolume }, bytes)
 
 @[simp] theorem encode_length (message : TradingVolume) : (encode message).length = 60 := by
   unfold encode
@@ -3858,11 +3858,11 @@ end TradingVolume
 /-- Turnover: 60 bytes -/
 structure Turnover where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  singleIssueTransactionC14 : Alpha 14
+  singleIssueTransaction : Alpha 14
   secondTradingVolumeturnoverUnitFlag : SecondTradingVolumeturnoverUnitFlag
   closingPriceTransaction : Alpha 14
   thirdTradingVolumeturnoverUnitFlag : ThirdTradingVolumeturnoverUnitFlag
-  basketTransactionC14 : Alpha 14
+  basketTransaction : Alpha 14
   fourthTradingVolumeturnoverUnitFlag : FourthTradingVolumeturnoverUnitFlag
   aggregateTurnover : Alpha 14
   deriving DecidableEq, Repr
@@ -3871,24 +3871,24 @@ namespace Turnover
 
 def encode (message : Turnover) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.singleIssueTransactionC14
+    ++ (Alpha.encode message.singleIssueTransaction
     ++ (SecondTradingVolumeturnoverUnitFlag.encode message.secondTradingVolumeturnoverUnitFlag
     ++ (Alpha.encode message.closingPriceTransaction
     ++ (ThirdTradingVolumeturnoverUnitFlag.encode message.thirdTradingVolumeturnoverUnitFlag
-    ++ (Alpha.encode message.basketTransactionC14
+    ++ (Alpha.encode message.basketTransaction
     ++ (FourthTradingVolumeturnoverUnitFlag.encode message.fourthTradingVolumeturnoverUnitFlag
     ++ (Alpha.encode message.aggregateTurnover)))))))
 
 def decode (bytes : List UInt8) : Option (Turnover × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (singleIssueTransactionC14, bytes) ← Alpha.decode 14 bytes
+  let (singleIssueTransaction, bytes) ← Alpha.decode 14 bytes
   let (secondTradingVolumeturnoverUnitFlag, bytes) ← SecondTradingVolumeturnoverUnitFlag.decode bytes
   let (closingPriceTransaction, bytes) ← Alpha.decode 14 bytes
   let (thirdTradingVolumeturnoverUnitFlag, bytes) ← ThirdTradingVolumeturnoverUnitFlag.decode bytes
-  let (basketTransactionC14, bytes) ← Alpha.decode 14 bytes
+  let (basketTransaction, bytes) ← Alpha.decode 14 bytes
   let (fourthTradingVolumeturnoverUnitFlag, bytes) ← FourthTradingVolumeturnoverUnitFlag.decode bytes
   let (aggregateTurnover, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, singleIssueTransactionC14, secondTradingVolumeturnoverUnitFlag, closingPriceTransaction, thirdTradingVolumeturnoverUnitFlag, basketTransactionC14, fourthTradingVolumeturnoverUnitFlag, aggregateTurnover }, bytes)
+  pure ({ tradingVolumeTurnoverUnitFlag, singleIssueTransaction, secondTradingVolumeturnoverUnitFlag, closingPriceTransaction, thirdTradingVolumeturnoverUnitFlag, basketTransaction, fourthTradingVolumeturnoverUnitFlag, aggregateTurnover }, bytes)
 
 @[simp] theorem encode_length (message : Turnover) : (encode message).length = 60 := by
   unfold encode
@@ -3922,20 +3922,20 @@ end Turnover
 
 /-- Number Of Transactions: 16 bytes -/
 structure NumberOfTransactions where
-  singleIssueTransactionC8 : Alpha 8
-  basketTransactionC8 : Alpha 8
+  singleIssueTransactionCount : Alpha 8
+  basketTransactionCount : Alpha 8
   deriving DecidableEq, Repr
 
 namespace NumberOfTransactions
 
 def encode (message : NumberOfTransactions) : List UInt8 :=
-  Alpha.encode message.singleIssueTransactionC8
-    ++ (Alpha.encode message.basketTransactionC8)
+  Alpha.encode message.singleIssueTransactionCount
+    ++ (Alpha.encode message.basketTransactionCount)
 
 def decode (bytes : List UInt8) : Option (NumberOfTransactions × List UInt8) := do
-  let (singleIssueTransactionC8, bytes) ← Alpha.decode 8 bytes
-  let (basketTransactionC8, bytes) ← Alpha.decode 8 bytes
-  pure ({ singleIssueTransactionC8, basketTransactionC8 }, bytes)
+  let (singleIssueTransactionCount, bytes) ← Alpha.decode 8 bytes
+  let (basketTransactionCount, bytes) ← Alpha.decode 8 bytes
+  pure ({ singleIssueTransactionCount, basketTransactionCount }, bytes)
 
 @[simp] theorem encode_length (message : NumberOfTransactions) : (encode message).length = 16 := by
   unfold encode

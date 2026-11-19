@@ -967,7 +967,7 @@ end SystemEventMessage
 
 /-- Stock Directory Message: 15 bytes -/
 structure StockDirectoryMessage where
-  stockAlphabetic6 : Alpha 6
+  stock : Alpha 6
   marketCategory : MarketCategory
   financialStatusIndicator : FinancialStatusIndicator
   roundLotSize : Alpha 6
@@ -977,19 +977,19 @@ structure StockDirectoryMessage where
 namespace StockDirectoryMessage
 
 def encode (message : StockDirectoryMessage) : List UInt8 :=
-  Alpha.encode message.stockAlphabetic6
+  Alpha.encode message.stock
     ++ (MarketCategory.encode message.marketCategory
     ++ (FinancialStatusIndicator.encode message.financialStatusIndicator
     ++ (Alpha.encode message.roundLotSize
     ++ (RoundLotsOnly.encode message.roundLotsOnly))))
 
 def decode (bytes : List UInt8) : Option (StockDirectoryMessage × List UInt8) := do
-  let (stockAlphabetic6, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (marketCategory, bytes) ← MarketCategory.decode bytes
   let (financialStatusIndicator, bytes) ← FinancialStatusIndicator.decode bytes
   let (roundLotSize, bytes) ← Alpha.decode 6 bytes
   let (roundLotsOnly_, bytes) ← RoundLotsOnly.decode bytes
-  pure ({ stockAlphabetic6, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_ }, bytes)
+  pure ({ stock, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_ }, bytes)
 
 @[simp] theorem encode_length (message : StockDirectoryMessage) : (encode message).length = 15 := by
   unfold encode
@@ -1017,7 +1017,7 @@ end StockDirectoryMessage
 
 /-- Stock Trading Action Message: 12 bytes -/
 structure StockTradingActionMessage where
-  stockAlphanumeric6 : Alpha 6
+  stock : Alpha 6
   tradingState : TradingState
   reserved1 : Alpha 1
   reason : Alpha 4
@@ -1026,17 +1026,17 @@ structure StockTradingActionMessage where
 namespace StockTradingActionMessage
 
 def encode (message : StockTradingActionMessage) : List UInt8 :=
-  Alpha.encode message.stockAlphanumeric6
+  Alpha.encode message.stock
     ++ (TradingState.encode message.tradingState
     ++ (Alpha.encode message.reserved1
     ++ (Alpha.encode message.reason)))
 
 def decode (bytes : List UInt8) : Option (StockTradingActionMessage × List UInt8) := do
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (tradingState, bytes) ← TradingState.decode bytes
   let (reserved1, bytes) ← Alpha.decode 1 bytes
   let (reason, bytes) ← Alpha.decode 4 bytes
-  pure ({ stockAlphanumeric6, tradingState, reserved1, reason }, bytes)
+  pure ({ stock, tradingState, reserved1, reason }, bytes)
 
 @[simp] theorem encode_length (message : StockTradingActionMessage) : (encode message).length = 12 := by
   unfold encode
@@ -1063,7 +1063,7 @@ end StockTradingActionMessage
 /-- Market Participant Position Message: 13 bytes -/
 structure MarketParticipantPositionMessage where
   mpid : Alpha 4
-  stockAlphanumeric6 : Alpha 6
+  stock : Alpha 6
   primaryMarketMaker : PrimaryMarketMaker
   marketMakerMode : MarketMakerMode
   marketParticipantState : MarketParticipantState
@@ -1073,18 +1073,18 @@ namespace MarketParticipantPositionMessage
 
 def encode (message : MarketParticipantPositionMessage) : List UInt8 :=
   Alpha.encode message.mpid
-    ++ (Alpha.encode message.stockAlphanumeric6
+    ++ (Alpha.encode message.stock
     ++ (PrimaryMarketMaker.encode message.primaryMarketMaker
     ++ (MarketMakerMode.encode message.marketMakerMode
     ++ (MarketParticipantState.encode message.marketParticipantState))))
 
 def decode (bytes : List UInt8) : Option (MarketParticipantPositionMessage × List UInt8) := do
   let (mpid, bytes) ← Alpha.decode 4 bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (primaryMarketMaker, bytes) ← PrimaryMarketMaker.decode bytes
   let (marketMakerMode, bytes) ← MarketMakerMode.decode bytes
   let (marketParticipantState, bytes) ← MarketParticipantState.decode bytes
-  pure ({ mpid, stockAlphanumeric6, primaryMarketMaker, marketMakerMode, marketParticipantState }, bytes)
+  pure ({ mpid, stock, primaryMarketMaker, marketMakerMode, marketParticipantState }, bytes)
 
 @[simp] theorem encode_length (message : MarketParticipantPositionMessage) : (encode message).length = 13 := by
   unfold encode
@@ -1114,8 +1114,8 @@ end MarketParticipantPositionMessage
 structure AddOrderMessage where
   orderReferenceNumber : Alpha 9
   side : Side
-  sharesNumeric6 : Alpha 6
-  stockAlphanumeric6 : Alpha 6
+  shares : Alpha 6
+  stock : Alpha 6
   price : Alpha 10
   deriving DecidableEq, Repr
 
@@ -1124,17 +1124,17 @@ namespace AddOrderMessage
 def encode (message : AddOrderMessage) : List UInt8 :=
   Alpha.encode message.orderReferenceNumber
     ++ (Side.encode message.side
-    ++ (Alpha.encode message.sharesNumeric6
-    ++ (Alpha.encode message.stockAlphanumeric6
+    ++ (Alpha.encode message.shares
+    ++ (Alpha.encode message.stock
     ++ (Alpha.encode message.price))))
 
 def decode (bytes : List UInt8) : Option (AddOrderMessage × List UInt8) := do
   let (orderReferenceNumber, bytes) ← Alpha.decode 9 bytes
   let (side, bytes) ← Side.decode bytes
-  let (sharesNumeric6, bytes) ← Alpha.decode 6 bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (shares, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (price, bytes) ← Alpha.decode 10 bytes
-  pure ({ orderReferenceNumber, side, sharesNumeric6, stockAlphanumeric6, price }, bytes)
+  pure ({ orderReferenceNumber, side, shares, stock, price }, bytes)
 
 @[simp] theorem encode_length (message : AddOrderMessage) : (encode message).length = 32 := by
   unfold encode
@@ -1164,8 +1164,8 @@ end AddOrderMessage
 structure AddOrderWithMpidMessage where
   orderReferenceNumber : Alpha 9
   side : Side
-  sharesNumeric6 : Alpha 6
-  stockAlphanumeric6 : Alpha 6
+  shares : Alpha 6
+  stock : Alpha 6
   price : Alpha 10
   attribution : Alpha 4
   deriving DecidableEq, Repr
@@ -1175,19 +1175,19 @@ namespace AddOrderWithMpidMessage
 def encode (message : AddOrderWithMpidMessage) : List UInt8 :=
   Alpha.encode message.orderReferenceNumber
     ++ (Side.encode message.side
-    ++ (Alpha.encode message.sharesNumeric6
-    ++ (Alpha.encode message.stockAlphanumeric6
+    ++ (Alpha.encode message.shares
+    ++ (Alpha.encode message.stock
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.attribution)))))
 
 def decode (bytes : List UInt8) : Option (AddOrderWithMpidMessage × List UInt8) := do
   let (orderReferenceNumber, bytes) ← Alpha.decode 9 bytes
   let (side, bytes) ← Side.decode bytes
-  let (sharesNumeric6, bytes) ← Alpha.decode 6 bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (shares, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (price, bytes) ← Alpha.decode 10 bytes
   let (attribution, bytes) ← Alpha.decode 4 bytes
-  pure ({ orderReferenceNumber, side, sharesNumeric6, stockAlphanumeric6, price, attribution }, bytes)
+  pure ({ orderReferenceNumber, side, shares, stock, price, attribution }, bytes)
 
 @[simp] theorem encode_length (message : AddOrderWithMpidMessage) : (encode message).length = 36 := by
   unfold encode
@@ -1374,8 +1374,8 @@ end OrderDeleteMessage
 structure TradeMessage where
   orderReferenceNumber : Alpha 9
   side : Side
-  sharesNumeric6 : Alpha 6
-  stockAlphanumeric6 : Alpha 6
+  shares : Alpha 6
+  stock : Alpha 6
   price : Alpha 10
   matchNumber : Alpha 9
   deriving DecidableEq, Repr
@@ -1385,19 +1385,19 @@ namespace TradeMessage
 def encode (message : TradeMessage) : List UInt8 :=
   Alpha.encode message.orderReferenceNumber
     ++ (Side.encode message.side
-    ++ (Alpha.encode message.sharesNumeric6
-    ++ (Alpha.encode message.stockAlphanumeric6
+    ++ (Alpha.encode message.shares
+    ++ (Alpha.encode message.stock
     ++ (Alpha.encode message.price
     ++ (Alpha.encode message.matchNumber)))))
 
 def decode (bytes : List UInt8) : Option (TradeMessage × List UInt8) := do
   let (orderReferenceNumber, bytes) ← Alpha.decode 9 bytes
   let (side, bytes) ← Side.decode bytes
-  let (sharesNumeric6, bytes) ← Alpha.decode 6 bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (shares, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (price, bytes) ← Alpha.decode 10 bytes
   let (matchNumber, bytes) ← Alpha.decode 9 bytes
-  pure ({ orderReferenceNumber, side, sharesNumeric6, stockAlphanumeric6, price, matchNumber }, bytes)
+  pure ({ orderReferenceNumber, side, shares, stock, price, matchNumber }, bytes)
 
 @[simp] theorem encode_length (message : TradeMessage) : (encode message).length = 41 := by
   unfold encode
@@ -1427,8 +1427,8 @@ end TradeMessage
 
 /-- Cross Trade Message: 35 bytes -/
 structure CrossTradeMessage where
-  sharesNumeric9 : Alpha 9
-  stockAlphanumeric6 : Alpha 6
+  crossShares : Alpha 9
+  stock : Alpha 6
   crossPrice : Alpha 10
   matchNumber : Alpha 9
   crossType : CrossType
@@ -1437,19 +1437,19 @@ structure CrossTradeMessage where
 namespace CrossTradeMessage
 
 def encode (message : CrossTradeMessage) : List UInt8 :=
-  Alpha.encode message.sharesNumeric9
-    ++ (Alpha.encode message.stockAlphanumeric6
+  Alpha.encode message.crossShares
+    ++ (Alpha.encode message.stock
     ++ (Alpha.encode message.crossPrice
     ++ (Alpha.encode message.matchNumber
     ++ (CrossType.encode message.crossType))))
 
 def decode (bytes : List UInt8) : Option (CrossTradeMessage × List UInt8) := do
-  let (sharesNumeric9, bytes) ← Alpha.decode 9 bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (crossShares, bytes) ← Alpha.decode 9 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (crossPrice, bytes) ← Alpha.decode 10 bytes
   let (matchNumber, bytes) ← Alpha.decode 9 bytes
   let (crossType, bytes) ← CrossType.decode bytes
-  pure ({ sharesNumeric9, stockAlphanumeric6, crossPrice, matchNumber, crossType }, bytes)
+  pure ({ crossShares, stock, crossPrice, matchNumber, crossType }, bytes)
 
 @[simp] theorem encode_length (message : CrossTradeMessage) : (encode message).length = 35 := by
   unfold encode
@@ -1510,7 +1510,7 @@ structure NetOrderImbalanceIndicatorMessage where
   pairedShares : Alpha 9
   imbalanceShares : Alpha 9
   imbalanceDirection : ImbalanceDirection
-  stockAlphanumeric6 : Alpha 6
+  stock : Alpha 6
   farPrice : Alpha 10
   nearPrice : Alpha 10
   currentReferencePrice : Alpha 10
@@ -1524,7 +1524,7 @@ def encode (message : NetOrderImbalanceIndicatorMessage) : List UInt8 :=
   Alpha.encode message.pairedShares
     ++ (Alpha.encode message.imbalanceShares
     ++ (ImbalanceDirection.encode message.imbalanceDirection
-    ++ (Alpha.encode message.stockAlphanumeric6
+    ++ (Alpha.encode message.stock
     ++ (Alpha.encode message.farPrice
     ++ (Alpha.encode message.nearPrice
     ++ (Alpha.encode message.currentReferencePrice
@@ -1535,13 +1535,13 @@ def decode (bytes : List UInt8) : Option (NetOrderImbalanceIndicatorMessage × L
   let (pairedShares, bytes) ← Alpha.decode 9 bytes
   let (imbalanceShares, bytes) ← Alpha.decode 9 bytes
   let (imbalanceDirection, bytes) ← ImbalanceDirection.decode bytes
-  let (stockAlphanumeric6, bytes) ← Alpha.decode 6 bytes
+  let (stock, bytes) ← Alpha.decode 6 bytes
   let (farPrice, bytes) ← Alpha.decode 10 bytes
   let (nearPrice, bytes) ← Alpha.decode 10 bytes
   let (currentReferencePrice, bytes) ← Alpha.decode 10 bytes
   let (crossType, bytes) ← CrossType.decode bytes
   let (priceVariationIndicator, bytes) ← PriceVariationIndicator.decode bytes
-  pure ({ pairedShares, imbalanceShares, imbalanceDirection, stockAlphanumeric6, farPrice, nearPrice, currentReferencePrice, crossType, priceVariationIndicator }, bytes)
+  pure ({ pairedShares, imbalanceShares, imbalanceDirection, stock, farPrice, nearPrice, currentReferencePrice, crossType, priceVariationIndicator }, bytes)
 
 @[simp] theorem encode_length (message : NetOrderImbalanceIndicatorMessage) : (encode message).length = 57 := by
   unfold encode

@@ -257,12 +257,11 @@ end RoundLot
 
 /-- Status: one byte code -/
 def Status.codes : List UInt8 :=
-  [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]
+  [0x30, 0x31, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]
 
 inductive Status where
   | accepted -- Accepted
-  | rejected -- Rejected
-  | invalidSequenceRange -- Invalid Sequence Range
+  | invalidSourceId -- Invalid Source ID
   | maximumSequenceRange -- Maximum Sequence Range
   | maximumRequestInADay -- Maximum Request In A Day
   | maximumRefreshRequestsInADay -- Maximum Refresh Requests In A Day
@@ -277,8 +276,7 @@ namespace Status
 
 def toByte : Status → UInt8
   | .accepted => 0x30
-  | .rejected => 0x31
-  | .invalidSequenceRange => 0x32
+  | .invalidSourceId => 0x31
   | .maximumSequenceRange => 0x33
   | .maximumRequestInADay => 0x34
   | .maximumRefreshRequestsInADay => 0x35
@@ -291,8 +289,7 @@ def toByte : Status → UInt8
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : Status :=
   if byte = 0x30 then .accepted
-  else if byte = 0x31 then .rejected
-  else if byte = 0x32 then .invalidSequenceRange
+  else if byte = 0x31 then .invalidSourceId
   else if byte = 0x33 then .maximumSequenceRange
   else if byte = 0x34 then .maximumRequestInADay
   else if byte = 0x35 then .maximumRefreshRequestsInADay
@@ -307,8 +304,7 @@ def ofByte (byte : UInt8) : Status :=
 theorem ofByte_toByte (value : Status) : ofByte value.toByte = value := by
   cases value with
   | accepted => decide
-  | rejected => decide
-  | invalidSequenceRange => decide
+  | invalidSourceId => decide
   | maximumSequenceRange => decide
   | maximumRequestInADay => decide
   | maximumRefreshRequestsInADay => decide
@@ -795,7 +791,7 @@ def ClosingOnlyIndicator.codes : List UInt8 :=
 
 inductive ClosingOnlyIndicator where
   | standardSeries -- Standard Series
-  | call -- Call
+  | closingOnlySeries -- Closing Only Series
   | unlisted (byte : { byte : UInt8 // byte ∉ ClosingOnlyIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -803,13 +799,13 @@ namespace ClosingOnlyIndicator
 
 def toByte : ClosingOnlyIndicator → UInt8
   | .standardSeries => 0x30
-  | .call => 0x31
+  | .closingOnlySeries => 0x31
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : ClosingOnlyIndicator :=
   if byte = 0x30 then .standardSeries
-  else .call
+  else .closingOnlySeries
 
 def ofByte (byte : UInt8) : ClosingOnlyIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -817,7 +813,7 @@ def ofByte (byte : UInt8) : ClosingOnlyIndicator :=
 theorem ofByte_toByte (value : ClosingOnlyIndicator) : ofByte value.toByte = value := by
   cases value with
   | standardSeries => decide
-  | call => decide
+  | closingOnlySeries => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : ClosingOnlyIndicator) : List UInt8 :=
@@ -1019,25 +1015,25 @@ end CustIndicator
 
 /-- Auction Type: one byte code -/
 def AuctionType.codes : List UInt8 :=
-  [0x6D, 0x68]
+  [0x4D, 0x48]
 
 inductive AuctionType where
   | coreOpeningAuction -- Core Opening Auction
-  | reopeningAuction -- Reopening Auction
+  | reopeningAuctionHaltResume -- Reopening Auction (Halt resume)
   | unlisted (byte : { byte : UInt8 // byte ∉ AuctionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace AuctionType
 
 def toByte : AuctionType → UInt8
-  | .coreOpeningAuction => 0x6D
-  | .reopeningAuction => 0x68
+  | .coreOpeningAuction => 0x4D
+  | .reopeningAuctionHaltResume => 0x48
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : AuctionType :=
-  if byte = 0x6D then .coreOpeningAuction
-  else .reopeningAuction
+  if byte = 0x4D then .coreOpeningAuction
+  else .reopeningAuctionHaltResume
 
 def ofByte (byte : UInt8) : AuctionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -1045,7 +1041,7 @@ def ofByte (byte : UInt8) : AuctionType :=
 theorem ofByte_toByte (value : AuctionType) : ofByte value.toByte = value := by
   cases value with
   | coreOpeningAuction => decide
-  | reopeningAuction => decide
+  | reopeningAuctionHaltResume => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AuctionType) : List UInt8 :=
@@ -1304,35 +1300,134 @@ theorem encode_length_pos (value : RfqStatus) : (encode value).length > 0 := by
 
 end RfqStatus
 
+/-- Trade Cond 1: one byte code -/
+def TradeCond1.codes : List UInt8 :=
+  [0x61, 0x63, 0x65, 0x49, 0x53, 0x44, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6D, 0x70, 0x73]
+
+inductive TradeCond1 where
+  | outrightSeriesOrderquoteTradingElectronicallyWithAOutrightSeriesCubeExposedOrderOrOutrightSeriesCubeExposedOrderTradingElectronicallyWithOutrightSeries -- Outright Series Order/Quote Trading Electronically With A Outright Series CUBE Exposed Order Or Outright Series CUBE Exposed Order Trading Electronically With Outright Series
+  | tradingOfAOutrightSeriesQccOrder -- Trading Of A Outright Series QCC Order
+  | outrightSeriesFloorTrade -- Outright Series Floor Trade
+  | allOutrightSeriesElectronicTradesExcludingAwayMarketExecutionsThatWereNotPartOfCertainTransactions -- All Outright Series Electronic Trades Excluding Away Market Executions That Were Not Part Of Certain Transactions
+  | allOutrightSeriesTradesGeneratedAsPartOfAnIntermarketSweepOrder -- All Outright Series Trades Generated As Part Of An Intermarket Sweep Order
+  | anyOfTheAbovePublishedAfter90SecondsOfOccurring -- Any Of The Above Published After 90 Seconds Of Occurring
+  | complexOrderTradesThatWereNotPartOfCertainTransactions -- Complex Order Trades That Were Not Part Of Certain Transactions
+  | complexOrderTradingElectronicallyWithAComplexCubeExposedOrderOrComplexCubeExposedOrderTradingElectronicallyWithComplexCubeCoveredOrder -- Complex Order Trading Electronically With A Complex CUBE Exposed Order Or Complex CUBE Exposed Order Trading Electronically With Complex CUBE Covered Order
+  | tradingOfAComplexQccOrder -- Trading Of A Complex QCC Order
+  | complexOrderToComplexOrderFloorTrade -- Complex Order To Complex Order Floor Trade
+  | complexOrderTradingElectronicallyWithTheOutrightSeriesOrdersquotes -- Complex Order Trading Electronically With The Outright Series Orders/Quotes
+  | complexOrderToOutrightSeriesOrderFloorTrade -- Complex Order To Outright Series Order Floor Trade
+  | complexOrderWithStockToComplexOrderWithStockFloorTrade -- Complex Order With Stock To Complex Order With Stock Floor Trade
+  | complexOrderWithStockToOutrightSeriesOrderFloorTrade -- Complex Order With Stock To Outright Series Order Floor Trade
+  | unlisted (byte : { byte : UInt8 // byte ∉ TradeCond1.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace TradeCond1
+
+def toByte : TradeCond1 → UInt8
+  | .outrightSeriesOrderquoteTradingElectronicallyWithAOutrightSeriesCubeExposedOrderOrOutrightSeriesCubeExposedOrderTradingElectronicallyWithOutrightSeries => 0x61
+  | .tradingOfAOutrightSeriesQccOrder => 0x63
+  | .outrightSeriesFloorTrade => 0x65
+  | .allOutrightSeriesElectronicTradesExcludingAwayMarketExecutionsThatWereNotPartOfCertainTransactions => 0x49
+  | .allOutrightSeriesTradesGeneratedAsPartOfAnIntermarketSweepOrder => 0x53
+  | .anyOfTheAbovePublishedAfter90SecondsOfOccurring => 0x44
+  | .complexOrderTradesThatWereNotPartOfCertainTransactions => 0x66
+  | .complexOrderTradingElectronicallyWithAComplexCubeExposedOrderOrComplexCubeExposedOrderTradingElectronicallyWithComplexCubeCoveredOrder => 0x67
+  | .tradingOfAComplexQccOrder => 0x68
+  | .complexOrderToComplexOrderFloorTrade => 0x69
+  | .complexOrderTradingElectronicallyWithTheOutrightSeriesOrdersquotes => 0x6A
+  | .complexOrderToOutrightSeriesOrderFloorTrade => 0x6D
+  | .complexOrderWithStockToComplexOrderWithStockFloorTrade => 0x70
+  | .complexOrderWithStockToOutrightSeriesOrderFloorTrade => 0x73
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : TradeCond1 :=
+  if byte = 0x61 then .outrightSeriesOrderquoteTradingElectronicallyWithAOutrightSeriesCubeExposedOrderOrOutrightSeriesCubeExposedOrderTradingElectronicallyWithOutrightSeries
+  else if byte = 0x63 then .tradingOfAOutrightSeriesQccOrder
+  else if byte = 0x65 then .outrightSeriesFloorTrade
+  else if byte = 0x49 then .allOutrightSeriesElectronicTradesExcludingAwayMarketExecutionsThatWereNotPartOfCertainTransactions
+  else if byte = 0x53 then .allOutrightSeriesTradesGeneratedAsPartOfAnIntermarketSweepOrder
+  else if byte = 0x44 then .anyOfTheAbovePublishedAfter90SecondsOfOccurring
+  else if byte = 0x66 then .complexOrderTradesThatWereNotPartOfCertainTransactions
+  else if byte = 0x67 then .complexOrderTradingElectronicallyWithAComplexCubeExposedOrderOrComplexCubeExposedOrderTradingElectronicallyWithComplexCubeCoveredOrder
+  else if byte = 0x68 then .tradingOfAComplexQccOrder
+  else if byte = 0x69 then .complexOrderToComplexOrderFloorTrade
+  else if byte = 0x6A then .complexOrderTradingElectronicallyWithTheOutrightSeriesOrdersquotes
+  else if byte = 0x6D then .complexOrderToOutrightSeriesOrderFloorTrade
+  else if byte = 0x70 then .complexOrderWithStockToComplexOrderWithStockFloorTrade
+  else .complexOrderWithStockToOutrightSeriesOrderFloorTrade
+
+def ofByte (byte : UInt8) : TradeCond1 :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : TradeCond1) : ofByte value.toByte = value := by
+  cases value with
+  | outrightSeriesOrderquoteTradingElectronicallyWithAOutrightSeriesCubeExposedOrderOrOutrightSeriesCubeExposedOrderTradingElectronicallyWithOutrightSeries => decide
+  | tradingOfAOutrightSeriesQccOrder => decide
+  | outrightSeriesFloorTrade => decide
+  | allOutrightSeriesElectronicTradesExcludingAwayMarketExecutionsThatWereNotPartOfCertainTransactions => decide
+  | allOutrightSeriesTradesGeneratedAsPartOfAnIntermarketSweepOrder => decide
+  | anyOfTheAbovePublishedAfter90SecondsOfOccurring => decide
+  | complexOrderTradesThatWereNotPartOfCertainTransactions => decide
+  | complexOrderTradingElectronicallyWithAComplexCubeExposedOrderOrComplexCubeExposedOrderTradingElectronicallyWithComplexCubeCoveredOrder => decide
+  | tradingOfAComplexQccOrder => decide
+  | complexOrderToComplexOrderFloorTrade => decide
+  | complexOrderTradingElectronicallyWithTheOutrightSeriesOrdersquotes => decide
+  | complexOrderToOutrightSeriesOrderFloorTrade => decide
+  | complexOrderWithStockToComplexOrderWithStockFloorTrade => decide
+  | complexOrderWithStockToOutrightSeriesOrderFloorTrade => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : TradeCond1) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (TradeCond1 × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : TradeCond1) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : TradeCond1) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : TradeCond1) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end TradeCond1
+
 /-- Cross Type: one byte code -/
 def CrossType.codes : List UInt8 :=
-  [0x30, 0x35]
+  [0x35, 0x4F]
 
 inductive CrossType where
-  | marketCenterOpeningAuction -- Market Center Opening Auction
   | marketCenterReopeningAuction -- Market Center Reopening Auction
+  | marketCenterOpeningAuction -- Market Center Opening Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ CrossType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace CrossType
 
 def toByte : CrossType → UInt8
-  | .marketCenterOpeningAuction => 0x30
   | .marketCenterReopeningAuction => 0x35
+  | .marketCenterOpeningAuction => 0x4F
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : CrossType :=
-  if byte = 0x30 then .marketCenterOpeningAuction
-  else .marketCenterReopeningAuction
+  if byte = 0x35 then .marketCenterReopeningAuction
+  else .marketCenterOpeningAuction
 
 def ofByte (byte : UInt8) : CrossType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : CrossType) : ofByte value.toByte = value := by
   cases value with
-  | marketCenterOpeningAuction => decide
   | marketCenterReopeningAuction => decide
+  | marketCenterOpeningAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : CrossType) : List UInt8 :=
@@ -2862,7 +2957,7 @@ structure OptionsNonDisplayedTradeMessage where
   price : BitVec 32
   volume : BitVec 32
   printableFlag : BitVec 8
-  tradeCond1 : Alpha 1
+  tradeCond1 : TradeCond1
   reserved3 : Alpha 3
   priceType : BitVec 8
   deriving DecidableEq, Repr
@@ -2877,7 +2972,7 @@ def encode (message : OptionsNonDisplayedTradeMessage) : List UInt8 :=
     ++ (encodeUIntLE 4 message.price
     ++ (encodeUIntLE 4 message.volume
     ++ (encodeUInt 1 message.printableFlag
-    ++ (Alpha.encode message.tradeCond1
+    ++ (TradeCond1.encode message.tradeCond1
     ++ (Alpha.encode message.reserved3
     ++ (encodeUInt 1 message.priceType)))))))))
 
@@ -2889,14 +2984,14 @@ def decode (bytes : List UInt8) : Option (OptionsNonDisplayedTradeMessage × Lis
   let (price, bytes) ← decodeUIntLE 4 bytes
   let (volume, bytes) ← decodeUIntLE 4 bytes
   let (printableFlag, bytes) ← decodeUInt 1 bytes
-  let (tradeCond1, bytes) ← Alpha.decode 1 bytes
+  let (tradeCond1, bytes) ← TradeCond1.decode bytes
   let (reserved3, bytes) ← Alpha.decode 3 bytes
   let (priceType, bytes) ← decodeUInt 1 bytes
   pure ({ sourceTimeNs, seriesIndex, seriesSeqNum, tradeId, price, volume, printableFlag, tradeCond1, reserved3, priceType }, bytes)
 
 @[simp] theorem encode_length (message : OptionsNonDisplayedTradeMessage) : (encode message).length = 30 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, TradeCond1.encode_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : OptionsNonDisplayedTradeMessage) : (encode message).length > 0 := by
   rw [encode_length]
@@ -2919,7 +3014,7 @@ theorem encode_length_pos (message : OptionsNonDisplayedTradeMessage) : (encode 
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  rw [List.append_assoc, TradeCond1.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only

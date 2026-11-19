@@ -939,12 +939,12 @@ inductive Liquidity where
   | nonDisplayedAddingLiquidity -- Non Displayed Adding Liquidity
   | routed -- Routed
   | dot -- Dot
-  | openingTrade -- Opening Trade
-  | onCloseOrder -- On Close Order
+  | openingTradeOnNyse -- Opening Trade On NYSE
+  | onCloseOrderOnNyse -- On Close Order On NYSE
   | openingCross -- Opening Cross
-  | openingCross_4d -- Opening Cross
+  | openingCrossImbalanceOnly -- Opening Cross Imbalance Only
   | closingCross -- Closing Cross
-  | closingCross_4c -- Closing Cross
+  | closingCrossImbalanceOnly -- Closing Cross Imbalance Only
   | haltIpoCross -- Halt Ipo Cross
   | haltCross -- Halt Cross
   | reRoutedByNyse -- Re Routed By Nyse
@@ -953,8 +953,8 @@ inductive Liquidity where
   | routedToBx -- Routed To Bx
   | nyseOther -- Nyse Other
   | routedToPsx -- Routed To Psx
-  | openingTrade_54 -- Opening Trade
-  | onCloseOrder_5a -- On Close Order
+  | openingTradeOnArca -- Opening Trade On ARCA
+  | onCloseOrderOnArca -- On Close Order On ARCA
   | addedPostOnly -- Added Post Only
   | removedLiquidityAtAMidpoint -- Removed Liquidity At A Midpoint
   | addedLiquidityViaAMidpointOrder -- Added Liquidity Via A Midpoint Order
@@ -982,12 +982,12 @@ def toByte : Liquidity → UInt8
   | .nonDisplayedAddingLiquidity => 0x4A
   | .routed => 0x58
   | .dot => 0x44
-  | .openingTrade => 0x46
-  | .onCloseOrder => 0x47
+  | .openingTradeOnNyse => 0x46
+  | .onCloseOrderOnNyse => 0x47
   | .openingCross => 0x4F
-  | .openingCross_4d => 0x4D
+  | .openingCrossImbalanceOnly => 0x4D
   | .closingCross => 0x43
-  | .closingCross_4c => 0x4C
+  | .closingCrossImbalanceOnly => 0x4C
   | .haltIpoCross => 0x48
   | .haltCross => 0x4B
   | .reRoutedByNyse => 0x59
@@ -996,8 +996,8 @@ def toByte : Liquidity → UInt8
   | .routedToBx => 0x42
   | .nyseOther => 0x45
   | .routedToPsx => 0x50
-  | .openingTrade_54 => 0x54
-  | .onCloseOrder_5a => 0x5A
+  | .openingTradeOnArca => 0x54
+  | .onCloseOrderOnArca => 0x5A
   | .addedPostOnly => 0x57
   | .removedLiquidityAtAMidpoint => 0x6D
   | .addedLiquidityViaAMidpointOrder => 0x6B
@@ -1023,12 +1023,12 @@ def listed (byte : UInt8) : Liquidity :=
   else if byte = 0x4A then .nonDisplayedAddingLiquidity
   else if byte = 0x58 then .routed
   else if byte = 0x44 then .dot
-  else if byte = 0x46 then .openingTrade
-  else if byte = 0x47 then .onCloseOrder
+  else if byte = 0x46 then .openingTradeOnNyse
+  else if byte = 0x47 then .onCloseOrderOnNyse
   else if byte = 0x4F then .openingCross
-  else if byte = 0x4D then .openingCross_4d
+  else if byte = 0x4D then .openingCrossImbalanceOnly
   else if byte = 0x43 then .closingCross
-  else if byte = 0x4C then .closingCross_4c
+  else if byte = 0x4C then .closingCrossImbalanceOnly
   else if byte = 0x48 then .haltIpoCross
   else if byte = 0x4B then .haltCross
   else if byte = 0x59 then .reRoutedByNyse
@@ -1037,8 +1037,8 @@ def listed (byte : UInt8) : Liquidity :=
   else if byte = 0x42 then .routedToBx
   else if byte = 0x45 then .nyseOther
   else if byte = 0x50 then .routedToPsx
-  else if byte = 0x54 then .openingTrade_54
-  else if byte = 0x5A then .onCloseOrder_5a
+  else if byte = 0x54 then .openingTradeOnArca
+  else if byte = 0x5A then .onCloseOrderOnArca
   else if byte = 0x57 then .addedPostOnly
   else if byte = 0x6D then .removedLiquidityAtAMidpoint
   else if byte = 0x6B then .addedLiquidityViaAMidpointOrder
@@ -1066,12 +1066,12 @@ theorem ofByte_toByte (value : Liquidity) : ofByte value.toByte = value := by
   | nonDisplayedAddingLiquidity => decide
   | routed => decide
   | dot => decide
-  | openingTrade => decide
-  | onCloseOrder => decide
+  | openingTradeOnNyse => decide
+  | onCloseOrderOnNyse => decide
   | openingCross => decide
-  | openingCross_4d => decide
+  | openingCrossImbalanceOnly => decide
   | closingCross => decide
-  | closingCross_4c => decide
+  | closingCrossImbalanceOnly => decide
   | haltIpoCross => decide
   | haltCross => decide
   | reRoutedByNyse => decide
@@ -1080,8 +1080,8 @@ theorem ofByte_toByte (value : Liquidity) : ofByte value.toByte = value := by
   | routedToBx => decide
   | nyseOther => decide
   | routedToPsx => decide
-  | openingTrade_54 => decide
-  | onCloseOrder_5a => decide
+  | openingTradeOnArca => decide
+  | onCloseOrderOnArca => decide
   | addedPostOnly => decide
   | removedLiquidityAtAMidpoint => decide
   | addedLiquidityViaAMidpointOrder => decide

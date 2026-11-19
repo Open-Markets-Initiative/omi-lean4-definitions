@@ -1084,20 +1084,20 @@ end FinalSettlementFuturesPrice
 
 /-- Eris Security Alt Id Group: 27 bytes -/
 structure ErisSecurityAltIdGroup where
-  securityAltId50 : Alpha 26
+  securityAltId : Alpha 26
   securityAltIdSourceOptional : Alpha 1
   deriving DecidableEq, Repr
 
 namespace ErisSecurityAltIdGroup
 
 def encode (message : ErisSecurityAltIdGroup) : List UInt8 :=
-  Alpha.encode message.securityAltId50
+  Alpha.encode message.securityAltId
     ++ (Alpha.encode message.securityAltIdSourceOptional)
 
 def decode (bytes : List UInt8) : Option (ErisSecurityAltIdGroup × List UInt8) := do
-  let (securityAltId50, bytes) ← Alpha.decode 26 bytes
+  let (securityAltId, bytes) ← Alpha.decode 26 bytes
   let (securityAltIdSourceOptional, bytes) ← Alpha.decode 1 bytes
-  pure ({ securityAltId50, securityAltIdSourceOptional }, bytes)
+  pure ({ securityAltId, securityAltIdSourceOptional }, bytes)
 
 @[simp] theorem encode_length (message : ErisSecurityAltIdGroup) : (encode message).length = 27 := by
   unfold encode
@@ -2008,7 +2008,7 @@ structure TradeBlocksUnderlyingsGroup where
   underlyingSymbol : Alpha 50
   underlyingMaturityMonthYear : UnderlyingMaturityMonthYear
   underlyingSecurityType : Alpha 9
-  underlyingSecurityExchangeString4 : Alpha 4
+  underlyingSecurityExchange : Alpha 4
   deriving DecidableEq, Repr
 
 namespace TradeBlocksUnderlyingsGroup
@@ -2017,14 +2017,14 @@ def encode (message : TradeBlocksUnderlyingsGroup) : List UInt8 :=
   Alpha.encode message.underlyingSymbol
     ++ (UnderlyingMaturityMonthYear.encode message.underlyingMaturityMonthYear
     ++ (Alpha.encode message.underlyingSecurityType
-    ++ (Alpha.encode message.underlyingSecurityExchangeString4)))
+    ++ (Alpha.encode message.underlyingSecurityExchange)))
 
 def decode (bytes : List UInt8) : Option (TradeBlocksUnderlyingsGroup × List UInt8) := do
   let (underlyingSymbol, bytes) ← Alpha.decode 50 bytes
   let (underlyingMaturityMonthYear, bytes) ← UnderlyingMaturityMonthYear.decode bytes
   let (underlyingSecurityType, bytes) ← Alpha.decode 9 bytes
-  let (underlyingSecurityExchangeString4, bytes) ← Alpha.decode 4 bytes
-  pure ({ underlyingSymbol, underlyingMaturityMonthYear, underlyingSecurityType, underlyingSecurityExchangeString4 }, bytes)
+  let (underlyingSecurityExchange, bytes) ← Alpha.decode 4 bytes
+  pure ({ underlyingSymbol, underlyingMaturityMonthYear, underlyingSecurityType, underlyingSecurityExchange }, bytes)
 
 @[simp] theorem encode_length (message : TradeBlocksUnderlyingsGroup) : (encode message).length = 68 := by
   unfold encode
@@ -2231,11 +2231,11 @@ structure TradeBlocksOriginalLegsGroup where
   legSecurityType : Alpha 9
   legMaturityMonthYear : LegMaturityMonthYear
   legMaturityDate : BitVec 16
-  legStrikePricePricenull : BitVec 64
+  legStrikePrice : BitVec 64
   legUnitOfMeasure : Alpha 5
-  legUnitOfMeasureQtyPricenull : BitVec 64
+  legUnitOfMeasureQty : BitVec 64
   legSecurityExchange : Alpha 4
-  legRatioQtyUInt16Null : BitVec 16
+  legRatioQty : BitVec 16
   legSide : BitVec 8
   legPutOrCall : BitVec 8
   legUnitOfMeasureCurrency : Alpha 3
@@ -2251,11 +2251,11 @@ def encode (message : TradeBlocksOriginalLegsGroup) : List UInt8 :=
     ++ (Alpha.encode message.legSecurityType
     ++ (LegMaturityMonthYear.encode message.legMaturityMonthYear
     ++ (encodeUIntLE 2 message.legMaturityDate
-    ++ (encodeUIntLE 8 message.legStrikePricePricenull
+    ++ (encodeUIntLE 8 message.legStrikePrice
     ++ (Alpha.encode message.legUnitOfMeasure
-    ++ (encodeUIntLE 8 message.legUnitOfMeasureQtyPricenull
+    ++ (encodeUIntLE 8 message.legUnitOfMeasureQty
     ++ (Alpha.encode message.legSecurityExchange
-    ++ (encodeUIntLE 2 message.legRatioQtyUInt16Null
+    ++ (encodeUIntLE 2 message.legRatioQty
     ++ (encodeUInt 1 message.legSide
     ++ (encodeUInt 1 message.legPutOrCall
     ++ (Alpha.encode message.legUnitOfMeasureCurrency))))))))))))))
@@ -2268,15 +2268,15 @@ def decode (bytes : List UInt8) : Option (TradeBlocksOriginalLegsGroup × List U
   let (legSecurityType, bytes) ← Alpha.decode 9 bytes
   let (legMaturityMonthYear, bytes) ← LegMaturityMonthYear.decode bytes
   let (legMaturityDate, bytes) ← decodeUIntLE 2 bytes
-  let (legStrikePricePricenull, bytes) ← decodeUIntLE 8 bytes
+  let (legStrikePrice, bytes) ← decodeUIntLE 8 bytes
   let (legUnitOfMeasure, bytes) ← Alpha.decode 5 bytes
-  let (legUnitOfMeasureQtyPricenull, bytes) ← decodeUIntLE 8 bytes
+  let (legUnitOfMeasureQty, bytes) ← decodeUIntLE 8 bytes
   let (legSecurityExchange, bytes) ← Alpha.decode 4 bytes
-  let (legRatioQtyUInt16Null, bytes) ← decodeUIntLE 2 bytes
+  let (legRatioQty, bytes) ← decodeUIntLE 2 bytes
   let (legSide, bytes) ← decodeUInt 1 bytes
   let (legPutOrCall, bytes) ← decodeUInt 1 bytes
   let (legUnitOfMeasureCurrency, bytes) ← Alpha.decode 3 bytes
-  pure ({ legSymbol, legSecurityId, legSecurityGroup, legId, legSecurityType, legMaturityMonthYear, legMaturityDate, legStrikePricePricenull, legUnitOfMeasure, legUnitOfMeasureQtyPricenull, legSecurityExchange, legRatioQtyUInt16Null, legSide, legPutOrCall, legUnitOfMeasureCurrency }, bytes)
+  pure ({ legSymbol, legSecurityId, legSecurityGroup, legId, legSecurityType, legMaturityMonthYear, legMaturityDate, legStrikePrice, legUnitOfMeasure, legUnitOfMeasureQty, legSecurityExchange, legRatioQty, legSide, legPutOrCall, legUnitOfMeasureCurrency }, bytes)
 
 @[simp] theorem encode_length (message : TradeBlocksOriginalLegsGroup) : (encode message).length = 135 := by
   unfold encode
@@ -4259,7 +4259,7 @@ structure OtcUnderlyingsGroup where
   underlyingSymbol : Alpha 50
   underlyingMaturityMonthYear : UnderlyingMaturityMonthYear
   underlyingSecurityType : Alpha 9
-  underlyingSecurityExchangeSecurityExchange : Alpha 4
+  underlyingSecurityExchange : Alpha 4
   deriving DecidableEq, Repr
 
 namespace OtcUnderlyingsGroup
@@ -4268,14 +4268,14 @@ def encode (message : OtcUnderlyingsGroup) : List UInt8 :=
   Alpha.encode message.underlyingSymbol
     ++ (UnderlyingMaturityMonthYear.encode message.underlyingMaturityMonthYear
     ++ (Alpha.encode message.underlyingSecurityType
-    ++ (Alpha.encode message.underlyingSecurityExchangeSecurityExchange)))
+    ++ (Alpha.encode message.underlyingSecurityExchange)))
 
 def decode (bytes : List UInt8) : Option (OtcUnderlyingsGroup × List UInt8) := do
   let (underlyingSymbol, bytes) ← Alpha.decode 50 bytes
   let (underlyingMaturityMonthYear, bytes) ← UnderlyingMaturityMonthYear.decode bytes
   let (underlyingSecurityType, bytes) ← Alpha.decode 9 bytes
-  let (underlyingSecurityExchangeSecurityExchange, bytes) ← Alpha.decode 4 bytes
-  pure ({ underlyingSymbol, underlyingMaturityMonthYear, underlyingSecurityType, underlyingSecurityExchangeSecurityExchange }, bytes)
+  let (underlyingSecurityExchange, bytes) ← Alpha.decode 4 bytes
+  pure ({ underlyingSymbol, underlyingMaturityMonthYear, underlyingSecurityType, underlyingSecurityExchange }, bytes)
 
 @[simp] theorem encode_length (message : OtcUnderlyingsGroup) : (encode message).length = 68 := by
   unfold encode
@@ -4348,20 +4348,20 @@ end OtcUnderlyingsGroups
 
 /-- Otc Security Alt Id Group: 51 bytes -/
 structure OtcSecurityAltIdGroup where
-  securityAltIDStringLength50 : Alpha 50
+  securityAltId50 : Alpha 50
   securityAltIdSource : Alpha 1
   deriving DecidableEq, Repr
 
 namespace OtcSecurityAltIdGroup
 
 def encode (message : OtcSecurityAltIdGroup) : List UInt8 :=
-  Alpha.encode message.securityAltIDStringLength50
+  Alpha.encode message.securityAltId50
     ++ (Alpha.encode message.securityAltIdSource)
 
 def decode (bytes : List UInt8) : Option (OtcSecurityAltIdGroup × List UInt8) := do
-  let (securityAltIDStringLength50, bytes) ← Alpha.decode 50 bytes
+  let (securityAltId50, bytes) ← Alpha.decode 50 bytes
   let (securityAltIdSource, bytes) ← Alpha.decode 1 bytes
-  pure ({ securityAltIDStringLength50, securityAltIdSource }, bytes)
+  pure ({ securityAltId50, securityAltIdSource }, bytes)
 
 @[simp] theorem encode_length (message : OtcSecurityAltIdGroup) : (encode message).length = 51 := by
   unfold encode
@@ -4928,7 +4928,7 @@ structure ErisLegsGroup where
   legPayFrequencey : Alpha 3
   previousFixingRate : PreviousFixingRate
   legSymbol : Alpha 50
-  legRatioQtyInt32Null : BitVec 32
+  erisLegRatioQty : BitVec 32
   legSide : BitVec 8
   legCurrency : Alpha 3
   legSecurityType4 : Alpha 8
@@ -4947,7 +4947,7 @@ def encode (message : ErisLegsGroup) : List UInt8 :=
     ++ (Alpha.encode message.legPayFrequencey
     ++ (PreviousFixingRate.encode message.previousFixingRate
     ++ (Alpha.encode message.legSymbol
-    ++ (encodeUIntLE 4 message.legRatioQtyInt32Null
+    ++ (encodeUIntLE 4 message.erisLegRatioQty
     ++ (encodeUInt 1 message.legSide
     ++ (Alpha.encode message.legCurrency
     ++ (Alpha.encode message.legSecurityType4
@@ -4963,7 +4963,7 @@ def decode (bytes : List UInt8) : Option (ErisLegsGroup × List UInt8) := do
   let (legPayFrequencey, bytes) ← Alpha.decode 3 bytes
   let (previousFixingRate, bytes) ← PreviousFixingRate.decode bytes
   let (legSymbol, bytes) ← Alpha.decode 50 bytes
-  let (legRatioQtyInt32Null, bytes) ← decodeUIntLE 4 bytes
+  let (erisLegRatioQty, bytes) ← decodeUIntLE 4 bytes
   let (legSide, bytes) ← decodeUInt 1 bytes
   let (legCurrency, bytes) ← Alpha.decode 3 bytes
   let (legSecurityType4, bytes) ← Alpha.decode 8 bytes
@@ -4971,7 +4971,7 @@ def decode (bytes : List UInt8) : Option (ErisLegsGroup × List UInt8) := do
   let (legDateOffset, bytes) ← decodeUInt 1 bytes
   let (interpolationFactor, bytes) ← InterpolationFactor.decode bytes
   let (erisSecurityAltIdGroups, bytes) ← ErisSecurityAltIdGroups.decode bytes
-  pure ({ legBenchmarkCurveName, rateDescriptor, previousFixingDate, legPayFrequencey, previousFixingRate, legSymbol, legRatioQtyInt32Null, legSide, legCurrency, legSecurityType4, legSecurityGroup, legDateOffset, interpolationFactor, erisSecurityAltIdGroups }, bytes)
+  pure ({ legBenchmarkCurveName, rateDescriptor, previousFixingDate, legPayFrequencey, previousFixingRate, legSymbol, erisLegRatioQty, legSide, legCurrency, legSecurityType4, legSecurityGroup, legDateOffset, interpolationFactor, erisSecurityAltIdGroups }, bytes)
 
 theorem encode_length_pos (message : ErisLegsGroup) : (encode message).length > 0 := by
   unfold encode
@@ -5337,7 +5337,7 @@ structure TradeBlocksLegsGroup where
   legUnitOfMeasure : Alpha 5
   legUnitOfMeasureQtyDecimal64Null : LegUnitOfMeasureQtyDecimal64Null
   legSecurityExchange : Alpha 4
-  legRatioQtyUInt16Null : BitVec 16
+  legRatioQty : BitVec 16
   legSide : BitVec 8
   legPutOrCall : BitVec 8
   legUnitOfMeasureCurrency : Alpha 3
@@ -5357,7 +5357,7 @@ def encode (message : TradeBlocksLegsGroup) : List UInt8 :=
     ++ (Alpha.encode message.legUnitOfMeasure
     ++ (LegUnitOfMeasureQtyDecimal64Null.encode message.legUnitOfMeasureQtyDecimal64Null
     ++ (Alpha.encode message.legSecurityExchange
-    ++ (encodeUIntLE 2 message.legRatioQtyUInt16Null
+    ++ (encodeUIntLE 2 message.legRatioQty
     ++ (encodeUInt 1 message.legSide
     ++ (encodeUInt 1 message.legPutOrCall
     ++ (Alpha.encode message.legUnitOfMeasureCurrency))))))))))))))
@@ -5374,11 +5374,11 @@ def decode (bytes : List UInt8) : Option (TradeBlocksLegsGroup × List UInt8) :=
   let (legUnitOfMeasure, bytes) ← Alpha.decode 5 bytes
   let (legUnitOfMeasureQtyDecimal64Null, bytes) ← LegUnitOfMeasureQtyDecimal64Null.decode bytes
   let (legSecurityExchange, bytes) ← Alpha.decode 4 bytes
-  let (legRatioQtyUInt16Null, bytes) ← decodeUIntLE 2 bytes
+  let (legRatioQty, bytes) ← decodeUIntLE 2 bytes
   let (legSide, bytes) ← decodeUInt 1 bytes
   let (legPutOrCall, bytes) ← decodeUInt 1 bytes
   let (legUnitOfMeasureCurrency, bytes) ← Alpha.decode 3 bytes
-  pure ({ legSymbol, legSecurityId, legSecurityGroup, legId, legSecurityType, legMaturityMonthYear, legMaturityDate, legStrikePriceDecimal64Null, legUnitOfMeasure, legUnitOfMeasureQtyDecimal64Null, legSecurityExchange, legRatioQtyUInt16Null, legSide, legPutOrCall, legUnitOfMeasureCurrency }, bytes)
+  pure ({ legSymbol, legSecurityId, legSecurityGroup, legId, legSecurityType, legMaturityMonthYear, legMaturityDate, legStrikePriceDecimal64Null, legUnitOfMeasure, legUnitOfMeasureQtyDecimal64Null, legSecurityExchange, legRatioQty, legSide, legPutOrCall, legUnitOfMeasureCurrency }, bytes)
 
 @[simp] theorem encode_length (message : TradeBlocksLegsGroup) : (encode message).length = 137 := by
   unfold encode

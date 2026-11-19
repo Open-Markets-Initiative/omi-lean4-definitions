@@ -910,9 +910,9 @@ inductive Liquidity where
   | addedOrOpeningTrade -- Added Or Opening Trade
   | oddLotOrOnCloseOrder -- Odd Lot Or On Close Order
   | openCross -- Open Cross
-  | openCross_4d -- Open Cross
+  | openCrossImbalanceOnly -- Open Cross Imbalance Only
   | closingCross -- Closing Cross
-  | closingCross_4c -- Closing Cross
+  | closingCrossImbalanceOnly -- Closing Cross Imbalance Only
   | haltIpoCross -- Halt Ipo Cross
   | haltCross -- Halt Cross
   | reRoutedByNyse -- Re Routed By Nyse
@@ -941,9 +941,9 @@ def toByte : Liquidity → UInt8
   | .addedOrOpeningTrade => 0x46
   | .oddLotOrOnCloseOrder => 0x47
   | .openCross => 0x4F
-  | .openCross_4d => 0x4D
+  | .openCrossImbalanceOnly => 0x4D
   | .closingCross => 0x43
-  | .closingCross_4c => 0x4C
+  | .closingCrossImbalanceOnly => 0x4C
   | .haltIpoCross => 0x48
   | .haltCross => 0x4B
   | .reRoutedByNyse => 0x59
@@ -970,9 +970,9 @@ def listed (byte : UInt8) : Liquidity :=
   else if byte = 0x46 then .addedOrOpeningTrade
   else if byte = 0x47 then .oddLotOrOnCloseOrder
   else if byte = 0x4F then .openCross
-  else if byte = 0x4D then .openCross_4d
+  else if byte = 0x4D then .openCrossImbalanceOnly
   else if byte = 0x43 then .closingCross
-  else if byte = 0x4C then .closingCross_4c
+  else if byte = 0x4C then .closingCrossImbalanceOnly
   else if byte = 0x48 then .haltIpoCross
   else if byte = 0x4B then .haltCross
   else if byte = 0x59 then .reRoutedByNyse
@@ -1001,9 +1001,9 @@ theorem ofByte_toByte (value : Liquidity) : ofByte value.toByte = value := by
   | addedOrOpeningTrade => decide
   | oddLotOrOnCloseOrder => decide
   | openCross => decide
-  | openCross_4d => decide
+  | openCrossImbalanceOnly => decide
   | closingCross => decide
-  | closingCross_4c => decide
+  | closingCrossImbalanceOnly => decide
   | haltIpoCross => decide
   | haltCross => decide
   | reRoutedByNyse => decide

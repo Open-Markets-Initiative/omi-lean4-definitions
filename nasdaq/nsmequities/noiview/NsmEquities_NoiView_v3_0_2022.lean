@@ -1050,7 +1050,7 @@ end SystemEventMessage
 structure StockDirectoryMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
-  stockAlpha8 : Alpha 8
+  stock : Alpha 8
   marketCategory : MarketCategory
   financialStatusIndicator : FinancialStatusIndicator
   roundLotSize : BitVec 32
@@ -1071,7 +1071,7 @@ namespace StockDirectoryMessage
 def encode (message : StockDirectoryMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
-    ++ (Alpha.encode message.stockAlpha8
+    ++ (Alpha.encode message.stock
     ++ (MarketCategory.encode message.marketCategory
     ++ (FinancialStatusIndicator.encode message.financialStatusIndicator
     ++ (encodeUInt 4 message.roundLotSize
@@ -1089,7 +1089,7 @@ def encode (message : StockDirectoryMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (StockDirectoryMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
-  let (stockAlpha8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (marketCategory, bytes) ← MarketCategory.decode bytes
   let (financialStatusIndicator, bytes) ← FinancialStatusIndicator.decode bytes
   let (roundLotSize, bytes) ← decodeUInt 4 bytes
@@ -1103,7 +1103,7 @@ def decode (bytes : List UInt8) : Option (StockDirectoryMessage × List UInt8) :
   let (etpFlag, bytes) ← EtpFlag.decode bytes
   let (etpLeverageFactor, bytes) ← decodeUInt 4 bytes
   let (inverseIndicator, bytes) ← InverseIndicator.decode bytes
-  pure ({ trackingNumber, timestamp, stockAlpha8, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_, issueClassification, issueSubType, authenticity, shortSaleThresholdIndicator, ipoFlag, luldReferencePriceTier, etpFlag, etpLeverageFactor, inverseIndicator }, bytes)
+  pure ({ trackingNumber, timestamp, stock, marketCategory, financialStatusIndicator, roundLotSize, roundLotsOnly := roundLotsOnly_, issueClassification, issueSubType, authenticity, shortSaleThresholdIndicator, ipoFlag, luldReferencePriceTier, etpFlag, etpLeverageFactor, inverseIndicator }, bytes)
 
 @[simp] theorem encode_length (message : StockDirectoryMessage) : (encode message).length = 36 := by
   unfold encode
@@ -1155,7 +1155,7 @@ end StockDirectoryMessage
 structure StockTradingActionMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
-  stockAlphanumeric8 : Alpha 8
+  stock : Alpha 8
   currentTradingState : CurrentTradingState
   reason : Alpha 4
   deriving DecidableEq, Repr
@@ -1165,17 +1165,17 @@ namespace StockTradingActionMessage
 def encode (message : StockTradingActionMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
-    ++ (Alpha.encode message.stockAlphanumeric8
+    ++ (Alpha.encode message.stock
     ++ (CurrentTradingState.encode message.currentTradingState
     ++ (Alpha.encode message.reason))))
 
 def decode (bytes : List UInt8) : Option (StockTradingActionMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
-  let (stockAlphanumeric8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (currentTradingState, bytes) ← CurrentTradingState.decode bytes
   let (reason, bytes) ← Alpha.decode 4 bytes
-  pure ({ trackingNumber, timestamp, stockAlphanumeric8, currentTradingState, reason }, bytes)
+  pure ({ trackingNumber, timestamp, stock, currentTradingState, reason }, bytes)
 
 @[simp] theorem encode_length (message : StockTradingActionMessage) : (encode message).length = 21 := by
   unfold encode
@@ -1205,7 +1205,7 @@ end StockTradingActionMessage
 structure RegShoRestrictionMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
-  stockAlphanumeric8 : Alpha 8
+  stock : Alpha 8
   regShoAction : RegShoAction
   deriving DecidableEq, Repr
 
@@ -1214,15 +1214,15 @@ namespace RegShoRestrictionMessage
 def encode (message : RegShoRestrictionMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
-    ++ (Alpha.encode message.stockAlphanumeric8
+    ++ (Alpha.encode message.stock
     ++ (RegShoAction.encode message.regShoAction)))
 
 def decode (bytes : List UInt8) : Option (RegShoRestrictionMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
-  let (stockAlphanumeric8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (regShoAction, bytes) ← RegShoAction.decode bytes
-  pure ({ trackingNumber, timestamp, stockAlphanumeric8, regShoAction }, bytes)
+  pure ({ trackingNumber, timestamp, stock, regShoAction }, bytes)
 
 @[simp] theorem encode_length (message : RegShoRestrictionMessage) : (encode message).length = 17 := by
   unfold encode
@@ -1253,7 +1253,7 @@ structure NoiiMessage where
   pairedShares : BitVec 64
   imbalanceShares : BitVec 64
   imbalanceDirection : ImbalanceDirection
-  stockAlphanumeric8 : Alpha 8
+  stock : Alpha 8
   farPrice : BitVec 32
   nearPrice : BitVec 32
   currentReferencePrice : BitVec 32
@@ -1269,7 +1269,7 @@ def encode (message : NoiiMessage) : List UInt8 :=
     ++ (encodeUInt 8 message.pairedShares
     ++ (encodeUInt 8 message.imbalanceShares
     ++ (ImbalanceDirection.encode message.imbalanceDirection
-    ++ (Alpha.encode message.stockAlphanumeric8
+    ++ (Alpha.encode message.stock
     ++ (encodeUInt 4 message.farPrice
     ++ (encodeUInt 4 message.nearPrice
     ++ (encodeUInt 4 message.currentReferencePrice
@@ -1282,13 +1282,13 @@ def decode (bytes : List UInt8) : Option (NoiiMessage × List UInt8) := do
   let (pairedShares, bytes) ← decodeUInt 8 bytes
   let (imbalanceShares, bytes) ← decodeUInt 8 bytes
   let (imbalanceDirection, bytes) ← ImbalanceDirection.decode bytes
-  let (stockAlphanumeric8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (farPrice, bytes) ← decodeUInt 4 bytes
   let (nearPrice, bytes) ← decodeUInt 4 bytes
   let (currentReferencePrice, bytes) ← decodeUInt 4 bytes
   let (crossType, bytes) ← CrossType.decode bytes
   let (priceVariationIndicator, bytes) ← PriceVariationIndicator.decode bytes
-  pure ({ trackingNumber, timestamp, pairedShares, imbalanceShares, imbalanceDirection, stockAlphanumeric8, farPrice, nearPrice, currentReferencePrice, crossType, priceVariationIndicator }, bytes)
+  pure ({ trackingNumber, timestamp, pairedShares, imbalanceShares, imbalanceDirection, stock, farPrice, nearPrice, currentReferencePrice, crossType, priceVariationIndicator }, bytes)
 
 @[simp] theorem encode_length (message : NoiiMessage) : (encode message).length = 47 := by
   unfold encode
@@ -1331,7 +1331,7 @@ structure CrossTradeMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
   shares : BitVec 64
-  stockAlphanumeric8 : Alpha 8
+  stock : Alpha 8
   crossPrice : BitVec 32
   matchNumber : BitVec 64
   crossType : CrossType
@@ -1343,7 +1343,7 @@ def encode (message : CrossTradeMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
     ++ (encodeUInt 8 message.shares
-    ++ (Alpha.encode message.stockAlphanumeric8
+    ++ (Alpha.encode message.stock
     ++ (encodeUInt 4 message.crossPrice
     ++ (encodeUInt 8 message.matchNumber
     ++ (CrossType.encode message.crossType))))))
@@ -1352,11 +1352,11 @@ def decode (bytes : List UInt8) : Option (CrossTradeMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
   let (shares, bytes) ← decodeUInt 8 bytes
-  let (stockAlphanumeric8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (crossPrice, bytes) ← decodeUInt 4 bytes
   let (matchNumber, bytes) ← decodeUInt 8 bytes
   let (crossType, bytes) ← CrossType.decode bytes
-  pure ({ trackingNumber, timestamp, shares, stockAlphanumeric8, crossPrice, matchNumber, crossType }, bytes)
+  pure ({ trackingNumber, timestamp, shares, stock, crossPrice, matchNumber, crossType }, bytes)
 
 @[simp] theorem encode_length (message : CrossTradeMessage) : (encode message).length = 37 := by
   unfold encode
@@ -1390,7 +1390,7 @@ end CrossTradeMessage
 structure IpoQuotingPeriodUpdateMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
-  stockAlphanumeric8 : Alpha 8
+  stock : Alpha 8
   ipoQuotationReleaseTime : BitVec 32
   ipoQuotationReleaseQualifier : IpoQuotationReleaseQualifier
   ipoPrice : BitVec 32
@@ -1401,7 +1401,7 @@ namespace IpoQuotingPeriodUpdateMessage
 def encode (message : IpoQuotingPeriodUpdateMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
-    ++ (Alpha.encode message.stockAlphanumeric8
+    ++ (Alpha.encode message.stock
     ++ (encodeUInt 4 message.ipoQuotationReleaseTime
     ++ (IpoQuotationReleaseQualifier.encode message.ipoQuotationReleaseQualifier
     ++ (encodeUInt 4 message.ipoPrice)))))
@@ -1409,11 +1409,11 @@ def encode (message : IpoQuotingPeriodUpdateMessage) : List UInt8 :=
 def decode (bytes : List UInt8) : Option (IpoQuotingPeriodUpdateMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
-  let (stockAlphanumeric8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (ipoQuotationReleaseTime, bytes) ← decodeUInt 4 bytes
   let (ipoQuotationReleaseQualifier, bytes) ← IpoQuotationReleaseQualifier.decode bytes
   let (ipoPrice, bytes) ← decodeUInt 4 bytes
-  pure ({ trackingNumber, timestamp, stockAlphanumeric8, ipoQuotationReleaseTime, ipoQuotationReleaseQualifier, ipoPrice }, bytes)
+  pure ({ trackingNumber, timestamp, stock, ipoQuotationReleaseTime, ipoQuotationReleaseQualifier, ipoPrice }, bytes)
 
 @[simp] theorem encode_length (message : IpoQuotingPeriodUpdateMessage) : (encode message).length = 25 := by
   unfold encode

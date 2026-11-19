@@ -691,7 +691,7 @@ structure BoardLotOutMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -746,7 +746,7 @@ def encode (message : BoardLotOutMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -800,7 +800,7 @@ def decode (bytes : List UInt8) : Option (BoardLotOutMessage × List UInt8) := d
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -832,7 +832,7 @@ def decode (bytes : List UInt8) : Option (BoardLotOutMessage × List UInt8) := d
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : BoardLotOutMessage) : (encode message).length = 276 := by
   unfold encode
@@ -969,7 +969,7 @@ structure NegOrderToBlMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -1024,7 +1024,7 @@ def encode (message : NegOrderToBlMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -1078,7 +1078,7 @@ def decode (bytes : List UInt8) : Option (NegOrderToBlMessage × List UInt8) := 
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -1110,7 +1110,7 @@ def decode (bytes : List UInt8) : Option (NegOrderToBlMessage × List UInt8) := 
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : NegOrderToBlMessage) : (encode message).length = 276 := by
   unfold encode
@@ -1247,7 +1247,7 @@ structure OrderModOutMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -1302,7 +1302,7 @@ def encode (message : OrderModOutMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -1356,7 +1356,7 @@ def decode (bytes : List UInt8) : Option (OrderModOutMessage × List UInt8) := d
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -1388,7 +1388,7 @@ def decode (bytes : List UInt8) : Option (OrderModOutMessage × List UInt8) := d
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModOutMessage) : (encode message).length = 276 := by
   unfold encode
@@ -1525,7 +1525,7 @@ structure OrderModRejectMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -1580,7 +1580,7 @@ def encode (message : OrderModRejectMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -1634,7 +1634,7 @@ def decode (bytes : List UInt8) : Option (OrderModRejectMessage × List UInt8) :
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -1666,7 +1666,7 @@ def decode (bytes : List UInt8) : Option (OrderModRejectMessage × List UInt8) :
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModRejectMessage) : (encode message).length = 276 := by
   unfold encode
@@ -1803,7 +1803,7 @@ structure OrderCancelOutMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -1858,7 +1858,7 @@ def encode (message : OrderCancelOutMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -1912,7 +1912,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelOutMessage × List UInt8) :
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -1944,7 +1944,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelOutMessage × List UInt8) :
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelOutMessage) : (encode message).length = 276 := by
   unfold encode
@@ -2081,7 +2081,7 @@ structure OrderCancelRejectMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -2136,7 +2136,7 @@ def encode (message : OrderCancelRejectMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -2190,7 +2190,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelRejectMessage × List UInt8
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -2222,7 +2222,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelRejectMessage × List UInt8
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelRejectMessage) : (encode message).length = 276 := by
   unfold encode
@@ -2359,7 +2359,7 @@ structure OrderConfirmationMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -2414,7 +2414,7 @@ def encode (message : OrderConfirmationMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -2468,7 +2468,7 @@ def decode (bytes : List UInt8) : Option (OrderConfirmationMessage × List UInt8
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -2500,7 +2500,7 @@ def decode (bytes : List UInt8) : Option (OrderConfirmationMessage × List UInt8
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderConfirmationMessage) : (encode message).length = 276 := by
   unfold encode
@@ -2637,7 +2637,7 @@ structure OrderModConfirmationMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -2692,7 +2692,7 @@ def encode (message : OrderModConfirmationMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -2746,7 +2746,7 @@ def decode (bytes : List UInt8) : Option (OrderModConfirmationMessage × List UI
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -2778,7 +2778,7 @@ def decode (bytes : List UInt8) : Option (OrderModConfirmationMessage × List UI
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderModConfirmationMessage) : (encode message).length = 276 := by
   unfold encode
@@ -2915,7 +2915,7 @@ structure OrderCancelConfirmationMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -2970,7 +2970,7 @@ def encode (message : OrderCancelConfirmationMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -3024,7 +3024,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelConfirmationMessage × List
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -3056,7 +3056,7 @@ def decode (bytes : List UInt8) : Option (OrderCancelConfirmationMessage × List
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelConfirmationMessage) : (encode message).length = 276 := by
   unfold encode
@@ -3193,7 +3193,7 @@ structure CancelNegOrderMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -3248,7 +3248,7 @@ def encode (message : CancelNegOrderMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -3302,7 +3302,7 @@ def decode (bytes : List UInt8) : Option (CancelNegOrderMessage × List UInt8) :
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -3334,7 +3334,7 @@ def decode (bytes : List UInt8) : Option (CancelNegOrderMessage × List UInt8) :
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : CancelNegOrderMessage) : (encode message).length = 276 := by
   unfold encode
@@ -3471,7 +3471,7 @@ structure FreezeToControlMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -3526,7 +3526,7 @@ def encode (message : FreezeToControlMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -3580,7 +3580,7 @@ def decode (bytes : List UInt8) : Option (FreezeToControlMessage × List UInt8) 
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -3612,7 +3612,7 @@ def decode (bytes : List UInt8) : Option (FreezeToControlMessage × List UInt8) 
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : FreezeToControlMessage) : (encode message).length = 276 := by
   unfold encode
@@ -3749,7 +3749,7 @@ structure OrderErrorMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -3804,7 +3804,7 @@ def encode (message : OrderErrorMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -3858,7 +3858,7 @@ def decode (bytes : List UInt8) : Option (OrderErrorMessage × List UInt8) := do
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -3890,7 +3890,7 @@ def decode (bytes : List UInt8) : Option (OrderErrorMessage × List UInt8) := do
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OrderErrorMessage) : (encode message).length = 276 := by
   unfold encode
@@ -4027,7 +4027,7 @@ structure BatchOrderCancelMessage where
   orderType : BitVec 16
   orderNumber : Alpha 8
   accountNumber : Alpha 10
-  bookTypeShort2 : BitVec 16
+  bookType : BitVec 16
   buySellIndicator : BitVec 16
   disclosedVolume : BitVec 32
   disclosedVolumeRemaining : BitVec 32
@@ -4082,7 +4082,7 @@ def encode (message : BatchOrderCancelMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.orderType
     ++ (Alpha.encode message.orderNumber
     ++ (Alpha.encode message.accountNumber
-    ++ (encodeUInt 2 message.bookTypeShort2
+    ++ (encodeUInt 2 message.bookType
     ++ (encodeUInt 2 message.buySellIndicator
     ++ (encodeUInt 4 message.disclosedVolume
     ++ (encodeUInt 4 message.disclosedVolumeRemaining
@@ -4136,7 +4136,7 @@ def decode (bytes : List UInt8) : Option (BatchOrderCancelMessage × List UInt8)
   let (orderType, bytes) ← decodeUInt 2 bytes
   let (orderNumber, bytes) ← Alpha.decode 8 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (bookTypeShort2, bytes) ← decodeUInt 2 bytes
+  let (bookType, bytes) ← decodeUInt 2 bytes
   let (buySellIndicator, bytes) ← decodeUInt 2 bytes
   let (disclosedVolume, bytes) ← decodeUInt 4 bytes
   let (disclosedVolumeRemaining, bytes) ← decodeUInt 4 bytes
@@ -4168,7 +4168,7 @@ def decode (bytes : List UInt8) : Option (BatchOrderCancelMessage × List UInt8)
   let (secondReserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookTypeShort2, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ participantType, reserved1, competitorPeriod, solicitorPeriod, modifiedCancelledBy, secondReserved1, reasonCode, reserved4, tokenNo, contractDesc, counterPartyBrokerId, thirdReserved1, reserved2, closeoutFlag, fourthReserved1, orderType, orderNumber, accountNumber, bookType, buySellIndicator, disclosedVolume, disclosedVolumeRemaining, totalVolumeRemaining, volume, volumeFilledToday, price, triggerPrice, goodTillDate, entryDateTime, minimumFillAonVolume, lastModified, stOrderFlags, branchId, traderId, brokerId, cOrdFiller, openClose, settlor, proClientIndicator, settlementPeriod, additionalOrderFlags, giveupFlag, reference, nnfField, mktReplay, pan, algoId, secondReserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : BatchOrderCancelMessage) : (encode message).length = 276 := by
   unfold encode
@@ -9401,7 +9401,7 @@ structure OnStopNotificationMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -9448,7 +9448,7 @@ def encode (message : OnStopNotificationMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -9494,7 +9494,7 @@ def decode (bytes : List UInt8) : Option (OnStopNotificationMessage × List UInt
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -9510,7 +9510,7 @@ def decode (bytes : List UInt8) : Option (OnStopNotificationMessage × List UInt
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : OnStopNotificationMessage) : (encode message).length = 256 := by
   unfold encode
@@ -9639,7 +9639,7 @@ structure TradeConfirmationMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -9686,7 +9686,7 @@ def encode (message : TradeConfirmationMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -9732,7 +9732,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -9748,7 +9748,7 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationMessage × List UInt8
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeConfirmationMessage) : (encode message).length = 256 := by
   unfold encode
@@ -9877,7 +9877,7 @@ structure TradeCancelConfirmMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -9924,7 +9924,7 @@ def encode (message : TradeCancelConfirmMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -9970,7 +9970,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelConfirmMessage × List UInt
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -9986,7 +9986,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelConfirmMessage × List UInt
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelConfirmMessage) : (encode message).length = 256 := by
   unfold encode
@@ -10115,7 +10115,7 @@ structure TradeCancelRejectMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -10162,7 +10162,7 @@ def encode (message : TradeCancelRejectMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -10208,7 +10208,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelRejectMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -10224,7 +10224,7 @@ def decode (bytes : List UInt8) : Option (TradeCancelRejectMessage × List UInt8
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelRejectMessage) : (encode message).length = 256 := by
   unfold encode
@@ -10353,7 +10353,7 @@ structure TradeModifyRejectMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -10400,7 +10400,7 @@ def encode (message : TradeModifyRejectMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -10446,7 +10446,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyRejectMessage × List UInt8
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -10462,7 +10462,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyRejectMessage × List UInt8
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeModifyRejectMessage) : (encode message).length = 256 := by
   unfold encode
@@ -10871,7 +10871,7 @@ structure TradeModifyConfirmMessage where
   contractDesc : ContractDesc
   openClose : Alpha 1
   oldOpenClose : Alpha 1
-  bookTypeChar1 : Alpha 1
+  tradeBookType : Alpha 1
   thirdReserved1 : Alpha 1
   newVolume : BitVec 32
   oldAccountNumber : Alpha 10
@@ -10918,7 +10918,7 @@ def encode (message : TradeModifyConfirmMessage) : List UInt8 :=
     ++ (ContractDesc.encode message.contractDesc
     ++ (Alpha.encode message.openClose
     ++ (Alpha.encode message.oldOpenClose
-    ++ (Alpha.encode message.bookTypeChar1
+    ++ (Alpha.encode message.tradeBookType
     ++ (Alpha.encode message.thirdReserved1
     ++ (encodeUInt 4 message.newVolume
     ++ (Alpha.encode message.oldAccountNumber
@@ -10964,7 +10964,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyConfirmMessage × List UInt
   let (contractDesc, bytes) ← ContractDesc.decode bytes
   let (openClose, bytes) ← Alpha.decode 1 bytes
   let (oldOpenClose, bytes) ← Alpha.decode 1 bytes
-  let (bookTypeChar1, bytes) ← Alpha.decode 1 bytes
+  let (tradeBookType, bytes) ← Alpha.decode 1 bytes
   let (thirdReserved1, bytes) ← Alpha.decode 1 bytes
   let (newVolume, bytes) ← decodeUInt 4 bytes
   let (oldAccountNumber, bytes) ← Alpha.decode 10 bytes
@@ -10980,7 +10980,7 @@ def decode (bytes : List UInt8) : Option (TradeModifyConfirmMessage × List UInt
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (lastActivityReference, bytes) ← decodeUInt 8 bytes
   let (reserved52, bytes) ← Alpha.decode 52 bytes
-  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, bookTypeChar1, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
+  pure ({ responseOrderNumber, brokerId, reserved1, traderNumber, accountNumber, buySellIndicator, originalVolume, disclosedVolume, remainingVolume, disclosedVolumeRemaining, price, stOrderFlags, goodTillDate, fillNumber, fillQuantity, fillPrice, volumeFilledToday, activityType, activityTime, counterTraderOrderNumber, counterBrokerId, secondReserved1, token, contractDesc, openClose, oldOpenClose, tradeBookType, thirdReserved1, newVolume, oldAccountNumber, participant, oldParticipant, additionalOrderFlags, fourthReserved1, giveUpTrade, fifthReserved1, pan, oldPan, algoId, reserved2, lastActivityReference, reserved52 }, bytes)
 
 @[simp] theorem encode_length (message : TradeModifyConfirmMessage) : (encode message).length = 256 := by
   unfold encode

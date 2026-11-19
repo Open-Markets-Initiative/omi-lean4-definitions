@@ -189,8 +189,8 @@ end RiskSettingsQueryMessage
 /-- Active Risk Threshold Change Req Message: 34 bytes -/
 structure ActiveRiskThresholdChangeReqMessage where
   clordid : Alpha 20
-  underlierActiveRiskThresholdChangeReqUnderlier : Alpha 6
-  efidActiveRiskThresholdChangeReqEfid : Alpha 4
+  underlier : Alpha 6
+  efid : Alpha 4
   thresholdQuantity : BitVec 32
   deriving DecidableEq, Repr
 
@@ -198,16 +198,16 @@ namespace ActiveRiskThresholdChangeReqMessage
 
 def encode (message : ActiveRiskThresholdChangeReqMessage) : List UInt8 :=
   Alpha.encode message.clordid
-    ++ (Alpha.encode message.underlierActiveRiskThresholdChangeReqUnderlier
-    ++ (Alpha.encode message.efidActiveRiskThresholdChangeReqEfid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efid
     ++ (encodeUInt 4 message.thresholdQuantity)))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskThresholdChangeReqMessage × List UInt8) := do
   let (clordid, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskThresholdChangeReqUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskThresholdChangeReqEfid, bytes) ← Alpha.decode 4 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efid, bytes) ← Alpha.decode 4 bytes
   let (thresholdQuantity, bytes) ← decodeUInt 4 bytes
-  pure ({ clordid, underlierActiveRiskThresholdChangeReqUnderlier, efidActiveRiskThresholdChangeReqEfid, thresholdQuantity }, bytes)
+  pure ({ clordid, underlier, efid, thresholdQuantity }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskThresholdChangeReqMessage) : (encode message).length = 34 := by
   unfold encode

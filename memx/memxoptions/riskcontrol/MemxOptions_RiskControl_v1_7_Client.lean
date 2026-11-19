@@ -188,26 +188,26 @@ end RiskSettingsQueryMessage
 
 /-- Active Risk Threshold Change Request Message: 34 bytes -/
 structure ActiveRiskThresholdChangeRequestMessage where
-  clOrdIdActiveRiskThresholdChangeRequestClOrdId : Alpha 20
-  underlierActiveRiskThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidActiveRiskThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   thresholdQuantity : BitVec 32
   deriving DecidableEq, Repr
 
 namespace ActiveRiskThresholdChangeRequestMessage
 
 def encode (message : ActiveRiskThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdActiveRiskThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierActiveRiskThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidActiveRiskThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 4 message.thresholdQuantity)))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdActiveRiskThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (thresholdQuantity, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdActiveRiskThresholdChangeRequestClOrdId, underlierActiveRiskThresholdChangeRequestUnderlierOptional, efidActiveRiskThresholdChangeRequestEfidOptional, thresholdQuantity }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, thresholdQuantity }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskThresholdChangeRequestMessage) : (encode message).length = 34 := by
   unfold encode
@@ -233,26 +233,26 @@ end ActiveRiskThresholdChangeRequestMessage
 
 /-- Active Risk Acknowledgement Request Message: 34 bytes -/
 structure ActiveRiskAcknowledgementRequestMessage where
-  clOrdIdActiveRiskAcknowledgementRequestClOrdId : Alpha 20
-  underlierActiveRiskAcknowledgementRequestUnderlier : Alpha 6
-  efidActiveRiskAcknowledgementRequestEfid : Alpha 4
+  clordid : Alpha 20
+  underlier : Alpha 6
+  efid : Alpha 4
   quantity : BitVec 32
   deriving DecidableEq, Repr
 
 namespace ActiveRiskAcknowledgementRequestMessage
 
 def encode (message : ActiveRiskAcknowledgementRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdActiveRiskAcknowledgementRequestClOrdId
-    ++ (Alpha.encode message.underlierActiveRiskAcknowledgementRequestUnderlier
-    ++ (Alpha.encode message.efidActiveRiskAcknowledgementRequestEfid
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efid
     ++ (encodeUInt 4 message.quantity)))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskAcknowledgementRequestMessage × List UInt8) := do
-  let (clOrdIdActiveRiskAcknowledgementRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskAcknowledgementRequestUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskAcknowledgementRequestEfid, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efid, bytes) ← Alpha.decode 4 bytes
   let (quantity, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdActiveRiskAcknowledgementRequestClOrdId, underlierActiveRiskAcknowledgementRequestUnderlier, efidActiveRiskAcknowledgementRequestEfid, quantity }, bytes)
+  pure ({ clordid, underlier, efid, quantity }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskAcknowledgementRequestMessage) : (encode message).length = 34 := by
   unfold encode
@@ -278,9 +278,9 @@ end ActiveRiskAcknowledgementRequestMessage
 
 /-- Cp Volume Threshold Change Request Message: 44 bytes -/
 structure CpVolumeThresholdChangeRequestMessage where
-  clOrdIdCpVolumeThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpVolumeThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpVolumeThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   volume : BitVec 64
   periodInMilliSeconds : BitVec 32
@@ -289,21 +289,21 @@ structure CpVolumeThresholdChangeRequestMessage where
 namespace CpVolumeThresholdChangeRequestMessage
 
 def encode (message : CpVolumeThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpVolumeThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpVolumeThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpVolumeThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.volume
     ++ (encodeUInt 4 message.periodInMilliSeconds)))))
 
 def decode (bytes : List UInt8) : Option (CpVolumeThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpVolumeThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpVolumeThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpVolumeThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (volume, bytes) ← decodeUInt 8 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpVolumeThresholdChangeRequestClOrdId, underlierCpVolumeThresholdChangeRequestUnderlierOptional, efidCpVolumeThresholdChangeRequestEfidOptional, riskGroupId, volume, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, volume, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpVolumeThresholdChangeRequestMessage) : (encode message).length = 44 := by
   unfold encode
@@ -333,9 +333,9 @@ end CpVolumeThresholdChangeRequestMessage
 
 /-- Cp Executed Notional Threshold Change Request Message: 44 bytes -/
 structure CpExecutedNotionalThresholdChangeRequestMessage where
-  clOrdIdCpExecutedNotionalThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpExecutedNotionalThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpExecutedNotionalThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   priceInDollars : BitVec 64
   periodInMilliSeconds : BitVec 32
@@ -344,21 +344,21 @@ structure CpExecutedNotionalThresholdChangeRequestMessage where
 namespace CpExecutedNotionalThresholdChangeRequestMessage
 
 def encode (message : CpExecutedNotionalThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpExecutedNotionalThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpExecutedNotionalThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpExecutedNotionalThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.priceInDollars
     ++ (encodeUInt 4 message.periodInMilliSeconds)))))
 
 def decode (bytes : List UInt8) : Option (CpExecutedNotionalThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpExecutedNotionalThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpExecutedNotionalThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpExecutedNotionalThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (priceInDollars, bytes) ← decodeUInt 8 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpExecutedNotionalThresholdChangeRequestClOrdId, underlierCpExecutedNotionalThresholdChangeRequestUnderlierOptional, efidCpExecutedNotionalThresholdChangeRequestEfidOptional, riskGroupId, priceInDollars, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, priceInDollars, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpExecutedNotionalThresholdChangeRequestMessage) : (encode message).length = 44 := by
   unfold encode
@@ -388,9 +388,9 @@ end CpExecutedNotionalThresholdChangeRequestMessage
 
 /-- Cp Total Executions Threshold Change Request Message: 40 bytes -/
 structure CpTotalExecutionsThresholdChangeRequestMessage where
-  clOrdIdCpTotalExecutionsThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpTotalExecutionsThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpTotalExecutionsThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   totalExecutions : BitVec 32
   periodInMilliSeconds : BitVec 32
@@ -399,21 +399,21 @@ structure CpTotalExecutionsThresholdChangeRequestMessage where
 namespace CpTotalExecutionsThresholdChangeRequestMessage
 
 def encode (message : CpTotalExecutionsThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpTotalExecutionsThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpTotalExecutionsThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpTotalExecutionsThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 4 message.totalExecutions
     ++ (encodeUInt 4 message.periodInMilliSeconds)))))
 
 def decode (bytes : List UInt8) : Option (CpTotalExecutionsThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpTotalExecutionsThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpTotalExecutionsThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpTotalExecutionsThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (totalExecutions, bytes) ← decodeUInt 4 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpTotalExecutionsThresholdChangeRequestClOrdId, underlierCpTotalExecutionsThresholdChangeRequestUnderlierOptional, efidCpTotalExecutionsThresholdChangeRequestEfidOptional, riskGroupId, totalExecutions, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, totalExecutions, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpTotalExecutionsThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -443,9 +443,9 @@ end CpTotalExecutionsThresholdChangeRequestMessage
 
 /-- Cp Percent Outstanding Contracts Threshold Change Request Message: 38 bytes -/
 structure CpPercentOutstandingContractsThresholdChangeRequestMessage where
-  clOrdIdCpPercentOutstandingContractsThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpPercentOutstandingContractsThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpPercentOutstandingContractsThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   percent : BitVec 32
   periodInMilliSeconds : BitVec 32
   deriving DecidableEq, Repr
@@ -453,19 +453,19 @@ structure CpPercentOutstandingContractsThresholdChangeRequestMessage where
 namespace CpPercentOutstandingContractsThresholdChangeRequestMessage
 
 def encode (message : CpPercentOutstandingContractsThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpPercentOutstandingContractsThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpPercentOutstandingContractsThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpPercentOutstandingContractsThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 4 message.percent
     ++ (encodeUInt 4 message.periodInMilliSeconds))))
 
 def decode (bytes : List UInt8) : Option (CpPercentOutstandingContractsThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpPercentOutstandingContractsThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpPercentOutstandingContractsThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpPercentOutstandingContractsThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (percent, bytes) ← decodeUInt 4 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpPercentOutstandingContractsThresholdChangeRequestClOrdId, underlierCpPercentOutstandingContractsThresholdChangeRequestUnderlierOptional, efidCpPercentOutstandingContractsThresholdChangeRequestEfidOptional, percent, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, percent, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpPercentOutstandingContractsThresholdChangeRequestMessage) : (encode message).length = 38 := by
   unfold encode
@@ -493,9 +493,9 @@ end CpPercentOutstandingContractsThresholdChangeRequestMessage
 
 /-- Cp Breach Count Threshold Change Request Message: 40 bytes -/
 structure CpBreachCountThresholdChangeRequestMessage where
-  clOrdIdCpBreachCountThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpBreachCountThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpBreachCountThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   count : BitVec 32
   periodInMilliSeconds : BitVec 32
@@ -504,21 +504,21 @@ structure CpBreachCountThresholdChangeRequestMessage where
 namespace CpBreachCountThresholdChangeRequestMessage
 
 def encode (message : CpBreachCountThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpBreachCountThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpBreachCountThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpBreachCountThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 4 message.count
     ++ (encodeUInt 4 message.periodInMilliSeconds)))))
 
 def decode (bytes : List UInt8) : Option (CpBreachCountThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpBreachCountThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpBreachCountThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpBreachCountThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (count, bytes) ← decodeUInt 4 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpBreachCountThresholdChangeRequestClOrdId, underlierCpBreachCountThresholdChangeRequestUnderlierOptional, efidCpBreachCountThresholdChangeRequestEfidOptional, riskGroupId, count, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, count, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpBreachCountThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -548,9 +548,9 @@ end CpBreachCountThresholdChangeRequestMessage
 
 /-- Manual Cp Breach Trigger Request Message: 33 bytes -/
 structure ManualCpBreachTriggerRequestMessage where
-  clOrdIdManualCpBreachTriggerRequestClOrdId : Alpha 20
-  underlierManualCpBreachTriggerRequestUnderlierOptional : Alpha 6
-  efidManualCpBreachTriggerRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   sendCancels : BitVec 8
   deriving DecidableEq, Repr
@@ -558,19 +558,19 @@ structure ManualCpBreachTriggerRequestMessage where
 namespace ManualCpBreachTriggerRequestMessage
 
 def encode (message : ManualCpBreachTriggerRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdManualCpBreachTriggerRequestClOrdId
-    ++ (Alpha.encode message.underlierManualCpBreachTriggerRequestUnderlierOptional
-    ++ (Alpha.encode message.efidManualCpBreachTriggerRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.sendCancels))))
 
 def decode (bytes : List UInt8) : Option (ManualCpBreachTriggerRequestMessage × List UInt8) := do
-  let (clOrdIdManualCpBreachTriggerRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierManualCpBreachTriggerRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidManualCpBreachTriggerRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (sendCancels, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdManualCpBreachTriggerRequestClOrdId, underlierManualCpBreachTriggerRequestUnderlierOptional, efidManualCpBreachTriggerRequestEfidOptional, riskGroupId, sendCancels }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, sendCancels }, bytes)
 
 @[simp] theorem encode_length (message : ManualCpBreachTriggerRequestMessage) : (encode message).length = 33 := by
   unfold encode
@@ -598,20 +598,20 @@ end ManualCpBreachTriggerRequestMessage
 
 /-- Cp Clear Breach Request Message: 28 bytes -/
 structure CpClearBreachRequestMessage where
-  clOrdIdCpClearBreachRequestClOrdId : Alpha 20
+  clordid : Alpha 20
   breachId : BitVec 64
   deriving DecidableEq, Repr
 
 namespace CpClearBreachRequestMessage
 
 def encode (message : CpClearBreachRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpClearBreachRequestClOrdId
+  Alpha.encode message.clordid
     ++ (encodeUInt 8 message.breachId)
 
 def decode (bytes : List UInt8) : Option (CpClearBreachRequestMessage × List UInt8) := do
-  let (clOrdIdCpClearBreachRequestClOrdId, bytes) ← Alpha.decode 20 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
   let (breachId, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdCpClearBreachRequestClOrdId, breachId }, bytes)
+  pure ({ clordid, breachId }, bytes)
 
 @[simp] theorem encode_length (message : CpClearBreachRequestMessage) : (encode message).length = 28 := by
   unfold encode
@@ -633,9 +633,9 @@ end CpClearBreachRequestMessage
 
 /-- Single Order Allow Iso Orders Change Request Message: 33 bytes -/
 structure SingleOrderAllowIsoOrdersChangeRequestMessage where
-  clOrdIdSingleOrderAllowIsoOrdersChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderAllowIsoOrdersChangeRequestUnderlierOptional : Alpha 6
-  efidSingleOrderAllowIsoOrdersChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   allowIsoOrders : BitVec 8
   deriving DecidableEq, Repr
@@ -643,19 +643,19 @@ structure SingleOrderAllowIsoOrdersChangeRequestMessage where
 namespace SingleOrderAllowIsoOrdersChangeRequestMessage
 
 def encode (message : SingleOrderAllowIsoOrdersChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderAllowIsoOrdersChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderAllowIsoOrdersChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderAllowIsoOrdersChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.allowIsoOrders))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderAllowIsoOrdersChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderAllowIsoOrdersChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderAllowIsoOrdersChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderAllowIsoOrdersChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (allowIsoOrders, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderAllowIsoOrdersChangeRequestClOrdId, underlierSingleOrderAllowIsoOrdersChangeRequestUnderlierOptional, efidSingleOrderAllowIsoOrdersChangeRequestEfidOptional, riskGroupId, allowIsoOrders }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, allowIsoOrders }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderAllowIsoOrdersChangeRequestMessage) : (encode message).length = 33 := by
   unfold encode
@@ -683,9 +683,9 @@ end SingleOrderAllowIsoOrdersChangeRequestMessage
 
 /-- Single Order Allow Orders In Crossed Market Change Request Message: 33 bytes -/
 structure SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage where
-  clOrdIdSingleOrderAllowOrdersInCrossedMarketChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderAllowOrdersInCrossedMarketChangeRequestUnderlierOptional : Alpha 6
-  efidSingleOrderAllowOrdersInCrossedMarketChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   allowOrders : BitVec 8
   deriving DecidableEq, Repr
@@ -693,19 +693,19 @@ structure SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage where
 namespace SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage
 
 def encode (message : SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderAllowOrdersInCrossedMarketChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderAllowOrdersInCrossedMarketChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderAllowOrdersInCrossedMarketChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.allowOrders))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderAllowOrdersInCrossedMarketChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderAllowOrdersInCrossedMarketChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderAllowOrdersInCrossedMarketChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (allowOrders, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderAllowOrdersInCrossedMarketChangeRequestClOrdId, underlierSingleOrderAllowOrdersInCrossedMarketChangeRequestUnderlierOptional, efidSingleOrderAllowOrdersInCrossedMarketChangeRequestEfidOptional, riskGroupId, allowOrders }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, allowOrders }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage) : (encode message).length = 33 := by
   unfold encode
@@ -733,9 +733,9 @@ end SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage
 
 /-- Single Order Max Notional Change Request Message: 40 bytes -/
 structure SingleOrderMaxNotionalChangeRequestMessage where
-  clOrdIdSingleOrderMaxNotionalChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderMaxNotionalChangeRequestUnderlierOptional : Alpha 6
-  efidSingleOrderMaxNotionalChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   maxNotionalInDollars : BitVec 64
   deriving DecidableEq, Repr
@@ -743,19 +743,19 @@ structure SingleOrderMaxNotionalChangeRequestMessage where
 namespace SingleOrderMaxNotionalChangeRequestMessage
 
 def encode (message : SingleOrderMaxNotionalChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderMaxNotionalChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderMaxNotionalChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderMaxNotionalChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.maxNotionalInDollars))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderMaxNotionalChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderMaxNotionalChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderMaxNotionalChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderMaxNotionalChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (maxNotionalInDollars, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdSingleOrderMaxNotionalChangeRequestClOrdId, underlierSingleOrderMaxNotionalChangeRequestUnderlierOptional, efidSingleOrderMaxNotionalChangeRequestEfidOptional, riskGroupId, maxNotionalInDollars }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, maxNotionalInDollars }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderMaxNotionalChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -783,9 +783,9 @@ end SingleOrderMaxNotionalChangeRequestMessage
 
 /-- Single Order Max Contracts Change Request Message: 36 bytes -/
 structure SingleOrderMaxContractsChangeRequestMessage where
-  clOrdIdSingleOrderMaxContractsChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderMaxContractsChangeRequestUnderlierOptional : Alpha 6
-  efidSingleOrderMaxContractsChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   maxContracts : BitVec 32
   deriving DecidableEq, Repr
@@ -793,19 +793,19 @@ structure SingleOrderMaxContractsChangeRequestMessage where
 namespace SingleOrderMaxContractsChangeRequestMessage
 
 def encode (message : SingleOrderMaxContractsChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderMaxContractsChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderMaxContractsChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderMaxContractsChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 4 message.maxContracts))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderMaxContractsChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderMaxContractsChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderMaxContractsChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderMaxContractsChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (maxContracts, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdSingleOrderMaxContractsChangeRequestClOrdId, underlierSingleOrderMaxContractsChangeRequestUnderlierOptional, efidSingleOrderMaxContractsChangeRequestEfidOptional, riskGroupId, maxContracts }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, maxContracts }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderMaxContractsChangeRequestMessage) : (encode message).length = 36 := by
   unfold encode
@@ -833,9 +833,9 @@ end SingleOrderMaxContractsChangeRequestMessage
 
 /-- Single Order Allow Market Orders Change Request Message: 33 bytes -/
 structure SingleOrderAllowMarketOrdersChangeRequestMessage where
-  clOrdIdSingleOrderAllowMarketOrdersChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderAllowMarketOrdersChangeRequestUnderlierOptional : Alpha 6
-  efidSingleOrderAllowMarketOrdersChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   allowMarketOrders : BitVec 8
   deriving DecidableEq, Repr
@@ -843,19 +843,19 @@ structure SingleOrderAllowMarketOrdersChangeRequestMessage where
 namespace SingleOrderAllowMarketOrdersChangeRequestMessage
 
 def encode (message : SingleOrderAllowMarketOrdersChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderAllowMarketOrdersChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderAllowMarketOrdersChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidSingleOrderAllowMarketOrdersChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.allowMarketOrders))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderAllowMarketOrdersChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderAllowMarketOrdersChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderAllowMarketOrdersChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderAllowMarketOrdersChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (allowMarketOrders, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderAllowMarketOrdersChangeRequestClOrdId, underlierSingleOrderAllowMarketOrdersChangeRequestUnderlierOptional, efidSingleOrderAllowMarketOrdersChangeRequestEfidOptional, riskGroupId, allowMarketOrders }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, allowMarketOrders }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderAllowMarketOrdersChangeRequestMessage) : (encode message).length = 33 := by
   unfold encode
@@ -883,9 +883,9 @@ end SingleOrderAllowMarketOrdersChangeRequestMessage
 
 /-- Single Order Restricted Underlier Change Request Message: 33 bytes -/
 structure SingleOrderRestrictedUnderlierChangeRequestMessage where
-  clOrdIdSingleOrderRestrictedUnderlierChangeRequestClOrdId : Alpha 20
-  underlierSingleOrderRestrictedUnderlierChangeRequestUnderlier : Alpha 6
-  efidSingleOrderRestrictedUnderlierChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlier : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   restricted : BitVec 8
   deriving DecidableEq, Repr
@@ -893,19 +893,19 @@ structure SingleOrderRestrictedUnderlierChangeRequestMessage where
 namespace SingleOrderRestrictedUnderlierChangeRequestMessage
 
 def encode (message : SingleOrderRestrictedUnderlierChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdSingleOrderRestrictedUnderlierChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierSingleOrderRestrictedUnderlierChangeRequestUnderlier
-    ++ (Alpha.encode message.efidSingleOrderRestrictedUnderlierChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 1 message.restricted))))
 
 def decode (bytes : List UInt8) : Option (SingleOrderRestrictedUnderlierChangeRequestMessage × List UInt8) := do
-  let (clOrdIdSingleOrderRestrictedUnderlierChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierSingleOrderRestrictedUnderlierChangeRequestUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidSingleOrderRestrictedUnderlierChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (restricted, bytes) ← decodeUInt 1 bytes
-  pure ({ clOrdIdSingleOrderRestrictedUnderlierChangeRequestClOrdId, underlierSingleOrderRestrictedUnderlierChangeRequestUnderlier, efidSingleOrderRestrictedUnderlierChangeRequestEfidOptional, riskGroupId, restricted }, bytes)
+  pure ({ clordid, underlier, efidOptional, riskGroupId, restricted }, bytes)
 
 @[simp] theorem encode_length (message : SingleOrderRestrictedUnderlierChangeRequestMessage) : (encode message).length = 33 := by
   unfold encode
@@ -933,9 +933,9 @@ end SingleOrderRestrictedUnderlierChangeRequestMessage
 
 /-- Cp Gross Notional Threshold Change Request Message: 40 bytes -/
 structure CpGrossNotionalThresholdChangeRequestMessage where
-  clOrdIdCpGrossNotionalThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpGrossNotionalThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpGrossNotionalThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   priceInDollars : BitVec 64
   deriving DecidableEq, Repr
@@ -943,19 +943,19 @@ structure CpGrossNotionalThresholdChangeRequestMessage where
 namespace CpGrossNotionalThresholdChangeRequestMessage
 
 def encode (message : CpGrossNotionalThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpGrossNotionalThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpGrossNotionalThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpGrossNotionalThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.priceInDollars))))
 
 def decode (bytes : List UInt8) : Option (CpGrossNotionalThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpGrossNotionalThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpGrossNotionalThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpGrossNotionalThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (priceInDollars, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdCpGrossNotionalThresholdChangeRequestClOrdId, underlierCpGrossNotionalThresholdChangeRequestUnderlierOptional, efidCpGrossNotionalThresholdChangeRequestEfidOptional, riskGroupId, priceInDollars }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, priceInDollars }, bytes)
 
 @[simp] theorem encode_length (message : CpGrossNotionalThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -983,9 +983,9 @@ end CpGrossNotionalThresholdChangeRequestMessage
 
 /-- Cp Market Order Gross Notional Threshold Change Request Message: 40 bytes -/
 structure CpMarketOrderGrossNotionalThresholdChangeRequestMessage where
-  clOrdIdCpMarketOrderGrossNotionalThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpMarketOrderGrossNotionalThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpMarketOrderGrossNotionalThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   priceInDollars : BitVec 64
   deriving DecidableEq, Repr
@@ -993,19 +993,19 @@ structure CpMarketOrderGrossNotionalThresholdChangeRequestMessage where
 namespace CpMarketOrderGrossNotionalThresholdChangeRequestMessage
 
 def encode (message : CpMarketOrderGrossNotionalThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpMarketOrderGrossNotionalThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpMarketOrderGrossNotionalThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpMarketOrderGrossNotionalThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.priceInDollars))))
 
 def decode (bytes : List UInt8) : Option (CpMarketOrderGrossNotionalThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpMarketOrderGrossNotionalThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpMarketOrderGrossNotionalThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpMarketOrderGrossNotionalThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (priceInDollars, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdCpMarketOrderGrossNotionalThresholdChangeRequestClOrdId, underlierCpMarketOrderGrossNotionalThresholdChangeRequestUnderlierOptional, efidCpMarketOrderGrossNotionalThresholdChangeRequestEfidOptional, riskGroupId, priceInDollars }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, priceInDollars }, bytes)
 
 @[simp] theorem encode_length (message : CpMarketOrderGrossNotionalThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -1033,9 +1033,9 @@ end CpMarketOrderGrossNotionalThresholdChangeRequestMessage
 
 /-- Cp Net Notional Threshold Change Request Message: 40 bytes -/
 structure CpNetNotionalThresholdChangeRequestMessage where
-  clOrdIdCpNetNotionalThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpNetNotionalThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpNetNotionalThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   priceInDollars : BitVec 64
   deriving DecidableEq, Repr
@@ -1043,19 +1043,19 @@ structure CpNetNotionalThresholdChangeRequestMessage where
 namespace CpNetNotionalThresholdChangeRequestMessage
 
 def encode (message : CpNetNotionalThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpNetNotionalThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpNetNotionalThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpNetNotionalThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.priceInDollars))))
 
 def decode (bytes : List UInt8) : Option (CpNetNotionalThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpNetNotionalThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpNetNotionalThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpNetNotionalThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (priceInDollars, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdCpNetNotionalThresholdChangeRequestClOrdId, underlierCpNetNotionalThresholdChangeRequestUnderlierOptional, efidCpNetNotionalThresholdChangeRequestEfidOptional, riskGroupId, priceInDollars }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, priceInDollars }, bytes)
 
 @[simp] theorem encode_length (message : CpNetNotionalThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -1083,9 +1083,9 @@ end CpNetNotionalThresholdChangeRequestMessage
 
 /-- Cp Market Order Net Notional Threshold Change Request Message: 40 bytes -/
 structure CpMarketOrderNetNotionalThresholdChangeRequestMessage where
-  clOrdIdCpMarketOrderNetNotionalThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpMarketOrderNetNotionalThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpMarketOrderNetNotionalThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   priceInDollars : BitVec 64
   deriving DecidableEq, Repr
@@ -1093,19 +1093,19 @@ structure CpMarketOrderNetNotionalThresholdChangeRequestMessage where
 namespace CpMarketOrderNetNotionalThresholdChangeRequestMessage
 
 def encode (message : CpMarketOrderNetNotionalThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpMarketOrderNetNotionalThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpMarketOrderNetNotionalThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpMarketOrderNetNotionalThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 8 message.priceInDollars))))
 
 def decode (bytes : List UInt8) : Option (CpMarketOrderNetNotionalThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpMarketOrderNetNotionalThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpMarketOrderNetNotionalThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpMarketOrderNetNotionalThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (priceInDollars, bytes) ← decodeUInt 8 bytes
-  pure ({ clOrdIdCpMarketOrderNetNotionalThresholdChangeRequestClOrdId, underlierCpMarketOrderNetNotionalThresholdChangeRequestUnderlierOptional, efidCpMarketOrderNetNotionalThresholdChangeRequestEfidOptional, riskGroupId, priceInDollars }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, priceInDollars }, bytes)
 
 @[simp] theorem encode_length (message : CpMarketOrderNetNotionalThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -1133,9 +1133,9 @@ end CpMarketOrderNetNotionalThresholdChangeRequestMessage
 
 /-- Cp Duplicate Order Threshold Change Request Message: 41 bytes -/
 structure CpDuplicateOrderThresholdChangeRequestMessage where
-  clOrdIdCpDuplicateOrderThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpDuplicateOrderThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpDuplicateOrderThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   maxDupOrders : BitVec 32
   useOrderPriceInDupCheckOptional : BitVec 8
@@ -1145,23 +1145,23 @@ structure CpDuplicateOrderThresholdChangeRequestMessage where
 namespace CpDuplicateOrderThresholdChangeRequestMessage
 
 def encode (message : CpDuplicateOrderThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpDuplicateOrderThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpDuplicateOrderThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpDuplicateOrderThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 4 message.maxDupOrders
     ++ (encodeUInt 1 message.useOrderPriceInDupCheckOptional
     ++ (encodeUInt 4 message.periodInMilliSeconds))))))
 
 def decode (bytes : List UInt8) : Option (CpDuplicateOrderThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpDuplicateOrderThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpDuplicateOrderThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpDuplicateOrderThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (maxDupOrders, bytes) ← decodeUInt 4 bytes
   let (useOrderPriceInDupCheckOptional, bytes) ← decodeUInt 1 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpDuplicateOrderThresholdChangeRequestClOrdId, underlierCpDuplicateOrderThresholdChangeRequestUnderlierOptional, efidCpDuplicateOrderThresholdChangeRequestEfidOptional, riskGroupId, maxDupOrders, useOrderPriceInDupCheckOptional, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, maxDupOrders, useOrderPriceInDupCheckOptional, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpDuplicateOrderThresholdChangeRequestMessage) : (encode message).length = 41 := by
   unfold encode
@@ -1193,9 +1193,9 @@ end CpDuplicateOrderThresholdChangeRequestMessage
 
 /-- Cp Order Rate Threshold Change Request Message: 40 bytes -/
 structure CpOrderRateThresholdChangeRequestMessage where
-  clOrdIdCpOrderRateThresholdChangeRequestClOrdId : Alpha 20
-  underlierCpOrderRateThresholdChangeRequestUnderlierOptional : Alpha 6
-  efidCpOrderRateThresholdChangeRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   riskGroupId : BitVec 16
   maxOrderMsgs : BitVec 32
   periodInMilliSeconds : BitVec 32
@@ -1204,21 +1204,21 @@ structure CpOrderRateThresholdChangeRequestMessage where
 namespace CpOrderRateThresholdChangeRequestMessage
 
 def encode (message : CpOrderRateThresholdChangeRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpOrderRateThresholdChangeRequestClOrdId
-    ++ (Alpha.encode message.underlierCpOrderRateThresholdChangeRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpOrderRateThresholdChangeRequestEfidOptional
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional
     ++ (encodeUInt 2 message.riskGroupId
     ++ (encodeUInt 4 message.maxOrderMsgs
     ++ (encodeUInt 4 message.periodInMilliSeconds)))))
 
 def decode (bytes : List UInt8) : Option (CpOrderRateThresholdChangeRequestMessage × List UInt8) := do
-  let (clOrdIdCpOrderRateThresholdChangeRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpOrderRateThresholdChangeRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpOrderRateThresholdChangeRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (maxOrderMsgs, bytes) ← decodeUInt 4 bytes
   let (periodInMilliSeconds, bytes) ← decodeUInt 4 bytes
-  pure ({ clOrdIdCpOrderRateThresholdChangeRequestClOrdId, underlierCpOrderRateThresholdChangeRequestUnderlierOptional, efidCpOrderRateThresholdChangeRequestEfidOptional, riskGroupId, maxOrderMsgs, periodInMilliSeconds }, bytes)
+  pure ({ clordid, underlierOptional, efidOptional, riskGroupId, maxOrderMsgs, periodInMilliSeconds }, bytes)
 
 @[simp] theorem encode_length (message : CpOrderRateThresholdChangeRequestMessage) : (encode message).length = 40 := by
   unfold encode
@@ -1248,17 +1248,17 @@ end CpOrderRateThresholdChangeRequestMessage
 
 /-- Cp Clear All Breaches Request Message: 20 bytes -/
 structure CpClearAllBreachesRequestMessage where
-  clOrdIdCpClearAllBreachesRequestClOrdId : Alpha 20
+  clordid : Alpha 20
   deriving DecidableEq, Repr
 
 namespace CpClearAllBreachesRequestMessage
 
 def encode (message : CpClearAllBreachesRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpClearAllBreachesRequestClOrdId
+  Alpha.encode message.clordid
 
 def decode (bytes : List UInt8) : Option (CpClearAllBreachesRequestMessage × List UInt8) := do
-  let (clOrdIdCpClearAllBreachesRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  pure ({ clOrdIdCpClearAllBreachesRequestClOrdId }, bytes)
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  pure ({ clordid }, bytes)
 
 @[simp] theorem encode_length (message : CpClearAllBreachesRequestMessage) : (encode message).length = 20 := by
   unfold encode
@@ -1278,23 +1278,23 @@ end CpClearAllBreachesRequestMessage
 
 /-- Cp Clear All Breaches By Efid Or Underlier Request Message: 30 bytes -/
 structure CpClearAllBreachesByEfidOrUnderlierRequestMessage where
-  clOrdIdCpClearAllBreachesByEfidOrUnderlierRequestClOrdId : Alpha 20
-  underlierCpClearAllBreachesByEfidOrUnderlierRequestUnderlierOptional : Alpha 6
-  efidCpClearAllBreachesByEfidOrUnderlierRequestEfidOptional : Alpha 4
+  clordid : Alpha 20
+  underlierOptional : Alpha 6
+  efidOptional : Alpha 4
   deriving DecidableEq, Repr
 
 namespace CpClearAllBreachesByEfidOrUnderlierRequestMessage
 
 def encode (message : CpClearAllBreachesByEfidOrUnderlierRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdCpClearAllBreachesByEfidOrUnderlierRequestClOrdId
-    ++ (Alpha.encode message.underlierCpClearAllBreachesByEfidOrUnderlierRequestUnderlierOptional
-    ++ (Alpha.encode message.efidCpClearAllBreachesByEfidOrUnderlierRequestEfidOptional))
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlierOptional
+    ++ (Alpha.encode message.efidOptional))
 
 def decode (bytes : List UInt8) : Option (CpClearAllBreachesByEfidOrUnderlierRequestMessage × List UInt8) := do
-  let (clOrdIdCpClearAllBreachesByEfidOrUnderlierRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierCpClearAllBreachesByEfidOrUnderlierRequestUnderlierOptional, bytes) ← Alpha.decode 6 bytes
-  let (efidCpClearAllBreachesByEfidOrUnderlierRequestEfidOptional, bytes) ← Alpha.decode 4 bytes
-  pure ({ clOrdIdCpClearAllBreachesByEfidOrUnderlierRequestClOrdId, underlierCpClearAllBreachesByEfidOrUnderlierRequestUnderlierOptional, efidCpClearAllBreachesByEfidOrUnderlierRequestEfidOptional }, bytes)
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlierOptional, bytes) ← Alpha.decode 6 bytes
+  let (efidOptional, bytes) ← Alpha.decode 4 bytes
+  pure ({ clordid, underlierOptional, efidOptional }, bytes)
 
 @[simp] theorem encode_length (message : CpClearAllBreachesByEfidOrUnderlierRequestMessage) : (encode message).length = 30 := by
   unfold encode
@@ -1318,23 +1318,23 @@ end CpClearAllBreachesByEfidOrUnderlierRequestMessage
 
 /-- Active Risk Acknowledge All Request Message: 30 bytes -/
 structure ActiveRiskAcknowledgeAllRequestMessage where
-  clOrdIdActiveRiskAcknowledgeAllRequestClOrdId : Alpha 20
-  underlierActiveRiskAcknowledgeAllRequestUnderlier : Alpha 6
-  efidActiveRiskAcknowledgeAllRequestEfid : Alpha 4
+  clordid : Alpha 20
+  underlier : Alpha 6
+  efid : Alpha 4
   deriving DecidableEq, Repr
 
 namespace ActiveRiskAcknowledgeAllRequestMessage
 
 def encode (message : ActiveRiskAcknowledgeAllRequestMessage) : List UInt8 :=
-  Alpha.encode message.clOrdIdActiveRiskAcknowledgeAllRequestClOrdId
-    ++ (Alpha.encode message.underlierActiveRiskAcknowledgeAllRequestUnderlier
-    ++ (Alpha.encode message.efidActiveRiskAcknowledgeAllRequestEfid))
+  Alpha.encode message.clordid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efid))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskAcknowledgeAllRequestMessage × List UInt8) := do
-  let (clOrdIdActiveRiskAcknowledgeAllRequestClOrdId, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskAcknowledgeAllRequestUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskAcknowledgeAllRequestEfid, bytes) ← Alpha.decode 4 bytes
-  pure ({ clOrdIdActiveRiskAcknowledgeAllRequestClOrdId, underlierActiveRiskAcknowledgeAllRequestUnderlier, efidActiveRiskAcknowledgeAllRequestEfid }, bytes)
+  let (clordid, bytes) ← Alpha.decode 20 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efid, bytes) ← Alpha.decode 4 bytes
+  pure ({ clordid, underlier, efid }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskAcknowledgeAllRequestMessage) : (encode message).length = 30 := by
   unfold encode

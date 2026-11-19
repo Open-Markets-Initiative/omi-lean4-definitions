@@ -1208,19 +1208,19 @@ end ServiceHeader
 /-- Trading Halt: 8 bytes -/
 structure TradingHalt where
   stateFlag : Alpha 2
-  timeC6 : Alpha 6
+  time : Alpha 6
   deriving DecidableEq, Repr
 
 namespace TradingHalt
 
 def encode (message : TradingHalt) : List UInt8 :=
   Alpha.encode message.stateFlag
-    ++ (Alpha.encode message.timeC6)
+    ++ (Alpha.encode message.time)
 
 def decode (bytes : List UInt8) : Option (TradingHalt × List UInt8) := do
   let (stateFlag, bytes) ← Alpha.decode 2 bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
-  pure ({ stateFlag, timeC6 }, bytes)
+  let (time, bytes) ← Alpha.decode 6 bytes
+  pure ({ stateFlag, time }, bytes)
 
 @[simp] theorem encode_length (message : TradingHalt) : (encode message).length = 8 := by
   unfold encode
@@ -1244,9 +1244,9 @@ end TradingHalt
 structure Price where
   priceCode : Alpha 2
   lotSizeUnitFlag : LotSizeUnitFlag
-  priceC14 : Alpha 14
+  priceValue : Alpha 14
   sign : Sign
-  timeC12 : Alpha 12
+  preciseTime : Alpha 12
   deriving DecidableEq, Repr
 
 namespace Price
@@ -1254,17 +1254,17 @@ namespace Price
 def encode (message : Price) : List UInt8 :=
   Alpha.encode message.priceCode
     ++ (LotSizeUnitFlag.encode message.lotSizeUnitFlag
-    ++ (Alpha.encode message.priceC14
+    ++ (Alpha.encode message.priceValue
     ++ (Sign.encode message.sign
-    ++ (Alpha.encode message.timeC12))))
+    ++ (Alpha.encode message.preciseTime))))
 
 def decode (bytes : List UInt8) : Option (Price × List UInt8) := do
   let (priceCode, bytes) ← Alpha.decode 2 bytes
   let (lotSizeUnitFlag, bytes) ← LotSizeUnitFlag.decode bytes
-  let (priceC14, bytes) ← Alpha.decode 14 bytes
+  let (priceValue, bytes) ← Alpha.decode 14 bytes
   let (sign, bytes) ← Sign.decode bytes
-  let (timeC12, bytes) ← Alpha.decode 12 bytes
-  pure ({ priceCode, lotSizeUnitFlag, priceC14, sign, timeC12 }, bytes)
+  let (preciseTime, bytes) ← Alpha.decode 12 bytes
+  pure ({ priceCode, lotSizeUnitFlag, priceValue, sign, preciseTime }, bytes)
 
 @[simp] theorem encode_length (message : Price) : (encode message).length = 30 := by
   unfold encode
@@ -1293,19 +1293,19 @@ end Price
 /-- Trading Volume: 15 bytes -/
 structure TradingVolume where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  tradingVolumeC14 : Alpha 14
+  tradingVolumeValue : Alpha 14
   deriving DecidableEq, Repr
 
 namespace TradingVolume
 
 def encode (message : TradingVolume) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.tradingVolumeC14)
+    ++ (Alpha.encode message.tradingVolumeValue)
 
 def decode (bytes : List UInt8) : Option (TradingVolume × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (tradingVolumeC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, tradingVolumeC14 }, bytes)
+  let (tradingVolumeValue, bytes) ← Alpha.decode 14 bytes
+  pure ({ tradingVolumeTurnoverUnitFlag, tradingVolumeValue }, bytes)
 
 @[simp] theorem encode_length (message : TradingVolume) : (encode message).length = 15 := by
   unfold encode
@@ -1328,19 +1328,19 @@ end TradingVolume
 /-- Turnover: 15 bytes -/
 structure Turnover where
   tradingVolumeTurnoverUnitFlag : TradingVolumeTurnoverUnitFlag
-  turnoverC14 : Alpha 14
+  turnoverValue : Alpha 14
   deriving DecidableEq, Repr
 
 namespace Turnover
 
 def encode (message : Turnover) : List UInt8 :=
   TradingVolumeTurnoverUnitFlag.encode message.tradingVolumeTurnoverUnitFlag
-    ++ (Alpha.encode message.turnoverC14)
+    ++ (Alpha.encode message.turnoverValue)
 
 def decode (bytes : List UInt8) : Option (Turnover × List UInt8) := do
   let (tradingVolumeTurnoverUnitFlag, bytes) ← TradingVolumeTurnoverUnitFlag.decode bytes
-  let (turnoverC14, bytes) ← Alpha.decode 14 bytes
-  pure ({ tradingVolumeTurnoverUnitFlag, turnoverC14 }, bytes)
+  let (turnoverValue, bytes) ← Alpha.decode 14 bytes
+  pure ({ tradingVolumeTurnoverUnitFlag, turnoverValue }, bytes)
 
 @[simp] theorem encode_length (message : Turnover) : (encode message).length = 15 := by
   unfold encode
@@ -1423,19 +1423,19 @@ end TostnetByissueInformationMessage
 /-- State: 8 bytes -/
 structure State where
   marketStateFlag : Alpha 2
-  timeC6 : Alpha 6
+  time : Alpha 6
   deriving DecidableEq, Repr
 
 namespace State
 
 def encode (message : State) : List UInt8 :=
   Alpha.encode message.marketStateFlag
-    ++ (Alpha.encode message.timeC6)
+    ++ (Alpha.encode message.time)
 
 def decode (bytes : List UInt8) : Option (State × List UInt8) := do
   let (marketStateFlag, bytes) ← Alpha.decode 2 bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
-  pure ({ marketStateFlag, timeC6 }, bytes)
+  let (time, bytes) ← Alpha.decode 6 bytes
+  pure ({ marketStateFlag, time }, bytes)
 
 @[simp] theorem encode_length (message : State) : (encode message).length = 8 := by
   unfold encode
@@ -1500,7 +1500,7 @@ structure ControlMessage where
   reserved2 : Alpha 2
   testModeFlag : TestModeFlag
   startEndFlag : StartEndFlag
-  timeC6 : Alpha 6
+  time : Alpha 6
   deriving DecidableEq, Repr
 
 namespace ControlMessage
@@ -1509,14 +1509,14 @@ def encode (message : ControlMessage) : List UInt8 :=
   Alpha.encode message.reserved2
     ++ (TestModeFlag.encode message.testModeFlag
     ++ (StartEndFlag.encode message.startEndFlag
-    ++ (Alpha.encode message.timeC6)))
+    ++ (Alpha.encode message.time)))
 
 def decode (bytes : List UInt8) : Option (ControlMessage × List UInt8) := do
   let (reserved2, bytes) ← Alpha.decode 2 bytes
   let (testModeFlag, bytes) ← TestModeFlag.decode bytes
   let (startEndFlag, bytes) ← StartEndFlag.decode bytes
-  let (timeC6, bytes) ← Alpha.decode 6 bytes
-  pure ({ reserved2, testModeFlag, startEndFlag, timeC6 }, bytes)
+  let (time, bytes) ← Alpha.decode 6 bytes
+  pure ({ reserved2, testModeFlag, startEndFlag, time }, bytes)
 
 @[simp] theorem encode_length (message : ControlMessage) : (encode message).length = 10 := by
   unfold encode

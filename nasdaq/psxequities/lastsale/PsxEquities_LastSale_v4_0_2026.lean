@@ -1745,7 +1745,7 @@ end MwcbStatusMessage
 structure OperationalHaltMessage where
   trackingNumber : BitVec 16
   timestamp : BitVec 48
-  stockAlpha8 : Alpha 8
+  stock : Alpha 8
   marketCode : MarketCode
   operationalHaltAction : OperationalHaltAction
   deriving DecidableEq, Repr
@@ -1755,17 +1755,17 @@ namespace OperationalHaltMessage
 def encode (message : OperationalHaltMessage) : List UInt8 :=
   encodeUInt 2 message.trackingNumber
     ++ (encodeUInt 6 message.timestamp
-    ++ (Alpha.encode message.stockAlpha8
+    ++ (Alpha.encode message.stock
     ++ (MarketCode.encode message.marketCode
     ++ (OperationalHaltAction.encode message.operationalHaltAction))))
 
 def decode (bytes : List UInt8) : Option (OperationalHaltMessage × List UInt8) := do
   let (trackingNumber, bytes) ← decodeUInt 2 bytes
   let (timestamp, bytes) ← decodeUInt 6 bytes
-  let (stockAlpha8, bytes) ← Alpha.decode 8 bytes
+  let (stock, bytes) ← Alpha.decode 8 bytes
   let (marketCode, bytes) ← MarketCode.decode bytes
   let (operationalHaltAction, bytes) ← OperationalHaltAction.decode bytes
-  pure ({ trackingNumber, timestamp, stockAlpha8, marketCode, operationalHaltAction }, bytes)
+  pure ({ trackingNumber, timestamp, stock, marketCode, operationalHaltAction }, bytes)
 
 @[simp] theorem encode_length (message : OperationalHaltMessage) : (encode message).length = 18 := by
   unfold encode

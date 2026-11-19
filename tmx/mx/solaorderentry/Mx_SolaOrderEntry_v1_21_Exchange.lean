@@ -919,11 +919,11 @@ inductive SpecialTradeIndicator where
   | deltaTrade -- Delta Trade
   | committedBlock -- Committed Block
   | lateTrade -- Late Trade
-  | forFutureUse -- For Future Use
-  | forFutureUse_4e -- For Future Use
-  | forFutureUse_4f -- For Future Use
-  | forFutureUse_50 -- For Future Use
-  | forFutureUse_51 -- For Future Use
+  | forFutureUseM -- For Future Use M
+  | forFutureUseN -- For Future Use N
+  | forFutureUseO -- For Future Use O
+  | forFutureUseP -- For Future Use P
+  | forFutureUseQ -- For Future Use Q
   | committed -- Committed
   | basisOnClose -- Basis On Close
   | tradeCorrection -- Trade Correction
@@ -945,11 +945,11 @@ def toByte : SpecialTradeIndicator → UInt8
   | .deltaTrade => 0x4A
   | .committedBlock => 0x4B
   | .lateTrade => 0x4C
-  | .forFutureUse => 0x4D
-  | .forFutureUse_4e => 0x4E
-  | .forFutureUse_4f => 0x4F
-  | .forFutureUse_50 => 0x50
-  | .forFutureUse_51 => 0x51
+  | .forFutureUseM => 0x4D
+  | .forFutureUseN => 0x4E
+  | .forFutureUseO => 0x4F
+  | .forFutureUseP => 0x50
+  | .forFutureUseQ => 0x51
   | .committed => 0x54
   | .basisOnClose => 0x55
   | .tradeCorrection => 0x56
@@ -969,11 +969,11 @@ def listed (byte : UInt8) : SpecialTradeIndicator :=
   else if byte = 0x4A then .deltaTrade
   else if byte = 0x4B then .committedBlock
   else if byte = 0x4C then .lateTrade
-  else if byte = 0x4D then .forFutureUse
-  else if byte = 0x4E then .forFutureUse_4e
-  else if byte = 0x4F then .forFutureUse_4f
-  else if byte = 0x50 then .forFutureUse_50
-  else if byte = 0x51 then .forFutureUse_51
+  else if byte = 0x4D then .forFutureUseM
+  else if byte = 0x4E then .forFutureUseN
+  else if byte = 0x4F then .forFutureUseO
+  else if byte = 0x50 then .forFutureUseP
+  else if byte = 0x51 then .forFutureUseQ
   else if byte = 0x54 then .committed
   else if byte = 0x55 then .basisOnClose
   else if byte = 0x56 then .tradeCorrection
@@ -995,11 +995,11 @@ theorem ofByte_toByte (value : SpecialTradeIndicator) : ofByte value.toByte = va
   | deltaTrade => decide
   | committedBlock => decide
   | lateTrade => decide
-  | forFutureUse => decide
-  | forFutureUse_4e => decide
-  | forFutureUse_4f => decide
-  | forFutureUse_50 => decide
-  | forFutureUse_51 => decide
+  | forFutureUseM => decide
+  | forFutureUseN => decide
+  | forFutureUseO => decide
+  | forFutureUseP => decide
+  | forFutureUseQ => decide
   | committed => decide
   | basisOnClose => decide
   | tradeCorrection => decide

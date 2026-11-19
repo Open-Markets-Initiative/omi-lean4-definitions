@@ -536,18 +536,18 @@ inductive PriceIndicatorMarker where
   | deltaTrade -- Delta Trade
   | committedBlock -- Committed Block
   | lateTrade -- Late Trade
-  | forFutureUse -- For Future Use
-  | forFutureUse_4e -- For Future Use
+  | forFutureUseM -- For Future Use M
+  | forFutureUseN -- For Future Use N
   | strategyReporting -- Strategy Reporting
-  | forFutureUse_51 -- For Future Use
+  | forFutureUseQ -- For Future Use Q
   | efrReporting -- Efr Reporting
   | referencePrice -- Reference Price
   | tradeCorrection -- Trade Correction
   | committed -- Committed
   | basisOnClose -- Basis On Close
   | priceVolumeAdjustment -- Price Volume Adjustment
-  | forFutureUse_59 -- For Future Use
-  | forFutureUse_5a -- For Future Use
+  | forFutureUseY -- For Future Use Y
+  | forFutureUseZ -- For Future Use Z
   | unlisted (byte : { byte : UInt8 // byte ∉ PriceIndicatorMarker.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -565,18 +565,18 @@ def toByte : PriceIndicatorMarker → UInt8
   | .deltaTrade => 0x4A
   | .committedBlock => 0x4B
   | .lateTrade => 0x4C
-  | .forFutureUse => 0x4D
-  | .forFutureUse_4e => 0x4E
+  | .forFutureUseM => 0x4D
+  | .forFutureUseN => 0x4E
   | .strategyReporting => 0x50
-  | .forFutureUse_51 => 0x51
+  | .forFutureUseQ => 0x51
   | .efrReporting => 0x52
   | .referencePrice => 0x53
   | .tradeCorrection => 0x74
   | .committed => 0x54
   | .basisOnClose => 0x55
   | .priceVolumeAdjustment => 0x56
-  | .forFutureUse_59 => 0x59
-  | .forFutureUse_5a => 0x5A
+  | .forFutureUseY => 0x59
+  | .forFutureUseZ => 0x5A
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -592,18 +592,18 @@ def listed (byte : UInt8) : PriceIndicatorMarker :=
   else if byte = 0x4A then .deltaTrade
   else if byte = 0x4B then .committedBlock
   else if byte = 0x4C then .lateTrade
-  else if byte = 0x4D then .forFutureUse
-  else if byte = 0x4E then .forFutureUse_4e
+  else if byte = 0x4D then .forFutureUseM
+  else if byte = 0x4E then .forFutureUseN
   else if byte = 0x50 then .strategyReporting
-  else if byte = 0x51 then .forFutureUse_51
+  else if byte = 0x51 then .forFutureUseQ
   else if byte = 0x52 then .efrReporting
   else if byte = 0x53 then .referencePrice
   else if byte = 0x74 then .tradeCorrection
   else if byte = 0x54 then .committed
   else if byte = 0x55 then .basisOnClose
   else if byte = 0x56 then .priceVolumeAdjustment
-  else if byte = 0x59 then .forFutureUse_59
-  else .forFutureUse_5a
+  else if byte = 0x59 then .forFutureUseY
+  else .forFutureUseZ
 
 def ofByte (byte : UInt8) : PriceIndicatorMarker :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -621,18 +621,18 @@ theorem ofByte_toByte (value : PriceIndicatorMarker) : ofByte value.toByte = val
   | deltaTrade => decide
   | committedBlock => decide
   | lateTrade => decide
-  | forFutureUse => decide
-  | forFutureUse_4e => decide
+  | forFutureUseM => decide
+  | forFutureUseN => decide
   | strategyReporting => decide
-  | forFutureUse_51 => decide
+  | forFutureUseQ => decide
   | efrReporting => decide
   | referencePrice => decide
   | tradeCorrection => decide
   | committed => decide
   | basisOnClose => decide
   | priceVolumeAdjustment => decide
-  | forFutureUse_59 => decide
-  | forFutureUse_5a => decide
+  | forFutureUseY => decide
+  | forFutureUseZ => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : PriceIndicatorMarker) : List UInt8 :=

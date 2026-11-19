@@ -477,11 +477,11 @@ structure TradeConfirmationMessage where
   fillPrice : BitVec 32
   token : BitVec 32
   bookType : BitVec 16
-  proClientShort2 : BitVec 16
+  proClient : BitVec 16
   algoId : BitVec 32
   activityTimeInNanos : BitVec 64
   nnfField : Alpha 8
-  segmentShort2 : BitVec 16
+  segment : BitVec 16
   brokerId : Alpha 5
   filler : Alpha 1
   pan : Alpha 10
@@ -506,11 +506,11 @@ def encode (message : TradeConfirmationMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.fillPrice
     ++ (encodeUInt 4 message.token
     ++ (encodeUInt 2 message.bookType
-    ++ (encodeUInt 2 message.proClientShort2
+    ++ (encodeUInt 2 message.proClient
     ++ (encodeUInt 4 message.algoId
     ++ (encodeUInt 8 message.activityTimeInNanos
     ++ (Alpha.encode message.nnfField
-    ++ (encodeUInt 2 message.segmentShort2
+    ++ (encodeUInt 2 message.segment
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
@@ -532,17 +532,17 @@ def decode (bytes : List UInt8) : Option (TradeConfirmationMessage × List UInt8
   let (fillPrice, bytes) ← decodeUInt 4 bytes
   let (token, bytes) ← decodeUInt 4 bytes
   let (bookType, bytes) ← decodeUInt 2 bytes
-  let (proClientShort2, bytes) ← decodeUInt 2 bytes
+  let (proClient, bytes) ← decodeUInt 2 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
   let (activityTimeInNanos, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
-  let (segmentShort2, bytes) ← decodeUInt 2 bytes
+  let (segment, bytes) ← decodeUInt 2 bytes
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClientShort2, algoId, activityTimeInNanos, nnfField, segmentShort2, brokerId, filler, pan, accountNumber, settlor }, bytes)
+  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClient, algoId, activityTimeInNanos, nnfField, segment, brokerId, filler, pan, accountNumber, settlor }, bytes)
 
 @[simp] theorem encode_length (message : TradeConfirmationMessage) : (encode message).length = 116 := by
   unfold encode
@@ -622,11 +622,11 @@ structure TradeCancelConfirmMessage where
   fillPrice : BitVec 32
   token : BitVec 32
   bookType : BitVec 16
-  proClientShort2 : BitVec 16
+  proClient : BitVec 16
   algoId : BitVec 32
   activityTimeInNanos : BitVec 64
   nnfField : Alpha 8
-  segmentShort2 : BitVec 16
+  segment : BitVec 16
   brokerId : Alpha 5
   filler : Alpha 1
   pan : Alpha 10
@@ -651,11 +651,11 @@ def encode (message : TradeCancelConfirmMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.fillPrice
     ++ (encodeUInt 4 message.token
     ++ (encodeUInt 2 message.bookType
-    ++ (encodeUInt 2 message.proClientShort2
+    ++ (encodeUInt 2 message.proClient
     ++ (encodeUInt 4 message.algoId
     ++ (encodeUInt 8 message.activityTimeInNanos
     ++ (Alpha.encode message.nnfField
-    ++ (encodeUInt 2 message.segmentShort2
+    ++ (encodeUInt 2 message.segment
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
@@ -677,17 +677,17 @@ def decode (bytes : List UInt8) : Option (TradeCancelConfirmMessage × List UInt
   let (fillPrice, bytes) ← decodeUInt 4 bytes
   let (token, bytes) ← decodeUInt 4 bytes
   let (bookType, bytes) ← decodeUInt 2 bytes
-  let (proClientShort2, bytes) ← decodeUInt 2 bytes
+  let (proClient, bytes) ← decodeUInt 2 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
   let (activityTimeInNanos, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
-  let (segmentShort2, bytes) ← decodeUInt 2 bytes
+  let (segment, bytes) ← decodeUInt 2 bytes
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClientShort2, algoId, activityTimeInNanos, nnfField, segmentShort2, brokerId, filler, pan, accountNumber, settlor }, bytes)
+  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClient, algoId, activityTimeInNanos, nnfField, segment, brokerId, filler, pan, accountNumber, settlor }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelConfirmMessage) : (encode message).length = 116 := by
   unfold encode
@@ -767,11 +767,11 @@ structure TradeCancelRejectMessage where
   fillPrice : BitVec 32
   token : BitVec 32
   bookType : BitVec 16
-  proClientShort2 : BitVec 16
+  proClient : BitVec 16
   algoId : BitVec 32
   activityTimeInNanos : BitVec 64
   nnfField : Alpha 8
-  segmentShort2 : BitVec 16
+  segment : BitVec 16
   brokerId : Alpha 5
   filler : Alpha 1
   pan : Alpha 10
@@ -796,11 +796,11 @@ def encode (message : TradeCancelRejectMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.fillPrice
     ++ (encodeUInt 4 message.token
     ++ (encodeUInt 2 message.bookType
-    ++ (encodeUInt 2 message.proClientShort2
+    ++ (encodeUInt 2 message.proClient
     ++ (encodeUInt 4 message.algoId
     ++ (encodeUInt 8 message.activityTimeInNanos
     ++ (Alpha.encode message.nnfField
-    ++ (encodeUInt 2 message.segmentShort2
+    ++ (encodeUInt 2 message.segment
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
@@ -822,17 +822,17 @@ def decode (bytes : List UInt8) : Option (TradeCancelRejectMessage × List UInt8
   let (fillPrice, bytes) ← decodeUInt 4 bytes
   let (token, bytes) ← decodeUInt 4 bytes
   let (bookType, bytes) ← decodeUInt 2 bytes
-  let (proClientShort2, bytes) ← decodeUInt 2 bytes
+  let (proClient, bytes) ← decodeUInt 2 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
   let (activityTimeInNanos, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
-  let (segmentShort2, bytes) ← decodeUInt 2 bytes
+  let (segment, bytes) ← decodeUInt 2 bytes
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClientShort2, algoId, activityTimeInNanos, nnfField, segmentShort2, brokerId, filler, pan, accountNumber, settlor }, bytes)
+  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClient, algoId, activityTimeInNanos, nnfField, segment, brokerId, filler, pan, accountNumber, settlor }, bytes)
 
 @[simp] theorem encode_length (message : TradeCancelRejectMessage) : (encode message).length = 116 := by
   unfold encode
@@ -912,11 +912,11 @@ structure TradeModifyConfirmMessage where
   fillPrice : BitVec 32
   token : BitVec 32
   bookType : BitVec 16
-  proClientShort2 : BitVec 16
+  proClient : BitVec 16
   algoId : BitVec 32
   activityTimeInNanos : BitVec 64
   nnfField : Alpha 8
-  segmentShort2 : BitVec 16
+  segment : BitVec 16
   brokerId : Alpha 5
   filler : Alpha 1
   pan : Alpha 10
@@ -941,11 +941,11 @@ def encode (message : TradeModifyConfirmMessage) : List UInt8 :=
     ++ (encodeUInt 4 message.fillPrice
     ++ (encodeUInt 4 message.token
     ++ (encodeUInt 2 message.bookType
-    ++ (encodeUInt 2 message.proClientShort2
+    ++ (encodeUInt 2 message.proClient
     ++ (encodeUInt 4 message.algoId
     ++ (encodeUInt 8 message.activityTimeInNanos
     ++ (Alpha.encode message.nnfField
-    ++ (encodeUInt 2 message.segmentShort2
+    ++ (encodeUInt 2 message.segment
     ++ (Alpha.encode message.brokerId
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
@@ -967,17 +967,17 @@ def decode (bytes : List UInt8) : Option (TradeModifyConfirmMessage × List UInt
   let (fillPrice, bytes) ← decodeUInt 4 bytes
   let (token, bytes) ← decodeUInt 4 bytes
   let (bookType, bytes) ← decodeUInt 2 bytes
-  let (proClientShort2, bytes) ← decodeUInt 2 bytes
+  let (proClient, bytes) ← decodeUInt 2 bytes
   let (algoId, bytes) ← decodeUInt 4 bytes
   let (activityTimeInNanos, bytes) ← decodeUInt 8 bytes
   let (nnfField, bytes) ← Alpha.decode 8 bytes
-  let (segmentShort2, bytes) ← decodeUInt 2 bytes
+  let (segment, bytes) ← decodeUInt 2 bytes
   let (brokerId, bytes) ← Alpha.decode 5 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClientShort2, algoId, activityTimeInNanos, nnfField, segmentShort2, brokerId, filler, pan, accountNumber, settlor }, bytes)
+  pure ({ orderNumber, traderNumber, buySell, originalVolume, disclosedVolume, remainingVolume, disclosedVolRemaining, price, stOrderFlags, fillNumber, fillQty, fillPrice, token, bookType, proClient, algoId, activityTimeInNanos, nnfField, segment, brokerId, filler, pan, accountNumber, settlor }, bytes)
 
 @[simp] theorem encode_length (message : TradeModifyConfirmMessage) : (encode message).length = 116 := by
   unfold encode
@@ -1065,10 +1065,10 @@ structure PriceConfirmationMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1098,10 +1098,10 @@ def encode (message : PriceConfirmationMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1130,13 +1130,13 @@ def decode (bytes : List UInt8) : Option (PriceConfirmationMessage × List UInt8
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : PriceConfirmationMessage) : (encode message).length = 112 := by
   unfold encode
@@ -1233,10 +1233,10 @@ structure OrderModRejectMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1266,10 +1266,10 @@ def encode (message : OrderModRejectMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1298,13 +1298,13 @@ def decode (bytes : List UInt8) : Option (OrderModRejectMessage × List UInt8) :
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderModRejectMessage) : (encode message).length = 112 := by
   unfold encode
@@ -1401,10 +1401,10 @@ structure OrderCancelRejectMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1434,10 +1434,10 @@ def encode (message : OrderCancelRejectMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1466,13 +1466,13 @@ def decode (bytes : List UInt8) : Option (OrderCancelRejectMessage × List UInt8
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelRejectMessage) : (encode message).length = 112 := by
   unfold encode
@@ -1569,10 +1569,10 @@ structure OrderConfirmationMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1602,10 +1602,10 @@ def encode (message : OrderConfirmationMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1634,13 +1634,13 @@ def decode (bytes : List UInt8) : Option (OrderConfirmationMessage × List UInt8
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderConfirmationMessage) : (encode message).length = 112 := by
   unfold encode
@@ -1737,10 +1737,10 @@ structure OrderModConfirmationMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1770,10 +1770,10 @@ def encode (message : OrderModConfirmationMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1802,13 +1802,13 @@ def decode (bytes : List UInt8) : Option (OrderModConfirmationMessage × List UI
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderModConfirmationMessage) : (encode message).length = 112 := by
   unfold encode
@@ -1905,10 +1905,10 @@ structure OrderCancelConfirmationMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -1938,10 +1938,10 @@ def encode (message : OrderCancelConfirmationMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -1970,13 +1970,13 @@ def decode (bytes : List UInt8) : Option (OrderCancelConfirmationMessage × List
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelConfirmationMessage) : (encode message).length = 112 := by
   unfold encode
@@ -2073,10 +2073,10 @@ structure FreezeToControlMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -2106,10 +2106,10 @@ def encode (message : FreezeToControlMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -2138,13 +2138,13 @@ def decode (bytes : List UInt8) : Option (FreezeToControlMessage × List UInt8) 
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : FreezeToControlMessage) : (encode message).length = 112 := by
   unfold encode
@@ -2241,10 +2241,10 @@ structure OnStopNotificationMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -2274,10 +2274,10 @@ def encode (message : OnStopNotificationMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -2306,13 +2306,13 @@ def decode (bytes : List UInt8) : Option (OnStopNotificationMessage × List UInt
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OnStopNotificationMessage) : (encode message).length = 112 := by
   unfold encode
@@ -2409,10 +2409,10 @@ structure OrderErrorMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -2442,10 +2442,10 @@ def encode (message : OrderErrorMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -2474,13 +2474,13 @@ def decode (bytes : List UInt8) : Option (OrderErrorMessage × List UInt8) := do
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : OrderErrorMessage) : (encode message).length = 112 := by
   unfold encode
@@ -2577,10 +2577,10 @@ structure BatchOrderCancelMessage where
   suspended : Alpha 1
   filler : Alpha 1
   pan : Alpha 10
-  segmentChar1 : Alpha 1
+  segmentChar : Alpha 1
   participantType : ParticipantType
   accountNumber : Alpha 10
-  proClientChar1 : Alpha 1
+  proClientChar : Alpha 1
   settlementType : SettlementType
   settlor : Alpha 12
   deriving DecidableEq, Repr
@@ -2610,10 +2610,10 @@ def encode (message : BatchOrderCancelMessage) : List UInt8 :=
     ++ (Alpha.encode message.suspended
     ++ (Alpha.encode message.filler
     ++ (Alpha.encode message.pan
-    ++ (Alpha.encode message.segmentChar1
+    ++ (Alpha.encode message.segmentChar
     ++ (ParticipantType.encode message.participantType
     ++ (Alpha.encode message.accountNumber
-    ++ (Alpha.encode message.proClientChar1
+    ++ (Alpha.encode message.proClientChar
     ++ (SettlementType.encode message.settlementType
     ++ (Alpha.encode message.settlor)))))))))))))))))))))))))))
 
@@ -2642,13 +2642,13 @@ def decode (bytes : List UInt8) : Option (BatchOrderCancelMessage × List UInt8)
   let (suspended, bytes) ← Alpha.decode 1 bytes
   let (filler, bytes) ← Alpha.decode 1 bytes
   let (pan, bytes) ← Alpha.decode 10 bytes
-  let (segmentChar1, bytes) ← Alpha.decode 1 bytes
+  let (segmentChar, bytes) ← Alpha.decode 1 bytes
   let (participantType, bytes) ← ParticipantType.decode bytes
   let (accountNumber, bytes) ← Alpha.decode 10 bytes
-  let (proClientChar1, bytes) ← Alpha.decode 1 bytes
+  let (proClientChar, bytes) ← Alpha.decode 1 bytes
   let (settlementType, bytes) ← SettlementType.decode bytes
   let (settlor, bytes) ← Alpha.decode 12 bytes
-  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar1, participantType, accountNumber, proClientChar1, settlementType, settlor }, bytes)
+  pure ({ reasonCode, token, orderNumber, bookType, buySell, disclosedVolume, disclosedVolRemaining, totalVolRemaining, volume, price, triggerPrice, stOrderFlags, traderId, nnfField, algoId, activityTimeInNanos, competitorPeriod, solicitorPeriod, auctionNumber, suspended, filler, pan, segmentChar, participantType, accountNumber, proClientChar, settlementType, settlor }, bytes)
 
 @[simp] theorem encode_length (message : BatchOrderCancelMessage) : (encode message).length = 112 := by
   unfold encode

@@ -98,7 +98,7 @@ inductive MarketCategory where
   | nasdaqGlobalMarket -- Nasdaq Global Market
   | nasdaqCapitalMarket -- Nasdaq Capital Market
   | nyse -- Nyse
-  | nyseAmex -- Nyse Amex
+  | nyseAmerican -- NYSE American
   | nyseArca -- Nyse Arca
   | batsBzxExchange -- Bats Bzx Exchange
   | investorsExchange -- Investors Exchange
@@ -113,7 +113,7 @@ def toByte : MarketCategory → UInt8
   | .nasdaqGlobalMarket => 0x47
   | .nasdaqCapitalMarket => 0x53
   | .nyse => 0x4E
-  | .nyseAmex => 0x41
+  | .nyseAmerican => 0x41
   | .nyseArca => 0x50
   | .batsBzxExchange => 0x5A
   | .investorsExchange => 0x56
@@ -126,7 +126,7 @@ def listed (byte : UInt8) : MarketCategory :=
   else if byte = 0x47 then .nasdaqGlobalMarket
   else if byte = 0x53 then .nasdaqCapitalMarket
   else if byte = 0x4E then .nyse
-  else if byte = 0x41 then .nyseAmex
+  else if byte = 0x41 then .nyseAmerican
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .batsBzxExchange
   else if byte = 0x56 then .investorsExchange
@@ -141,7 +141,7 @@ theorem ofByte_toByte (value : MarketCategory) : ofByte value.toByte = value := 
   | nasdaqGlobalMarket => decide
   | nasdaqCapitalMarket => decide
   | nyse => decide
-  | nyseAmex => decide
+  | nyseAmerican => decide
   | nyseArca => decide
   | batsBzxExchange => decide
   | investorsExchange => decide
@@ -742,7 +742,7 @@ def SecurityClass.codes : List UInt8 :=
 inductive SecurityClass where
   | nasdaqListedIssue -- Nasdaq Listed Issue
   | nyse -- Nyse
-  | nyseMkt -- Nyse Mkt
+  | nyseAmerican -- NYSE American
   | nyseArca -- Nyse Arca
   | bats -- Bats
   | iexg -- Iexg
@@ -754,7 +754,7 @@ namespace SecurityClass
 def toByte : SecurityClass → UInt8
   | .nasdaqListedIssue => 0x51
   | .nyse => 0x4E
-  | .nyseMkt => 0x41
+  | .nyseAmerican => 0x41
   | .nyseArca => 0x50
   | .bats => 0x5A
   | .iexg => 0x56
@@ -764,7 +764,7 @@ def toByte : SecurityClass → UInt8
 def listed (byte : UInt8) : SecurityClass :=
   if byte = 0x51 then .nasdaqListedIssue
   else if byte = 0x4E then .nyse
-  else if byte = 0x41 then .nyseMkt
+  else if byte = 0x41 then .nyseAmerican
   else if byte = 0x50 then .nyseArca
   else if byte = 0x5A then .bats
   else .iexg
@@ -776,7 +776,7 @@ theorem ofByte_toByte (value : SecurityClass) : ofByte value.toByte = value := b
   cases value with
   | nasdaqListedIssue => decide
   | nyse => decide
-  | nyseMkt => decide
+  | nyseAmerican => decide
   | nyseArca => decide
   | bats => decide
   | iexg => decide

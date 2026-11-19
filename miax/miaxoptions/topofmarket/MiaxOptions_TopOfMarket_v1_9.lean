@@ -27,8 +27,8 @@ def MiaxBboPostingIncrementIndicator.codes : List UInt8 :=
 
 inductive MiaxBboPostingIncrementIndicator where
   | penny -- Penny
-  | nickel -- Nickel
-  | dime -- Dime
+  | pennyOrNickel -- Penny Or Nickel
+  | nickelOrDime -- Nickel Or Dime
   | unlisted (byte : { byte : UInt8 // byte ∉ MiaxBboPostingIncrementIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -36,15 +36,15 @@ namespace MiaxBboPostingIncrementIndicator
 
 def toByte : MiaxBboPostingIncrementIndicator → UInt8
   | .penny => 0x50
-  | .nickel => 0x4E
-  | .dime => 0x44
+  | .pennyOrNickel => 0x4E
+  | .nickelOrDime => 0x44
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : MiaxBboPostingIncrementIndicator :=
   if byte = 0x50 then .penny
-  else if byte = 0x4E then .nickel
-  else .dime
+  else if byte = 0x4E then .pennyOrNickel
+  else .nickelOrDime
 
 def ofByte (byte : UInt8) : MiaxBboPostingIncrementIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -52,8 +52,8 @@ def ofByte (byte : UInt8) : MiaxBboPostingIncrementIndicator :=
 theorem ofByte_toByte (value : MiaxBboPostingIncrementIndicator) : ofByte value.toByte = value := by
   cases value with
   | penny => decide
-  | nickel => decide
-  | dime => decide
+  | pennyOrNickel => decide
+  | nickelOrDime => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : MiaxBboPostingIncrementIndicator) : List UInt8 :=
@@ -82,8 +82,8 @@ def LiquidityAcceptanceIncrementIndicator.codes : List UInt8 :=
 
 inductive LiquidityAcceptanceIncrementIndicator where
   | penny -- Penny
-  | nickel -- Nickel
-  | dime -- Dime
+  | pennyOrNickel -- Penny Or Nickel
+  | nickelOrDime -- Nickel Or Dime
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityAcceptanceIncrementIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -91,15 +91,15 @@ namespace LiquidityAcceptanceIncrementIndicator
 
 def toByte : LiquidityAcceptanceIncrementIndicator → UInt8
   | .penny => 0x50
-  | .nickel => 0x4E
-  | .dime => 0x44
+  | .pennyOrNickel => 0x4E
+  | .nickelOrDime => 0x44
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : LiquidityAcceptanceIncrementIndicator :=
   if byte = 0x50 then .penny
-  else if byte = 0x4E then .nickel
-  else .dime
+  else if byte = 0x4E then .pennyOrNickel
+  else .nickelOrDime
 
 def ofByte (byte : UInt8) : LiquidityAcceptanceIncrementIndicator :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -107,8 +107,8 @@ def ofByte (byte : UInt8) : LiquidityAcceptanceIncrementIndicator :=
 theorem ofByte_toByte (value : LiquidityAcceptanceIncrementIndicator) : ofByte value.toByte = value := by
   cases value with
   | penny => decide
-  | nickel => decide
-  | dime => decide
+  | pennyOrNickel => decide
+  | nickelOrDime => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : LiquidityAcceptanceIncrementIndicator) : List UInt8 :=

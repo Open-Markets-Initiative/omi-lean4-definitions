@@ -113,7 +113,7 @@ inductive SecurityType where
   | rights -- Rights
   | sharesOfBeneficiaryInterest -- Shares Of Beneficiary Interest
   | test -- Test
-  | units_55 -- Units
+  | closedEndFund -- Closed End Fund
   | warrant -- Warrant
   | unlisted (byte : { byte : UInt8 // byte ∉ SecurityType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -135,7 +135,7 @@ def toByte : SecurityType → UInt8
   | .rights => 0x52
   | .sharesOfBeneficiaryInterest => 0x53
   | .test => 0x54
-  | .units_55 => 0x55
+  | .closedEndFund => 0x55
   | .warrant => 0x57
   | .unlisted byte => byte.val
 
@@ -155,7 +155,7 @@ def listed (byte : UInt8) : SecurityType :=
   else if byte = 0x52 then .rights
   else if byte = 0x53 then .sharesOfBeneficiaryInterest
   else if byte = 0x54 then .test
-  else if byte = 0x55 then .units_55
+  else if byte = 0x55 then .closedEndFund
   else .warrant
 
 def ofByte (byte : UInt8) : SecurityType :=
@@ -177,7 +177,7 @@ theorem ofByte_toByte (value : SecurityType) : ofByte value.toByte = value := by
   | rights => decide
   | sharesOfBeneficiaryInterest => decide
   | test => decide
-  | units_55 => decide
+  | closedEndFund => decide
   | warrant => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -337,7 +337,7 @@ end Status
 
 /-- Security Status: one byte code -/
 def SecurityStatus.codes : List UInt8 :=
-  [0x33, 0x34, 0x35, 0x36, 0x41, 0x43, 0x44, 0x50, 0x45, 0x4F, 0x4C, 0x58, 0x54, 0x49, 0x47, 0x52]
+  [0x33, 0x34, 0x35, 0x36, 0x41, 0x43, 0x44, 0x50, 0x4F, 0x58, 0x54, 0x49, 0x47, 0x52]
 
 inductive SecurityStatus where
   | openingDelay -- Opening Delay
@@ -348,9 +348,7 @@ inductive SecurityStatus where
   | shortSaleRestrictionContinuedDay2 -- Short Sale Restriction Continued Day 2
   | shortSaleRestrictionDeactivated -- Short Sale Restriction Deactivated
   | preOpening -- Pre Opening
-  | earlySession -- Early Session
   | coreSession -- Core Session
-  | lateSessionNonNyseOnly -- Late Session Non Nyse Only
   | closed -- Closed
   | time -- Time
   | priceIndication -- Price Indication
@@ -370,9 +368,7 @@ def toByte : SecurityStatus → UInt8
   | .shortSaleRestrictionContinuedDay2 => 0x43
   | .shortSaleRestrictionDeactivated => 0x44
   | .preOpening => 0x50
-  | .earlySession => 0x45
   | .coreSession => 0x4F
-  | .lateSessionNonNyseOnly => 0x4C
   | .closed => 0x58
   | .time => 0x54
   | .priceIndication => 0x49
@@ -390,9 +386,7 @@ def listed (byte : UInt8) : SecurityStatus :=
   else if byte = 0x43 then .shortSaleRestrictionContinuedDay2
   else if byte = 0x44 then .shortSaleRestrictionDeactivated
   else if byte = 0x50 then .preOpening
-  else if byte = 0x45 then .earlySession
   else if byte = 0x4F then .coreSession
-  else if byte = 0x4C then .lateSessionNonNyseOnly
   else if byte = 0x58 then .closed
   else if byte = 0x54 then .time
   else if byte = 0x49 then .priceIndication
@@ -412,9 +406,7 @@ theorem ofByte_toByte (value : SecurityStatus) : ofByte value.toByte = value := 
   | shortSaleRestrictionContinuedDay2 => decide
   | shortSaleRestrictionDeactivated => decide
   | preOpening => decide
-  | earlySession => decide
   | coreSession => decide
-  | lateSessionNonNyseOnly => decide
   | closed => decide
   | time => decide
   | priceIndication => decide
@@ -701,13 +693,11 @@ end SsrState
 
 /-- Market State: one byte code -/
 def MarketState.codes : List UInt8 :=
-  [0x50, 0x45, 0x4F, 0x4C, 0x58]
+  [0x50, 0x4F, 0x58]
 
 inductive MarketState where
   | preOpening -- Pre Opening
-  | earlySession -- Early Session
   | coreSession -- Core Session
-  | lateSession -- Late Session
   | closed -- Closed
   | unlisted (byte : { byte : UInt8 // byte ∉ MarketState.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -716,18 +706,14 @@ namespace MarketState
 
 def toByte : MarketState → UInt8
   | .preOpening => 0x50
-  | .earlySession => 0x45
   | .coreSession => 0x4F
-  | .lateSession => 0x4C
   | .closed => 0x58
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : MarketState :=
   if byte = 0x50 then .preOpening
-  else if byte = 0x45 then .earlySession
   else if byte = 0x4F then .coreSession
-  else if byte = 0x4C then .lateSession
   else .closed
 
 def ofByte (byte : UInt8) : MarketState :=
@@ -736,9 +722,7 @@ def ofByte (byte : UInt8) : MarketState :=
 theorem ofByte_toByte (value : MarketState) : ofByte value.toByte = value := by
   cases value with
   | preOpening => decide
-  | earlySession => decide
   | coreSession => decide
-  | lateSession => decide
   | closed => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

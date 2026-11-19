@@ -488,8 +488,8 @@ inductive LuldNationalBboIndicator where
   | nationalBestBidBelowLowerLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand -- National Best Bid Below Lower Limit Price Band And National Best Ask Above Upper Limit Price Band
   | nationalBestBidEqualsUpperLimitPriceBand -- National Best Bid Equals Upper Limit Price Band
   | nationalBestOfferEqualsLowerLimitPriceBand -- National Best Offer Equals Lower Limit Price Band
-  | nationalBestBidEqualsUpperLimitPriceBand_47 -- National Best Bid Equals Upper Limit Price Band
-  | nationalBestAskEqualsLowerLimitPriceBand -- National Best Ask Equals Lower Limit Price Band
+  | nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand -- National Best Bid Equals Upper Limit Price Band And National Best Ask Above Upper Limit Price Band
+  | nationalBestAskEqualsLowerLimitPriceBandAndNationalBestBidBelowLowerLimitPriceBand -- National Best Ask Equals Lower Limit Price Band And National Best Bid Below Lower Limit Price Band
   | nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskEqualsLowerLimitPriceBand -- National Best Bid Equals Upper Limit Price Band And National Best Ask Equals Lower Limit Price Band
   | unlisted (byte : { byte : UInt8 // byte ∉ LuldNationalBboIndicator.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -504,8 +504,8 @@ def toByte : LuldNationalBboIndicator → UInt8
   | .nationalBestBidBelowLowerLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand => 0x44
   | .nationalBestBidEqualsUpperLimitPriceBand => 0x45
   | .nationalBestOfferEqualsLowerLimitPriceBand => 0x46
-  | .nationalBestBidEqualsUpperLimitPriceBand_47 => 0x47
-  | .nationalBestAskEqualsLowerLimitPriceBand => 0x48
+  | .nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand => 0x47
+  | .nationalBestAskEqualsLowerLimitPriceBandAndNationalBestBidBelowLowerLimitPriceBand => 0x48
   | .nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskEqualsLowerLimitPriceBand => 0x49
   | .unlisted byte => byte.val
 
@@ -518,8 +518,8 @@ def listed (byte : UInt8) : LuldNationalBboIndicator :=
   else if byte = 0x44 then .nationalBestBidBelowLowerLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand
   else if byte = 0x45 then .nationalBestBidEqualsUpperLimitPriceBand
   else if byte = 0x46 then .nationalBestOfferEqualsLowerLimitPriceBand
-  else if byte = 0x47 then .nationalBestBidEqualsUpperLimitPriceBand_47
-  else if byte = 0x48 then .nationalBestAskEqualsLowerLimitPriceBand
+  else if byte = 0x47 then .nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand
+  else if byte = 0x48 then .nationalBestAskEqualsLowerLimitPriceBandAndNationalBestBidBelowLowerLimitPriceBand
   else .nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskEqualsLowerLimitPriceBand
 
 def ofByte (byte : UInt8) : LuldNationalBboIndicator :=
@@ -534,8 +534,8 @@ theorem ofByte_toByte (value : LuldNationalBboIndicator) : ofByte value.toByte =
   | nationalBestBidBelowLowerLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand => decide
   | nationalBestBidEqualsUpperLimitPriceBand => decide
   | nationalBestOfferEqualsLowerLimitPriceBand => decide
-  | nationalBestBidEqualsUpperLimitPriceBand_47 => decide
-  | nationalBestAskEqualsLowerLimitPriceBand => decide
+  | nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskAboveUpperLimitPriceBand => decide
+  | nationalBestAskEqualsLowerLimitPriceBandAndNationalBestBidBelowLowerLimitPriceBand => decide
   | nationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskEqualsLowerLimitPriceBand => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 

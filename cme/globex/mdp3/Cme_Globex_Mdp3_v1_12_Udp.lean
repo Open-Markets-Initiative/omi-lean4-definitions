@@ -2842,19 +2842,19 @@ end InstAttribGroups
 /-- Lot Type Rules Group: 5 bytes -/
 structure LotTypeRulesGroup where
   lotType : BitVec 8
-  minLotSizeDecimalQty : BitVec 32
+  minLotSize : BitVec 32
   deriving DecidableEq, Repr
 
 namespace LotTypeRulesGroup
 
 def encode (message : LotTypeRulesGroup) : List UInt8 :=
   encodeUInt 1 message.lotType
-    ++ (encodeUIntLE 4 message.minLotSizeDecimalQty)
+    ++ (encodeUIntLE 4 message.minLotSize)
 
 def decode (bytes : List UInt8) : Option (LotTypeRulesGroup × List UInt8) := do
   let (lotType, bytes) ← decodeUInt 1 bytes
-  let (minLotSizeDecimalQty, bytes) ← decodeUIntLE 4 bytes
-  pure ({ lotType, minLotSizeDecimalQty }, bytes)
+  let (minLotSize, bytes) ← decodeUIntLE 4 bytes
+  pure ({ lotType, minLotSize }, bytes)
 
 @[simp] theorem encode_length (message : LotTypeRulesGroup) : (encode message).length = 5 := by
   unfold encode
@@ -5488,19 +5488,19 @@ end CollateralMarketValue
 /-- Fx Lot Type Rules Group: 9 bytes -/
 structure FxLotTypeRulesGroup where
   lotType : BitVec 8
-  minLotSizeUInt64 : BitVec 64
+  fxMinLotSize : BitVec 64
   deriving DecidableEq, Repr
 
 namespace FxLotTypeRulesGroup
 
 def encode (message : FxLotTypeRulesGroup) : List UInt8 :=
   encodeUInt 1 message.lotType
-    ++ (encodeUIntLE 8 message.minLotSizeUInt64)
+    ++ (encodeUIntLE 8 message.fxMinLotSize)
 
 def decode (bytes : List UInt8) : Option (FxLotTypeRulesGroup × List UInt8) := do
   let (lotType, bytes) ← decodeUInt 1 bytes
-  let (minLotSizeUInt64, bytes) ← decodeUIntLE 8 bytes
-  pure ({ lotType, minLotSizeUInt64 }, bytes)
+  let (fxMinLotSize, bytes) ← decodeUIntLE 8 bytes
+  pure ({ lotType, fxMinLotSize }, bytes)
 
 @[simp] theorem encode_length (message : FxLotTypeRulesGroup) : (encode message).length = 9 := by
   unfold encode

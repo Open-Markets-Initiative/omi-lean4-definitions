@@ -85,7 +85,7 @@ end Login
 
 /-- Login Response: 11 bytes -/
 structure LoginResponse where
-  resultLoginResult : BitVec 8
+  loginResult : BitVec 8
   nextExpectedSeqNum : BitVec 32
   lastReplaySeqNum : BitVec 32
   sessionId : BitVec 16
@@ -94,17 +94,17 @@ structure LoginResponse where
 namespace LoginResponse
 
 def encode (message : LoginResponse) : List UInt8 :=
-  encodeUInt 1 message.resultLoginResult
+  encodeUInt 1 message.loginResult
     ++ (encodeUIntLE 4 message.nextExpectedSeqNum
     ++ (encodeUIntLE 4 message.lastReplaySeqNum
     ++ (encodeUIntLE 2 message.sessionId)))
 
 def decode (bytes : List UInt8) : Option (LoginResponse × List UInt8) := do
-  let (resultLoginResult, bytes) ← decodeUInt 1 bytes
+  let (loginResult, bytes) ← decodeUInt 1 bytes
   let (nextExpectedSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (lastReplaySeqNum, bytes) ← decodeUIntLE 4 bytes
   let (sessionId, bytes) ← decodeUIntLE 2 bytes
-  pure ({ resultLoginResult, nextExpectedSeqNum, lastReplaySeqNum, sessionId }, bytes)
+  pure ({ loginResult, nextExpectedSeqNum, lastReplaySeqNum, sessionId }, bytes)
 
 @[simp] theorem encode_length (message : LoginResponse) : (encode message).length = 11 := by
   unfold encode
@@ -172,17 +172,17 @@ end LogoutResponse
 
 /-- Connection Close: 1 bytes -/
 structure ConnectionClose where
-  reasonConnectionCloseReason : BitVec 8
+  connectionCloseReason : BitVec 8
   deriving DecidableEq, Repr
 
 namespace ConnectionClose
 
 def encode (message : ConnectionClose) : List UInt8 :=
-  encodeUInt 1 message.reasonConnectionCloseReason
+  encodeUInt 1 message.connectionCloseReason
 
 def decode (bytes : List UInt8) : Option (ConnectionClose × List UInt8) := do
-  let (reasonConnectionCloseReason, bytes) ← decodeUInt 1 bytes
-  pure ({ reasonConnectionCloseReason }, bytes)
+  let (connectionCloseReason, bytes) ← decodeUInt 1 bytes
+  pure ({ connectionCloseReason }, bytes)
 
 @[simp] theorem encode_length (message : ConnectionClose) : (encode message).length = 1 := by
   unfold encode
@@ -668,8 +668,8 @@ structure OrderAddResponse where
   publicOrderId : BitVec 64
   displayQty : BitVec 64
   filled : BitVec 64
-  statusOrderStatus : BitVec 8
-  reasonOrderRejectionReason : BitVec 16
+  orderStatus : BitVec 8
+  orderRejectionReason : BitVec 16
   execTypeReason : BitVec 8
   clientOrderId : Alpha 20
   deriving DecidableEq, Repr
@@ -681,8 +681,8 @@ def encode (message : OrderAddResponse) : List UInt8 :=
     ++ (encodeUIntLE 8 message.publicOrderId
     ++ (encodeUIntLE 8 message.displayQty
     ++ (encodeUIntLE 8 message.filled
-    ++ (encodeUInt 1 message.statusOrderStatus
-    ++ (encodeUIntLE 2 message.reasonOrderRejectionReason
+    ++ (encodeUInt 1 message.orderStatus
+    ++ (encodeUIntLE 2 message.orderRejectionReason
     ++ (encodeUInt 1 message.execTypeReason
     ++ (Alpha.encode message.clientOrderId)))))))
 
@@ -691,11 +691,11 @@ def decode (bytes : List UInt8) : Option (OrderAddResponse × List UInt8) := do
   let (publicOrderId, bytes) ← decodeUIntLE 8 bytes
   let (displayQty, bytes) ← decodeUIntLE 8 bytes
   let (filled, bytes) ← decodeUIntLE 8 bytes
-  let (statusOrderStatus, bytes) ← decodeUInt 1 bytes
-  let (reasonOrderRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  let (orderStatus, bytes) ← decodeUInt 1 bytes
+  let (orderRejectionReason, bytes) ← decodeUIntLE 2 bytes
   let (execTypeReason, bytes) ← decodeUInt 1 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  pure ({ orderId, publicOrderId, displayQty, filled, statusOrderStatus, reasonOrderRejectionReason, execTypeReason, clientOrderId }, bytes)
+  pure ({ orderId, publicOrderId, displayQty, filled, orderStatus, orderRejectionReason, execTypeReason, clientOrderId }, bytes)
 
 @[simp] theorem encode_length (message : OrderAddResponse) : (encode message).length = 56 := by
   unfold encode
@@ -770,8 +770,8 @@ end OrderCancel
 /-- Order Cancel Response: 32 bytes -/
 structure OrderCancelResponse where
   orderId : BitVec 64
-  statusOrderStatus : BitVec 8
-  reasonOrderRejectionReason : BitVec 16
+  orderStatus : BitVec 8
+  orderRejectionReason : BitVec 16
   execTypeReason : BitVec 8
   clientOrderId : Alpha 20
   deriving DecidableEq, Repr
@@ -780,18 +780,18 @@ namespace OrderCancelResponse
 
 def encode (message : OrderCancelResponse) : List UInt8 :=
   encodeUIntLE 8 message.orderId
-    ++ (encodeUInt 1 message.statusOrderStatus
-    ++ (encodeUIntLE 2 message.reasonOrderRejectionReason
+    ++ (encodeUInt 1 message.orderStatus
+    ++ (encodeUIntLE 2 message.orderRejectionReason
     ++ (encodeUInt 1 message.execTypeReason
     ++ (Alpha.encode message.clientOrderId))))
 
 def decode (bytes : List UInt8) : Option (OrderCancelResponse × List UInt8) := do
   let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (statusOrderStatus, bytes) ← decodeUInt 1 bytes
-  let (reasonOrderRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  let (orderStatus, bytes) ← decodeUInt 1 bytes
+  let (orderRejectionReason, bytes) ← decodeUIntLE 2 bytes
   let (execTypeReason, bytes) ← decodeUInt 1 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  pure ({ orderId, statusOrderStatus, reasonOrderRejectionReason, execTypeReason, clientOrderId }, bytes)
+  pure ({ orderId, orderStatus, orderRejectionReason, execTypeReason, clientOrderId }, bytes)
 
 @[simp] theorem encode_length (message : OrderCancelResponse) : (encode message).length = 32 := by
   unfold encode
@@ -886,9 +886,9 @@ end OrderModify
 structure OrderModifyResponse where
   orderId : BitVec 64
   filled : BitVec 64
-  statusOrderStatus : BitVec 8
+  orderStatus : BitVec 8
   priorityFlag : BitVec 8
-  reasonOrderRejectionReason : BitVec 16
+  orderRejectionReason : BitVec 16
   clientOrderId : Alpha 20
   deriving DecidableEq, Repr
 
@@ -897,19 +897,19 @@ namespace OrderModifyResponse
 def encode (message : OrderModifyResponse) : List UInt8 :=
   encodeUIntLE 8 message.orderId
     ++ (encodeUIntLE 8 message.filled
-    ++ (encodeUInt 1 message.statusOrderStatus
+    ++ (encodeUInt 1 message.orderStatus
     ++ (encodeUInt 1 message.priorityFlag
-    ++ (encodeUIntLE 2 message.reasonOrderRejectionReason
+    ++ (encodeUIntLE 2 message.orderRejectionReason
     ++ (Alpha.encode message.clientOrderId)))))
 
 def decode (bytes : List UInt8) : Option (OrderModifyResponse × List UInt8) := do
   let (orderId, bytes) ← decodeUIntLE 8 bytes
   let (filled, bytes) ← decodeUIntLE 8 bytes
-  let (statusOrderStatus, bytes) ← decodeUInt 1 bytes
+  let (orderStatus, bytes) ← decodeUInt 1 bytes
   let (priorityFlag, bytes) ← decodeUInt 1 bytes
-  let (reasonOrderRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  let (orderRejectionReason, bytes) ← decodeUIntLE 2 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  pure ({ orderId, filled, statusOrderStatus, priorityFlag, reasonOrderRejectionReason, clientOrderId }, bytes)
+  pure ({ orderId, filled, orderStatus, priorityFlag, orderRejectionReason, clientOrderId }, bytes)
 
 @[simp] theorem encode_length (message : OrderModifyResponse) : (encode message).length = 40 := by
   unfold encode
@@ -1005,7 +1005,7 @@ structure OrderMassCancelResponse where
   targetPartyRole : BitVec 8
   targetPartyId : BitVec 32
   marketSegmentId : BitVec 32
-  reasonMassCancelRejectionReason : BitVec 16
+  massCancelRejectionReason : BitVec 16
   clientOrderId : Alpha 20
   deriving DecidableEq, Repr
 
@@ -1018,7 +1018,7 @@ def encode (message : OrderMassCancelResponse) : List UInt8 :=
     ++ (encodeUInt 1 message.targetPartyRole
     ++ (encodeUIntLE 4 message.targetPartyId
     ++ (encodeUIntLE 4 message.marketSegmentId
-    ++ (encodeUIntLE 2 message.reasonMassCancelRejectionReason
+    ++ (encodeUIntLE 2 message.massCancelRejectionReason
     ++ (Alpha.encode message.clientOrderId)))))))
 
 def decode (bytes : List UInt8) : Option (OrderMassCancelResponse × List UInt8) := do
@@ -1028,9 +1028,9 @@ def decode (bytes : List UInt8) : Option (OrderMassCancelResponse × List UInt8)
   let (targetPartyRole, bytes) ← decodeUInt 1 bytes
   let (targetPartyId, bytes) ← decodeUIntLE 4 bytes
   let (marketSegmentId, bytes) ← decodeUIntLE 4 bytes
-  let (reasonMassCancelRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  let (massCancelRejectionReason, bytes) ← decodeUIntLE 2 bytes
   let (clientOrderId, bytes) ← Alpha.decode 20 bytes
-  pure ({ totalAffectedOrders, massCancelRequestType, massCancelId, targetPartyRole, targetPartyId, marketSegmentId, reasonMassCancelRejectionReason, clientOrderId }, bytes)
+  pure ({ totalAffectedOrders, massCancelRequestType, massCancelId, targetPartyRole, targetPartyId, marketSegmentId, massCancelRejectionReason, clientOrderId }, bytes)
 
 @[simp] theorem encode_length (message : OrderMassCancelResponse) : (encode message).length = 48 := by
   unfold encode
@@ -1411,8 +1411,8 @@ structure QuoteOrderResponse where
   instrumentId : BitVec 32
   bidOrderId : BitVec 64
   askOrderId : BitVec 64
-  statusOrderStatus : BitVec 8
-  reasonOrderRejectionReason : BitVec 16
+  orderStatus : BitVec 8
+  orderRejectionReason : BitVec 16
   deriving DecidableEq, Repr
 
 namespace QuoteOrderResponse
@@ -1421,16 +1421,16 @@ def encode (message : QuoteOrderResponse) : List UInt8 :=
   encodeUIntLE 4 message.instrumentId
     ++ (encodeUIntLE 8 message.bidOrderId
     ++ (encodeUIntLE 8 message.askOrderId
-    ++ (encodeUInt 1 message.statusOrderStatus
-    ++ (encodeUIntLE 2 message.reasonOrderRejectionReason))))
+    ++ (encodeUInt 1 message.orderStatus
+    ++ (encodeUIntLE 2 message.orderRejectionReason))))
 
 def decode (bytes : List UInt8) : Option (QuoteOrderResponse × List UInt8) := do
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (bidOrderId, bytes) ← decodeUIntLE 8 bytes
   let (askOrderId, bytes) ← decodeUIntLE 8 bytes
-  let (statusOrderStatus, bytes) ← decodeUInt 1 bytes
-  let (reasonOrderRejectionReason, bytes) ← decodeUIntLE 2 bytes
-  pure ({ instrumentId, bidOrderId, askOrderId, statusOrderStatus, reasonOrderRejectionReason }, bytes)
+  let (orderStatus, bytes) ← decodeUInt 1 bytes
+  let (orderRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  pure ({ instrumentId, bidOrderId, askOrderId, orderStatus, orderRejectionReason }, bytes)
 
 @[simp] theorem encode_length (message : QuoteOrderResponse) : (encode message).length = 23 := by
   unfold encode
@@ -1529,8 +1529,8 @@ end Responses
 structure MassQuoteResponse where
   massQuoteId : BitVec 64
   responses : Responses
-  statusMassQuoteStatus : BitVec 8
-  reasonMassQuoteRejectionReason : BitVec 16
+  massQuoteStatus : BitVec 8
+  massQuoteRejectionReason : BitVec 16
   feeStructureId : BitVec 8
   deriving DecidableEq, Repr
 
@@ -1539,17 +1539,17 @@ namespace MassQuoteResponse
 def encode (message : MassQuoteResponse) : List UInt8 :=
   encodeUIntLE 8 message.massQuoteId
     ++ (Responses.encode message.responses
-    ++ (encodeUInt 1 message.statusMassQuoteStatus
-    ++ (encodeUIntLE 2 message.reasonMassQuoteRejectionReason
+    ++ (encodeUInt 1 message.massQuoteStatus
+    ++ (encodeUIntLE 2 message.massQuoteRejectionReason
     ++ (encodeUInt 1 message.feeStructureId))))
 
 def decode (bytes : List UInt8) : Option (MassQuoteResponse × List UInt8) := do
   let (massQuoteId, bytes) ← decodeUIntLE 8 bytes
   let (responses, bytes) ← Responses.decode bytes
-  let (statusMassQuoteStatus, bytes) ← decodeUInt 1 bytes
-  let (reasonMassQuoteRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  let (massQuoteStatus, bytes) ← decodeUInt 1 bytes
+  let (massQuoteRejectionReason, bytes) ← decodeUIntLE 2 bytes
   let (feeStructureId, bytes) ← decodeUInt 1 bytes
-  pure ({ massQuoteId, responses, statusMassQuoteStatus, reasonMassQuoteRejectionReason, feeStructureId }, bytes)
+  pure ({ massQuoteId, responses, massQuoteStatus, massQuoteRejectionReason, feeStructureId }, bytes)
 
 @[simp] theorem encode_length (message : MassQuoteResponse) : (encode message).length = 703 := by
   unfold encode
@@ -1613,7 +1613,7 @@ end MarketMakerCommand
 /-- Market Maker Command Response: 7 bytes -/
 structure MarketMakerCommandResponse where
   refId : BitVec 32
-  resultCommandResult : BitVec 8
+  commandResult : BitVec 8
   rejectionCode : BitVec 16
   deriving DecidableEq, Repr
 
@@ -1621,14 +1621,14 @@ namespace MarketMakerCommandResponse
 
 def encode (message : MarketMakerCommandResponse) : List UInt8 :=
   encodeUIntLE 4 message.refId
-    ++ (encodeUInt 1 message.resultCommandResult
+    ++ (encodeUInt 1 message.commandResult
     ++ (encodeUIntLE 2 message.rejectionCode))
 
 def decode (bytes : List UInt8) : Option (MarketMakerCommandResponse × List UInt8) := do
   let (refId, bytes) ← decodeUIntLE 4 bytes
-  let (resultCommandResult, bytes) ← decodeUInt 1 bytes
+  let (commandResult, bytes) ← decodeUInt 1 bytes
   let (rejectionCode, bytes) ← decodeUIntLE 2 bytes
-  pure ({ refId, resultCommandResult, rejectionCode }, bytes)
+  pure ({ refId, commandResult, rejectionCode }, bytes)
 
 @[simp] theorem encode_length (message : MarketMakerCommandResponse) : (encode message).length = 7 := by
   unfold encode
@@ -1653,19 +1653,19 @@ end MarketMakerCommandResponse
 /-- Request For Execution: 5 bytes -/
 structure RequestForExecution where
   instrumentId : BitVec 32
-  reasonRequestForExecutionReason : BitVec 8
+  requestForExecutionReason : BitVec 8
   deriving DecidableEq, Repr
 
 namespace RequestForExecution
 
 def encode (message : RequestForExecution) : List UInt8 :=
   encodeUIntLE 4 message.instrumentId
-    ++ (encodeUInt 1 message.reasonRequestForExecutionReason)
+    ++ (encodeUInt 1 message.requestForExecutionReason)
 
 def decode (bytes : List UInt8) : Option (RequestForExecution × List UInt8) := do
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
-  let (reasonRequestForExecutionReason, bytes) ← decodeUInt 1 bytes
-  pure ({ instrumentId, reasonRequestForExecutionReason }, bytes)
+  let (requestForExecutionReason, bytes) ← decodeUInt 1 bytes
+  pure ({ instrumentId, requestForExecutionReason }, bytes)
 
 @[simp] theorem encode_length (message : RequestForExecution) : (encode message).length = 5 := by
   unfold encode
@@ -2176,8 +2176,8 @@ structure TradeCaptureReportResponse where
   tradeId : BitVec 32
   tradeReportId : Alpha 21
   secondaryTradeReportId : BitVec 64
-  statusTcrStatus : BitVec 8
-  reasonTcrRejectionReason : BitVec 16
+  tcrStatus : BitVec 8
+  tcrRejectionReason : BitVec 16
   deriving DecidableEq, Repr
 
 namespace TradeCaptureReportResponse
@@ -2187,17 +2187,17 @@ def encode (message : TradeCaptureReportResponse) : List UInt8 :=
     ++ (encodeUIntLE 4 message.tradeId
     ++ (Alpha.encode message.tradeReportId
     ++ (encodeUIntLE 8 message.secondaryTradeReportId
-    ++ (encodeUInt 1 message.statusTcrStatus
-    ++ (encodeUIntLE 2 message.reasonTcrRejectionReason)))))
+    ++ (encodeUInt 1 message.tcrStatus
+    ++ (encodeUIntLE 2 message.tcrRejectionReason)))))
 
 def decode (bytes : List UInt8) : Option (TradeCaptureReportResponse × List UInt8) := do
   let (instrumentId, bytes) ← decodeUIntLE 4 bytes
   let (tradeId, bytes) ← decodeUIntLE 4 bytes
   let (tradeReportId, bytes) ← Alpha.decode 21 bytes
   let (secondaryTradeReportId, bytes) ← decodeUIntLE 8 bytes
-  let (statusTcrStatus, bytes) ← decodeUInt 1 bytes
-  let (reasonTcrRejectionReason, bytes) ← decodeUIntLE 2 bytes
-  pure ({ instrumentId, tradeId, tradeReportId, secondaryTradeReportId, statusTcrStatus, reasonTcrRejectionReason }, bytes)
+  let (tcrStatus, bytes) ← decodeUInt 1 bytes
+  let (tcrRejectionReason, bytes) ← decodeUIntLE 2 bytes
+  pure ({ instrumentId, tradeId, tradeReportId, secondaryTradeReportId, tcrStatus, tcrRejectionReason }, bytes)
 
 @[simp] theorem encode_length (message : TradeCaptureReportResponse) : (encode message).length = 40 := by
   unfold encode

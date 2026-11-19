@@ -82,8 +82,8 @@ inductive TradingStatus where
   | haltedMatchingPartitionSuspended -- Halted Matching Partition Suspended
   | haltedSystemSuspended -- Halted System Suspended
   | haltedRegulatoryHalt -- Halted Regulatory Halt
-  | regularTradingStartOfTrqbSession -- Regular Trading Start Of Trqb Session
-  | endOfRegularTradingEndOfTrqbSession -- End Of Regular Trading End Of Trqb Session
+  | regularTrading -- Regular Trading
+  | endOfRegularTrading -- End Of Regular Trading
   | closed -- Closed
   | suspended -- Suspended
   | noActiveSession -- No Active Session
@@ -97,8 +97,8 @@ def toByte : TradingStatus → UInt8
   | .haltedMatchingPartitionSuspended => 0x4A
   | .haltedSystemSuspended => 0x4B
   | .haltedRegulatoryHalt => 0x50
-  | .regularTradingStartOfTrqbSession => 0x54
-  | .endOfRegularTradingEndOfTrqbSession => 0x74
+  | .regularTrading => 0x54
+  | .endOfRegularTrading => 0x74
   | .closed => 0x63
   | .suspended => 0x32
   | .noActiveSession => 0x77
@@ -110,8 +110,8 @@ def listed (byte : UInt8) : TradingStatus :=
   else if byte = 0x4A then .haltedMatchingPartitionSuspended
   else if byte = 0x4B then .haltedSystemSuspended
   else if byte = 0x50 then .haltedRegulatoryHalt
-  else if byte = 0x54 then .regularTradingStartOfTrqbSession
-  else if byte = 0x74 then .endOfRegularTradingEndOfTrqbSession
+  else if byte = 0x54 then .regularTrading
+  else if byte = 0x74 then .endOfRegularTrading
   else if byte = 0x63 then .closed
   else if byte = 0x32 then .suspended
   else .noActiveSession
@@ -125,8 +125,8 @@ theorem ofByte_toByte (value : TradingStatus) : ofByte value.toByte = value := b
   | haltedMatchingPartitionSuspended => decide
   | haltedSystemSuspended => decide
   | haltedRegulatoryHalt => decide
-  | regularTradingStartOfTrqbSession => decide
-  | endOfRegularTradingEndOfTrqbSession => decide
+  | regularTrading => decide
+  | endOfRegularTrading => decide
   | closed => decide
   | suspended => decide
   | noActiveSession => decide
@@ -157,26 +157,26 @@ def AuctionType.codes : List UInt8 :=
   [0x4C]
 
 inductive AuctionType where
-  | frequentLitAuctions -- Frequent Lit Auctions
+  | frequentPeriodicAuctions -- Frequent Periodic Auctions
   | unlisted (byte : { byte : UInt8 // byte ∉ AuctionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace AuctionType
 
 def toByte : AuctionType → UInt8
-  | .frequentLitAuctions => 0x4C
+  | .frequentPeriodicAuctions => 0x4C
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (_ : UInt8) : AuctionType :=
-  .frequentLitAuctions
+  .frequentPeriodicAuctions
 
 def ofByte (byte : UInt8) : AuctionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : AuctionType) : ofByte value.toByte = value := by
   cases value with
-  | frequentLitAuctions => decide
+  | frequentPeriodicAuctions => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AuctionType) : List UInt8 :=
@@ -201,16 +201,11 @@ end AuctionType
 
 /-- Trade Qualifier: one byte code -/
 def TradeQualifier.codes : List UInt8 :=
-  [0x20, 0x54, 0x41, 0x42, 0x45, 0x46, 0x47]
+  [0x20, 0x54]
 
 inductive TradeQualifier where
   | notApplicable -- Not Applicable
   | tradeAtLast -- Trade At Last
-  | aesp -- Aesp
-  | edsp -- Edsp
-  | resumeAuction -- Resume Auction
-  | periodicAuction -- Periodic Auction
-  | scheduledLevel1OnlyAuction -- Scheduled Level 1 Only Auction
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeQualifier.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -219,22 +214,12 @@ namespace TradeQualifier
 def toByte : TradeQualifier → UInt8
   | .notApplicable => 0x20
   | .tradeAtLast => 0x54
-  | .aesp => 0x41
-  | .edsp => 0x42
-  | .resumeAuction => 0x45
-  | .periodicAuction => 0x46
-  | .scheduledLevel1OnlyAuction => 0x47
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : TradeQualifier :=
   if byte = 0x20 then .notApplicable
-  else if byte = 0x54 then .tradeAtLast
-  else if byte = 0x41 then .aesp
-  else if byte = 0x42 then .edsp
-  else if byte = 0x45 then .resumeAuction
-  else if byte = 0x46 then .periodicAuction
-  else .scheduledLevel1OnlyAuction
+  else .tradeAtLast
 
 def ofByte (byte : UInt8) : TradeQualifier :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -243,11 +228,6 @@ theorem ofByte_toByte (value : TradeQualifier) : ofByte value.toByte = value := 
   cases value with
   | notApplicable => decide
   | tradeAtLast => decide
-  | aesp => decide
-  | edsp => decide
-  | resumeAuction => decide
-  | periodicAuction => decide
-  | scheduledLevel1OnlyAuction => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeQualifier) : List UInt8 :=

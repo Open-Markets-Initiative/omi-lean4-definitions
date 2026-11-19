@@ -88,8 +88,8 @@ inductive Display where
   | postOnly -- Post Only
   | changedToNonDisplayed -- Changed To Non Displayed
   | imbalanceOnly -- Imbalance Only
-  | midPoint -- Mid Point
-  | midPoint_57 -- Mid Point
+  | midPointPeg -- Mid Point Peg
+  | midPointPegPostOnly -- Mid Point Peg Post Only
   | unlisted (byte : { byte : UInt8 // byte ∉ Display.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -102,8 +102,8 @@ def toByte : Display → UInt8
   | .postOnly => 0x50
   | .changedToNonDisplayed => 0x5A
   | .imbalanceOnly => 0x49
-  | .midPoint => 0x4D
-  | .midPoint_57 => 0x57
+  | .midPointPeg => 0x4D
+  | .midPointPegPostOnly => 0x57
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -114,8 +114,8 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x50 then .postOnly
   else if byte = 0x5A then .changedToNonDisplayed
   else if byte = 0x49 then .imbalanceOnly
-  else if byte = 0x4D then .midPoint
-  else .midPoint_57
+  else if byte = 0x4D then .midPointPeg
+  else .midPointPegPostOnly
 
 def ofByte (byte : UInt8) : Display :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -128,8 +128,8 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | postOnly => decide
   | changedToNonDisplayed => decide
   | imbalanceOnly => decide
-  | midPoint => decide
-  | midPoint_57 => decide
+  | midPointPeg => decide
+  | midPointPegPostOnly => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Display) : List UInt8 :=

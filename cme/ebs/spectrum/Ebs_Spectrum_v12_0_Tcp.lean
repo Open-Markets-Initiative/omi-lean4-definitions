@@ -18,62 +18,62 @@ License: MIT No Attribution
 
 namespace Omi.CmeEbsSpectrumSbeV120Tcp
 
-/-- Md Entry Type Spectrum Entry Type: one byte code -/
-def MdEntryTypeSpectrumEntryType.codes : List UInt8 :=
+/-- Spectrum Md Entry Type: one byte code -/
+def SpectrumMdEntryType.codes : List UInt8 :=
   [0x39, 0x74]
 
-inductive MdEntryTypeSpectrumEntryType where
+inductive SpectrumMdEntryType where
   | vwap -- Vwap
   | twap -- Twap
-  | unlisted (byte : { byte : UInt8 // byte ∉ MdEntryTypeSpectrumEntryType.codes }) -- any other code, kept as it is
+  | unlisted (byte : { byte : UInt8 // byte ∉ SpectrumMdEntryType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace MdEntryTypeSpectrumEntryType
+namespace SpectrumMdEntryType
 
-def toByte : MdEntryTypeSpectrumEntryType → UInt8
+def toByte : SpectrumMdEntryType → UInt8
   | .vwap => 0x39
   | .twap => 0x74
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : MdEntryTypeSpectrumEntryType :=
+def listed (byte : UInt8) : SpectrumMdEntryType :=
   if byte = 0x39 then .vwap
   else .twap
 
-def ofByte (byte : UInt8) : MdEntryTypeSpectrumEntryType :=
+def ofByte (byte : UInt8) : SpectrumMdEntryType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : MdEntryTypeSpectrumEntryType) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : SpectrumMdEntryType) : ofByte value.toByte = value := by
   cases value with
   | vwap => decide
   | twap => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : MdEntryTypeSpectrumEntryType) : List UInt8 :=
+def encode (value : SpectrumMdEntryType) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (MdEntryTypeSpectrumEntryType × List UInt8)
+def decode : List UInt8 → Option (SpectrumMdEntryType × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : MdEntryTypeSpectrumEntryType) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : SpectrumMdEntryType) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : MdEntryTypeSpectrumEntryType) : (encode value).length > 0 := by
+theorem encode_length_pos (value : SpectrumMdEntryType) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : MdEntryTypeSpectrumEntryType) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : SpectrumMdEntryType) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end MdEntryTypeSpectrumEntryType
+end SpectrumMdEntryType
 
-/-- Md Entry Type Ticker Entry Type: one byte code -/
-def MdEntryTypeTickerEntryType.codes : List UInt8 :=
+/-- Ticker Md Entry Type: one byte code -/
+def TickerMdEntryType.codes : List UInt8 :=
   [0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x77, 0x78, 0x79, 0x7A]
 
-inductive MdEntryTypeTickerEntryType where
+inductive TickerMdEntryType where
   | touchHigh -- Touch High
   | touchLow -- Touch Low
   | openBestBid -- Open Best Bid
@@ -86,12 +86,12 @@ inductive MdEntryTypeTickerEntryType where
   | marketBestBid -- Market Best Bid
   | paid -- Paid
   | given -- Given
-  | unlisted (byte : { byte : UInt8 // byte ∉ MdEntryTypeTickerEntryType.codes }) -- any other code, kept as it is
+  | unlisted (byte : { byte : UInt8 // byte ∉ TickerMdEntryType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
-namespace MdEntryTypeTickerEntryType
+namespace TickerMdEntryType
 
-def toByte : MdEntryTypeTickerEntryType → UInt8
+def toByte : TickerMdEntryType → UInt8
   | .touchHigh => 0x6B
   | .touchLow => 0x6C
   | .openBestBid => 0x6D
@@ -107,7 +107,7 @@ def toByte : MdEntryTypeTickerEntryType → UInt8
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
-def listed (byte : UInt8) : MdEntryTypeTickerEntryType :=
+def listed (byte : UInt8) : TickerMdEntryType :=
   if byte = 0x6B then .touchHigh
   else if byte = 0x6C then .touchLow
   else if byte = 0x6D then .openBestBid
@@ -121,10 +121,10 @@ def listed (byte : UInt8) : MdEntryTypeTickerEntryType :=
   else if byte = 0x79 then .paid
   else .given
 
-def ofByte (byte : UInt8) : MdEntryTypeTickerEntryType :=
+def ofByte (byte : UInt8) : TickerMdEntryType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
-theorem ofByte_toByte (value : MdEntryTypeTickerEntryType) : ofByte value.toByte = value := by
+theorem ofByte_toByte (value : TickerMdEntryType) : ofByte value.toByte = value := by
   cases value with
   | touchHigh => decide
   | touchLow => decide
@@ -140,25 +140,25 @@ theorem ofByte_toByte (value : MdEntryTypeTickerEntryType) : ofByte value.toByte
   | given => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
-def encode (value : MdEntryTypeTickerEntryType) : List UInt8 :=
+def encode (value : TickerMdEntryType) : List UInt8 :=
   [value.toByte]
 
-def decode : List UInt8 → Option (MdEntryTypeTickerEntryType × List UInt8)
+def decode : List UInt8 → Option (TickerMdEntryType × List UInt8)
   | byte :: rest => some (ofByte byte, rest)
   | [] => none
 
-@[simp] theorem encode_length (value : MdEntryTypeTickerEntryType) : (encode value).length = 1 :=
+@[simp] theorem encode_length (value : TickerMdEntryType) : (encode value).length = 1 :=
   rfl
 
-theorem encode_length_pos (value : MdEntryTypeTickerEntryType) : (encode value).length > 0 := by
+theorem encode_length_pos (value : TickerMdEntryType) : (encode value).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (value : MdEntryTypeTickerEntryType) (rest : List UInt8) :
+@[simp] theorem decode_encode (value : TickerMdEntryType) (rest : List UInt8) :
     decode (encode value ++ rest) = some (value, rest) := by
   simp [decode, encode, ofByte_toByte]
 
-end MdEntryTypeTickerEntryType
+end TickerMdEntryType
 
 /-- Technical Header: 14 bytes -/
 structure TechnicalHeader where
@@ -223,7 +223,7 @@ end AdminHeartbeat
 
 /-- Incremental Refresh Spectrum Group: 92 bytes -/
 structure IncrementalRefreshSpectrumGroup where
-  mdEntryTypeSpectrumEntryType : MdEntryTypeSpectrumEntryType
+  spectrumMdEntryType : SpectrumMdEntryType
   financialInstrumentFullName : Alpha 35
   symbol : Alpha 20
   instrumentGuid : BitVec 64
@@ -236,7 +236,7 @@ structure IncrementalRefreshSpectrumGroup where
 namespace IncrementalRefreshSpectrumGroup
 
 def encode (message : IncrementalRefreshSpectrumGroup) : List UInt8 :=
-  MdEntryTypeSpectrumEntryType.encode message.mdEntryTypeSpectrumEntryType
+  SpectrumMdEntryType.encode message.spectrumMdEntryType
     ++ (Alpha.encode message.financialInstrumentFullName
     ++ (Alpha.encode message.symbol
     ++ (encodeUIntLE 8 message.instrumentGuid
@@ -246,7 +246,7 @@ def encode (message : IncrementalRefreshSpectrumGroup) : List UInt8 :=
     ++ (encodeUIntLE 8 message.mdEntryTime)))))))
 
 def decode (bytes : List UInt8) : Option (IncrementalRefreshSpectrumGroup × List UInt8) := do
-  let (mdEntryTypeSpectrumEntryType, bytes) ← MdEntryTypeSpectrumEntryType.decode bytes
+  let (spectrumMdEntryType, bytes) ← SpectrumMdEntryType.decode bytes
   let (financialInstrumentFullName, bytes) ← Alpha.decode 35 bytes
   let (symbol, bytes) ← Alpha.decode 20 bytes
   let (instrumentGuid, bytes) ← decodeUIntLE 8 bytes
@@ -254,11 +254,11 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshSpectrumGroup × Lis
   let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTime, bytes) ← decodeUIntLE 8 bytes
-  pure ({ mdEntryTypeSpectrumEntryType, financialInstrumentFullName, symbol, instrumentGuid, securityId, mdEntryPx, mdEntrySize, mdEntryTime }, bytes)
+  pure ({ spectrumMdEntryType, financialInstrumentFullName, symbol, instrumentGuid, securityId, mdEntryPx, mdEntrySize, mdEntryTime }, bytes)
 
 @[simp] theorem encode_length (message : IncrementalRefreshSpectrumGroup) : (encode message).length = 92 := by
   unfold encode
-  simp only [List.length_append, MdEntryTypeSpectrumEntryType.encode_length, Alpha.encode_length, encodeUIntLE_length]
+  simp only [List.length_append, SpectrumMdEntryType.encode_length, Alpha.encode_length, encodeUIntLE_length]
 
 theorem encode_length_pos (message : IncrementalRefreshSpectrumGroup) : (encode message).length > 0 := by
   rw [encode_length]
@@ -267,7 +267,7 @@ theorem encode_length_pos (message : IncrementalRefreshSpectrumGroup) : (encode 
 @[simp] theorem decode_encode (message : IncrementalRefreshSpectrumGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, MdEntryTypeSpectrumEntryType.decode_encode, some_bind]
+  rw [List.append_assoc, SpectrumMdEntryType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
@@ -379,7 +379,7 @@ end MdIncrementalRefreshSpectrum
 
 /-- Incremental Refresh Ticker Group: 95 bytes -/
 structure IncrementalRefreshTickerGroup where
-  mdEntryTypeTickerEntryType : MdEntryTypeTickerEntryType
+  tickerMdEntryType : TickerMdEntryType
   securityId : BitVec 32
   symbol : Alpha 20
   instrumentGuid : BitVec 64
@@ -395,7 +395,7 @@ structure IncrementalRefreshTickerGroup where
 namespace IncrementalRefreshTickerGroup
 
 def encode (message : IncrementalRefreshTickerGroup) : List UInt8 :=
-  MdEntryTypeTickerEntryType.encode message.mdEntryTypeTickerEntryType
+  TickerMdEntryType.encode message.tickerMdEntryType
     ++ (encodeUIntLE 4 message.securityId
     ++ (Alpha.encode message.symbol
     ++ (encodeUIntLE 8 message.instrumentGuid
@@ -408,7 +408,7 @@ def encode (message : IncrementalRefreshTickerGroup) : List UInt8 :=
     ++ (encodeUInt 1 message.aggressorSide))))))))))
 
 def decode (bytes : List UInt8) : Option (IncrementalRefreshTickerGroup × List UInt8) := do
-  let (mdEntryTypeTickerEntryType, bytes) ← MdEntryTypeTickerEntryType.decode bytes
+  let (tickerMdEntryType, bytes) ← TickerMdEntryType.decode bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (symbol, bytes) ← Alpha.decode 20 bytes
   let (instrumentGuid, bytes) ← decodeUIntLE 8 bytes
@@ -419,11 +419,11 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshTickerGroup × List 
   let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (aggressorSide, bytes) ← decodeUInt 1 bytes
-  pure ({ mdEntryTypeTickerEntryType, securityId, symbol, instrumentGuid, financialInstrumentFullName, mdEntryPx, mdEntrySize, mdEntryTime, openCloseSettlFlag, tradingSessionId, aggressorSide }, bytes)
+  pure ({ tickerMdEntryType, securityId, symbol, instrumentGuid, financialInstrumentFullName, mdEntryPx, mdEntrySize, mdEntryTime, openCloseSettlFlag, tradingSessionId, aggressorSide }, bytes)
 
 @[simp] theorem encode_length (message : IncrementalRefreshTickerGroup) : (encode message).length = 95 := by
   unfold encode
-  simp only [List.length_append, MdEntryTypeTickerEntryType.encode_length, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
+  simp only [List.length_append, TickerMdEntryType.encode_length, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length]
 
 theorem encode_length_pos (message : IncrementalRefreshTickerGroup) : (encode message).length > 0 := by
   rw [encode_length]
@@ -432,7 +432,7 @@ theorem encode_length_pos (message : IncrementalRefreshTickerGroup) : (encode me
 @[simp] theorem decode_encode (message : IncrementalRefreshTickerGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, MdEntryTypeTickerEntryType.decode_encode, some_bind]
+  rw [List.append_assoc, TickerMdEntryType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -550,7 +550,7 @@ end MdIncrementalRefreshTicker
 
 /-- Snapshot Refresh Spectrum Group: 25 bytes -/
 structure SnapshotRefreshSpectrumGroup where
-  mdEntryTypeSpectrumEntryType : MdEntryTypeSpectrumEntryType
+  spectrumMdEntryType : SpectrumMdEntryType
   mdEntryPx : BitVec 64
   mdEntrySize : BitVec 64
   mdEntryTime : BitVec 64
@@ -559,21 +559,21 @@ structure SnapshotRefreshSpectrumGroup where
 namespace SnapshotRefreshSpectrumGroup
 
 def encode (message : SnapshotRefreshSpectrumGroup) : List UInt8 :=
-  MdEntryTypeSpectrumEntryType.encode message.mdEntryTypeSpectrumEntryType
+  SpectrumMdEntryType.encode message.spectrumMdEntryType
     ++ (encodeUIntLE 8 message.mdEntryPx
     ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 8 message.mdEntryTime)))
 
 def decode (bytes : List UInt8) : Option (SnapshotRefreshSpectrumGroup × List UInt8) := do
-  let (mdEntryTypeSpectrumEntryType, bytes) ← MdEntryTypeSpectrumEntryType.decode bytes
+  let (spectrumMdEntryType, bytes) ← SpectrumMdEntryType.decode bytes
   let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTime, bytes) ← decodeUIntLE 8 bytes
-  pure ({ mdEntryTypeSpectrumEntryType, mdEntryPx, mdEntrySize, mdEntryTime }, bytes)
+  pure ({ spectrumMdEntryType, mdEntryPx, mdEntrySize, mdEntryTime }, bytes)
 
 @[simp] theorem encode_length (message : SnapshotRefreshSpectrumGroup) : (encode message).length = 25 := by
   unfold encode
-  simp only [List.length_append, MdEntryTypeSpectrumEntryType.encode_length, encodeUIntLE_length]
+  simp only [List.length_append, SpectrumMdEntryType.encode_length, encodeUIntLE_length]
 
 theorem encode_length_pos (message : SnapshotRefreshSpectrumGroup) : (encode message).length > 0 := by
   rw [encode_length]
@@ -582,7 +582,7 @@ theorem encode_length_pos (message : SnapshotRefreshSpectrumGroup) : (encode mes
 @[simp] theorem decode_encode (message : SnapshotRefreshSpectrumGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, MdEntryTypeSpectrumEntryType.decode_encode, some_bind]
+  rw [List.append_assoc, SpectrumMdEntryType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
@@ -706,7 +706,7 @@ end MdSnapshotRefreshSpectrum
 
 /-- Snapshot Refresh Ticker Group: 28 bytes -/
 structure SnapshotRefreshTickerGroup where
-  mdEntryTypeTickerEntryType : MdEntryTypeTickerEntryType
+  tickerMdEntryType : TickerMdEntryType
   mdEntryPx : BitVec 64
   mdEntrySize : BitVec 64
   mdEntryTime : BitVec 64
@@ -718,7 +718,7 @@ structure SnapshotRefreshTickerGroup where
 namespace SnapshotRefreshTickerGroup
 
 def encode (message : SnapshotRefreshTickerGroup) : List UInt8 :=
-  MdEntryTypeTickerEntryType.encode message.mdEntryTypeTickerEntryType
+  TickerMdEntryType.encode message.tickerMdEntryType
     ++ (encodeUIntLE 8 message.mdEntryPx
     ++ (encodeUIntLE 8 message.mdEntrySize
     ++ (encodeUIntLE 8 message.mdEntryTime
@@ -727,18 +727,18 @@ def encode (message : SnapshotRefreshTickerGroup) : List UInt8 :=
     ++ (encodeUInt 1 message.aggressorSide))))))
 
 def decode (bytes : List UInt8) : Option (SnapshotRefreshTickerGroup × List UInt8) := do
-  let (mdEntryTypeTickerEntryType, bytes) ← MdEntryTypeTickerEntryType.decode bytes
+  let (tickerMdEntryType, bytes) ← TickerMdEntryType.decode bytes
   let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySize, bytes) ← decodeUIntLE 8 bytes
   let (mdEntryTime, bytes) ← decodeUIntLE 8 bytes
   let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
   let (tradingSessionId, bytes) ← decodeUInt 1 bytes
   let (aggressorSide, bytes) ← decodeUInt 1 bytes
-  pure ({ mdEntryTypeTickerEntryType, mdEntryPx, mdEntrySize, mdEntryTime, openCloseSettlFlag, tradingSessionId, aggressorSide }, bytes)
+  pure ({ tickerMdEntryType, mdEntryPx, mdEntrySize, mdEntryTime, openCloseSettlFlag, tradingSessionId, aggressorSide }, bytes)
 
 @[simp] theorem encode_length (message : SnapshotRefreshTickerGroup) : (encode message).length = 28 := by
   unfold encode
-  simp only [List.length_append, MdEntryTypeTickerEntryType.encode_length, encodeUIntLE_length, encodeUInt_length]
+  simp only [List.length_append, TickerMdEntryType.encode_length, encodeUIntLE_length, encodeUInt_length]
 
 theorem encode_length_pos (message : SnapshotRefreshTickerGroup) : (encode message).length > 0 := by
   rw [encode_length]
@@ -747,7 +747,7 @@ theorem encode_length_pos (message : SnapshotRefreshTickerGroup) : (encode messa
 @[simp] theorem decode_encode (message : SnapshotRefreshTickerGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [List.append_assoc, MdEntryTypeTickerEntryType.decode_encode, some_bind]
+  rw [List.append_assoc, TickerMdEntryType.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

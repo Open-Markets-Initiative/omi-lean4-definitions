@@ -576,7 +576,7 @@ inductive TradeSource where
   | bestExecution -- Best Execution
   | offMarketAutomaticCrossing -- Off Market Automatic Crossing
   | directedReportingOrOffMarketTradesCrossing -- Directed Reporting Or Off Market Trades Crossing
-  | specialCrossingLessThanAMarketableParcel -- Special Crossing Less Than A Marketable Parcel
+  | specialCrossingLessThanAMarketableParcelCrossing -- Special Crossing Less Than A Marketable Parcel Crossing
   | forwardDelivery -- Forward Delivery
   | approvedIndexCrossing -- Approved Index Crossing
   | buyBackSales -- Buy Back Sales
@@ -584,7 +584,7 @@ inductive TradeSource where
   | tradesIncludingCrossingsOutsideOfMarketHours -- Trades Including Crossings Outside Of Market Hours
   | foreignResidentsOrRecognisedOverseasExchange -- Foreign Residents Or Recognised Overseas Exchange
   | blockSpecialCrossingOrLoanSecurities -- Block Special Crossing Or Loan Securities
-  | specialCrossingLessThanAMarketableParcel_51 -- Special Crossing Less Than A Marketable Parcel
+  | specialCrossingLessThanAMarketableParcel -- Special Crossing Less Than A Marketable Parcel
   | strategy -- Strategy
   | shortSales -- Short Sales
   | forForeignToForeignSecurities -- For Foreign To Foreign Securities
@@ -602,7 +602,7 @@ def toByte : TradeSource → UInt8
   | .bestExecution => 0x42
   | .offMarketAutomaticCrossing => 0x43
   | .directedReportingOrOffMarketTradesCrossing => 0x44
-  | .specialCrossingLessThanAMarketableParcel => 0x45
+  | .specialCrossingLessThanAMarketableParcelCrossing => 0x45
   | .forwardDelivery => 0x46
   | .approvedIndexCrossing => 0x49
   | .buyBackSales => 0x4B
@@ -610,7 +610,7 @@ def toByte : TradeSource → UInt8
   | .tradesIncludingCrossingsOutsideOfMarketHours => 0x4E
   | .foreignResidentsOrRecognisedOverseasExchange => 0x4F
   | .blockSpecialCrossingOrLoanSecurities => 0x50
-  | .specialCrossingLessThanAMarketableParcel_51 => 0x51
+  | .specialCrossingLessThanAMarketableParcel => 0x51
   | .strategy => 0x52
   | .shortSales => 0x53
   | .forForeignToForeignSecurities => 0x55
@@ -626,7 +626,7 @@ def listed (byte : UInt8) : TradeSource :=
   else if byte = 0x42 then .bestExecution
   else if byte = 0x43 then .offMarketAutomaticCrossing
   else if byte = 0x44 then .directedReportingOrOffMarketTradesCrossing
-  else if byte = 0x45 then .specialCrossingLessThanAMarketableParcel
+  else if byte = 0x45 then .specialCrossingLessThanAMarketableParcelCrossing
   else if byte = 0x46 then .forwardDelivery
   else if byte = 0x49 then .approvedIndexCrossing
   else if byte = 0x4B then .buyBackSales
@@ -634,7 +634,7 @@ def listed (byte : UInt8) : TradeSource :=
   else if byte = 0x4E then .tradesIncludingCrossingsOutsideOfMarketHours
   else if byte = 0x4F then .foreignResidentsOrRecognisedOverseasExchange
   else if byte = 0x50 then .blockSpecialCrossingOrLoanSecurities
-  else if byte = 0x51 then .specialCrossingLessThanAMarketableParcel_51
+  else if byte = 0x51 then .specialCrossingLessThanAMarketableParcel
   else if byte = 0x52 then .strategy
   else if byte = 0x53 then .shortSales
   else if byte = 0x55 then .forForeignToForeignSecurities
@@ -652,7 +652,7 @@ theorem ofByte_toByte (value : TradeSource) : ofByte value.toByte = value := by
   | bestExecution => decide
   | offMarketAutomaticCrossing => decide
   | directedReportingOrOffMarketTradesCrossing => decide
-  | specialCrossingLessThanAMarketableParcel => decide
+  | specialCrossingLessThanAMarketableParcelCrossing => decide
   | forwardDelivery => decide
   | approvedIndexCrossing => decide
   | buyBackSales => decide
@@ -660,7 +660,7 @@ theorem ofByte_toByte (value : TradeSource) : ofByte value.toByte = value := by
   | tradesIncludingCrossingsOutsideOfMarketHours => decide
   | foreignResidentsOrRecognisedOverseasExchange => decide
   | blockSpecialCrossingOrLoanSecurities => decide
-  | specialCrossingLessThanAMarketableParcel_51 => decide
+  | specialCrossingLessThanAMarketableParcel => decide
   | strategy => decide
   | shortSales => decide
   | forForeignToForeignSecurities => decide

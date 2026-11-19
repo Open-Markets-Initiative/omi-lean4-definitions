@@ -425,37 +425,37 @@ inductive TradeCondition where
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence -- Late Report Of The Opening Trade And Is In Correct Sequence
   | auto -- Auto
   | reopeningOfAnOption -- Reopening Of An Option
-  | reserved -- Reserved
-  | reserved_4c -- Reserved
-  | reserved_4d -- Reserved
-  | reserved_4e -- Reserved
-  | reserved_4f -- Reserved
-  | reserved_50 -- Reserved
-  | reserved_51 -- Reserved
+  | reservedK -- Reserved K
+  | reservedL -- Reserved L
+  | reservedM -- Reserved M
+  | reservedN -- Reserved N
+  | reservedO -- Reserved O
+  | reservedP -- Reserved P
+  | reservedQ -- Reserved Q
   | executionOfAStoppedOrder -- Execution Of A Stopped Order
   | executionOfAnIsoOrder -- Execution Of An Iso Order
-  | reserved_54 -- Reserved
+  | reservedT -- Reserved T
   | tradeThroughExempt -- Trade Through Exempt
-  | reserved_61 -- Reserved
-  | reserved_62 -- Reserved
+  | reservedA -- Reserved a
+  | reservedB -- Reserved b
   | customerToCustomerCrossOrQcc -- Customer To Customer Cross Or Qcc
-  | reserved_64 -- Reserved
+  | reservedD -- Reserved d
   | floorCross -- Floor Cross
   | complexNotStockTiedNoLegging -- Complex Not Stock Tied No Legging
-  | reserved_67 -- Reserved
+  | reservedG -- Reserved g
   | complexCustomerToCustomerCrossOrQccNotStockTied -- Complex Customer To Customer Cross Or Qcc Not Stock Tied
   | complexFloorCrossNotStockTied -- Complex Floor Cross Not Stock Tied
   | complexLeggingNotStockTied -- Complex Legging Not Stock Tied
-  | reserved_6b -- Reserved
-  | reserved_6c -- Reserved
+  | reservedLowerCaseK -- Reserved Lower Case K
+  | reservedLowerCaseL -- Reserved Lower Case L
   | complexFloorCrossLeggingNotStockTied -- Complex Floor Cross Legging Not Stock Tied
   | complexStockTiedNoLegging -- Complex Stock Tied No Legging
   | complexCustomerToCustomerCrossOrQccStockTied -- Complex Customer To Customer Cross Or Qcc Stock Tied
   | complexFloorCrossStockTiedNoLegging -- Complex Floor Cross Stock Tied No Legging
   | complexStockTiedLegging -- Complex Stock Tied Legging
-  | reserved_72 -- Reserved
+  | reservedR -- Reserved r
   | complexFloorCrossStockTiedLegging -- Complex Floor Cross Stock Tied Legging
-  | reserved_74 -- Reserved
+  | reservedLowerCaseT -- Reserved Lower Case T
   | unlisted (byte : { byte : UInt8 // byte ∉ TradeCondition.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -473,37 +473,37 @@ def toByte : TradeCondition → UInt8
   | .lateReportOfTheOpeningTradeAndIsInCorrectSequence => 0x48
   | .auto => 0x49
   | .reopeningOfAnOption => 0x4A
-  | .reserved => 0x4B
-  | .reserved_4c => 0x4C
-  | .reserved_4d => 0x4D
-  | .reserved_4e => 0x4E
-  | .reserved_4f => 0x4F
-  | .reserved_50 => 0x50
-  | .reserved_51 => 0x51
+  | .reservedK => 0x4B
+  | .reservedL => 0x4C
+  | .reservedM => 0x4D
+  | .reservedN => 0x4E
+  | .reservedO => 0x4F
+  | .reservedP => 0x50
+  | .reservedQ => 0x51
   | .executionOfAStoppedOrder => 0x52
   | .executionOfAnIsoOrder => 0x53
-  | .reserved_54 => 0x54
+  | .reservedT => 0x54
   | .tradeThroughExempt => 0x58
-  | .reserved_61 => 0x61
-  | .reserved_62 => 0x62
+  | .reservedA => 0x61
+  | .reservedB => 0x62
   | .customerToCustomerCrossOrQcc => 0x63
-  | .reserved_64 => 0x64
+  | .reservedD => 0x64
   | .floorCross => 0x65
   | .complexNotStockTiedNoLegging => 0x66
-  | .reserved_67 => 0x67
+  | .reservedG => 0x67
   | .complexCustomerToCustomerCrossOrQccNotStockTied => 0x68
   | .complexFloorCrossNotStockTied => 0x69
   | .complexLeggingNotStockTied => 0x6A
-  | .reserved_6b => 0x6B
-  | .reserved_6c => 0x6C
+  | .reservedLowerCaseK => 0x6B
+  | .reservedLowerCaseL => 0x6C
   | .complexFloorCrossLeggingNotStockTied => 0x6D
   | .complexStockTiedNoLegging => 0x6E
   | .complexCustomerToCustomerCrossOrQccStockTied => 0x6F
   | .complexFloorCrossStockTiedNoLegging => 0x70
   | .complexStockTiedLegging => 0x71
-  | .reserved_72 => 0x72
+  | .reservedR => 0x72
   | .complexFloorCrossStockTiedLegging => 0x73
-  | .reserved_74 => 0x74
+  | .reservedLowerCaseT => 0x74
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -519,37 +519,37 @@ def listed (byte : UInt8) : TradeCondition :=
   else if byte = 0x48 then .lateReportOfTheOpeningTradeAndIsInCorrectSequence
   else if byte = 0x49 then .auto
   else if byte = 0x4A then .reopeningOfAnOption
-  else if byte = 0x4B then .reserved
-  else if byte = 0x4C then .reserved_4c
-  else if byte = 0x4D then .reserved_4d
-  else if byte = 0x4E then .reserved_4e
-  else if byte = 0x4F then .reserved_4f
-  else if byte = 0x50 then .reserved_50
-  else if byte = 0x51 then .reserved_51
+  else if byte = 0x4B then .reservedK
+  else if byte = 0x4C then .reservedL
+  else if byte = 0x4D then .reservedM
+  else if byte = 0x4E then .reservedN
+  else if byte = 0x4F then .reservedO
+  else if byte = 0x50 then .reservedP
+  else if byte = 0x51 then .reservedQ
   else if byte = 0x52 then .executionOfAStoppedOrder
   else if byte = 0x53 then .executionOfAnIsoOrder
-  else if byte = 0x54 then .reserved_54
+  else if byte = 0x54 then .reservedT
   else if byte = 0x58 then .tradeThroughExempt
-  else if byte = 0x61 then .reserved_61
-  else if byte = 0x62 then .reserved_62
+  else if byte = 0x61 then .reservedA
+  else if byte = 0x62 then .reservedB
   else if byte = 0x63 then .customerToCustomerCrossOrQcc
-  else if byte = 0x64 then .reserved_64
+  else if byte = 0x64 then .reservedD
   else if byte = 0x65 then .floorCross
   else if byte = 0x66 then .complexNotStockTiedNoLegging
-  else if byte = 0x67 then .reserved_67
+  else if byte = 0x67 then .reservedG
   else if byte = 0x68 then .complexCustomerToCustomerCrossOrQccNotStockTied
   else if byte = 0x69 then .complexFloorCrossNotStockTied
   else if byte = 0x6A then .complexLeggingNotStockTied
-  else if byte = 0x6B then .reserved_6b
-  else if byte = 0x6C then .reserved_6c
+  else if byte = 0x6B then .reservedLowerCaseK
+  else if byte = 0x6C then .reservedLowerCaseL
   else if byte = 0x6D then .complexFloorCrossLeggingNotStockTied
   else if byte = 0x6E then .complexStockTiedNoLegging
   else if byte = 0x6F then .complexCustomerToCustomerCrossOrQccStockTied
   else if byte = 0x70 then .complexFloorCrossStockTiedNoLegging
   else if byte = 0x71 then .complexStockTiedLegging
-  else if byte = 0x72 then .reserved_72
+  else if byte = 0x72 then .reservedR
   else if byte = 0x73 then .complexFloorCrossStockTiedLegging
-  else .reserved_74
+  else .reservedLowerCaseT
 
 def ofByte (byte : UInt8) : TradeCondition :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -567,37 +567,37 @@ theorem ofByte_toByte (value : TradeCondition) : ofByte value.toByte = value := 
   | lateReportOfTheOpeningTradeAndIsInCorrectSequence => decide
   | auto => decide
   | reopeningOfAnOption => decide
-  | reserved => decide
-  | reserved_4c => decide
-  | reserved_4d => decide
-  | reserved_4e => decide
-  | reserved_4f => decide
-  | reserved_50 => decide
-  | reserved_51 => decide
+  | reservedK => decide
+  | reservedL => decide
+  | reservedM => decide
+  | reservedN => decide
+  | reservedO => decide
+  | reservedP => decide
+  | reservedQ => decide
   | executionOfAStoppedOrder => decide
   | executionOfAnIsoOrder => decide
-  | reserved_54 => decide
+  | reservedT => decide
   | tradeThroughExempt => decide
-  | reserved_61 => decide
-  | reserved_62 => decide
+  | reservedA => decide
+  | reservedB => decide
   | customerToCustomerCrossOrQcc => decide
-  | reserved_64 => decide
+  | reservedD => decide
   | floorCross => decide
   | complexNotStockTiedNoLegging => decide
-  | reserved_67 => decide
+  | reservedG => decide
   | complexCustomerToCustomerCrossOrQccNotStockTied => decide
   | complexFloorCrossNotStockTied => decide
   | complexLeggingNotStockTied => decide
-  | reserved_6b => decide
-  | reserved_6c => decide
+  | reservedLowerCaseK => decide
+  | reservedLowerCaseL => decide
   | complexFloorCrossLeggingNotStockTied => decide
   | complexStockTiedNoLegging => decide
   | complexCustomerToCustomerCrossOrQccStockTied => decide
   | complexFloorCrossStockTiedNoLegging => decide
   | complexStockTiedLegging => decide
-  | reserved_72 => decide
+  | reservedR => decide
   | complexFloorCrossStockTiedLegging => decide
-  | reserved_74 => decide
+  | reservedLowerCaseT => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : TradeCondition) : List UInt8 :=

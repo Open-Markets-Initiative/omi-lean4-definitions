@@ -623,8 +623,8 @@ end ActiveRiskThresholdStateMessage
 /-- Active Risk Threshold Change Rej Message: 36 bytes -/
 structure ActiveRiskThresholdChangeRejMessage where
   clordid : Alpha 20
-  underlierActiveRiskThresholdChangeRejUnderlier : Alpha 6
-  efidActiveRiskThresholdChangeRejEfid : Alpha 4
+  underlier : Alpha 6
+  efid : Alpha 4
   thresholdQuantity : BitVec 32
   rejectReason : BitVec 16
   deriving DecidableEq, Repr
@@ -633,18 +633,18 @@ namespace ActiveRiskThresholdChangeRejMessage
 
 def encode (message : ActiveRiskThresholdChangeRejMessage) : List UInt8 :=
   Alpha.encode message.clordid
-    ++ (Alpha.encode message.underlierActiveRiskThresholdChangeRejUnderlier
-    ++ (Alpha.encode message.efidActiveRiskThresholdChangeRejEfid
+    ++ (Alpha.encode message.underlier
+    ++ (Alpha.encode message.efid
     ++ (encodeUInt 4 message.thresholdQuantity
     ++ (encodeUInt 2 message.rejectReason))))
 
 def decode (bytes : List UInt8) : Option (ActiveRiskThresholdChangeRejMessage × List UInt8) := do
   let (clordid, bytes) ← Alpha.decode 20 bytes
-  let (underlierActiveRiskThresholdChangeRejUnderlier, bytes) ← Alpha.decode 6 bytes
-  let (efidActiveRiskThresholdChangeRejEfid, bytes) ← Alpha.decode 4 bytes
+  let (underlier, bytes) ← Alpha.decode 6 bytes
+  let (efid, bytes) ← Alpha.decode 4 bytes
   let (thresholdQuantity, bytes) ← decodeUInt 4 bytes
   let (rejectReason, bytes) ← decodeUInt 2 bytes
-  pure ({ clordid, underlierActiveRiskThresholdChangeRejUnderlier, efidActiveRiskThresholdChangeRejEfid, thresholdQuantity, rejectReason }, bytes)
+  pure ({ clordid, underlier, efid, thresholdQuantity, rejectReason }, bytes)
 
 @[simp] theorem encode_length (message : ActiveRiskThresholdChangeRejMessage) : (encode message).length = 36 := by
   unfold encode

@@ -2953,7 +2953,7 @@ structure MassQuoteRequestEntriesGroup where
   securityId : BitVec 32
   price : BitVec 64
   orderQty : BitVec 32
-  sideSide : BitVec 8
+  quoteSide : BitVec 8
   quoteEntryId : BitVec 32
   quoteSetId : BitVec 16
   deriving DecidableEq, Repr
@@ -2964,7 +2964,7 @@ def encode (message : MassQuoteRequestEntriesGroup) : List UInt8 :=
   encodeUIntLE 4 message.securityId
     ++ (encodeUIntLE 8 message.price
     ++ (encodeUIntLE 4 message.orderQty
-    ++ (encodeUInt 1 message.sideSide
+    ++ (encodeUInt 1 message.quoteSide
     ++ (encodeUIntLE 4 message.quoteEntryId
     ++ (encodeUIntLE 2 message.quoteSetId)))))
 
@@ -2972,10 +2972,10 @@ def decode (bytes : List UInt8) : Option (MassQuoteRequestEntriesGroup × List U
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (price, bytes) ← decodeUIntLE 8 bytes
   let (orderQty, bytes) ← decodeUIntLE 4 bytes
-  let (sideSide, bytes) ← decodeUInt 1 bytes
+  let (quoteSide, bytes) ← decodeUInt 1 bytes
   let (quoteEntryId, bytes) ← decodeUIntLE 4 bytes
   let (quoteSetId, bytes) ← decodeUIntLE 2 bytes
-  pure ({ securityId, price, orderQty, sideSide, quoteEntryId, quoteSetId }, bytes)
+  pure ({ securityId, price, orderQty, quoteSide, quoteEntryId, quoteSetId }, bytes)
 
 @[simp] theorem encode_length (message : MassQuoteRequestEntriesGroup) : (encode message).length = 23 := by
   unfold encode

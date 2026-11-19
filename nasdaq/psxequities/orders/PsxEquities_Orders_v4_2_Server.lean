@@ -193,8 +193,8 @@ inductive Display where
   | postOnly -- Post Only
   | changedToNonDisplayed -- Changed To Non Displayed
   | imbalanceOnly -- Imbalance Only
-  | midPoint -- Mid Point
-  | midPoint_57 -- Mid Point
+  | midPointPeg -- Mid Point Peg
+  | midPointPegPostOnly -- Mid Point Peg Post Only
   | unlisted (byte : { byte : UInt8 // byte ∉ Display.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -207,8 +207,8 @@ def toByte : Display → UInt8
   | .postOnly => 0x50
   | .changedToNonDisplayed => 0x5A
   | .imbalanceOnly => 0x49
-  | .midPoint => 0x4D
-  | .midPoint_57 => 0x57
+  | .midPointPeg => 0x4D
+  | .midPointPegPostOnly => 0x57
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -219,8 +219,8 @@ def listed (byte : UInt8) : Display :=
   else if byte = 0x50 then .postOnly
   else if byte = 0x5A then .changedToNonDisplayed
   else if byte = 0x49 then .imbalanceOnly
-  else if byte = 0x4D then .midPoint
-  else .midPoint_57
+  else if byte = 0x4D then .midPointPeg
+  else .midPointPegPostOnly
 
 def ofByte (byte : UInt8) : Display :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -233,8 +233,8 @@ theorem ofByte_toByte (value : Display) : ofByte value.toByte = value := by
   | postOnly => decide
   | changedToNonDisplayed => decide
   | imbalanceOnly => decide
-  | midPoint => decide
-  | midPoint_57 => decide
+  | midPointPeg => decide
+  | midPointPegPostOnly => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : Display) : List UInt8 :=
@@ -626,15 +626,15 @@ def LiquidityFlag.codes : List UInt8 :=
 inductive LiquidityFlag where
   | added -- Added
   | removed -- Removed
-  | opening -- Opening
   | openingCross -- Opening Cross
-  | closing -- Closing
+  | openingCrossImbalanceOnly -- Opening Cross Imbalance Only
   | closingCross -- Closing Cross
-  | haltIpo -- Halt Ipo
-  | halt -- Halt
-  | nonDisplayed -- Non Displayed
-  | removed_6d -- Removed
-  | added_6b -- Added
+  | closingCrossImbalanceOnly -- Closing Cross Imbalance Only
+  | haltIpoCross -- Halt IPO Cross
+  | haltCross -- Halt Cross
+  | nonDisplayedAndAddedLiquidity -- Non Displayed And Added Liquidity
+  | removedLiquidityAtAMidpoint -- Removed Liquidity At A Midpoint
+  | addedLiquidityViaAMidpointOrder -- Added Liquidity Via A Midpoint Order
   | displayedAddedLiquidity -- Displayed Added Liquidity
   | unlisted (byte : { byte : UInt8 // byte ∉ LiquidityFlag.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
@@ -644,15 +644,15 @@ namespace LiquidityFlag
 def toByte : LiquidityFlag → UInt8
   | .added => 0x41
   | .removed => 0x52
-  | .opening => 0x4F
-  | .openingCross => 0x4D
-  | .closing => 0x43
-  | .closingCross => 0x4C
-  | .haltIpo => 0x48
-  | .halt => 0x4B
-  | .nonDisplayed => 0x4A
-  | .removed_6d => 0x6D
-  | .added_6b => 0x6B
+  | .openingCross => 0x4F
+  | .openingCrossImbalanceOnly => 0x4D
+  | .closingCross => 0x43
+  | .closingCrossImbalanceOnly => 0x4C
+  | .haltIpoCross => 0x48
+  | .haltCross => 0x4B
+  | .nonDisplayedAndAddedLiquidity => 0x4A
+  | .removedLiquidityAtAMidpoint => 0x6D
+  | .addedLiquidityViaAMidpointOrder => 0x6B
   | .displayedAddedLiquidity => 0x56
   | .unlisted byte => byte.val
 
@@ -660,15 +660,15 @@ def toByte : LiquidityFlag → UInt8
 def listed (byte : UInt8) : LiquidityFlag :=
   if byte = 0x41 then .added
   else if byte = 0x52 then .removed
-  else if byte = 0x4F then .opening
-  else if byte = 0x4D then .openingCross
-  else if byte = 0x43 then .closing
-  else if byte = 0x4C then .closingCross
-  else if byte = 0x48 then .haltIpo
-  else if byte = 0x4B then .halt
-  else if byte = 0x4A then .nonDisplayed
-  else if byte = 0x6D then .removed_6d
-  else if byte = 0x6B then .added_6b
+  else if byte = 0x4F then .openingCross
+  else if byte = 0x4D then .openingCrossImbalanceOnly
+  else if byte = 0x43 then .closingCross
+  else if byte = 0x4C then .closingCrossImbalanceOnly
+  else if byte = 0x48 then .haltIpoCross
+  else if byte = 0x4B then .haltCross
+  else if byte = 0x4A then .nonDisplayedAndAddedLiquidity
+  else if byte = 0x6D then .removedLiquidityAtAMidpoint
+  else if byte = 0x6B then .addedLiquidityViaAMidpointOrder
   else .displayedAddedLiquidity
 
 def ofByte (byte : UInt8) : LiquidityFlag :=
@@ -678,15 +678,15 @@ theorem ofByte_toByte (value : LiquidityFlag) : ofByte value.toByte = value := b
   cases value with
   | added => decide
   | removed => decide
-  | opening => decide
   | openingCross => decide
-  | closing => decide
+  | openingCrossImbalanceOnly => decide
   | closingCross => decide
-  | haltIpo => decide
-  | halt => decide
-  | nonDisplayed => decide
-  | removed_6d => decide
-  | added_6b => decide
+  | closingCrossImbalanceOnly => decide
+  | haltIpoCross => decide
+  | haltCross => decide
+  | nonDisplayedAndAddedLiquidity => decide
+  | removedLiquidityAtAMidpoint => decide
+  | addedLiquidityViaAMidpointOrder => decide
   | displayedAddedLiquidity => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
@@ -784,22 +784,22 @@ inductive RejectedReason where
   | outsideOfPermittedTimes -- Outside Of Permitted Times
   | thisOrderIsNotAllowedInThisTypeOfCross -- This Order Is Not Allowed In This Type Of Cross
   | invalidPrice -- Invalid Price
-  | invalidMinimum -- Invalid Minimum
+  | invalidMinimumQuantity -- Invalid Minimum Quantity
   | invalidMidpoint -- Invalid Midpoint
-  | reject -- Reject
-  | easyToBorrowEtb -- Easy To Borrow Etb
-  | restricted -- Restricted
-  | iso -- Iso
-  | odd -- Odd
-  | midPoint -- Mid Point
-  | preMarket -- Pre Market
-  | postMarket -- Post Market
-  | shortSale -- Short Sale
-  | onOpen -- On Open
-  | onClose -- On Close
-  | twoSided -- Two Sided
-  | exceeded -- Exceeded
-  | exceeded_6e -- Exceeded
+  | rejectAllEnabled -- Reject All Enabled
+  | easyToBorrowReject -- Easy To Borrow Reject
+  | restrictedSymbolListReject -- Restricted Symbol List Reject
+  | isoOrderRestriction -- ISO Order Restriction
+  | oddLotOrderRestriction -- Odd Lot Order Restriction
+  | midPointOrderRestriction -- Mid Point Order Restriction
+  | preMarketOrderRestriction -- Pre Market Order Restriction
+  | postMarketOrderRestriction -- Post Market Order Restriction
+  | shortSaleOrderRestriction -- Short Sale Order Restriction
+  | onOpenOrderRestriction -- On Open Order Restriction
+  | onCloseOrderRestriction -- On Close Order Restriction
+  | twoSidedQuoteReject -- Two Sided Quote Reject
+  | exceededSharesLimit -- Exceeded Shares Limit
+  | exceededDollarValueLimit -- Exceeded Dollar Value Limit
   | unlisted (byte : { byte : UInt8 // byte ∉ RejectedReason.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -816,22 +816,22 @@ def toByte : RejectedReason → UInt8
   | .outsideOfPermittedTimes => 0x4D
   | .thisOrderIsNotAllowedInThisTypeOfCross => 0x52
   | .invalidPrice => 0x58
-  | .invalidMinimum => 0x4E
+  | .invalidMinimumQuantity => 0x4E
   | .invalidMidpoint => 0x57
-  | .reject => 0x61
-  | .easyToBorrowEtb => 0x62
-  | .restricted => 0x63
-  | .iso => 0x64
-  | .odd => 0x65
-  | .midPoint => 0x66
-  | .preMarket => 0x67
-  | .postMarket => 0x68
-  | .shortSale => 0x69
-  | .onOpen => 0x6A
-  | .onClose => 0x6B
-  | .twoSided => 0x6C
-  | .exceeded => 0x6D
-  | .exceeded_6e => 0x6E
+  | .rejectAllEnabled => 0x61
+  | .easyToBorrowReject => 0x62
+  | .restrictedSymbolListReject => 0x63
+  | .isoOrderRestriction => 0x64
+  | .oddLotOrderRestriction => 0x65
+  | .midPointOrderRestriction => 0x66
+  | .preMarketOrderRestriction => 0x67
+  | .postMarketOrderRestriction => 0x68
+  | .shortSaleOrderRestriction => 0x69
+  | .onOpenOrderRestriction => 0x6A
+  | .onCloseOrderRestriction => 0x6B
+  | .twoSidedQuoteReject => 0x6C
+  | .exceededSharesLimit => 0x6D
+  | .exceededDollarValueLimit => 0x6E
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -846,22 +846,22 @@ def listed (byte : UInt8) : RejectedReason :=
   else if byte = 0x4D then .outsideOfPermittedTimes
   else if byte = 0x52 then .thisOrderIsNotAllowedInThisTypeOfCross
   else if byte = 0x58 then .invalidPrice
-  else if byte = 0x4E then .invalidMinimum
+  else if byte = 0x4E then .invalidMinimumQuantity
   else if byte = 0x57 then .invalidMidpoint
-  else if byte = 0x61 then .reject
-  else if byte = 0x62 then .easyToBorrowEtb
-  else if byte = 0x63 then .restricted
-  else if byte = 0x64 then .iso
-  else if byte = 0x65 then .odd
-  else if byte = 0x66 then .midPoint
-  else if byte = 0x67 then .preMarket
-  else if byte = 0x68 then .postMarket
-  else if byte = 0x69 then .shortSale
-  else if byte = 0x6A then .onOpen
-  else if byte = 0x6B then .onClose
-  else if byte = 0x6C then .twoSided
-  else if byte = 0x6D then .exceeded
-  else .exceeded_6e
+  else if byte = 0x61 then .rejectAllEnabled
+  else if byte = 0x62 then .easyToBorrowReject
+  else if byte = 0x63 then .restrictedSymbolListReject
+  else if byte = 0x64 then .isoOrderRestriction
+  else if byte = 0x65 then .oddLotOrderRestriction
+  else if byte = 0x66 then .midPointOrderRestriction
+  else if byte = 0x67 then .preMarketOrderRestriction
+  else if byte = 0x68 then .postMarketOrderRestriction
+  else if byte = 0x69 then .shortSaleOrderRestriction
+  else if byte = 0x6A then .onOpenOrderRestriction
+  else if byte = 0x6B then .onCloseOrderRestriction
+  else if byte = 0x6C then .twoSidedQuoteReject
+  else if byte = 0x6D then .exceededSharesLimit
+  else .exceededDollarValueLimit
 
 def ofByte (byte : UInt8) : RejectedReason :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -878,22 +878,22 @@ theorem ofByte_toByte (value : RejectedReason) : ofByte value.toByte = value := 
   | outsideOfPermittedTimes => decide
   | thisOrderIsNotAllowedInThisTypeOfCross => decide
   | invalidPrice => decide
-  | invalidMinimum => decide
+  | invalidMinimumQuantity => decide
   | invalidMidpoint => decide
-  | reject => decide
-  | easyToBorrowEtb => decide
-  | restricted => decide
-  | iso => decide
-  | odd => decide
-  | midPoint => decide
-  | preMarket => decide
-  | postMarket => decide
-  | shortSale => decide
-  | onOpen => decide
-  | onClose => decide
-  | twoSided => decide
-  | exceeded => decide
-  | exceeded_6e => decide
+  | rejectAllEnabled => decide
+  | easyToBorrowReject => decide
+  | restrictedSymbolListReject => decide
+  | isoOrderRestriction => decide
+  | oddLotOrderRestriction => decide
+  | midPointOrderRestriction => decide
+  | preMarketOrderRestriction => decide
+  | postMarketOrderRestriction => decide
+  | shortSaleOrderRestriction => decide
+  | onOpenOrderRestriction => decide
+  | onCloseOrderRestriction => decide
+  | twoSidedQuoteReject => decide
+  | exceededSharesLimit => decide
+  | exceededDollarValueLimit => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : RejectedReason) : List UInt8 :=
