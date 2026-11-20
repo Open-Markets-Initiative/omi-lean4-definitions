@@ -1214,6 +1214,37 @@ theorem decodeFix_encodeFix (begin : List UInt8) (encodeBody : α → List UInt8
   simp only [ite_true, roundtrip]
   rfl
 
+/-- A frame whose BeginString is one of several a venue states for one table of fields: the value is
+    read as the tagged field it is, must be one of them, and is kept beside the message, since a frame
+    sent under one BeginString is not the frame sent under another -/
+def encodeFixAmong (encodeBody : α → List UInt8) (packet : Terminated 1 × α) : List UInt8 :=
+  encodeFix (encodeTagged [56, 61] packet.1) encodeBody packet.2
+
+def decodeFixAmong (allowed : List (List UInt8)) (decodeBody : List UInt8 → Option α) (bytes : List UInt8) :
+    Option ((Terminated 1 × α) × List UInt8) :=
+  (decodeTagged [56, 61] bytes).bind fun stated =>
+    if stated.1.val ∈ allowed then
+      (decodeFix (encodeTagged [56, 61] stated.1) decodeBody bytes).map fun read => ((stated.1, read.1), read.2)
+    else none
+
+theorem decodeFixAmong_encodeFixAmong (allowed : List (List UInt8)) (encodeBody : α → List UInt8)
+    (decodeBody : List UInt8 → Option α) (roundtrip : ∀ message, decodeBody (encodeBody message) = some message)
+    (packet : Terminated 1 × α) (stated : packet.1.val ∈ allowed) (rest : List UInt8) :
+    decodeFixAmong allowed decodeBody (encodeFixAmong encodeBody packet ++ rest) = some (packet, rest) := by
+  obtain ⟨begin, message⟩ := packet
+  have lead : encodeFixAmong encodeBody (begin, message) ++ rest
+      = encodeTagged [56, 61] begin ++ ((encodeTaggedNumber fixBodyLengthTag (encodeBody message).length ++ encodeBody message)
+          ++ ((fixCheckSumTag ++ (encodeDigits 3 (fixChecksum (fixHead (encodeTagged [56, 61] begin) (encodeBody message))) ++ [1])) ++ rest)) := by
+    simp only [encodeFixAmong, encodeFix, fixHead, List.append_assoc]
+  have framed := decodeFix_encodeFix (encodeTagged [56, 61] begin) encodeBody decodeBody roundtrip message rest
+  unfold decodeFixAmong
+  rw [lead, decodeTagged_encodeTagged, Option.bind_some]
+  simp only [stated, ite_true]
+  rw [← lead]
+  simp only [encodeFixAmong] at framed ⊢
+  rw [framed]
+  rfl
+
 /-! ## Fix fields in any order
 
 A Fix message's fields may come in any order between MsgType and CheckSum: the standard fixes only

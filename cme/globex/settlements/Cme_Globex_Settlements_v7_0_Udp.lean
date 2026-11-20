@@ -1107,24 +1107,24 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt
 
 end Payload
 
-/-- Message -/
-structure Message where
+/-- Mdp3 Message -/
+structure Mdp3Message where
   blockLength : BitVec 16
   schemaId : BitVec 16
   version : BitVec 16
   payload : Payload
   deriving DecidableEq, Repr
 
-namespace Message
+namespace Mdp3Message
 
-def encodeBody (message : Message) : List UInt8 :=
+def encodeBody (message : Mdp3Message) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
     ++ (encodeUIntLE 2 (Payload.tag message.payload)
     ++ (encodeUIntLE 2 message.schemaId
     ++ (encodeUIntLE 2 message.version
     ++ (Payload.encode message.payload))))
 
-def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
+def decodeBody (bytes : List UInt8) : Option (Mdp3Message × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (templateId, bytes) ← decodeUIntLE 2 bytes
   let (schemaId, bytes) ← decodeUIntLE 2 bytes
@@ -1132,7 +1132,7 @@ def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
   let (payload, bytes) ← Payload.decode templateId bytes
   pure ({ blockLength, schemaId, version, payload }, bytes)
 
-theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
+theorem decodeBody_encodeBody (message : Mdp3Message) (rest : List UInt8) :
     decodeBody (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -1147,7 +1147,7 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
   rfl
 
 /-- Every body fits the length prefix -/
-theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 2 < 256 ^ 2 := by
+theorem encodeBody_length_lt (message : Mdp3Message) : (encodeBody message).length + 2 < 256 ^ 2 := by
   unfold encodeBody
   cases message.payload with
   | mdIncrementalRefreshSettle inner =>
@@ -1167,39 +1167,39 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
 
 /-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body and checked on decode -/
-def encode : Message → List UInt8 :=
+def encode : Mdp3Message → List UInt8 :=
   encodeFramedLE 2 2 encodeBody
 
-def decode : List UInt8 → Option (Message × List UInt8) :=
+def decode : List UInt8 → Option (Mdp3Message × List UInt8) :=
   decodeFramedLE 2 2 decodeBody
 
-@[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : Mdp3Message) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) :=
   decodeFramedLE_encodeFramedLE 2 2 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
-theorem encode_length_pos (message : Message) : (encode message).length > 0 := by
+theorem encode_length_pos (message : Mdp3Message) : (encode message).length > 0 := by
   unfold encode
   rw [encodeFramedLE_length]
   omega
 
-end Message
+end Mdp3Message
 
 /-- Udp Packet -/
 structure UdpPacket where
   binaryPacketHeader : BinaryPacketHeader
-  message : List Message
+  mdp3Message : List Mdp3Message
   deriving DecidableEq, Repr
 
 namespace UdpPacket
 
 def encode (message : UdpPacket) : List UInt8 :=
   BinaryPacketHeader.encode message.binaryPacketHeader
-    ++ (encodeMany Message.encode message.message)
+    ++ (encodeMany Mdp3Message.encode message.mdp3Message)
 
 def decode (bytes : List UInt8) : Option UdpPacket := do
   let (binaryPacketHeader, bytes) ← BinaryPacketHeader.decode bytes
-  let message ← decodeAll Message.decode bytes.length bytes
-  pure { binaryPacketHeader, message }
+  let mdp3Message ← decodeAll Mdp3Message.decode bytes.length bytes
+  pure { binaryPacketHeader, mdp3Message }
 
 theorem encode_length_pos (message : UdpPacket) : (encode message).length > 0 := by
   unfold encode
@@ -1210,7 +1210,7 @@ theorem decode_encode (message : UdpPacket) : decode (encode message) = some mes
   unfold decode encode
   rw [BinaryPacketHeader.decode_encode, some_bind]
   dsimp only
-  rw [decodeAll_encodeMany Message.encode Message.decode Message.decode_encode Message.encode_length_pos message.message _ (encodeMany_length_ge Message.encode Message.encode_length_pos message.message), some_bind]
+  rw [decodeAll_encodeMany Mdp3Message.encode Mdp3Message.decode Mdp3Message.decode_encode Mdp3Message.encode_length_pos message.mdp3Message _ (encodeMany_length_ge Mdp3Message.encode Mdp3Message.encode_length_pos message.mdp3Message), some_bind]
   rfl
 
 end UdpPacket

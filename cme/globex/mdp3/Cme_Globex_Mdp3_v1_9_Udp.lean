@@ -1674,9 +1674,9 @@ theorem encode_length_pos (message : SecurityStatus) : (encode message).length >
 
 end SecurityStatus
 
-/-- Incremental Refresh Book Group: 32 bytes -/
-structure IncrementalRefreshBookGroup where
-  mdEntryPxOptionalEx : BitVec 64
+/-- Incremental Refresh Book Legacy Group: 32 bytes -/
+structure IncrementalRefreshBookLegacyGroup where
+  mdEntryPxOptional : BitVec 64
   mdEntrySizeShortOptional : BitVec 32
   securityId : BitVec 32
   rptSeq : BitVec 32
@@ -1687,10 +1687,10 @@ structure IncrementalRefreshBookGroup where
   padding5 : Alpha 5
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshBookGroup
+namespace IncrementalRefreshBookLegacyGroup
 
-def encode (message : IncrementalRefreshBookGroup) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryPxOptionalEx
+def encode (message : IncrementalRefreshBookLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptional
     ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
     ++ (encodeUIntLE 4 message.securityId
     ++ (encodeUIntLE 4 message.rptSeq
@@ -1700,8 +1700,8 @@ def encode (message : IncrementalRefreshBookGroup) : List UInt8 :=
     ++ (MdEntryTypeBook.encode message.mdEntryTypeBook
     ++ (Alpha.encode message.padding5))))))))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshBookGroup × List UInt8) := do
-  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (IncrementalRefreshBookLegacyGroup × List UInt8) := do
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
@@ -1710,17 +1710,17 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshBookGroup × List UI
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
   let (padding5, bytes) ← Alpha.decode 5 bytes
-  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, securityId, rptSeq, numberOfOrdersOptional, mdPriceLevel, mdUpdateAction, mdEntryTypeBook, padding5 }, bytes)
+  pure ({ mdEntryPxOptional, mdEntrySizeShortOptional, securityId, rptSeq, numberOfOrdersOptional, mdPriceLevel, mdUpdateAction, mdEntryTypeBook, padding5 }, bytes)
 
-@[simp] theorem encode_length (message : IncrementalRefreshBookGroup) : (encode message).length = 32 := by
+@[simp] theorem encode_length (message : IncrementalRefreshBookLegacyGroup) : (encode message).length = 32 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeBook.encode_length, Alpha.encode_length]
 
-theorem encode_length_pos (message : IncrementalRefreshBookGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshBookLegacyGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncrementalRefreshBookGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshBookLegacyGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -1742,54 +1742,54 @@ theorem encode_length_pos (message : IncrementalRefreshBookGroup) : (encode mess
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end IncrementalRefreshBookGroup
+end IncrementalRefreshBookLegacyGroup
 
-/-- Incremental Refresh Book Groups -/
-structure IncrementalRefreshBookGroups where
+/-- Incremental Refresh Book Legacy Groups -/
+structure IncrementalRefreshBookLegacyGroups where
   blockLength : BitVec 16
-  incrementalRefreshBookGroup : Bounded 1 IncrementalRefreshBookGroup
+  incrementalRefreshBookLegacyGroup : Bounded 1 IncrementalRefreshBookLegacyGroup
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshBookGroups
+namespace IncrementalRefreshBookLegacyGroups
 
-def encode (message : IncrementalRefreshBookGroups) : List UInt8 :=
+def encode (message : IncrementalRefreshBookLegacyGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshBookGroup.val.length)
-    ++ (encodeMany IncrementalRefreshBookGroup.encode message.incrementalRefreshBookGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshBookLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshBookLegacyGroup.encode message.incrementalRefreshBookLegacyGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshBookGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalRefreshBookLegacyGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshBookGroup_, bytes) ← decodeMany IncrementalRefreshBookGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshBookGroup : incrementalRefreshBookGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incrementalRefreshBookGroup := ⟨incrementalRefreshBookGroup_, fits_incrementalRefreshBookGroup⟩ }, bytes)
+  let (incrementalRefreshBookLegacyGroup_, bytes) ← decodeMany IncrementalRefreshBookLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshBookLegacyGroup : incrementalRefreshBookLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshBookLegacyGroup := ⟨incrementalRefreshBookLegacyGroup_, fits_incrementalRefreshBookLegacyGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncrementalRefreshBookGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshBookLegacyGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshBookGroups) : (encode message).length ≤ 8163 := by
-  have bound_incrementalRefreshBookGroup := message.incrementalRefreshBookGroup.length_lt
+theorem encode_length_le (message : IncrementalRefreshBookLegacyGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshBookLegacyGroup := message.incrementalRefreshBookLegacyGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshBookGroup.encode 32 IncrementalRefreshBookGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshBookLegacyGroup.encode 32 IncrementalRefreshBookLegacyGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncrementalRefreshBookGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshBookLegacyGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshBookGroup.encode IncrementalRefreshBookGroup.decode IncrementalRefreshBookGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalRefreshBookLegacyGroup.encode IncrementalRefreshBookLegacyGroup.decode IncrementalRefreshBookLegacyGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incrementalRefreshBookGroup.length_lt]
+  rw [dite_eq_left message.incrementalRefreshBookLegacyGroup.length_lt]
   rfl
 
-end IncrementalRefreshBookGroups
+end IncrementalRefreshBookLegacyGroups
 
 /-- Incremental Refresh Book Order Id Group: 24 bytes -/
 structure IncrementalRefreshBookOrderIdGroup where
@@ -1903,7 +1903,7 @@ structure MdIncrementalRefreshBookLegacy where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
-  incrementalRefreshBookGroups : IncrementalRefreshBookGroups
+  incrementalRefreshBookLegacyGroups : IncrementalRefreshBookLegacyGroups
   incrementalRefreshBookOrderIdGroups : IncrementalRefreshBookOrderIdGroups
   deriving DecidableEq, Repr
 
@@ -1913,16 +1913,16 @@ def encode (message : MdIncrementalRefreshBookLegacy) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshBookGroups.encode message.incrementalRefreshBookGroups
+    ++ (IncrementalRefreshBookLegacyGroups.encode message.incrementalRefreshBookLegacyGroups
     ++ (IncrementalRefreshBookOrderIdGroups.encode message.incrementalRefreshBookOrderIdGroups))))
 
 def decode (bytes : List UInt8) : Option (MdIncrementalRefreshBookLegacy × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshBookGroups, bytes) ← IncrementalRefreshBookGroups.decode bytes
+  let (incrementalRefreshBookLegacyGroups, bytes) ← IncrementalRefreshBookLegacyGroups.decode bytes
   let (incrementalRefreshBookOrderIdGroups, bytes) ← IncrementalRefreshBookOrderIdGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshBookGroups, incrementalRefreshBookOrderIdGroups }, bytes)
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshBookLegacyGroups, incrementalRefreshBookOrderIdGroups }, bytes)
 
 theorem encode_length_pos (message : MdIncrementalRefreshBookLegacy) : (encode message).length > 0 := by
   unfold encode
@@ -1931,7 +1931,7 @@ theorem encode_length_pos (message : MdIncrementalRefreshBookLegacy) : (encode m
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : MdIncrementalRefreshBookLegacy) : (encode message).length ≤ 14302 := by
-  have bound_incrementalRefreshBookGroups := IncrementalRefreshBookGroups.encode_length_le message.incrementalRefreshBookGroups
+  have bound_incrementalRefreshBookLegacyGroups := IncrementalRefreshBookLegacyGroups.encode_length_le message.incrementalRefreshBookLegacyGroups
   have bound_incrementalRefreshBookOrderIdGroups := IncrementalRefreshBookOrderIdGroups.encode_length_le message.incrementalRefreshBookOrderIdGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
@@ -1946,16 +1946,16 @@ theorem encode_length_le (message : MdIncrementalRefreshBookLegacy) : (encode me
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, IncrementalRefreshBookGroups.decode_encode, some_bind]
+  rw [List.append_assoc, IncrementalRefreshBookLegacyGroups.decode_encode, some_bind]
   dsimp only
   rw [IncrementalRefreshBookOrderIdGroups.decode_encode, some_bind]
   rfl
 
 end MdIncrementalRefreshBookLegacy
 
-/-- Incremental Refresh Daily Statistics Group: 32 bytes -/
-structure IncrementalRefreshDailyStatisticsGroup where
-  mdEntryPxOptionalEx : BitVec 64
+/-- Incremental Refresh Daily Statistics Legacy Group: 32 bytes -/
+structure IncrementalRefreshDailyStatisticsLegacyGroup where
+  mdEntryPxOptional : BitVec 64
   mdEntrySizeShortOptional : BitVec 32
   securityId : BitVec 32
   rptSeq : BitVec 32
@@ -1966,10 +1966,10 @@ structure IncrementalRefreshDailyStatisticsGroup where
   padding7 : Alpha 7
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshDailyStatisticsGroup
+namespace IncrementalRefreshDailyStatisticsLegacyGroup
 
-def encode (message : IncrementalRefreshDailyStatisticsGroup) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryPxOptionalEx
+def encode (message : IncrementalRefreshDailyStatisticsLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptional
     ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
     ++ (encodeUIntLE 4 message.securityId
     ++ (encodeUIntLE 4 message.rptSeq
@@ -1979,8 +1979,8 @@ def encode (message : IncrementalRefreshDailyStatisticsGroup) : List UInt8 :=
     ++ (MdEntryTypeDailyStatistics.encode message.mdEntryTypeDailyStatistics
     ++ (Alpha.encode message.padding7))))))))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsGroup × List UInt8) := do
-  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsLegacyGroup × List UInt8) := do
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
@@ -1989,17 +1989,17 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsGroup
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
   let (mdEntryTypeDailyStatistics, bytes) ← MdEntryTypeDailyStatistics.decode bytes
   let (padding7, bytes) ← Alpha.decode 7 bytes
-  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, securityId, rptSeq, tradingReferenceDate, settlPriceType, mdUpdateAction, mdEntryTypeDailyStatistics, padding7 }, bytes)
+  pure ({ mdEntryPxOptional, mdEntrySizeShortOptional, securityId, rptSeq, tradingReferenceDate, settlPriceType, mdUpdateAction, mdEntryTypeDailyStatistics, padding7 }, bytes)
 
-@[simp] theorem encode_length (message : IncrementalRefreshDailyStatisticsGroup) : (encode message).length = 32 := by
+@[simp] theorem encode_length (message : IncrementalRefreshDailyStatisticsLegacyGroup) : (encode message).length = 32 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeDailyStatistics.encode_length, Alpha.encode_length]
 
-theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsLegacyGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsLegacyGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -2021,61 +2021,61 @@ theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsGroup) : (
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end IncrementalRefreshDailyStatisticsGroup
+end IncrementalRefreshDailyStatisticsLegacyGroup
 
-/-- Incremental Refresh Daily Statistics Groups -/
-structure IncrementalRefreshDailyStatisticsGroups where
+/-- Incremental Refresh Daily Statistics Legacy Groups -/
+structure IncrementalRefreshDailyStatisticsLegacyGroups where
   blockLength : BitVec 16
-  incrementalRefreshDailyStatisticsGroup : Bounded 1 IncrementalRefreshDailyStatisticsGroup
+  incrementalRefreshDailyStatisticsLegacyGroup : Bounded 1 IncrementalRefreshDailyStatisticsLegacyGroup
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshDailyStatisticsGroups
+namespace IncrementalRefreshDailyStatisticsLegacyGroups
 
-def encode (message : IncrementalRefreshDailyStatisticsGroups) : List UInt8 :=
+def encode (message : IncrementalRefreshDailyStatisticsLegacyGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshDailyStatisticsGroup.val.length)
-    ++ (encodeMany IncrementalRefreshDailyStatisticsGroup.encode message.incrementalRefreshDailyStatisticsGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshDailyStatisticsLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshDailyStatisticsLegacyGroup.encode message.incrementalRefreshDailyStatisticsLegacyGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsLegacyGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshDailyStatisticsGroup_, bytes) ← decodeMany IncrementalRefreshDailyStatisticsGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshDailyStatisticsGroup : incrementalRefreshDailyStatisticsGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incrementalRefreshDailyStatisticsGroup := ⟨incrementalRefreshDailyStatisticsGroup_, fits_incrementalRefreshDailyStatisticsGroup⟩ }, bytes)
+  let (incrementalRefreshDailyStatisticsLegacyGroup_, bytes) ← decodeMany IncrementalRefreshDailyStatisticsLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshDailyStatisticsLegacyGroup : incrementalRefreshDailyStatisticsLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshDailyStatisticsLegacyGroup := ⟨incrementalRefreshDailyStatisticsLegacyGroup_, fits_incrementalRefreshDailyStatisticsLegacyGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsLegacyGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshDailyStatisticsGroups) : (encode message).length ≤ 8163 := by
-  have bound_incrementalRefreshDailyStatisticsGroup := message.incrementalRefreshDailyStatisticsGroup.length_lt
+theorem encode_length_le (message : IncrementalRefreshDailyStatisticsLegacyGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshDailyStatisticsLegacyGroup := message.incrementalRefreshDailyStatisticsLegacyGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshDailyStatisticsGroup.encode 32 IncrementalRefreshDailyStatisticsGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshDailyStatisticsLegacyGroup.encode 32 IncrementalRefreshDailyStatisticsLegacyGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsLegacyGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshDailyStatisticsGroup.encode IncrementalRefreshDailyStatisticsGroup.decode IncrementalRefreshDailyStatisticsGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalRefreshDailyStatisticsLegacyGroup.encode IncrementalRefreshDailyStatisticsLegacyGroup.decode IncrementalRefreshDailyStatisticsLegacyGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incrementalRefreshDailyStatisticsGroup.length_lt]
+  rw [dite_eq_left message.incrementalRefreshDailyStatisticsLegacyGroup.length_lt]
   rfl
 
-end IncrementalRefreshDailyStatisticsGroups
+end IncrementalRefreshDailyStatisticsLegacyGroups
 
 /-- Md Incremental Refresh Daily Statistics Legacy -/
 structure MdIncrementalRefreshDailyStatisticsLegacy where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
-  incrementalRefreshDailyStatisticsGroups : IncrementalRefreshDailyStatisticsGroups
+  incrementalRefreshDailyStatisticsLegacyGroups : IncrementalRefreshDailyStatisticsLegacyGroups
   deriving DecidableEq, Repr
 
 namespace MdIncrementalRefreshDailyStatisticsLegacy
@@ -2084,14 +2084,14 @@ def encode (message : MdIncrementalRefreshDailyStatisticsLegacy) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshDailyStatisticsGroups.encode message.incrementalRefreshDailyStatisticsGroups)))
+    ++ (IncrementalRefreshDailyStatisticsLegacyGroups.encode message.incrementalRefreshDailyStatisticsLegacyGroups)))
 
 def decode (bytes : List UInt8) : Option (MdIncrementalRefreshDailyStatisticsLegacy × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshDailyStatisticsGroups, bytes) ← IncrementalRefreshDailyStatisticsGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshDailyStatisticsGroups }, bytes)
+  let (incrementalRefreshDailyStatisticsLegacyGroups, bytes) ← IncrementalRefreshDailyStatisticsLegacyGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshDailyStatisticsLegacyGroups }, bytes)
 
 theorem encode_length_pos (message : MdIncrementalRefreshDailyStatisticsLegacy) : (encode message).length > 0 := by
   unfold encode
@@ -2100,7 +2100,7 @@ theorem encode_length_pos (message : MdIncrementalRefreshDailyStatisticsLegacy) 
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : MdIncrementalRefreshDailyStatisticsLegacy) : (encode message).length ≤ 8174 := by
-  have bound_incrementalRefreshDailyStatisticsGroups := IncrementalRefreshDailyStatisticsGroups.encode_length_le message.incrementalRefreshDailyStatisticsGroups
+  have bound_incrementalRefreshDailyStatisticsLegacyGroups := IncrementalRefreshDailyStatisticsLegacyGroups.encode_length_le message.incrementalRefreshDailyStatisticsLegacyGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
   omega
@@ -2114,46 +2114,46 @@ theorem encode_length_le (message : MdIncrementalRefreshDailyStatisticsLegacy) :
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [IncrementalRefreshDailyStatisticsGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshDailyStatisticsLegacyGroups.decode_encode, some_bind]
   rfl
 
 end MdIncrementalRefreshDailyStatisticsLegacy
 
-/-- Incremental Refresh Limits Banding Group: 32 bytes -/
-structure IncrementalRefreshLimitsBandingGroup where
-  highLimitPriceEx : BitVec 64
-  lowLimitPriceEx : BitVec 64
-  maxPriceVariationEx : BitVec 64
+/-- Incremental Refresh Limits Banding Legacy Group: 32 bytes -/
+structure IncrementalRefreshLimitsBandingLegacyGroup where
+  highLimitPrice : BitVec 64
+  lowLimitPrice : BitVec 64
+  maxPriceVariation : BitVec 64
   securityId : BitVec 32
   rptSeq : BitVec 32
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshLimitsBandingGroup
+namespace IncrementalRefreshLimitsBandingLegacyGroup
 
-def encode (message : IncrementalRefreshLimitsBandingGroup) : List UInt8 :=
-  encodeUIntLE 8 message.highLimitPriceEx
-    ++ (encodeUIntLE 8 message.lowLimitPriceEx
-    ++ (encodeUIntLE 8 message.maxPriceVariationEx
+def encode (message : IncrementalRefreshLimitsBandingLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.highLimitPrice
+    ++ (encodeUIntLE 8 message.lowLimitPrice
+    ++ (encodeUIntLE 8 message.maxPriceVariation
     ++ (encodeUIntLE 4 message.securityId
     ++ (encodeUIntLE 4 message.rptSeq))))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingGroup × List UInt8) := do
-  let (highLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
-  let (lowLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
-  let (maxPriceVariationEx, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingLegacyGroup × List UInt8) := do
+  let (highLimitPrice, bytes) ← decodeUIntLE 8 bytes
+  let (lowLimitPrice, bytes) ← decodeUIntLE 8 bytes
+  let (maxPriceVariation, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  pure ({ highLimitPriceEx, lowLimitPriceEx, maxPriceVariationEx, securityId, rptSeq }, bytes)
+  pure ({ highLimitPrice, lowLimitPrice, maxPriceVariation, securityId, rptSeq }, bytes)
 
-@[simp] theorem encode_length (message : IncrementalRefreshLimitsBandingGroup) : (encode message).length = 32 := by
+@[simp] theorem encode_length (message : IncrementalRefreshLimitsBandingLegacyGroup) : (encode message).length = 32 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
 
-theorem encode_length_pos (message : IncrementalRefreshLimitsBandingGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshLimitsBandingLegacyGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingLegacyGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -2167,61 +2167,61 @@ theorem encode_length_pos (message : IncrementalRefreshLimitsBandingGroup) : (en
   rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
-end IncrementalRefreshLimitsBandingGroup
+end IncrementalRefreshLimitsBandingLegacyGroup
 
-/-- Incremental Refresh Limits Banding Groups -/
-structure IncrementalRefreshLimitsBandingGroups where
+/-- Incremental Refresh Limits Banding Legacy Groups -/
+structure IncrementalRefreshLimitsBandingLegacyGroups where
   blockLength : BitVec 16
-  incrementalRefreshLimitsBandingGroup : Bounded 1 IncrementalRefreshLimitsBandingGroup
+  incrementalRefreshLimitsBandingLegacyGroup : Bounded 1 IncrementalRefreshLimitsBandingLegacyGroup
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshLimitsBandingGroups
+namespace IncrementalRefreshLimitsBandingLegacyGroups
 
-def encode (message : IncrementalRefreshLimitsBandingGroups) : List UInt8 :=
+def encode (message : IncrementalRefreshLimitsBandingLegacyGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshLimitsBandingGroup.val.length)
-    ++ (encodeMany IncrementalRefreshLimitsBandingGroup.encode message.incrementalRefreshLimitsBandingGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshLimitsBandingLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshLimitsBandingLegacyGroup.encode message.incrementalRefreshLimitsBandingLegacyGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingLegacyGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshLimitsBandingGroup_, bytes) ← decodeMany IncrementalRefreshLimitsBandingGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshLimitsBandingGroup : incrementalRefreshLimitsBandingGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incrementalRefreshLimitsBandingGroup := ⟨incrementalRefreshLimitsBandingGroup_, fits_incrementalRefreshLimitsBandingGroup⟩ }, bytes)
+  let (incrementalRefreshLimitsBandingLegacyGroup_, bytes) ← decodeMany IncrementalRefreshLimitsBandingLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshLimitsBandingLegacyGroup : incrementalRefreshLimitsBandingLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshLimitsBandingLegacyGroup := ⟨incrementalRefreshLimitsBandingLegacyGroup_, fits_incrementalRefreshLimitsBandingLegacyGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncrementalRefreshLimitsBandingGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshLimitsBandingLegacyGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshLimitsBandingGroups) : (encode message).length ≤ 8163 := by
-  have bound_incrementalRefreshLimitsBandingGroup := message.incrementalRefreshLimitsBandingGroup.length_lt
+theorem encode_length_le (message : IncrementalRefreshLimitsBandingLegacyGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshLimitsBandingLegacyGroup := message.incrementalRefreshLimitsBandingLegacyGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshLimitsBandingGroup.encode 32 IncrementalRefreshLimitsBandingGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshLimitsBandingLegacyGroup.encode 32 IncrementalRefreshLimitsBandingLegacyGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingLegacyGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshLimitsBandingGroup.encode IncrementalRefreshLimitsBandingGroup.decode IncrementalRefreshLimitsBandingGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalRefreshLimitsBandingLegacyGroup.encode IncrementalRefreshLimitsBandingLegacyGroup.decode IncrementalRefreshLimitsBandingLegacyGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incrementalRefreshLimitsBandingGroup.length_lt]
+  rw [dite_eq_left message.incrementalRefreshLimitsBandingLegacyGroup.length_lt]
   rfl
 
-end IncrementalRefreshLimitsBandingGroups
+end IncrementalRefreshLimitsBandingLegacyGroups
 
 /-- Md Incremental Refresh Limits Banding Legacy -/
 structure MdIncrementalRefreshLimitsBandingLegacy where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
-  incrementalRefreshLimitsBandingGroups : IncrementalRefreshLimitsBandingGroups
+  incrementalRefreshLimitsBandingLegacyGroups : IncrementalRefreshLimitsBandingLegacyGroups
   deriving DecidableEq, Repr
 
 namespace MdIncrementalRefreshLimitsBandingLegacy
@@ -2230,14 +2230,14 @@ def encode (message : MdIncrementalRefreshLimitsBandingLegacy) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshLimitsBandingGroups.encode message.incrementalRefreshLimitsBandingGroups)))
+    ++ (IncrementalRefreshLimitsBandingLegacyGroups.encode message.incrementalRefreshLimitsBandingLegacyGroups)))
 
 def decode (bytes : List UInt8) : Option (MdIncrementalRefreshLimitsBandingLegacy × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshLimitsBandingGroups, bytes) ← IncrementalRefreshLimitsBandingGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshLimitsBandingGroups }, bytes)
+  let (incrementalRefreshLimitsBandingLegacyGroups, bytes) ← IncrementalRefreshLimitsBandingLegacyGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshLimitsBandingLegacyGroups }, bytes)
 
 theorem encode_length_pos (message : MdIncrementalRefreshLimitsBandingLegacy) : (encode message).length > 0 := by
   unfold encode
@@ -2246,7 +2246,7 @@ theorem encode_length_pos (message : MdIncrementalRefreshLimitsBandingLegacy) : 
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : MdIncrementalRefreshLimitsBandingLegacy) : (encode message).length ≤ 8174 := by
-  have bound_incrementalRefreshLimitsBandingGroups := IncrementalRefreshLimitsBandingGroups.encode_length_le message.incrementalRefreshLimitsBandingGroups
+  have bound_incrementalRefreshLimitsBandingLegacyGroups := IncrementalRefreshLimitsBandingLegacyGroups.encode_length_le message.incrementalRefreshLimitsBandingLegacyGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
   omega
@@ -2260,14 +2260,14 @@ theorem encode_length_le (message : MdIncrementalRefreshLimitsBandingLegacy) : (
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [IncrementalRefreshLimitsBandingGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshLimitsBandingLegacyGroups.decode_encode, some_bind]
   rfl
 
 end MdIncrementalRefreshLimitsBandingLegacy
 
-/-- Incremental Refresh Session Statistics Group: 24 bytes -/
-structure IncrementalRefreshSessionStatisticsGroup where
-  mdEntryPxEx : BitVec 64
+/-- Incremental Refresh Session Statistics Legacy Group: 24 bytes -/
+structure IncrementalRefreshSessionStatisticsLegacyGroup where
+  mdEntryPx : BitVec 64
   securityId : BitVec 32
   rptSeq : BitVec 32
   openCloseSettlFlag : BitVec 8
@@ -2277,10 +2277,10 @@ structure IncrementalRefreshSessionStatisticsGroup where
   padding1 : Alpha 1
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshSessionStatisticsGroup
+namespace IncrementalRefreshSessionStatisticsLegacyGroup
 
-def encode (message : IncrementalRefreshSessionStatisticsGroup) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryPxEx
+def encode (message : IncrementalRefreshSessionStatisticsLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPx
     ++ (encodeUIntLE 4 message.securityId
     ++ (encodeUIntLE 4 message.rptSeq
     ++ (encodeUInt 1 message.openCloseSettlFlag
@@ -2289,8 +2289,8 @@ def encode (message : IncrementalRefreshSessionStatisticsGroup) : List UInt8 :=
     ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
     ++ (Alpha.encode message.padding1)))))))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsGroup × List UInt8) := do
-  let (mdEntryPxEx, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsLegacyGroup × List UInt8) := do
+  let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
   let (rptSeq, bytes) ← decodeUIntLE 4 bytes
   let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
@@ -2298,17 +2298,17 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsGro
   let (mdEntryTypeStatistics, bytes) ← MdEntryTypeStatistics.decode bytes
   let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
   let (padding1, bytes) ← Alpha.decode 1 bytes
-  pure ({ mdEntryPxEx, securityId, rptSeq, openCloseSettlFlag, mdUpdateAction, mdEntryTypeStatistics, mdEntrySizeShortOptional, padding1 }, bytes)
+  pure ({ mdEntryPx, securityId, rptSeq, openCloseSettlFlag, mdUpdateAction, mdEntryTypeStatistics, mdEntrySizeShortOptional, padding1 }, bytes)
 
-@[simp] theorem encode_length (message : IncrementalRefreshSessionStatisticsGroup) : (encode message).length = 24 := by
+@[simp] theorem encode_length (message : IncrementalRefreshSessionStatisticsLegacyGroup) : (encode message).length = 24 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeStatistics.encode_length, Alpha.encode_length]
 
-theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsLegacyGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsLegacyGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -2328,61 +2328,61 @@ theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsGroup) :
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end IncrementalRefreshSessionStatisticsGroup
+end IncrementalRefreshSessionStatisticsLegacyGroup
 
-/-- Incremental Refresh Session Statistics Groups -/
-structure IncrementalRefreshSessionStatisticsGroups where
+/-- Incremental Refresh Session Statistics Legacy Groups -/
+structure IncrementalRefreshSessionStatisticsLegacyGroups where
   blockLength : BitVec 16
-  incrementalRefreshSessionStatisticsGroup : Bounded 1 IncrementalRefreshSessionStatisticsGroup
+  incrementalRefreshSessionStatisticsLegacyGroup : Bounded 1 IncrementalRefreshSessionStatisticsLegacyGroup
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshSessionStatisticsGroups
+namespace IncrementalRefreshSessionStatisticsLegacyGroups
 
-def encode (message : IncrementalRefreshSessionStatisticsGroups) : List UInt8 :=
+def encode (message : IncrementalRefreshSessionStatisticsLegacyGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshSessionStatisticsGroup.val.length)
-    ++ (encodeMany IncrementalRefreshSessionStatisticsGroup.encode message.incrementalRefreshSessionStatisticsGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshSessionStatisticsLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshSessionStatisticsLegacyGroup.encode message.incrementalRefreshSessionStatisticsLegacyGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsLegacyGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshSessionStatisticsGroup_, bytes) ← decodeMany IncrementalRefreshSessionStatisticsGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshSessionStatisticsGroup : incrementalRefreshSessionStatisticsGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incrementalRefreshSessionStatisticsGroup := ⟨incrementalRefreshSessionStatisticsGroup_, fits_incrementalRefreshSessionStatisticsGroup⟩ }, bytes)
+  let (incrementalRefreshSessionStatisticsLegacyGroup_, bytes) ← decodeMany IncrementalRefreshSessionStatisticsLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshSessionStatisticsLegacyGroup : incrementalRefreshSessionStatisticsLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshSessionStatisticsLegacyGroup := ⟨incrementalRefreshSessionStatisticsLegacyGroup_, fits_incrementalRefreshSessionStatisticsLegacyGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsLegacyGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshSessionStatisticsGroups) : (encode message).length ≤ 6123 := by
-  have bound_incrementalRefreshSessionStatisticsGroup := message.incrementalRefreshSessionStatisticsGroup.length_lt
+theorem encode_length_le (message : IncrementalRefreshSessionStatisticsLegacyGroups) : (encode message).length ≤ 6123 := by
+  have bound_incrementalRefreshSessionStatisticsLegacyGroup := message.incrementalRefreshSessionStatisticsLegacyGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshSessionStatisticsGroup.encode 24 IncrementalRefreshSessionStatisticsGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshSessionStatisticsLegacyGroup.encode 24 IncrementalRefreshSessionStatisticsLegacyGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsLegacyGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshSessionStatisticsGroup.encode IncrementalRefreshSessionStatisticsGroup.decode IncrementalRefreshSessionStatisticsGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalRefreshSessionStatisticsLegacyGroup.encode IncrementalRefreshSessionStatisticsLegacyGroup.decode IncrementalRefreshSessionStatisticsLegacyGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incrementalRefreshSessionStatisticsGroup.length_lt]
+  rw [dite_eq_left message.incrementalRefreshSessionStatisticsLegacyGroup.length_lt]
   rfl
 
-end IncrementalRefreshSessionStatisticsGroups
+end IncrementalRefreshSessionStatisticsLegacyGroups
 
 /-- Md Incremental Refresh Session Statistics Legacy -/
 structure MdIncrementalRefreshSessionStatisticsLegacy where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
-  incrementalRefreshSessionStatisticsGroups : IncrementalRefreshSessionStatisticsGroups
+  incrementalRefreshSessionStatisticsLegacyGroups : IncrementalRefreshSessionStatisticsLegacyGroups
   deriving DecidableEq, Repr
 
 namespace MdIncrementalRefreshSessionStatisticsLegacy
@@ -2391,14 +2391,14 @@ def encode (message : MdIncrementalRefreshSessionStatisticsLegacy) : List UInt8 
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshSessionStatisticsGroups.encode message.incrementalRefreshSessionStatisticsGroups)))
+    ++ (IncrementalRefreshSessionStatisticsLegacyGroups.encode message.incrementalRefreshSessionStatisticsLegacyGroups)))
 
 def decode (bytes : List UInt8) : Option (MdIncrementalRefreshSessionStatisticsLegacy × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshSessionStatisticsGroups, bytes) ← IncrementalRefreshSessionStatisticsGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshSessionStatisticsGroups }, bytes)
+  let (incrementalRefreshSessionStatisticsLegacyGroups, bytes) ← IncrementalRefreshSessionStatisticsLegacyGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshSessionStatisticsLegacyGroups }, bytes)
 
 theorem encode_length_pos (message : MdIncrementalRefreshSessionStatisticsLegacy) : (encode message).length > 0 := by
   unfold encode
@@ -2407,7 +2407,7 @@ theorem encode_length_pos (message : MdIncrementalRefreshSessionStatisticsLegacy
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : MdIncrementalRefreshSessionStatisticsLegacy) : (encode message).length ≤ 6134 := by
-  have bound_incrementalRefreshSessionStatisticsGroups := IncrementalRefreshSessionStatisticsGroups.encode_length_le message.incrementalRefreshSessionStatisticsGroups
+  have bound_incrementalRefreshSessionStatisticsLegacyGroups := IncrementalRefreshSessionStatisticsLegacyGroups.encode_length_le message.incrementalRefreshSessionStatisticsLegacyGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
   omega
@@ -2421,7 +2421,7 @@ theorem encode_length_le (message : MdIncrementalRefreshSessionStatisticsLegacy)
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [IncrementalRefreshSessionStatisticsGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshSessionStatisticsLegacyGroups.decode_encode, some_bind]
   rfl
 
 end MdIncrementalRefreshSessionStatisticsLegacy
@@ -2572,9 +2572,9 @@ theorem encode_length_le (message : MdIncrementalRefreshVolume) : (encode messag
 
 end MdIncrementalRefreshVolume
 
-/-- Snapshot Full Refresh Group: 22 bytes -/
-structure SnapshotFullRefreshGroup where
-  mdEntryPxOptionalEx : BitVec 64
+/-- Snapshot Full Refresh Legacy Group: 22 bytes -/
+structure SnapshotFullRefreshLegacyGroup where
+  mdEntryPxOptional : BitVec 64
   mdEntrySizeShortOptional : BitVec 32
   numberOfOrdersOptional : BitVec 32
   mdPriceLevelOptional : BitVec 8
@@ -2584,10 +2584,10 @@ structure SnapshotFullRefreshGroup where
   mdEntryType : MdEntryType
   deriving DecidableEq, Repr
 
-namespace SnapshotFullRefreshGroup
+namespace SnapshotFullRefreshLegacyGroup
 
-def encode (message : SnapshotFullRefreshGroup) : List UInt8 :=
-  encodeUIntLE 8 message.mdEntryPxOptionalEx
+def encode (message : SnapshotFullRefreshLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptional
     ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
     ++ (encodeUIntLE 4 message.numberOfOrdersOptional
     ++ (encodeUInt 1 message.mdPriceLevelOptional
@@ -2596,8 +2596,8 @@ def encode (message : SnapshotFullRefreshGroup) : List UInt8 :=
     ++ (encodeUIntLE 1 message.settlPriceType
     ++ (MdEntryType.encode message.mdEntryType)))))))
 
-def decode (bytes : List UInt8) : Option (SnapshotFullRefreshGroup × List UInt8) := do
-  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshLegacyGroup × List UInt8) := do
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
   let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
   let (numberOfOrdersOptional, bytes) ← decodeUIntLE 4 bytes
   let (mdPriceLevelOptional, bytes) ← decodeUInt 1 bytes
@@ -2605,17 +2605,17 @@ def decode (bytes : List UInt8) : Option (SnapshotFullRefreshGroup × List UInt8
   let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
   let (settlPriceType, bytes) ← decodeUIntLE 1 bytes
   let (mdEntryType, bytes) ← MdEntryType.decode bytes
-  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, numberOfOrdersOptional, mdPriceLevelOptional, tradingReferenceDate, openCloseSettlFlag, settlPriceType, mdEntryType }, bytes)
+  pure ({ mdEntryPxOptional, mdEntrySizeShortOptional, numberOfOrdersOptional, mdPriceLevelOptional, tradingReferenceDate, openCloseSettlFlag, settlPriceType, mdEntryType }, bytes)
 
-@[simp] theorem encode_length (message : SnapshotFullRefreshGroup) : (encode message).length = 22 := by
+@[simp] theorem encode_length (message : SnapshotFullRefreshLegacyGroup) : (encode message).length = 22 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryType.encode_length]
 
-theorem encode_length_pos (message : SnapshotFullRefreshGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SnapshotFullRefreshLegacyGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : SnapshotFullRefreshGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SnapshotFullRefreshLegacyGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -2635,54 +2635,54 @@ theorem encode_length_pos (message : SnapshotFullRefreshGroup) : (encode message
   rw [MdEntryType.decode_encode, some_bind]
   rfl
 
-end SnapshotFullRefreshGroup
+end SnapshotFullRefreshLegacyGroup
 
-/-- Snapshot Full Refresh Groups -/
-structure SnapshotFullRefreshGroups where
+/-- Snapshot Full Refresh Legacy Groups -/
+structure SnapshotFullRefreshLegacyGroups where
   blockLength : BitVec 16
-  snapshotFullRefreshGroup : Bounded 1 SnapshotFullRefreshGroup
+  snapshotFullRefreshLegacyGroup : Bounded 1 SnapshotFullRefreshLegacyGroup
   deriving DecidableEq, Repr
 
-namespace SnapshotFullRefreshGroups
+namespace SnapshotFullRefreshLegacyGroups
 
-def encode (message : SnapshotFullRefreshGroups) : List UInt8 :=
+def encode (message : SnapshotFullRefreshLegacyGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snapshotFullRefreshGroup.val.length)
-    ++ (encodeMany SnapshotFullRefreshGroup.encode message.snapshotFullRefreshGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snapshotFullRefreshLegacyGroup.val.length)
+    ++ (encodeMany SnapshotFullRefreshLegacyGroup.encode message.snapshotFullRefreshLegacyGroup.val))
 
-def decode (bytes : List UInt8) : Option (SnapshotFullRefreshGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshLegacyGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (snapshotFullRefreshGroup_, bytes) ← decodeMany SnapshotFullRefreshGroup.decode numInGroup.toNat bytes
-  if fits_snapshotFullRefreshGroup : snapshotFullRefreshGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, snapshotFullRefreshGroup := ⟨snapshotFullRefreshGroup_, fits_snapshotFullRefreshGroup⟩ }, bytes)
+  let (snapshotFullRefreshLegacyGroup_, bytes) ← decodeMany SnapshotFullRefreshLegacyGroup.decode numInGroup.toNat bytes
+  if fits_snapshotFullRefreshLegacyGroup : snapshotFullRefreshLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, snapshotFullRefreshLegacyGroup := ⟨snapshotFullRefreshLegacyGroup_, fits_snapshotFullRefreshLegacyGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : SnapshotFullRefreshGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : SnapshotFullRefreshLegacyGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : SnapshotFullRefreshGroups) : (encode message).length ≤ 5613 := by
-  have bound_snapshotFullRefreshGroup := message.snapshotFullRefreshGroup.length_lt
+theorem encode_length_le (message : SnapshotFullRefreshLegacyGroups) : (encode message).length ≤ 5613 := by
+  have bound_snapshotFullRefreshLegacyGroup := message.snapshotFullRefreshLegacyGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnapshotFullRefreshGroup.encode 22 SnapshotFullRefreshGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnapshotFullRefreshLegacyGroup.encode 22 SnapshotFullRefreshLegacyGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : SnapshotFullRefreshGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : SnapshotFullRefreshLegacyGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 SnapshotFullRefreshGroup.encode SnapshotFullRefreshGroup.decode SnapshotFullRefreshGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 SnapshotFullRefreshLegacyGroup.encode SnapshotFullRefreshLegacyGroup.decode SnapshotFullRefreshLegacyGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.snapshotFullRefreshGroup.length_lt]
+  rw [dite_eq_left message.snapshotFullRefreshLegacyGroup.length_lt]
   rfl
 
-end SnapshotFullRefreshGroups
+end SnapshotFullRefreshLegacyGroups
 
 /-- Snapshot Full Refresh Legacy -/
 structure SnapshotFullRefreshLegacy where
@@ -2697,7 +2697,7 @@ structure SnapshotFullRefreshLegacy where
   highLimitPrice : BitVec 64
   lowLimitPrice : BitVec 64
   maxPriceVariation : BitVec 64
-  snapshotFullRefreshGroups : SnapshotFullRefreshGroups
+  snapshotFullRefreshLegacyGroups : SnapshotFullRefreshLegacyGroups
   deriving DecidableEq, Repr
 
 namespace SnapshotFullRefreshLegacy
@@ -2714,7 +2714,7 @@ def encode (message : SnapshotFullRefreshLegacy) : List UInt8 :=
     ++ (encodeUIntLE 8 message.highLimitPrice
     ++ (encodeUIntLE 8 message.lowLimitPrice
     ++ (encodeUIntLE 8 message.maxPriceVariation
-    ++ (SnapshotFullRefreshGroups.encode message.snapshotFullRefreshGroups)))))))))))
+    ++ (SnapshotFullRefreshLegacyGroups.encode message.snapshotFullRefreshLegacyGroups)))))))))))
 
 def decode (bytes : List UInt8) : Option (SnapshotFullRefreshLegacy × List UInt8) := do
   let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
@@ -2728,8 +2728,8 @@ def decode (bytes : List UInt8) : Option (SnapshotFullRefreshLegacy × List UInt
   let (highLimitPrice, bytes) ← decodeUIntLE 8 bytes
   let (lowLimitPrice, bytes) ← decodeUIntLE 8 bytes
   let (maxPriceVariation, bytes) ← decodeUIntLE 8 bytes
-  let (snapshotFullRefreshGroups, bytes) ← SnapshotFullRefreshGroups.decode bytes
-  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, rptSeq, transactTime, lastUpdateTime, tradeDate, mdSecurityTradingStatus, highLimitPrice, lowLimitPrice, maxPriceVariation, snapshotFullRefreshGroups }, bytes)
+  let (snapshotFullRefreshLegacyGroups, bytes) ← SnapshotFullRefreshLegacyGroups.decode bytes
+  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, rptSeq, transactTime, lastUpdateTime, tradeDate, mdSecurityTradingStatus, highLimitPrice, lowLimitPrice, maxPriceVariation, snapshotFullRefreshLegacyGroups }, bytes)
 
 theorem encode_length_pos (message : SnapshotFullRefreshLegacy) : (encode message).length > 0 := by
   unfold encode
@@ -2738,7 +2738,7 @@ theorem encode_length_pos (message : SnapshotFullRefreshLegacy) : (encode messag
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : SnapshotFullRefreshLegacy) : (encode message).length ≤ 5672 := by
-  have bound_snapshotFullRefreshGroups := SnapshotFullRefreshGroups.encode_length_le message.snapshotFullRefreshGroups
+  have bound_snapshotFullRefreshLegacyGroups := SnapshotFullRefreshLegacyGroups.encode_length_le message.snapshotFullRefreshLegacyGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length]
   omega
@@ -2768,7 +2768,7 @@ theorem encode_length_le (message : SnapshotFullRefreshLegacy) : (encode message
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [SnapshotFullRefreshGroups.decode_encode, some_bind]
+  rw [SnapshotFullRefreshLegacyGroups.decode_encode, some_bind]
   rfl
 
 end SnapshotFullRefreshLegacy
@@ -3370,6 +3370,925 @@ set_option maxRecDepth 4096 in
 
 end MdInstrumentDefinitionOptionLegacy
 
+/-- Incremental Refresh Trade Summary Legacy Group: 32 bytes -/
+structure IncrementalRefreshTradeSummaryLegacyGroup where
+  mdEntryPx : BitVec 64
+  mdEntrySizeShort : BitVec 32
+  securityId : BitVec 32
+  rptSeq : BitVec 32
+  numberOfOrdersOptional : BitVec 32
+  aggressorSide : BitVec 8
+  mdUpdateAction : BitVec 8
+  mdTradeEntryId : BitVec 32
+  padding2 : Alpha 2
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshTradeSummaryLegacyGroup
+
+def encode (message : IncrementalRefreshTradeSummaryLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPx
+    ++ (encodeUIntLE 4 message.mdEntrySizeShort
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq
+    ++ (encodeUIntLE 4 message.numberOfOrdersOptional
+    ++ (encodeUInt 1 message.aggressorSide
+    ++ (encodeUInt 1 message.mdUpdateAction
+    ++ (encodeUIntLE 4 message.mdTradeEntryId
+    ++ (Alpha.encode message.padding2))))))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryLegacyGroup × List UInt8) := do
+  let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeShort, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfOrdersOptional, bytes) ← decodeUIntLE 4 bytes
+  let (aggressorSide, bytes) ← decodeUInt 1 bytes
+  let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
+  let (mdTradeEntryId, bytes) ← decodeUIntLE 4 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  pure ({ mdEntryPx, mdEntrySizeShort, securityId, rptSeq, numberOfOrdersOptional, aggressorSide, mdUpdateAction, mdTradeEntryId, padding2 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshTradeSummaryLegacyGroup) : (encode message).length = 32 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshTradeSummaryLegacyGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryLegacyGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshTradeSummaryLegacyGroup
+
+/-- Incremental Refresh Trade Summary Legacy Groups -/
+structure IncrementalRefreshTradeSummaryLegacyGroups where
+  blockLength : BitVec 16
+  incrementalRefreshTradeSummaryLegacyGroup : Bounded 1 IncrementalRefreshTradeSummaryLegacyGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshTradeSummaryLegacyGroups
+
+def encode (message : IncrementalRefreshTradeSummaryLegacyGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshTradeSummaryLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshTradeSummaryLegacyGroup.encode message.incrementalRefreshTradeSummaryLegacyGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryLegacyGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshTradeSummaryLegacyGroup_, bytes) ← decodeMany IncrementalRefreshTradeSummaryLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshTradeSummaryLegacyGroup : incrementalRefreshTradeSummaryLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshTradeSummaryLegacyGroup := ⟨incrementalRefreshTradeSummaryLegacyGroup_, fits_incrementalRefreshTradeSummaryLegacyGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshTradeSummaryLegacyGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshTradeSummaryLegacyGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshTradeSummaryLegacyGroup := message.incrementalRefreshTradeSummaryLegacyGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshTradeSummaryLegacyGroup.encode 32 IncrementalRefreshTradeSummaryLegacyGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryLegacyGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshTradeSummaryLegacyGroup.encode IncrementalRefreshTradeSummaryLegacyGroup.decode IncrementalRefreshTradeSummaryLegacyGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshTradeSummaryLegacyGroup.length_lt]
+  rfl
+
+end IncrementalRefreshTradeSummaryLegacyGroups
+
+/-- Incremental Refresh Trade Summary Order Id Group: 16 bytes -/
+structure IncrementalRefreshTradeSummaryOrderIdGroup where
+  orderId : BitVec 64
+  lastQty : BitVec 32
+  padding4 : Alpha 4
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshTradeSummaryOrderIdGroup
+
+def encode (message : IncrementalRefreshTradeSummaryOrderIdGroup) : List UInt8 :=
+  encodeUIntLE 8 message.orderId
+    ++ (encodeUIntLE 4 message.lastQty
+    ++ (Alpha.encode message.padding4))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryOrderIdGroup × List UInt8) := do
+  let (orderId, bytes) ← decodeUIntLE 8 bytes
+  let (lastQty, bytes) ← decodeUIntLE 4 bytes
+  let (padding4, bytes) ← Alpha.decode 4 bytes
+  pure ({ orderId, lastQty, padding4 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshTradeSummaryOrderIdGroup) : (encode message).length = 16 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshTradeSummaryOrderIdGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryOrderIdGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshTradeSummaryOrderIdGroup
+
+/-- Incremental Refresh Trade Summary Order Id Groups -/
+structure IncrementalRefreshTradeSummaryOrderIdGroups where
+  blockLength : BitVec 16
+  padding5 : Alpha 5
+  incrementalRefreshTradeSummaryOrderIdGroup : Bounded 1 IncrementalRefreshTradeSummaryOrderIdGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshTradeSummaryOrderIdGroups
+
+def encode (message : IncrementalRefreshTradeSummaryOrderIdGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (Alpha.encode message.padding5
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshTradeSummaryOrderIdGroup.val.length)
+    ++ (encodeMany IncrementalRefreshTradeSummaryOrderIdGroup.encode message.incrementalRefreshTradeSummaryOrderIdGroup.val)))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryOrderIdGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (padding5, bytes) ← Alpha.decode 5 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshTradeSummaryOrderIdGroup_, bytes) ← decodeMany IncrementalRefreshTradeSummaryOrderIdGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshTradeSummaryOrderIdGroup : incrementalRefreshTradeSummaryOrderIdGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, padding5, incrementalRefreshTradeSummaryOrderIdGroup := ⟨incrementalRefreshTradeSummaryOrderIdGroup_, fits_incrementalRefreshTradeSummaryOrderIdGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshTradeSummaryOrderIdGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshTradeSummaryOrderIdGroups) : (encode message).length ≤ 4088 := by
+  have bound_incrementalRefreshTradeSummaryOrderIdGroup := message.incrementalRefreshTradeSummaryOrderIdGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshTradeSummaryOrderIdGroup.encode 16 IncrementalRefreshTradeSummaryOrderIdGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryOrderIdGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshTradeSummaryOrderIdGroup.encode IncrementalRefreshTradeSummaryOrderIdGroup.decode IncrementalRefreshTradeSummaryOrderIdGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshTradeSummaryOrderIdGroup.length_lt]
+  rfl
+
+end IncrementalRefreshTradeSummaryOrderIdGroups
+
+/-- Md Incremental Refresh Trade Summary Legacy -/
+structure MdIncrementalRefreshTradeSummaryLegacy where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshTradeSummaryLegacyGroups : IncrementalRefreshTradeSummaryLegacyGroups
+  incrementalRefreshTradeSummaryOrderIdGroups : IncrementalRefreshTradeSummaryOrderIdGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshTradeSummaryLegacy
+
+def encode (message : MdIncrementalRefreshTradeSummaryLegacy) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshTradeSummaryLegacyGroups.encode message.incrementalRefreshTradeSummaryLegacyGroups
+    ++ (IncrementalRefreshTradeSummaryOrderIdGroups.encode message.incrementalRefreshTradeSummaryOrderIdGroups))))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshTradeSummaryLegacy × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshTradeSummaryLegacyGroups, bytes) ← IncrementalRefreshTradeSummaryLegacyGroups.decode bytes
+  let (incrementalRefreshTradeSummaryOrderIdGroups, bytes) ← IncrementalRefreshTradeSummaryOrderIdGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshTradeSummaryLegacyGroups, incrementalRefreshTradeSummaryOrderIdGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshTradeSummaryLegacy) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshTradeSummaryLegacy) : (encode message).length ≤ 12262 := by
+  have bound_incrementalRefreshTradeSummaryLegacyGroups := IncrementalRefreshTradeSummaryLegacyGroups.encode_length_le message.incrementalRefreshTradeSummaryLegacyGroups
+  have bound_incrementalRefreshTradeSummaryOrderIdGroups := IncrementalRefreshTradeSummaryOrderIdGroups.encode_length_le message.incrementalRefreshTradeSummaryOrderIdGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshTradeSummaryLegacy) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, IncrementalRefreshTradeSummaryLegacyGroups.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshTradeSummaryOrderIdGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshTradeSummaryLegacy
+
+/-- Incremental Refresh Order Book Legacy Group: 40 bytes -/
+structure IncrementalRefreshOrderBookLegacyGroup where
+  orderIdOptional : BitVec 64
+  mdOrderPriority : BitVec 64
+  mdEntryPxOptional : BitVec 64
+  mdDisplayQtyOptional : BitVec 32
+  securityId : BitVec 32
+  mdUpdateAction : BitVec 8
+  mdEntryTypeBook : MdEntryTypeBook
+  padding6 : Alpha 6
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshOrderBookLegacyGroup
+
+def encode (message : IncrementalRefreshOrderBookLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.orderIdOptional
+    ++ (encodeUIntLE 8 message.mdOrderPriority
+    ++ (encodeUIntLE 8 message.mdEntryPxOptional
+    ++ (encodeUIntLE 4 message.mdDisplayQtyOptional
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUInt 1 message.mdUpdateAction
+    ++ (MdEntryTypeBook.encode message.mdEntryTypeBook
+    ++ (Alpha.encode message.padding6)))))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookLegacyGroup × List UInt8) := do
+  let (orderIdOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdOrderPriority, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPxOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdDisplayQtyOptional, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
+  let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
+  let (padding6, bytes) ← Alpha.decode 6 bytes
+  pure ({ orderIdOptional, mdOrderPriority, mdEntryPxOptional, mdDisplayQtyOptional, securityId, mdUpdateAction, mdEntryTypeBook, padding6 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshOrderBookLegacyGroup) : (encode message).length = 40 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeBook.encode_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshOrderBookLegacyGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookLegacyGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, MdEntryTypeBook.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshOrderBookLegacyGroup
+
+/-- Incremental Refresh Order Book Legacy Groups -/
+structure IncrementalRefreshOrderBookLegacyGroups where
+  blockLength : BitVec 16
+  incrementalRefreshOrderBookLegacyGroup : Bounded 1 IncrementalRefreshOrderBookLegacyGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshOrderBookLegacyGroups
+
+def encode (message : IncrementalRefreshOrderBookLegacyGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshOrderBookLegacyGroup.val.length)
+    ++ (encodeMany IncrementalRefreshOrderBookLegacyGroup.encode message.incrementalRefreshOrderBookLegacyGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookLegacyGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshOrderBookLegacyGroup_, bytes) ← decodeMany IncrementalRefreshOrderBookLegacyGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshOrderBookLegacyGroup : incrementalRefreshOrderBookLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshOrderBookLegacyGroup := ⟨incrementalRefreshOrderBookLegacyGroup_, fits_incrementalRefreshOrderBookLegacyGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshOrderBookLegacyGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshOrderBookLegacyGroups) : (encode message).length ≤ 10203 := by
+  have bound_incrementalRefreshOrderBookLegacyGroup := message.incrementalRefreshOrderBookLegacyGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshOrderBookLegacyGroup.encode 40 IncrementalRefreshOrderBookLegacyGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookLegacyGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshOrderBookLegacyGroup.encode IncrementalRefreshOrderBookLegacyGroup.decode IncrementalRefreshOrderBookLegacyGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshOrderBookLegacyGroup.length_lt]
+  rfl
+
+end IncrementalRefreshOrderBookLegacyGroups
+
+/-- Md Incremental Refresh Order Book Legacy -/
+structure MdIncrementalRefreshOrderBookLegacy where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshOrderBookLegacyGroups : IncrementalRefreshOrderBookLegacyGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshOrderBookLegacy
+
+def encode (message : MdIncrementalRefreshOrderBookLegacy) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshOrderBookLegacyGroups.encode message.incrementalRefreshOrderBookLegacyGroups)))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshOrderBookLegacy × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshOrderBookLegacyGroups, bytes) ← IncrementalRefreshOrderBookLegacyGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshOrderBookLegacyGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshOrderBookLegacy) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshOrderBookLegacy) : (encode message).length ≤ 10214 := by
+  have bound_incrementalRefreshOrderBookLegacyGroups := IncrementalRefreshOrderBookLegacyGroups.encode_length_le message.incrementalRefreshOrderBookLegacyGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshOrderBookLegacy) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshOrderBookLegacyGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshOrderBookLegacy
+
+/-- Snapshot Full Refresh Order Book Legacy Group: 29 bytes -/
+structure SnapshotFullRefreshOrderBookLegacyGroup where
+  orderId : BitVec 64
+  mdOrderPriority : BitVec 64
+  mdEntryPx : BitVec 64
+  mdDisplayQty : BitVec 32
+  mdEntryTypeBook : MdEntryTypeBook
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefreshOrderBookLegacyGroup
+
+def encode (message : SnapshotFullRefreshOrderBookLegacyGroup) : List UInt8 :=
+  encodeUIntLE 8 message.orderId
+    ++ (encodeUIntLE 8 message.mdOrderPriority
+    ++ (encodeUIntLE 8 message.mdEntryPx
+    ++ (encodeUIntLE 4 message.mdDisplayQty
+    ++ (MdEntryTypeBook.encode message.mdEntryTypeBook))))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshOrderBookLegacyGroup × List UInt8) := do
+  let (orderId, bytes) ← decodeUIntLE 8 bytes
+  let (mdOrderPriority, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPx, bytes) ← decodeUIntLE 8 bytes
+  let (mdDisplayQty, bytes) ← decodeUIntLE 4 bytes
+  let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
+  pure ({ orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryTypeBook }, bytes)
+
+@[simp] theorem encode_length (message : SnapshotFullRefreshOrderBookLegacyGroup) : (encode message).length = 29 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, MdEntryTypeBook.encode_length]
+
+theorem encode_length_pos (message : SnapshotFullRefreshOrderBookLegacyGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : SnapshotFullRefreshOrderBookLegacyGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [MdEntryTypeBook.decode_encode, some_bind]
+  rfl
+
+end SnapshotFullRefreshOrderBookLegacyGroup
+
+/-- Snapshot Full Refresh Order Book Legacy Groups -/
+structure SnapshotFullRefreshOrderBookLegacyGroups where
+  blockLength : BitVec 16
+  snapshotFullRefreshOrderBookLegacyGroup : Bounded 1 SnapshotFullRefreshOrderBookLegacyGroup
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefreshOrderBookLegacyGroups
+
+def encode (message : SnapshotFullRefreshOrderBookLegacyGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snapshotFullRefreshOrderBookLegacyGroup.val.length)
+    ++ (encodeMany SnapshotFullRefreshOrderBookLegacyGroup.encode message.snapshotFullRefreshOrderBookLegacyGroup.val))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshOrderBookLegacyGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (snapshotFullRefreshOrderBookLegacyGroup_, bytes) ← decodeMany SnapshotFullRefreshOrderBookLegacyGroup.decode numInGroup.toNat bytes
+  if fits_snapshotFullRefreshOrderBookLegacyGroup : snapshotFullRefreshOrderBookLegacyGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, snapshotFullRefreshOrderBookLegacyGroup := ⟨snapshotFullRefreshOrderBookLegacyGroup_, fits_snapshotFullRefreshOrderBookLegacyGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : SnapshotFullRefreshOrderBookLegacyGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : SnapshotFullRefreshOrderBookLegacyGroups) : (encode message).length ≤ 7398 := by
+  have bound_snapshotFullRefreshOrderBookLegacyGroup := message.snapshotFullRefreshOrderBookLegacyGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnapshotFullRefreshOrderBookLegacyGroup.encode 29 SnapshotFullRefreshOrderBookLegacyGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : SnapshotFullRefreshOrderBookLegacyGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 SnapshotFullRefreshOrderBookLegacyGroup.encode SnapshotFullRefreshOrderBookLegacyGroup.decode SnapshotFullRefreshOrderBookLegacyGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.snapshotFullRefreshOrderBookLegacyGroup.length_lt]
+  rfl
+
+end SnapshotFullRefreshOrderBookLegacyGroups
+
+/-- Snapshot Full Refresh Order Book Legacy -/
+structure SnapshotFullRefreshOrderBookLegacy where
+  lastMsgSeqNumProcessed : BitVec 32
+  totNumReports : BitVec 32
+  securityId : BitVec 32
+  noChunks : BitVec 32
+  currentChunk : BitVec 32
+  transactTime : BitVec 64
+  snapshotFullRefreshOrderBookLegacyGroups : SnapshotFullRefreshOrderBookLegacyGroups
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefreshOrderBookLegacy
+
+def encode (message : SnapshotFullRefreshOrderBookLegacy) : List UInt8 :=
+  encodeUIntLE 4 message.lastMsgSeqNumProcessed
+    ++ (encodeUIntLE 4 message.totNumReports
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.noChunks
+    ++ (encodeUIntLE 4 message.currentChunk
+    ++ (encodeUIntLE 8 message.transactTime
+    ++ (SnapshotFullRefreshOrderBookLegacyGroups.encode message.snapshotFullRefreshOrderBookLegacyGroups))))))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshOrderBookLegacy × List UInt8) := do
+  let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
+  let (totNumReports, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (noChunks, bytes) ← decodeUIntLE 4 bytes
+  let (currentChunk, bytes) ← decodeUIntLE 4 bytes
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (snapshotFullRefreshOrderBookLegacyGroups, bytes) ← SnapshotFullRefreshOrderBookLegacyGroups.decode bytes
+  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, noChunks, currentChunk, transactTime, snapshotFullRefreshOrderBookLegacyGroups }, bytes)
+
+theorem encode_length_pos (message : SnapshotFullRefreshOrderBookLegacy) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : SnapshotFullRefreshOrderBookLegacy) : (encode message).length ≤ 7426 := by
+  have bound_snapshotFullRefreshOrderBookLegacyGroups := SnapshotFullRefreshOrderBookLegacyGroups.encode_length_le message.snapshotFullRefreshOrderBookLegacyGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
+  omega
+
+@[simp] theorem decode_encode (message : SnapshotFullRefreshOrderBookLegacy) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [SnapshotFullRefreshOrderBookLegacyGroups.decode_encode, some_bind]
+  rfl
+
+end SnapshotFullRefreshOrderBookLegacy
+
+/-- Incremental Refresh Book Group: 32 bytes -/
+structure IncrementalRefreshBookGroup where
+  mdEntryPxOptionalEx : BitVec 64
+  mdEntrySizeShortOptional : BitVec 32
+  securityId : BitVec 32
+  rptSeq : BitVec 32
+  numberOfOrdersOptional : BitVec 32
+  mdPriceLevel : BitVec 8
+  mdUpdateAction : BitVec 8
+  mdEntryTypeBook : MdEntryTypeBook
+  padding5 : Alpha 5
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshBookGroup
+
+def encode (message : IncrementalRefreshBookGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptionalEx
+    ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq
+    ++ (encodeUIntLE 4 message.numberOfOrdersOptional
+    ++ (encodeUInt 1 message.mdPriceLevel
+    ++ (encodeUInt 1 message.mdUpdateAction
+    ++ (MdEntryTypeBook.encode message.mdEntryTypeBook
+    ++ (Alpha.encode message.padding5))))))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshBookGroup × List UInt8) := do
+  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfOrdersOptional, bytes) ← decodeUIntLE 4 bytes
+  let (mdPriceLevel, bytes) ← decodeUInt 1 bytes
+  let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
+  let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
+  let (padding5, bytes) ← Alpha.decode 5 bytes
+  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, securityId, rptSeq, numberOfOrdersOptional, mdPriceLevel, mdUpdateAction, mdEntryTypeBook, padding5 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshBookGroup) : (encode message).length = 32 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeBook.encode_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshBookGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshBookGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, MdEntryTypeBook.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshBookGroup
+
+/-- Incremental Refresh Book Groups -/
+structure IncrementalRefreshBookGroups where
+  blockLength : BitVec 16
+  incrementalRefreshBookGroup : Bounded 1 IncrementalRefreshBookGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshBookGroups
+
+def encode (message : IncrementalRefreshBookGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshBookGroup.val.length)
+    ++ (encodeMany IncrementalRefreshBookGroup.encode message.incrementalRefreshBookGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshBookGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshBookGroup_, bytes) ← decodeMany IncrementalRefreshBookGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshBookGroup : incrementalRefreshBookGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshBookGroup := ⟨incrementalRefreshBookGroup_, fits_incrementalRefreshBookGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshBookGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshBookGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshBookGroup := message.incrementalRefreshBookGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshBookGroup.encode 32 IncrementalRefreshBookGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshBookGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshBookGroup.encode IncrementalRefreshBookGroup.decode IncrementalRefreshBookGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshBookGroup.length_lt]
+  rfl
+
+end IncrementalRefreshBookGroups
+
+/-- Md Incremental Refresh Book -/
+structure MdIncrementalRefreshBook where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshBookGroups : IncrementalRefreshBookGroups
+  incrementalRefreshBookOrderIdGroups : IncrementalRefreshBookOrderIdGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshBook
+
+def encode (message : MdIncrementalRefreshBook) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshBookGroups.encode message.incrementalRefreshBookGroups
+    ++ (IncrementalRefreshBookOrderIdGroups.encode message.incrementalRefreshBookOrderIdGroups))))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshBook × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshBookGroups, bytes) ← IncrementalRefreshBookGroups.decode bytes
+  let (incrementalRefreshBookOrderIdGroups, bytes) ← IncrementalRefreshBookOrderIdGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshBookGroups, incrementalRefreshBookOrderIdGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshBook) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshBook) : (encode message).length ≤ 14302 := by
+  have bound_incrementalRefreshBookGroups := IncrementalRefreshBookGroups.encode_length_le message.incrementalRefreshBookGroups
+  have bound_incrementalRefreshBookOrderIdGroups := IncrementalRefreshBookOrderIdGroups.encode_length_le message.incrementalRefreshBookOrderIdGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshBook) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, IncrementalRefreshBookGroups.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshBookOrderIdGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshBook
+
+/-- Incremental Refresh Order Book Group: 40 bytes -/
+structure IncrementalRefreshOrderBookGroup where
+  orderIdOptional : BitVec 64
+  mdOrderPriority : BitVec 64
+  mdEntryPxOptionalEx : BitVec 64
+  mdDisplayQtyOptional : BitVec 32
+  securityId : BitVec 32
+  mdUpdateAction : BitVec 8
+  mdEntryTypeBook : MdEntryTypeBook
+  padding6 : Alpha 6
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshOrderBookGroup
+
+def encode (message : IncrementalRefreshOrderBookGroup) : List UInt8 :=
+  encodeUIntLE 8 message.orderIdOptional
+    ++ (encodeUIntLE 8 message.mdOrderPriority
+    ++ (encodeUIntLE 8 message.mdEntryPxOptionalEx
+    ++ (encodeUIntLE 4 message.mdDisplayQtyOptional
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUInt 1 message.mdUpdateAction
+    ++ (MdEntryTypeBook.encode message.mdEntryTypeBook
+    ++ (Alpha.encode message.padding6)))))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookGroup × List UInt8) := do
+  let (orderIdOptional, bytes) ← decodeUIntLE 8 bytes
+  let (mdOrderPriority, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+  let (mdDisplayQtyOptional, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
+  let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
+  let (padding6, bytes) ← Alpha.decode 6 bytes
+  pure ({ orderIdOptional, mdOrderPriority, mdEntryPxOptionalEx, mdDisplayQtyOptional, securityId, mdUpdateAction, mdEntryTypeBook, padding6 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshOrderBookGroup) : (encode message).length = 40 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeBook.encode_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshOrderBookGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, MdEntryTypeBook.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshOrderBookGroup
+
+/-- Incremental Refresh Order Book Groups -/
+structure IncrementalRefreshOrderBookGroups where
+  blockLength : BitVec 16
+  incrementalRefreshOrderBookGroup : Bounded 1 IncrementalRefreshOrderBookGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshOrderBookGroups
+
+def encode (message : IncrementalRefreshOrderBookGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshOrderBookGroup.val.length)
+    ++ (encodeMany IncrementalRefreshOrderBookGroup.encode message.incrementalRefreshOrderBookGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshOrderBookGroup_, bytes) ← decodeMany IncrementalRefreshOrderBookGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshOrderBookGroup : incrementalRefreshOrderBookGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshOrderBookGroup := ⟨incrementalRefreshOrderBookGroup_, fits_incrementalRefreshOrderBookGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshOrderBookGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshOrderBookGroups) : (encode message).length ≤ 10203 := by
+  have bound_incrementalRefreshOrderBookGroup := message.incrementalRefreshOrderBookGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshOrderBookGroup.encode 40 IncrementalRefreshOrderBookGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshOrderBookGroup.encode IncrementalRefreshOrderBookGroup.decode IncrementalRefreshOrderBookGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshOrderBookGroup.length_lt]
+  rfl
+
+end IncrementalRefreshOrderBookGroups
+
+/-- Md Incremental Refresh Order Book -/
+structure MdIncrementalRefreshOrderBook where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshOrderBookGroups : IncrementalRefreshOrderBookGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshOrderBook
+
+def encode (message : MdIncrementalRefreshOrderBook) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshOrderBookGroups.encode message.incrementalRefreshOrderBookGroups)))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshOrderBook × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshOrderBookGroups, bytes) ← IncrementalRefreshOrderBookGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshOrderBookGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshOrderBook) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshOrderBook) : (encode message).length ≤ 10214 := by
+  have bound_incrementalRefreshOrderBookGroups := IncrementalRefreshOrderBookGroups.encode_length_le message.incrementalRefreshOrderBookGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshOrderBook) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshOrderBookGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshOrderBook
+
 /-- Incremental Refresh Trade Summary Group: 32 bytes -/
 structure IncrementalRefreshTradeSummaryGroup where
   mdEntryPxEx : BitVec 64
@@ -3487,100 +4406,8 @@ theorem encode_length_le (message : IncrementalRefreshTradeSummaryGroups) : (enc
 
 end IncrementalRefreshTradeSummaryGroups
 
-/-- Incremental Refresh Trade Summary Order Id Group: 16 bytes -/
-structure IncrementalRefreshTradeSummaryOrderIdGroup where
-  orderId : BitVec 64
-  lastQty : BitVec 32
-  padding4 : Alpha 4
-  deriving DecidableEq, Repr
-
-namespace IncrementalRefreshTradeSummaryOrderIdGroup
-
-def encode (message : IncrementalRefreshTradeSummaryOrderIdGroup) : List UInt8 :=
-  encodeUIntLE 8 message.orderId
-    ++ (encodeUIntLE 4 message.lastQty
-    ++ (Alpha.encode message.padding4))
-
-def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryOrderIdGroup × List UInt8) := do
-  let (orderId, bytes) ← decodeUIntLE 8 bytes
-  let (lastQty, bytes) ← decodeUIntLE 4 bytes
-  let (padding4, bytes) ← Alpha.decode 4 bytes
-  pure ({ orderId, lastQty, padding4 }, bytes)
-
-@[simp] theorem encode_length (message : IncrementalRefreshTradeSummaryOrderIdGroup) : (encode message).length = 16 := by
-  unfold encode
-  simp only [List.length_append, encodeUIntLE_length, Alpha.encode_length]
-
-theorem encode_length_pos (message : IncrementalRefreshTradeSummaryOrderIdGroup) : (encode message).length > 0 := by
-  rw [encode_length]
-  decide
-
-@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryOrderIdGroup) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [Alpha.decode_encode, some_bind]
-  rfl
-
-end IncrementalRefreshTradeSummaryOrderIdGroup
-
-/-- Incremental Refresh Trade Summary Order Id Groups -/
-structure IncrementalRefreshTradeSummaryOrderIdGroups where
-  blockLength : BitVec 16
-  padding5 : Alpha 5
-  incrementalRefreshTradeSummaryOrderIdGroup : Bounded 1 IncrementalRefreshTradeSummaryOrderIdGroup
-  deriving DecidableEq, Repr
-
-namespace IncrementalRefreshTradeSummaryOrderIdGroups
-
-def encode (message : IncrementalRefreshTradeSummaryOrderIdGroups) : List UInt8 :=
-  encodeUIntLE 2 message.blockLength
-    ++ (Alpha.encode message.padding5
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshTradeSummaryOrderIdGroup.val.length)
-    ++ (encodeMany IncrementalRefreshTradeSummaryOrderIdGroup.encode message.incrementalRefreshTradeSummaryOrderIdGroup.val)))
-
-def decode (bytes : List UInt8) : Option (IncrementalRefreshTradeSummaryOrderIdGroups × List UInt8) := do
-  let (blockLength, bytes) ← decodeUIntLE 2 bytes
-  let (padding5, bytes) ← Alpha.decode 5 bytes
-  let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshTradeSummaryOrderIdGroup_, bytes) ← decodeMany IncrementalRefreshTradeSummaryOrderIdGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshTradeSummaryOrderIdGroup : incrementalRefreshTradeSummaryOrderIdGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, padding5, incrementalRefreshTradeSummaryOrderIdGroup := ⟨incrementalRefreshTradeSummaryOrderIdGroup_, fits_incrementalRefreshTradeSummaryOrderIdGroup⟩ }, bytes)
-  else none
-
-theorem encode_length_pos (message : IncrementalRefreshTradeSummaryOrderIdGroups) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshTradeSummaryOrderIdGroups) : (encode message).length ≤ 4088 := by
-  have bound_incrementalRefreshTradeSummaryOrderIdGroup := message.incrementalRefreshTradeSummaryOrderIdGroup.length_lt
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshTradeSummaryOrderIdGroup.encode 16 IncrementalRefreshTradeSummaryOrderIdGroup.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : IncrementalRefreshTradeSummaryOrderIdGroups) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshTradeSummaryOrderIdGroup.encode IncrementalRefreshTradeSummaryOrderIdGroup.decode IncrementalRefreshTradeSummaryOrderIdGroup.decode_encode, some_bind]
-  dsimp only
-  rw [dite_eq_left message.incrementalRefreshTradeSummaryOrderIdGroup.length_lt]
-  rfl
-
-end IncrementalRefreshTradeSummaryOrderIdGroups
-
-/-- Md Incremental Refresh Trade Summary Legacy -/
-structure MdIncrementalRefreshTradeSummaryLegacy where
+/-- Md Incremental Refresh Trade Summary -/
+structure MdIncrementalRefreshTradeSummary where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
@@ -3588,16 +4415,16 @@ structure MdIncrementalRefreshTradeSummaryLegacy where
   incrementalRefreshTradeSummaryOrderIdGroups : IncrementalRefreshTradeSummaryOrderIdGroups
   deriving DecidableEq, Repr
 
-namespace MdIncrementalRefreshTradeSummaryLegacy
+namespace MdIncrementalRefreshTradeSummary
 
-def encode (message : MdIncrementalRefreshTradeSummaryLegacy) : List UInt8 :=
+def encode (message : MdIncrementalRefreshTradeSummary) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
     ++ (IncrementalRefreshTradeSummaryGroups.encode message.incrementalRefreshTradeSummaryGroups
     ++ (IncrementalRefreshTradeSummaryOrderIdGroups.encode message.incrementalRefreshTradeSummaryOrderIdGroups))))
 
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshTradeSummaryLegacy × List UInt8) := do
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshTradeSummary × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
@@ -3605,20 +4432,20 @@ def decode (bytes : List UInt8) : Option (MdIncrementalRefreshTradeSummaryLegacy
   let (incrementalRefreshTradeSummaryOrderIdGroups, bytes) ← IncrementalRefreshTradeSummaryOrderIdGroups.decode bytes
   pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshTradeSummaryGroups, incrementalRefreshTradeSummaryOrderIdGroups }, bytes)
 
-theorem encode_length_pos (message : MdIncrementalRefreshTradeSummaryLegacy) : (encode message).length > 0 := by
+theorem encode_length_pos (message : MdIncrementalRefreshTradeSummary) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshTradeSummaryLegacy) : (encode message).length ≤ 12262 := by
+theorem encode_length_le (message : MdIncrementalRefreshTradeSummary) : (encode message).length ≤ 12262 := by
   have bound_incrementalRefreshTradeSummaryGroups := IncrementalRefreshTradeSummaryGroups.encode_length_le message.incrementalRefreshTradeSummaryGroups
   have bound_incrementalRefreshTradeSummaryOrderIdGroups := IncrementalRefreshTradeSummaryOrderIdGroups.encode_length_le message.incrementalRefreshTradeSummaryOrderIdGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : MdIncrementalRefreshTradeSummaryLegacy) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : MdIncrementalRefreshTradeSummary) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3632,52 +4459,55 @@ theorem encode_length_le (message : MdIncrementalRefreshTradeSummaryLegacy) : (e
   rw [IncrementalRefreshTradeSummaryOrderIdGroups.decode_encode, some_bind]
   rfl
 
-end MdIncrementalRefreshTradeSummaryLegacy
+end MdIncrementalRefreshTradeSummary
 
-/-- Incremental Refresh Order Book Group: 40 bytes -/
-structure IncrementalRefreshOrderBookGroup where
-  orderIdOptional : BitVec 64
-  mdOrderPriority : BitVec 64
+/-- Incremental Refresh Daily Statistics Group: 32 bytes -/
+structure IncrementalRefreshDailyStatisticsGroup where
   mdEntryPxOptionalEx : BitVec 64
-  mdDisplayQtyOptional : BitVec 32
+  mdEntrySizeShortOptional : BitVec 32
   securityId : BitVec 32
+  rptSeq : BitVec 32
+  tradingReferenceDate : BitVec 16
+  settlPriceType : BitVec 8
   mdUpdateAction : BitVec 8
-  mdEntryTypeBook : MdEntryTypeBook
-  padding6 : Alpha 6
+  mdEntryTypeDailyStatistics : MdEntryTypeDailyStatistics
+  padding7 : Alpha 7
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshOrderBookGroup
+namespace IncrementalRefreshDailyStatisticsGroup
 
-def encode (message : IncrementalRefreshOrderBookGroup) : List UInt8 :=
-  encodeUIntLE 8 message.orderIdOptional
-    ++ (encodeUIntLE 8 message.mdOrderPriority
-    ++ (encodeUIntLE 8 message.mdEntryPxOptionalEx
-    ++ (encodeUIntLE 4 message.mdDisplayQtyOptional
+def encode (message : IncrementalRefreshDailyStatisticsGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptionalEx
+    ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
     ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq
+    ++ (encodeUIntLE 2 message.tradingReferenceDate
+    ++ (encodeUIntLE 1 message.settlPriceType
     ++ (encodeUInt 1 message.mdUpdateAction
-    ++ (MdEntryTypeBook.encode message.mdEntryTypeBook
-    ++ (Alpha.encode message.padding6)))))))
+    ++ (MdEntryTypeDailyStatistics.encode message.mdEntryTypeDailyStatistics
+    ++ (Alpha.encode message.padding7))))))))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookGroup × List UInt8) := do
-  let (orderIdOptional, bytes) ← decodeUIntLE 8 bytes
-  let (mdOrderPriority, bytes) ← decodeUIntLE 8 bytes
+def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsGroup × List UInt8) := do
   let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
-  let (mdDisplayQtyOptional, bytes) ← decodeUIntLE 4 bytes
+  let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
   let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  let (tradingReferenceDate, bytes) ← decodeUIntLE 2 bytes
+  let (settlPriceType, bytes) ← decodeUIntLE 1 bytes
   let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
-  let (mdEntryTypeBook, bytes) ← MdEntryTypeBook.decode bytes
-  let (padding6, bytes) ← Alpha.decode 6 bytes
-  pure ({ orderIdOptional, mdOrderPriority, mdEntryPxOptionalEx, mdDisplayQtyOptional, securityId, mdUpdateAction, mdEntryTypeBook, padding6 }, bytes)
+  let (mdEntryTypeDailyStatistics, bytes) ← MdEntryTypeDailyStatistics.decode bytes
+  let (padding7, bytes) ← Alpha.decode 7 bytes
+  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, securityId, rptSeq, tradingReferenceDate, settlPriceType, mdUpdateAction, mdEntryTypeDailyStatistics, padding7 }, bytes)
 
-@[simp] theorem encode_length (message : IncrementalRefreshOrderBookGroup) : (encode message).length = 40 := by
+@[simp] theorem encode_length (message : IncrementalRefreshDailyStatisticsGroup) : (encode message).length = 32 := by
   unfold encode
-  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeBook.encode_length, Alpha.encode_length]
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeDailyStatistics.encode_length, Alpha.encode_length]
 
-theorem encode_length_pos (message : IncrementalRefreshOrderBookGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3690,98 +4520,100 @@ theorem encode_length_pos (message : IncrementalRefreshOrderBookGroup) : (encode
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, MdEntryTypeBook.decode_encode, some_bind]
+  rw [List.append_assoc, MdEntryTypeDailyStatistics.decode_encode, some_bind]
   dsimp only
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end IncrementalRefreshOrderBookGroup
+end IncrementalRefreshDailyStatisticsGroup
 
-/-- Incremental Refresh Order Book Groups -/
-structure IncrementalRefreshOrderBookGroups where
+/-- Incremental Refresh Daily Statistics Groups -/
+structure IncrementalRefreshDailyStatisticsGroups where
   blockLength : BitVec 16
-  incrementalRefreshOrderBookGroup : Bounded 1 IncrementalRefreshOrderBookGroup
+  incrementalRefreshDailyStatisticsGroup : Bounded 1 IncrementalRefreshDailyStatisticsGroup
   deriving DecidableEq, Repr
 
-namespace IncrementalRefreshOrderBookGroups
+namespace IncrementalRefreshDailyStatisticsGroups
 
-def encode (message : IncrementalRefreshOrderBookGroups) : List UInt8 :=
+def encode (message : IncrementalRefreshDailyStatisticsGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshOrderBookGroup.val.length)
-    ++ (encodeMany IncrementalRefreshOrderBookGroup.encode message.incrementalRefreshOrderBookGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshDailyStatisticsGroup.val.length)
+    ++ (encodeMany IncrementalRefreshDailyStatisticsGroup.encode message.incrementalRefreshDailyStatisticsGroup.val))
 
-def decode (bytes : List UInt8) : Option (IncrementalRefreshOrderBookGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (IncrementalRefreshDailyStatisticsGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup, bytes) ← decodeUInt 1 bytes
-  let (incrementalRefreshOrderBookGroup_, bytes) ← decodeMany IncrementalRefreshOrderBookGroup.decode numInGroup.toNat bytes
-  if fits_incrementalRefreshOrderBookGroup : incrementalRefreshOrderBookGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, incrementalRefreshOrderBookGroup := ⟨incrementalRefreshOrderBookGroup_, fits_incrementalRefreshOrderBookGroup⟩ }, bytes)
+  let (incrementalRefreshDailyStatisticsGroup_, bytes) ← decodeMany IncrementalRefreshDailyStatisticsGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshDailyStatisticsGroup : incrementalRefreshDailyStatisticsGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshDailyStatisticsGroup := ⟨incrementalRefreshDailyStatisticsGroup_, fits_incrementalRefreshDailyStatisticsGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : IncrementalRefreshOrderBookGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : IncrementalRefreshDailyStatisticsGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : IncrementalRefreshOrderBookGroups) : (encode message).length ≤ 10203 := by
-  have bound_incrementalRefreshOrderBookGroup := message.incrementalRefreshOrderBookGroup.length_lt
+theorem encode_length_le (message : IncrementalRefreshDailyStatisticsGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshDailyStatisticsGroup := message.incrementalRefreshDailyStatisticsGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshOrderBookGroup.encode 40 IncrementalRefreshOrderBookGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshDailyStatisticsGroup.encode 32 IncrementalRefreshDailyStatisticsGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : IncrementalRefreshOrderBookGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : IncrementalRefreshDailyStatisticsGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 IncrementalRefreshOrderBookGroup.encode IncrementalRefreshOrderBookGroup.decode IncrementalRefreshOrderBookGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 IncrementalRefreshDailyStatisticsGroup.encode IncrementalRefreshDailyStatisticsGroup.decode IncrementalRefreshDailyStatisticsGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.incrementalRefreshOrderBookGroup.length_lt]
+  rw [dite_eq_left message.incrementalRefreshDailyStatisticsGroup.length_lt]
   rfl
 
-end IncrementalRefreshOrderBookGroups
+end IncrementalRefreshDailyStatisticsGroups
 
-/-- Md Incremental Refresh Order Book Legacy -/
-structure MdIncrementalRefreshOrderBookLegacy where
+/-- Md Incremental Refresh Daily Statistics -/
+structure MdIncrementalRefreshDailyStatistics where
   transactTime : BitVec 64
   matchEventIndicator : BitVec 8
   padding2 : Alpha 2
-  incrementalRefreshOrderBookGroups : IncrementalRefreshOrderBookGroups
+  incrementalRefreshDailyStatisticsGroups : IncrementalRefreshDailyStatisticsGroups
   deriving DecidableEq, Repr
 
-namespace MdIncrementalRefreshOrderBookLegacy
+namespace MdIncrementalRefreshDailyStatistics
 
-def encode (message : MdIncrementalRefreshOrderBookLegacy) : List UInt8 :=
+def encode (message : MdIncrementalRefreshDailyStatistics) : List UInt8 :=
   encodeUIntLE 8 message.transactTime
     ++ (encodeUIntLE 1 message.matchEventIndicator
     ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshOrderBookGroups.encode message.incrementalRefreshOrderBookGroups)))
+    ++ (IncrementalRefreshDailyStatisticsGroups.encode message.incrementalRefreshDailyStatisticsGroups)))
 
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshOrderBookLegacy × List UInt8) := do
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshDailyStatistics × List UInt8) := do
   let (transactTime, bytes) ← decodeUIntLE 8 bytes
   let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshOrderBookGroups, bytes) ← IncrementalRefreshOrderBookGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshOrderBookGroups }, bytes)
+  let (incrementalRefreshDailyStatisticsGroups, bytes) ← IncrementalRefreshDailyStatisticsGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshDailyStatisticsGroups }, bytes)
 
-theorem encode_length_pos (message : MdIncrementalRefreshOrderBookLegacy) : (encode message).length > 0 := by
+theorem encode_length_pos (message : MdIncrementalRefreshDailyStatistics) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshOrderBookLegacy) : (encode message).length ≤ 10214 := by
-  have bound_incrementalRefreshOrderBookGroups := IncrementalRefreshOrderBookGroups.encode_length_le message.incrementalRefreshOrderBookGroups
+theorem encode_length_le (message : MdIncrementalRefreshDailyStatistics) : (encode message).length ≤ 8174 := by
+  have bound_incrementalRefreshDailyStatisticsGroups := IncrementalRefreshDailyStatisticsGroups.encode_length_le message.incrementalRefreshDailyStatisticsGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : MdIncrementalRefreshOrderBookLegacy) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : MdIncrementalRefreshDailyStatistics) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -3790,10 +4622,518 @@ theorem encode_length_le (message : MdIncrementalRefreshOrderBookLegacy) : (enco
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [IncrementalRefreshOrderBookGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshDailyStatisticsGroups.decode_encode, some_bind]
   rfl
 
-end MdIncrementalRefreshOrderBookLegacy
+end MdIncrementalRefreshDailyStatistics
+
+/-- Incremental Refresh Limits Banding Group: 32 bytes -/
+structure IncrementalRefreshLimitsBandingGroup where
+  highLimitPriceEx : BitVec 64
+  lowLimitPriceEx : BitVec 64
+  maxPriceVariationEx : BitVec 64
+  securityId : BitVec 32
+  rptSeq : BitVec 32
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshLimitsBandingGroup
+
+def encode (message : IncrementalRefreshLimitsBandingGroup) : List UInt8 :=
+  encodeUIntLE 8 message.highLimitPriceEx
+    ++ (encodeUIntLE 8 message.lowLimitPriceEx
+    ++ (encodeUIntLE 8 message.maxPriceVariationEx
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingGroup × List UInt8) := do
+  let (highLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
+  let (lowLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
+  let (maxPriceVariationEx, bytes) ← decodeUIntLE 8 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  pure ({ highLimitPriceEx, lowLimitPriceEx, maxPriceVariationEx, securityId, rptSeq }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshLimitsBandingGroup) : (encode message).length = 32 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length]
+
+theorem encode_length_pos (message : IncrementalRefreshLimitsBandingGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end IncrementalRefreshLimitsBandingGroup
+
+/-- Incremental Refresh Limits Banding Groups -/
+structure IncrementalRefreshLimitsBandingGroups where
+  blockLength : BitVec 16
+  incrementalRefreshLimitsBandingGroup : Bounded 1 IncrementalRefreshLimitsBandingGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshLimitsBandingGroups
+
+def encode (message : IncrementalRefreshLimitsBandingGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshLimitsBandingGroup.val.length)
+    ++ (encodeMany IncrementalRefreshLimitsBandingGroup.encode message.incrementalRefreshLimitsBandingGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshLimitsBandingGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshLimitsBandingGroup_, bytes) ← decodeMany IncrementalRefreshLimitsBandingGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshLimitsBandingGroup : incrementalRefreshLimitsBandingGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshLimitsBandingGroup := ⟨incrementalRefreshLimitsBandingGroup_, fits_incrementalRefreshLimitsBandingGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshLimitsBandingGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshLimitsBandingGroups) : (encode message).length ≤ 8163 := by
+  have bound_incrementalRefreshLimitsBandingGroup := message.incrementalRefreshLimitsBandingGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshLimitsBandingGroup.encode 32 IncrementalRefreshLimitsBandingGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshLimitsBandingGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshLimitsBandingGroup.encode IncrementalRefreshLimitsBandingGroup.decode IncrementalRefreshLimitsBandingGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshLimitsBandingGroup.length_lt]
+  rfl
+
+end IncrementalRefreshLimitsBandingGroups
+
+/-- Md Incremental Refresh Limits Banding -/
+structure MdIncrementalRefreshLimitsBanding where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshLimitsBandingGroups : IncrementalRefreshLimitsBandingGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshLimitsBanding
+
+def encode (message : MdIncrementalRefreshLimitsBanding) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshLimitsBandingGroups.encode message.incrementalRefreshLimitsBandingGroups)))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshLimitsBanding × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshLimitsBandingGroups, bytes) ← IncrementalRefreshLimitsBandingGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshLimitsBandingGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshLimitsBanding) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshLimitsBanding) : (encode message).length ≤ 8174 := by
+  have bound_incrementalRefreshLimitsBandingGroups := IncrementalRefreshLimitsBandingGroups.encode_length_le message.incrementalRefreshLimitsBandingGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshLimitsBanding) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshLimitsBandingGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshLimitsBanding
+
+/-- Incremental Refresh Session Statistics Group: 24 bytes -/
+structure IncrementalRefreshSessionStatisticsGroup where
+  mdEntryPxEx : BitVec 64
+  securityId : BitVec 32
+  rptSeq : BitVec 32
+  openCloseSettlFlag : BitVec 8
+  mdUpdateAction : BitVec 8
+  mdEntryTypeStatistics : MdEntryTypeStatistics
+  mdEntrySizeShortOptional : BitVec 32
+  padding1 : Alpha 1
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshSessionStatisticsGroup
+
+def encode (message : IncrementalRefreshSessionStatisticsGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxEx
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq
+    ++ (encodeUInt 1 message.openCloseSettlFlag
+    ++ (encodeUInt 1 message.mdUpdateAction
+    ++ (MdEntryTypeStatistics.encode message.mdEntryTypeStatistics
+    ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
+    ++ (Alpha.encode message.padding1)))))))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsGroup × List UInt8) := do
+  let (mdEntryPxEx, bytes) ← decodeUIntLE 8 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
+  let (mdUpdateAction, bytes) ← decodeUInt 1 bytes
+  let (mdEntryTypeStatistics, bytes) ← MdEntryTypeStatistics.decode bytes
+  let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
+  let (padding1, bytes) ← Alpha.decode 1 bytes
+  pure ({ mdEntryPxEx, securityId, rptSeq, openCloseSettlFlag, mdUpdateAction, mdEntryTypeStatistics, mdEntrySizeShortOptional, padding1 }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshSessionStatisticsGroup) : (encode message).length = 24 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryTypeStatistics.encode_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, MdEntryTypeStatistics.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end IncrementalRefreshSessionStatisticsGroup
+
+/-- Incremental Refresh Session Statistics Groups -/
+structure IncrementalRefreshSessionStatisticsGroups where
+  blockLength : BitVec 16
+  incrementalRefreshSessionStatisticsGroup : Bounded 1 IncrementalRefreshSessionStatisticsGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshSessionStatisticsGroups
+
+def encode (message : IncrementalRefreshSessionStatisticsGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshSessionStatisticsGroup.val.length)
+    ++ (encodeMany IncrementalRefreshSessionStatisticsGroup.encode message.incrementalRefreshSessionStatisticsGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshSessionStatisticsGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshSessionStatisticsGroup_, bytes) ← decodeMany IncrementalRefreshSessionStatisticsGroup.decode numInGroup.toNat bytes
+  if fits_incrementalRefreshSessionStatisticsGroup : incrementalRefreshSessionStatisticsGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshSessionStatisticsGroup := ⟨incrementalRefreshSessionStatisticsGroup_, fits_incrementalRefreshSessionStatisticsGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshSessionStatisticsGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshSessionStatisticsGroups) : (encode message).length ≤ 6123 := by
+  have bound_incrementalRefreshSessionStatisticsGroup := message.incrementalRefreshSessionStatisticsGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshSessionStatisticsGroup.encode 24 IncrementalRefreshSessionStatisticsGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshSessionStatisticsGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshSessionStatisticsGroup.encode IncrementalRefreshSessionStatisticsGroup.decode IncrementalRefreshSessionStatisticsGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshSessionStatisticsGroup.length_lt]
+  rfl
+
+end IncrementalRefreshSessionStatisticsGroups
+
+/-- Md Incremental Refresh Session Statistics -/
+structure MdIncrementalRefreshSessionStatistics where
+  transactTime : BitVec 64
+  matchEventIndicator : BitVec 8
+  padding2 : Alpha 2
+  incrementalRefreshSessionStatisticsGroups : IncrementalRefreshSessionStatisticsGroups
+  deriving DecidableEq, Repr
+
+namespace MdIncrementalRefreshSessionStatistics
+
+def encode (message : MdIncrementalRefreshSessionStatistics) : List UInt8 :=
+  encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 1 message.matchEventIndicator
+    ++ (Alpha.encode message.padding2
+    ++ (IncrementalRefreshSessionStatisticsGroups.encode message.incrementalRefreshSessionStatisticsGroups)))
+
+def decode (bytes : List UInt8) : Option (MdIncrementalRefreshSessionStatistics × List UInt8) := do
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
+  let (padding2, bytes) ← Alpha.decode 2 bytes
+  let (incrementalRefreshSessionStatisticsGroups, bytes) ← IncrementalRefreshSessionStatisticsGroups.decode bytes
+  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshSessionStatisticsGroups }, bytes)
+
+theorem encode_length_pos (message : MdIncrementalRefreshSessionStatistics) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : MdIncrementalRefreshSessionStatistics) : (encode message).length ≤ 6134 := by
+  have bound_incrementalRefreshSessionStatisticsGroups := IncrementalRefreshSessionStatisticsGroups.encode_length_le message.incrementalRefreshSessionStatisticsGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : MdIncrementalRefreshSessionStatistics) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [IncrementalRefreshSessionStatisticsGroups.decode_encode, some_bind]
+  rfl
+
+end MdIncrementalRefreshSessionStatistics
+
+/-- Snapshot Full Refresh Group: 22 bytes -/
+structure SnapshotFullRefreshGroup where
+  mdEntryPxOptionalEx : BitVec 64
+  mdEntrySizeShortOptional : BitVec 32
+  numberOfOrdersOptional : BitVec 32
+  mdPriceLevelOptional : BitVec 8
+  tradingReferenceDate : BitVec 16
+  openCloseSettlFlag : BitVec 8
+  settlPriceType : BitVec 8
+  mdEntryType : MdEntryType
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefreshGroup
+
+def encode (message : SnapshotFullRefreshGroup) : List UInt8 :=
+  encodeUIntLE 8 message.mdEntryPxOptionalEx
+    ++ (encodeUIntLE 4 message.mdEntrySizeShortOptional
+    ++ (encodeUIntLE 4 message.numberOfOrdersOptional
+    ++ (encodeUInt 1 message.mdPriceLevelOptional
+    ++ (encodeUIntLE 2 message.tradingReferenceDate
+    ++ (encodeUInt 1 message.openCloseSettlFlag
+    ++ (encodeUIntLE 1 message.settlPriceType
+    ++ (MdEntryType.encode message.mdEntryType)))))))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshGroup × List UInt8) := do
+  let (mdEntryPxOptionalEx, bytes) ← decodeUIntLE 8 bytes
+  let (mdEntrySizeShortOptional, bytes) ← decodeUIntLE 4 bytes
+  let (numberOfOrdersOptional, bytes) ← decodeUIntLE 4 bytes
+  let (mdPriceLevelOptional, bytes) ← decodeUInt 1 bytes
+  let (tradingReferenceDate, bytes) ← decodeUIntLE 2 bytes
+  let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
+  let (settlPriceType, bytes) ← decodeUIntLE 1 bytes
+  let (mdEntryType, bytes) ← MdEntryType.decode bytes
+  pure ({ mdEntryPxOptionalEx, mdEntrySizeShortOptional, numberOfOrdersOptional, mdPriceLevelOptional, tradingReferenceDate, openCloseSettlFlag, settlPriceType, mdEntryType }, bytes)
+
+@[simp] theorem encode_length (message : SnapshotFullRefreshGroup) : (encode message).length = 22 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, MdEntryType.encode_length]
+
+theorem encode_length_pos (message : SnapshotFullRefreshGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : SnapshotFullRefreshGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [MdEntryType.decode_encode, some_bind]
+  rfl
+
+end SnapshotFullRefreshGroup
+
+/-- Snapshot Full Refresh Groups -/
+structure SnapshotFullRefreshGroups where
+  blockLength : BitVec 16
+  snapshotFullRefreshGroup : Bounded 1 SnapshotFullRefreshGroup
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefreshGroups
+
+def encode (message : SnapshotFullRefreshGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.snapshotFullRefreshGroup.val.length)
+    ++ (encodeMany SnapshotFullRefreshGroup.encode message.snapshotFullRefreshGroup.val))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefreshGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (snapshotFullRefreshGroup_, bytes) ← decodeMany SnapshotFullRefreshGroup.decode numInGroup.toNat bytes
+  if fits_snapshotFullRefreshGroup : snapshotFullRefreshGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, snapshotFullRefreshGroup := ⟨snapshotFullRefreshGroup_, fits_snapshotFullRefreshGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : SnapshotFullRefreshGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : SnapshotFullRefreshGroups) : (encode message).length ≤ 5613 := by
+  have bound_snapshotFullRefreshGroup := message.snapshotFullRefreshGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const SnapshotFullRefreshGroup.encode 22 SnapshotFullRefreshGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : SnapshotFullRefreshGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 SnapshotFullRefreshGroup.encode SnapshotFullRefreshGroup.decode SnapshotFullRefreshGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.snapshotFullRefreshGroup.length_lt]
+  rfl
+
+end SnapshotFullRefreshGroups
+
+/-- Snapshot Full Refresh -/
+structure SnapshotFullRefresh where
+  lastMsgSeqNumProcessed : BitVec 32
+  totNumReports : BitVec 32
+  securityId : BitVec 32
+  rptSeq : BitVec 32
+  transactTime : BitVec 64
+  lastUpdateTime : BitVec 64
+  tradeDate : BitVec 16
+  mdSecurityTradingStatus : BitVec 8
+  highLimitPriceEx : BitVec 64
+  lowLimitPriceEx : BitVec 64
+  maxPriceVariationEx : BitVec 64
+  snapshotFullRefreshGroups : SnapshotFullRefreshGroups
+  deriving DecidableEq, Repr
+
+namespace SnapshotFullRefresh
+
+def encode (message : SnapshotFullRefresh) : List UInt8 :=
+  encodeUIntLE 4 message.lastMsgSeqNumProcessed
+    ++ (encodeUIntLE 4 message.totNumReports
+    ++ (encodeUIntLE 4 message.securityId
+    ++ (encodeUIntLE 4 message.rptSeq
+    ++ (encodeUIntLE 8 message.transactTime
+    ++ (encodeUIntLE 8 message.lastUpdateTime
+    ++ (encodeUIntLE 2 message.tradeDate
+    ++ (encodeUInt 1 message.mdSecurityTradingStatus
+    ++ (encodeUIntLE 8 message.highLimitPriceEx
+    ++ (encodeUIntLE 8 message.lowLimitPriceEx
+    ++ (encodeUIntLE 8 message.maxPriceVariationEx
+    ++ (SnapshotFullRefreshGroups.encode message.snapshotFullRefreshGroups)))))))))))
+
+def decode (bytes : List UInt8) : Option (SnapshotFullRefresh × List UInt8) := do
+  let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
+  let (totNumReports, bytes) ← decodeUIntLE 4 bytes
+  let (securityId, bytes) ← decodeUIntLE 4 bytes
+  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
+  let (transactTime, bytes) ← decodeUIntLE 8 bytes
+  let (lastUpdateTime, bytes) ← decodeUIntLE 8 bytes
+  let (tradeDate, bytes) ← decodeUIntLE 2 bytes
+  let (mdSecurityTradingStatus, bytes) ← decodeUInt 1 bytes
+  let (highLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
+  let (lowLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
+  let (maxPriceVariationEx, bytes) ← decodeUIntLE 8 bytes
+  let (snapshotFullRefreshGroups, bytes) ← SnapshotFullRefreshGroups.decode bytes
+  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, rptSeq, transactTime, lastUpdateTime, tradeDate, mdSecurityTradingStatus, highLimitPriceEx, lowLimitPriceEx, maxPriceVariationEx, snapshotFullRefreshGroups }, bytes)
+
+theorem encode_length_pos (message : SnapshotFullRefresh) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : SnapshotFullRefresh) : (encode message).length ≤ 5672 := by
+  have bound_snapshotFullRefreshGroups := SnapshotFullRefreshGroups.encode_length_le message.snapshotFullRefreshGroups
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length]
+  omega
+
+@[simp] theorem decode_encode (message : SnapshotFullRefresh) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [SnapshotFullRefreshGroups.decode_encode, some_bind]
+  rfl
+
+end SnapshotFullRefresh
 
 /-- Snapshot Full Refresh Order Book Group: 29 bytes -/
 structure SnapshotFullRefreshOrderBookGroup where
@@ -3891,465 +5231,6 @@ theorem encode_length_le (message : SnapshotFullRefreshOrderBookGroups) : (encod
   rfl
 
 end SnapshotFullRefreshOrderBookGroups
-
-/-- Snapshot Full Refresh Order Book Legacy -/
-structure SnapshotFullRefreshOrderBookLegacy where
-  lastMsgSeqNumProcessed : BitVec 32
-  totNumReports : BitVec 32
-  securityId : BitVec 32
-  noChunks : BitVec 32
-  currentChunk : BitVec 32
-  transactTime : BitVec 64
-  snapshotFullRefreshOrderBookGroups : SnapshotFullRefreshOrderBookGroups
-  deriving DecidableEq, Repr
-
-namespace SnapshotFullRefreshOrderBookLegacy
-
-def encode (message : SnapshotFullRefreshOrderBookLegacy) : List UInt8 :=
-  encodeUIntLE 4 message.lastMsgSeqNumProcessed
-    ++ (encodeUIntLE 4 message.totNumReports
-    ++ (encodeUIntLE 4 message.securityId
-    ++ (encodeUIntLE 4 message.noChunks
-    ++ (encodeUIntLE 4 message.currentChunk
-    ++ (encodeUIntLE 8 message.transactTime
-    ++ (SnapshotFullRefreshOrderBookGroups.encode message.snapshotFullRefreshOrderBookGroups))))))
-
-def decode (bytes : List UInt8) : Option (SnapshotFullRefreshOrderBookLegacy × List UInt8) := do
-  let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
-  let (totNumReports, bytes) ← decodeUIntLE 4 bytes
-  let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (noChunks, bytes) ← decodeUIntLE 4 bytes
-  let (currentChunk, bytes) ← decodeUIntLE 4 bytes
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (snapshotFullRefreshOrderBookGroups, bytes) ← SnapshotFullRefreshOrderBookGroups.decode bytes
-  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, noChunks, currentChunk, transactTime, snapshotFullRefreshOrderBookGroups }, bytes)
-
-theorem encode_length_pos (message : SnapshotFullRefreshOrderBookLegacy) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : SnapshotFullRefreshOrderBookLegacy) : (encode message).length ≤ 7426 := by
-  have bound_snapshotFullRefreshOrderBookGroups := SnapshotFullRefreshOrderBookGroups.encode_length_le message.snapshotFullRefreshOrderBookGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length]
-  omega
-
-@[simp] theorem decode_encode (message : SnapshotFullRefreshOrderBookLegacy) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [SnapshotFullRefreshOrderBookGroups.decode_encode, some_bind]
-  rfl
-
-end SnapshotFullRefreshOrderBookLegacy
-
-/-- Md Incremental Refresh Book -/
-structure MdIncrementalRefreshBook where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshBookGroups : IncrementalRefreshBookGroups
-  incrementalRefreshBookOrderIdGroups : IncrementalRefreshBookOrderIdGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshBook
-
-def encode (message : MdIncrementalRefreshBook) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshBookGroups.encode message.incrementalRefreshBookGroups
-    ++ (IncrementalRefreshBookOrderIdGroups.encode message.incrementalRefreshBookOrderIdGroups))))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshBook × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshBookGroups, bytes) ← IncrementalRefreshBookGroups.decode bytes
-  let (incrementalRefreshBookOrderIdGroups, bytes) ← IncrementalRefreshBookOrderIdGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshBookGroups, incrementalRefreshBookOrderIdGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshBook) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshBook) : (encode message).length ≤ 14302 := by
-  have bound_incrementalRefreshBookGroups := IncrementalRefreshBookGroups.encode_length_le message.incrementalRefreshBookGroups
-  have bound_incrementalRefreshBookOrderIdGroups := IncrementalRefreshBookOrderIdGroups.encode_length_le message.incrementalRefreshBookOrderIdGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshBook) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, IncrementalRefreshBookGroups.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshBookOrderIdGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshBook
-
-/-- Md Incremental Refresh Order Book -/
-structure MdIncrementalRefreshOrderBook where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshOrderBookGroups : IncrementalRefreshOrderBookGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshOrderBook
-
-def encode (message : MdIncrementalRefreshOrderBook) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshOrderBookGroups.encode message.incrementalRefreshOrderBookGroups)))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshOrderBook × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshOrderBookGroups, bytes) ← IncrementalRefreshOrderBookGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshOrderBookGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshOrderBook) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshOrderBook) : (encode message).length ≤ 10214 := by
-  have bound_incrementalRefreshOrderBookGroups := IncrementalRefreshOrderBookGroups.encode_length_le message.incrementalRefreshOrderBookGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshOrderBook) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshOrderBookGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshOrderBook
-
-/-- Md Incremental Refresh Trade Summary -/
-structure MdIncrementalRefreshTradeSummary where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshTradeSummaryGroups : IncrementalRefreshTradeSummaryGroups
-  incrementalRefreshTradeSummaryOrderIdGroups : IncrementalRefreshTradeSummaryOrderIdGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshTradeSummary
-
-def encode (message : MdIncrementalRefreshTradeSummary) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshTradeSummaryGroups.encode message.incrementalRefreshTradeSummaryGroups
-    ++ (IncrementalRefreshTradeSummaryOrderIdGroups.encode message.incrementalRefreshTradeSummaryOrderIdGroups))))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshTradeSummary × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshTradeSummaryGroups, bytes) ← IncrementalRefreshTradeSummaryGroups.decode bytes
-  let (incrementalRefreshTradeSummaryOrderIdGroups, bytes) ← IncrementalRefreshTradeSummaryOrderIdGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshTradeSummaryGroups, incrementalRefreshTradeSummaryOrderIdGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshTradeSummary) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshTradeSummary) : (encode message).length ≤ 12262 := by
-  have bound_incrementalRefreshTradeSummaryGroups := IncrementalRefreshTradeSummaryGroups.encode_length_le message.incrementalRefreshTradeSummaryGroups
-  have bound_incrementalRefreshTradeSummaryOrderIdGroups := IncrementalRefreshTradeSummaryOrderIdGroups.encode_length_le message.incrementalRefreshTradeSummaryOrderIdGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshTradeSummary) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [List.append_assoc, IncrementalRefreshTradeSummaryGroups.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshTradeSummaryOrderIdGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshTradeSummary
-
-/-- Md Incremental Refresh Daily Statistics -/
-structure MdIncrementalRefreshDailyStatistics where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshDailyStatisticsGroups : IncrementalRefreshDailyStatisticsGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshDailyStatistics
-
-def encode (message : MdIncrementalRefreshDailyStatistics) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshDailyStatisticsGroups.encode message.incrementalRefreshDailyStatisticsGroups)))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshDailyStatistics × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshDailyStatisticsGroups, bytes) ← IncrementalRefreshDailyStatisticsGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshDailyStatisticsGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshDailyStatistics) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshDailyStatistics) : (encode message).length ≤ 8174 := by
-  have bound_incrementalRefreshDailyStatisticsGroups := IncrementalRefreshDailyStatisticsGroups.encode_length_le message.incrementalRefreshDailyStatisticsGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshDailyStatistics) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshDailyStatisticsGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshDailyStatistics
-
-/-- Md Incremental Refresh Limits Banding -/
-structure MdIncrementalRefreshLimitsBanding where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshLimitsBandingGroups : IncrementalRefreshLimitsBandingGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshLimitsBanding
-
-def encode (message : MdIncrementalRefreshLimitsBanding) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshLimitsBandingGroups.encode message.incrementalRefreshLimitsBandingGroups)))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshLimitsBanding × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshLimitsBandingGroups, bytes) ← IncrementalRefreshLimitsBandingGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshLimitsBandingGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshLimitsBanding) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshLimitsBanding) : (encode message).length ≤ 8174 := by
-  have bound_incrementalRefreshLimitsBandingGroups := IncrementalRefreshLimitsBandingGroups.encode_length_le message.incrementalRefreshLimitsBandingGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshLimitsBanding) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshLimitsBandingGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshLimitsBanding
-
-/-- Md Incremental Refresh Session Statistics -/
-structure MdIncrementalRefreshSessionStatistics where
-  transactTime : BitVec 64
-  matchEventIndicator : BitVec 8
-  padding2 : Alpha 2
-  incrementalRefreshSessionStatisticsGroups : IncrementalRefreshSessionStatisticsGroups
-  deriving DecidableEq, Repr
-
-namespace MdIncrementalRefreshSessionStatistics
-
-def encode (message : MdIncrementalRefreshSessionStatistics) : List UInt8 :=
-  encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 1 message.matchEventIndicator
-    ++ (Alpha.encode message.padding2
-    ++ (IncrementalRefreshSessionStatisticsGroups.encode message.incrementalRefreshSessionStatisticsGroups)))
-
-def decode (bytes : List UInt8) : Option (MdIncrementalRefreshSessionStatistics × List UInt8) := do
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (matchEventIndicator, bytes) ← decodeUIntLE 1 bytes
-  let (padding2, bytes) ← Alpha.decode 2 bytes
-  let (incrementalRefreshSessionStatisticsGroups, bytes) ← IncrementalRefreshSessionStatisticsGroups.decode bytes
-  pure ({ transactTime, matchEventIndicator, padding2, incrementalRefreshSessionStatisticsGroups }, bytes)
-
-theorem encode_length_pos (message : MdIncrementalRefreshSessionStatistics) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdIncrementalRefreshSessionStatistics) : (encode message).length ≤ 6134 := by
-  have bound_incrementalRefreshSessionStatisticsGroups := IncrementalRefreshSessionStatisticsGroups.encode_length_le message.incrementalRefreshSessionStatisticsGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, Alpha.encode_length]
-  omega
-
-@[simp] theorem decode_encode (message : MdIncrementalRefreshSessionStatistics) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, Alpha.decode_encode, some_bind]
-  dsimp only
-  rw [IncrementalRefreshSessionStatisticsGroups.decode_encode, some_bind]
-  rfl
-
-end MdIncrementalRefreshSessionStatistics
-
-/-- Snapshot Full Refresh -/
-structure SnapshotFullRefresh where
-  lastMsgSeqNumProcessed : BitVec 32
-  totNumReports : BitVec 32
-  securityId : BitVec 32
-  rptSeq : BitVec 32
-  transactTime : BitVec 64
-  lastUpdateTime : BitVec 64
-  tradeDate : BitVec 16
-  mdSecurityTradingStatus : BitVec 8
-  highLimitPriceEx : BitVec 64
-  lowLimitPriceEx : BitVec 64
-  maxPriceVariationEx : BitVec 64
-  snapshotFullRefreshGroups : SnapshotFullRefreshGroups
-  deriving DecidableEq, Repr
-
-namespace SnapshotFullRefresh
-
-def encode (message : SnapshotFullRefresh) : List UInt8 :=
-  encodeUIntLE 4 message.lastMsgSeqNumProcessed
-    ++ (encodeUIntLE 4 message.totNumReports
-    ++ (encodeUIntLE 4 message.securityId
-    ++ (encodeUIntLE 4 message.rptSeq
-    ++ (encodeUIntLE 8 message.transactTime
-    ++ (encodeUIntLE 8 message.lastUpdateTime
-    ++ (encodeUIntLE 2 message.tradeDate
-    ++ (encodeUInt 1 message.mdSecurityTradingStatus
-    ++ (encodeUIntLE 8 message.highLimitPriceEx
-    ++ (encodeUIntLE 8 message.lowLimitPriceEx
-    ++ (encodeUIntLE 8 message.maxPriceVariationEx
-    ++ (SnapshotFullRefreshGroups.encode message.snapshotFullRefreshGroups)))))))))))
-
-def decode (bytes : List UInt8) : Option (SnapshotFullRefresh × List UInt8) := do
-  let (lastMsgSeqNumProcessed, bytes) ← decodeUIntLE 4 bytes
-  let (totNumReports, bytes) ← decodeUIntLE 4 bytes
-  let (securityId, bytes) ← decodeUIntLE 4 bytes
-  let (rptSeq, bytes) ← decodeUIntLE 4 bytes
-  let (transactTime, bytes) ← decodeUIntLE 8 bytes
-  let (lastUpdateTime, bytes) ← decodeUIntLE 8 bytes
-  let (tradeDate, bytes) ← decodeUIntLE 2 bytes
-  let (mdSecurityTradingStatus, bytes) ← decodeUInt 1 bytes
-  let (highLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
-  let (lowLimitPriceEx, bytes) ← decodeUIntLE 8 bytes
-  let (maxPriceVariationEx, bytes) ← decodeUIntLE 8 bytes
-  let (snapshotFullRefreshGroups, bytes) ← SnapshotFullRefreshGroups.decode bytes
-  pure ({ lastMsgSeqNumProcessed, totNumReports, securityId, rptSeq, transactTime, lastUpdateTime, tradeDate, mdSecurityTradingStatus, highLimitPriceEx, lowLimitPriceEx, maxPriceVariationEx, snapshotFullRefreshGroups }, bytes)
-
-theorem encode_length_pos (message : SnapshotFullRefresh) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-/-- The most bytes an encoding can take -/
-theorem encode_length_le (message : SnapshotFullRefresh) : (encode message).length ≤ 5672 := by
-  have bound_snapshotFullRefreshGroups := SnapshotFullRefreshGroups.encode_length_le message.snapshotFullRefreshGroups
-  unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length]
-  omega
-
-@[simp] theorem decode_encode (message : SnapshotFullRefresh) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [SnapshotFullRefreshGroups.decode_encode, some_bind]
-  rfl
-
-end SnapshotFullRefresh
 
 /-- Snapshot Full Refresh Order Book -/
 structure SnapshotFullRefreshOrderBook where
@@ -6765,23 +7646,23 @@ def decode (schemaId : BitVec 16) (templateId : BitVec 16) (bytes : List UInt8) 
 
 end Payload
 
-/-- Message -/
-structure Message where
+/-- Mdp3 Message -/
+structure Mdp3Message where
   blockLength : BitVec 16
   version : BitVec 16
   payload : Payload
   deriving DecidableEq, Repr
 
-namespace Message
+namespace Mdp3Message
 
-def encodeBody (message : Message) : List UInt8 :=
+def encodeBody (message : Mdp3Message) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
     ++ (encodeUIntLE 2 (Payload.templateId message.payload)
     ++ (encodeUIntLE 2 (Payload.schemaId message.payload)
     ++ (encodeUIntLE 2 message.version
     ++ (Payload.encode message.payload))))
 
-def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
+def decodeBody (bytes : List UInt8) : Option (Mdp3Message × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (templateId, bytes) ← decodeUIntLE 2 bytes
   let (schemaId, bytes) ← decodeUIntLE 2 bytes
@@ -6789,7 +7670,7 @@ def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
   let (payload, bytes) ← Payload.decode schemaId templateId bytes
   pure ({ blockLength, version, payload }, bytes)
 
-theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
+theorem decodeBody_encodeBody (message : Mdp3Message) (rest : List UInt8) :
     decodeBody (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -6804,7 +7685,7 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
   rfl
 
 /-- Every body fits the length prefix -/
-theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 2 < 256 ^ 2 := by
+theorem encodeBody_length_lt (message : Mdp3Message) : (encodeBody message).length + 2 < 256 ^ 2 := by
   unfold encodeBody
   cases message.payload with
   | channelReset inner =>
@@ -6955,39 +7836,39 @@ theorem encodeBody_length_lt (message : Message) : (encodeBody message).length +
     omega
 
 /-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body and checked on decode -/
-def encode : Message → List UInt8 :=
+def encode : Mdp3Message → List UInt8 :=
   encodeFramedLE 2 2 encodeBody
 
-def decode : List UInt8 → Option (Message × List UInt8) :=
+def decode : List UInt8 → Option (Mdp3Message × List UInt8) :=
   decodeFramedLE 2 2 decodeBody
 
-@[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : Mdp3Message) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) :=
   decodeFramedLE_encodeFramedLE 2 2 encodeBody decodeBody message (decodeBody_encodeBody message) (encodeBody_length_lt message) rest
 
-theorem encode_length_pos (message : Message) : (encode message).length > 0 := by
+theorem encode_length_pos (message : Mdp3Message) : (encode message).length > 0 := by
   unfold encode
   rw [encodeFramedLE_length]
   omega
 
-end Message
+end Mdp3Message
 
 /-- Udp Packet -/
 structure UdpPacket where
   binaryPacketHeader : BinaryPacketHeader
-  message : List Message
+  mdp3Message : List Mdp3Message
   deriving DecidableEq, Repr
 
 namespace UdpPacket
 
 def encode (message : UdpPacket) : List UInt8 :=
   BinaryPacketHeader.encode message.binaryPacketHeader
-    ++ (encodeMany Message.encode message.message)
+    ++ (encodeMany Mdp3Message.encode message.mdp3Message)
 
 def decode (bytes : List UInt8) : Option UdpPacket := do
   let (binaryPacketHeader, bytes) ← BinaryPacketHeader.decode bytes
-  let message ← decodeAll Message.decode bytes.length bytes
-  pure { binaryPacketHeader, message }
+  let mdp3Message ← decodeAll Mdp3Message.decode bytes.length bytes
+  pure { binaryPacketHeader, mdp3Message }
 
 theorem encode_length_pos (message : UdpPacket) : (encode message).length > 0 := by
   unfold encode
@@ -6998,7 +7879,7 @@ theorem decode_encode (message : UdpPacket) : decode (encode message) = some mes
   unfold decode encode
   rw [BinaryPacketHeader.decode_encode, some_bind]
   dsimp only
-  rw [decodeAll_encodeMany Message.encode Message.decode Message.decode_encode Message.encode_length_pos message.message _ (encodeMany_length_ge Message.encode Message.encode_length_pos message.message), some_bind]
+  rw [decodeAll_encodeMany Mdp3Message.encode Mdp3Message.decode Mdp3Message.decode_encode Mdp3Message.encode_length_pos message.mdp3Message _ (encodeMany_length_ge Mdp3Message.encode Mdp3Message.encode_length_pos message.mdp3Message), some_bind]
   rfl
 
 end UdpPacket

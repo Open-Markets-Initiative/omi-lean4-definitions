@@ -15,8 +15,8 @@ Note: Match Event Indicator is a bit field set, proven as its 1 byte integer rat
 
 Note: Settl Price Type is a bit field set, proven as its 1 byte integer rather than bit by bit
 
-Note: Message's Message Size is written from its body but not checked on decode, since the body has
-no bound the prefix must fit; the body is read by its content
+Note: Mdp3 Message's Message Size is written from its body but not checked on decode, since the body
+has no bound the prefix must fit; the body is read by its content
 
 License: MIT No Attribution
 -/
@@ -1082,32 +1082,32 @@ theorem encode_length_pos (message : FinalSettlementFuturesPrice) : (encode mess
 
 end FinalSettlementFuturesPrice
 
-/-- Eris Security Alt Id Group: 27 bytes -/
-structure ErisSecurityAltIdGroup where
+/-- Eris Reference Data Security Alt Id Group: 27 bytes -/
+structure ErisReferenceDataSecurityAltIdGroup where
   securityAltId : Alpha 26
   securityAltIdSourceOptional : Alpha 1
   deriving DecidableEq, Repr
 
-namespace ErisSecurityAltIdGroup
+namespace ErisReferenceDataSecurityAltIdGroup
 
-def encode (message : ErisSecurityAltIdGroup) : List UInt8 :=
+def encode (message : ErisReferenceDataSecurityAltIdGroup) : List UInt8 :=
   Alpha.encode message.securityAltId
     ++ (Alpha.encode message.securityAltIdSourceOptional)
 
-def decode (bytes : List UInt8) : Option (ErisSecurityAltIdGroup × List UInt8) := do
+def decode (bytes : List UInt8) : Option (ErisReferenceDataSecurityAltIdGroup × List UInt8) := do
   let (securityAltId, bytes) ← Alpha.decode 26 bytes
   let (securityAltIdSourceOptional, bytes) ← Alpha.decode 1 bytes
   pure ({ securityAltId, securityAltIdSourceOptional }, bytes)
 
-@[simp] theorem encode_length (message : ErisSecurityAltIdGroup) : (encode message).length = 27 := by
+@[simp] theorem encode_length (message : ErisReferenceDataSecurityAltIdGroup) : (encode message).length = 27 := by
   unfold encode
   simp only [List.length_append, Alpha.encode_length]
 
-theorem encode_length_pos (message : ErisSecurityAltIdGroup) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ErisReferenceDataSecurityAltIdGroup) : (encode message).length > 0 := by
   rw [encode_length]
   decide
 
-@[simp] theorem decode_encode (message : ErisSecurityAltIdGroup) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ErisReferenceDataSecurityAltIdGroup) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -1115,54 +1115,54 @@ theorem encode_length_pos (message : ErisSecurityAltIdGroup) : (encode message).
   rw [Alpha.decode_encode, some_bind]
   rfl
 
-end ErisSecurityAltIdGroup
+end ErisReferenceDataSecurityAltIdGroup
 
-/-- Eris Security Alt Id Groups -/
-structure ErisSecurityAltIdGroups where
+/-- Eris Reference Data Security Alt Id Groups -/
+structure ErisReferenceDataSecurityAltIdGroups where
   blockLength : BitVec 16
-  erisSecurityAltIdGroup : Bounded 1 ErisSecurityAltIdGroup
+  erisReferenceDataSecurityAltIdGroup : Bounded 1 ErisReferenceDataSecurityAltIdGroup
   deriving DecidableEq, Repr
 
-namespace ErisSecurityAltIdGroups
+namespace ErisReferenceDataSecurityAltIdGroups
 
-def encode (message : ErisSecurityAltIdGroups) : List UInt8 :=
+def encode (message : ErisReferenceDataSecurityAltIdGroups) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.erisSecurityAltIdGroup.val.length)
-    ++ (encodeMany ErisSecurityAltIdGroup.encode message.erisSecurityAltIdGroup.val))
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.erisReferenceDataSecurityAltIdGroup.val.length)
+    ++ (encodeMany ErisReferenceDataSecurityAltIdGroup.encode message.erisReferenceDataSecurityAltIdGroup.val))
 
-def decode (bytes : List UInt8) : Option (ErisSecurityAltIdGroups × List UInt8) := do
+def decode (bytes : List UInt8) : Option (ErisReferenceDataSecurityAltIdGroups × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (numInGroup8, bytes) ← decodeUInt 1 bytes
-  let (erisSecurityAltIdGroup_, bytes) ← decodeMany ErisSecurityAltIdGroup.decode numInGroup8.toNat bytes
-  if fits_erisSecurityAltIdGroup : erisSecurityAltIdGroup_.length < 256 ^ 1 then
-    pure ({ blockLength, erisSecurityAltIdGroup := ⟨erisSecurityAltIdGroup_, fits_erisSecurityAltIdGroup⟩ }, bytes)
+  let (erisReferenceDataSecurityAltIdGroup_, bytes) ← decodeMany ErisReferenceDataSecurityAltIdGroup.decode numInGroup8.toNat bytes
+  if fits_erisReferenceDataSecurityAltIdGroup : erisReferenceDataSecurityAltIdGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, erisReferenceDataSecurityAltIdGroup := ⟨erisReferenceDataSecurityAltIdGroup_, fits_erisReferenceDataSecurityAltIdGroup⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : ErisSecurityAltIdGroups) : (encode message).length > 0 := by
+theorem encode_length_pos (message : ErisReferenceDataSecurityAltIdGroups) : (encode message).length > 0 := by
   unfold encode
   simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : ErisSecurityAltIdGroups) : (encode message).length ≤ 6888 := by
-  have bound_erisSecurityAltIdGroup := message.erisSecurityAltIdGroup.length_lt
+theorem encode_length_le (message : ErisReferenceDataSecurityAltIdGroups) : (encode message).length ≤ 6888 := by
+  have bound_erisReferenceDataSecurityAltIdGroup := message.erisReferenceDataSecurityAltIdGroup.length_lt
   unfold encode
-  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const ErisSecurityAltIdGroup.encode 27 ErisSecurityAltIdGroup.encode_length]
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const ErisReferenceDataSecurityAltIdGroup.encode 27 ErisReferenceDataSecurityAltIdGroup.encode_length]
   omega
 
-@[simp] theorem decode_encode (message : ErisSecurityAltIdGroups) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : ErisReferenceDataSecurityAltIdGroups) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [decodeMany_bounded 1 ErisSecurityAltIdGroup.encode ErisSecurityAltIdGroup.decode ErisSecurityAltIdGroup.decode_encode, some_bind]
+  rw [decodeMany_bounded 1 ErisReferenceDataSecurityAltIdGroup.encode ErisReferenceDataSecurityAltIdGroup.decode ErisReferenceDataSecurityAltIdGroup.decode_encode, some_bind]
   dsimp only
-  rw [dite_eq_left message.erisSecurityAltIdGroup.length_lt]
+  rw [dite_eq_left message.erisReferenceDataSecurityAltIdGroup.length_lt]
   rfl
 
-end ErisSecurityAltIdGroups
+end ErisReferenceDataSecurityAltIdGroups
 
 /-- Incremental Refresh Eris Related Instruments Group: 77 bytes -/
 structure IncrementalRefreshErisRelatedInstrumentsGroup where
@@ -1380,7 +1380,7 @@ structure ErisReferenceDataGroup where
   settlementNpv : SettlementNpv
   finalSettlementFuturesPrice : FinalSettlementFuturesPrice
   securityDescription : Alpha 30
-  erisSecurityAltIdGroups : ErisSecurityAltIdGroups
+  erisReferenceDataSecurityAltIdGroups : ErisReferenceDataSecurityAltIdGroups
   incrementalRefreshErisRelatedInstrumentsGroups : IncrementalRefreshErisRelatedInstrumentsGroups
   eventsGroups : EventsGroups
   deriving DecidableEq, Repr
@@ -1433,7 +1433,7 @@ def encode (message : ErisReferenceDataGroup) : List UInt8 :=
     ++ (SettlementNpv.encode message.settlementNpv
     ++ (FinalSettlementFuturesPrice.encode message.finalSettlementFuturesPrice
     ++ (Alpha.encode message.securityDescription
-    ++ (ErisSecurityAltIdGroups.encode message.erisSecurityAltIdGroups
+    ++ (ErisReferenceDataSecurityAltIdGroups.encode message.erisReferenceDataSecurityAltIdGroups
     ++ (IncrementalRefreshErisRelatedInstrumentsGroups.encode message.incrementalRefreshErisRelatedInstrumentsGroups
     ++ (EventsGroups.encode message.eventsGroups)))))))))))))))))))))))))))))))))))))))))))))))
 
@@ -1485,10 +1485,10 @@ def decode (bytes : List UInt8) : Option (ErisReferenceDataGroup × List UInt8) 
   let (settlementNpv, bytes) ← SettlementNpv.decode bytes
   let (finalSettlementFuturesPrice, bytes) ← FinalSettlementFuturesPrice.decode bytes
   let (securityDescription, bytes) ← Alpha.decode 30 bytes
-  let (erisSecurityAltIdGroups, bytes) ← ErisSecurityAltIdGroups.decode bytes
+  let (erisReferenceDataSecurityAltIdGroups, bytes) ← ErisReferenceDataSecurityAltIdGroups.decode bytes
   let (incrementalRefreshErisRelatedInstrumentsGroups, bytes) ← IncrementalRefreshErisRelatedInstrumentsGroups.decode bytes
   let (eventsGroups, bytes) ← EventsGroups.decode bytes
-  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimalOptional, openCloseSettlFlag, settlPriceType, calFutPxOptional, referenceId50, mdEntrySizeOptional, symbol, securityGroup26, productOptional, securityType, securityExchange, maturityDate, couponRateOptional, tradeDate, fairCouponPct, legPurchaseRate, fixedNpv, floatNpv, npv, accruedCoupons, dailyIncrementalErisPai, erisPai, fedFundsRate, minPriceIncrementOptional, fixedPayment, floatingPayment, nextFixedPaymentDate, nextFixedPaymentAmount, nextFloatingPaymentAmount, tradingReferenceDate, previousErisPai, fedFundsDate, accrualDays, nominal, legCreditRating, legContractMultiplier, nextFloatingPaymentDate, pV01, dV01, settlementNpv, finalSettlementFuturesPrice, securityDescription, erisSecurityAltIdGroups, incrementalRefreshErisRelatedInstrumentsGroups, eventsGroups }, bytes)
+  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimalOptional, openCloseSettlFlag, settlPriceType, calFutPxOptional, referenceId50, mdEntrySizeOptional, symbol, securityGroup26, productOptional, securityType, securityExchange, maturityDate, couponRateOptional, tradeDate, fairCouponPct, legPurchaseRate, fixedNpv, floatNpv, npv, accruedCoupons, dailyIncrementalErisPai, erisPai, fedFundsRate, minPriceIncrementOptional, fixedPayment, floatingPayment, nextFixedPaymentDate, nextFixedPaymentAmount, nextFloatingPaymentAmount, tradingReferenceDate, previousErisPai, fedFundsDate, accrualDays, nominal, legCreditRating, legContractMultiplier, nextFloatingPaymentDate, pV01, dV01, settlementNpv, finalSettlementFuturesPrice, securityDescription, erisReferenceDataSecurityAltIdGroups, incrementalRefreshErisRelatedInstrumentsGroups, eventsGroups }, bytes)
 
 theorem encode_length_pos (message : ErisReferenceDataGroup) : (encode message).length > 0 := by
   unfold encode
@@ -1497,7 +1497,7 @@ theorem encode_length_pos (message : ErisReferenceDataGroup) : (encode message).
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : ErisReferenceDataGroup) : (encode message).length ≤ 29243 := by
-  have bound_erisSecurityAltIdGroups := ErisSecurityAltIdGroups.encode_length_le message.erisSecurityAltIdGroups
+  have bound_erisReferenceDataSecurityAltIdGroups := ErisReferenceDataSecurityAltIdGroups.encode_length_le message.erisReferenceDataSecurityAltIdGroups
   have bound_incrementalRefreshErisRelatedInstrumentsGroups := IncrementalRefreshErisRelatedInstrumentsGroups.encode_length_le message.incrementalRefreshErisRelatedInstrumentsGroups
   have bound_eventsGroups := EventsGroups.encode_length_le message.eventsGroups
   unfold encode
@@ -1598,7 +1598,7 @@ set_option maxRecDepth 4096 in
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
-  rw [List.append_assoc, ErisSecurityAltIdGroups.decode_encode, some_bind]
+  rw [List.append_assoc, ErisReferenceDataSecurityAltIdGroups.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, IncrementalRefreshErisRelatedInstrumentsGroups.decode_encode, some_bind]
   dsimp only
@@ -2918,6 +2918,88 @@ theorem encode_length_le (message : InstAttribGroups) : (encode message).length 
 
 end InstAttribGroups
 
+/-- Indices Events Group: 9 bytes -/
+structure IndicesEventsGroup where
+  eventTypeIndices : BitVec 8
+  eventTime : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace IndicesEventsGroup
+
+def encode (message : IndicesEventsGroup) : List UInt8 :=
+  encodeUInt 1 message.eventTypeIndices
+    ++ (encodeUIntLE 8 message.eventTime)
+
+def decode (bytes : List UInt8) : Option (IndicesEventsGroup × List UInt8) := do
+  let (eventTypeIndices, bytes) ← decodeUInt 1 bytes
+  let (eventTime, bytes) ← decodeUIntLE 8 bytes
+  pure ({ eventTypeIndices, eventTime }, bytes)
+
+@[simp] theorem encode_length (message : IndicesEventsGroup) : (encode message).length = 9 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : IndicesEventsGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IndicesEventsGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end IndicesEventsGroup
+
+/-- Indices Events Groups -/
+structure IndicesEventsGroups where
+  blockLength : BitVec 16
+  indicesEventsGroup : Bounded 2 IndicesEventsGroup
+  deriving DecidableEq, Repr
+
+namespace IndicesEventsGroups
+
+def encode (message : IndicesEventsGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUIntLE 2 (BitVec.ofNat (8 * 2) message.indicesEventsGroup.val.length)
+    ++ (encodeMany IndicesEventsGroup.encode message.indicesEventsGroup.val))
+
+def decode (bytes : List UInt8) : Option (IndicesEventsGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup, bytes) ← decodeUIntLE 2 bytes
+  let (indicesEventsGroup_, bytes) ← decodeMany IndicesEventsGroup.decode numInGroup.toNat bytes
+  if fits_indicesEventsGroup : indicesEventsGroup_.length < 256 ^ 2 then
+    pure ({ blockLength, indicesEventsGroup := ⟨indicesEventsGroup_, fits_indicesEventsGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IndicesEventsGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IndicesEventsGroups) : (encode message).length ≤ 589819 := by
+  have bound_indicesEventsGroup := message.indicesEventsGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeMany_length_const IndicesEventsGroup.encode 9 IndicesEventsGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IndicesEventsGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 2 IndicesEventsGroup.encode IndicesEventsGroup.decode IndicesEventsGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.indicesEventsGroup.length_lt]
+  rfl
+
+end IndicesEventsGroups
+
 /-- Md Instrument Definition Indices -/
 structure MdInstrumentDefinitionIndices where
   symbol : Alpha 50
@@ -2928,7 +3010,7 @@ structure MdInstrumentDefinitionIndices where
   mdFeedType : Alpha 2
   applId : BitVec 16
   instAttribGroups : InstAttribGroups
-  eventsGroups : EventsGroups
+  indicesEventsGroups : IndicesEventsGroups
   deriving DecidableEq, Repr
 
 namespace MdInstrumentDefinitionIndices
@@ -2942,7 +3024,7 @@ def encode (message : MdInstrumentDefinitionIndices) : List UInt8 :=
     ++ (Alpha.encode message.mdFeedType
     ++ (encodeUIntLE 2 message.applId
     ++ (InstAttribGroups.encode message.instAttribGroups
-    ++ (EventsGroups.encode message.eventsGroups))))))))
+    ++ (IndicesEventsGroups.encode message.indicesEventsGroups))))))))
 
 def decode (bytes : List UInt8) : Option (MdInstrumentDefinitionIndices × List UInt8) := do
   let (symbol, bytes) ← Alpha.decode 50 bytes
@@ -2953,8 +3035,8 @@ def decode (bytes : List UInt8) : Option (MdInstrumentDefinitionIndices × List 
   let (mdFeedType, bytes) ← Alpha.decode 2 bytes
   let (applId, bytes) ← decodeUIntLE 2 bytes
   let (instAttribGroups, bytes) ← InstAttribGroups.decode bytes
-  let (eventsGroups, bytes) ← EventsGroups.decode bytes
-  pure ({ symbol, product, securityExchange, currency, securityUpdateAction, mdFeedType, applId, instAttribGroups, eventsGroups }, bytes)
+  let (indicesEventsGroups, bytes) ← IndicesEventsGroups.decode bytes
+  pure ({ symbol, product, securityExchange, currency, securityUpdateAction, mdFeedType, applId, instAttribGroups, indicesEventsGroups }, bytes)
 
 theorem encode_length_pos (message : MdInstrumentDefinitionIndices) : (encode message).length > 0 := by
   unfold encode
@@ -2962,9 +3044,9 @@ theorem encode_length_pos (message : MdInstrumentDefinitionIndices) : (encode me
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : MdInstrumentDefinitionIndices) : (encode message).length ≤ 6621400 := by
+theorem encode_length_le (message : MdInstrumentDefinitionIndices) : (encode message).length ≤ 7208921 := by
   have bound_instAttribGroups := InstAttribGroups.encode_length_le message.instAttribGroups
-  have bound_eventsGroups := EventsGroups.encode_length_le message.eventsGroups
+  have bound_indicesEventsGroups := IndicesEventsGroups.encode_length_le message.indicesEventsGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, Alpha.encode_length, encodeUInt_length, SecurityUpdateAction.encode_length, encodeUIntLE_length]
   omega
@@ -2988,7 +3070,7 @@ theorem encode_length_le (message : MdInstrumentDefinitionIndices) : (encode mes
   dsimp only
   rw [List.append_assoc, InstAttribGroups.decode_encode, some_bind]
   dsimp only
-  rw [EventsGroups.decode_encode, some_bind]
+  rw [IndicesEventsGroups.decode_encode, some_bind]
   rfl
 
 end MdInstrumentDefinitionIndices
@@ -3175,7 +3257,7 @@ structure IncrementalRefreshIndicesGroup where
   mdEntryPxDecimal : MdEntryPxDecimal
   mdEntrySizeOptional : BitVec 64
   symbol : Alpha 50
-  openCloseSettlFlag : BitVec 8
+  indicesOpenCloseSettlFlag : BitVec 8
   yieldType : Alpha 8
   yield : Yield
   netChgPrevDay : NetChgPrevDay
@@ -3195,7 +3277,7 @@ def encode (message : IncrementalRefreshIndicesGroup) : List UInt8 :=
     ++ (MdEntryPxDecimal.encode message.mdEntryPxDecimal
     ++ (encodeUIntLE 8 message.mdEntrySizeOptional
     ++ (Alpha.encode message.symbol
-    ++ (encodeUInt 1 message.openCloseSettlFlag
+    ++ (encodeUInt 1 message.indicesOpenCloseSettlFlag
     ++ (Alpha.encode message.yieldType
     ++ (Yield.encode message.yield
     ++ (NetChgPrevDay.encode message.netChgPrevDay
@@ -3212,7 +3294,7 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshIndicesGroup × List
   let (mdEntryPxDecimal, bytes) ← MdEntryPxDecimal.decode bytes
   let (mdEntrySizeOptional, bytes) ← decodeUIntLE 8 bytes
   let (symbol, bytes) ← Alpha.decode 50 bytes
-  let (openCloseSettlFlag, bytes) ← decodeUInt 1 bytes
+  let (indicesOpenCloseSettlFlag, bytes) ← decodeUInt 1 bytes
   let (yieldType, bytes) ← Alpha.decode 8 bytes
   let (yield, bytes) ← Yield.decode bytes
   let (netChgPrevDay, bytes) ← NetChgPrevDay.decode bytes
@@ -3222,7 +3304,7 @@ def decode (bytes : List UInt8) : Option (IncrementalRefreshIndicesGroup × List
   let (mdEntryDate, bytes) ← decodeUIntLE 4 bytes
   let (mdEntryTime, bytes) ← decodeUIntLE 4 bytes
   let (referenceId50, bytes) ← Alpha.decode 50 bytes
-  pure ({ mdEntryTypeIndices, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, symbol, openCloseSettlFlag, yieldType, yield, netChgPrevDay, netPctChg, percentTrading, mdEntryCode, mdEntryDate, mdEntryTime, referenceId50 }, bytes)
+  pure ({ mdEntryTypeIndices, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, symbol, indicesOpenCloseSettlFlag, yieldType, yield, netChgPrevDay, netPctChg, percentTrading, mdEntryCode, mdEntryDate, mdEntryTime, referenceId50 }, bytes)
 
 @[simp] theorem encode_length (message : IncrementalRefreshIndicesGroup) : (encode message).length = 176 := by
   unfold encode
@@ -3735,6 +3817,170 @@ theorem encode_length_pos (message : CalFutPx) : (encode message).length > 0 := 
 
 end CalFutPx
 
+/-- Eris Security Alt Id Group: 27 bytes -/
+structure ErisSecurityAltIdGroup where
+  securityAltId : Alpha 26
+  securityAltIdSource : Alpha 1
+  deriving DecidableEq, Repr
+
+namespace ErisSecurityAltIdGroup
+
+def encode (message : ErisSecurityAltIdGroup) : List UInt8 :=
+  Alpha.encode message.securityAltId
+    ++ (Alpha.encode message.securityAltIdSource)
+
+def decode (bytes : List UInt8) : Option (ErisSecurityAltIdGroup × List UInt8) := do
+  let (securityAltId, bytes) ← Alpha.decode 26 bytes
+  let (securityAltIdSource, bytes) ← Alpha.decode 1 bytes
+  pure ({ securityAltId, securityAltIdSource }, bytes)
+
+@[simp] theorem encode_length (message : ErisSecurityAltIdGroup) : (encode message).length = 27 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length]
+
+theorem encode_length_pos (message : ErisSecurityAltIdGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : ErisSecurityAltIdGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end ErisSecurityAltIdGroup
+
+/-- Eris Security Alt Id Groups -/
+structure ErisSecurityAltIdGroups where
+  blockLength : BitVec 16
+  erisSecurityAltIdGroup : Bounded 1 ErisSecurityAltIdGroup
+  deriving DecidableEq, Repr
+
+namespace ErisSecurityAltIdGroups
+
+def encode (message : ErisSecurityAltIdGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.erisSecurityAltIdGroup.val.length)
+    ++ (encodeMany ErisSecurityAltIdGroup.encode message.erisSecurityAltIdGroup.val))
+
+def decode (bytes : List UInt8) : Option (ErisSecurityAltIdGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup8, bytes) ← decodeUInt 1 bytes
+  let (erisSecurityAltIdGroup_, bytes) ← decodeMany ErisSecurityAltIdGroup.decode numInGroup8.toNat bytes
+  if fits_erisSecurityAltIdGroup : erisSecurityAltIdGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, erisSecurityAltIdGroup := ⟨erisSecurityAltIdGroup_, fits_erisSecurityAltIdGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : ErisSecurityAltIdGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : ErisSecurityAltIdGroups) : (encode message).length ≤ 6888 := by
+  have bound_erisSecurityAltIdGroup := message.erisSecurityAltIdGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const ErisSecurityAltIdGroup.encode 27 ErisSecurityAltIdGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : ErisSecurityAltIdGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 ErisSecurityAltIdGroup.encode ErisSecurityAltIdGroup.decode ErisSecurityAltIdGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.erisSecurityAltIdGroup.length_lt]
+  rfl
+
+end ErisSecurityAltIdGroups
+
+/-- Incremental Refresh Eris Events Group: 9 bytes -/
+structure IncrementalRefreshErisEventsGroup where
+  eventType : BitVec 8
+  eventTimeOptional : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshErisEventsGroup
+
+def encode (message : IncrementalRefreshErisEventsGroup) : List UInt8 :=
+  encodeUInt 1 message.eventType
+    ++ (encodeUIntLE 8 message.eventTimeOptional)
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshErisEventsGroup × List UInt8) := do
+  let (eventType, bytes) ← decodeUInt 1 bytes
+  let (eventTimeOptional, bytes) ← decodeUIntLE 8 bytes
+  pure ({ eventType, eventTimeOptional }, bytes)
+
+@[simp] theorem encode_length (message : IncrementalRefreshErisEventsGroup) : (encode message).length = 9 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : IncrementalRefreshErisEventsGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : IncrementalRefreshErisEventsGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end IncrementalRefreshErisEventsGroup
+
+/-- Incremental Refresh Eris Events Groups -/
+structure IncrementalRefreshErisEventsGroups where
+  blockLength : BitVec 16
+  incrementalRefreshErisEventsGroup : Bounded 1 IncrementalRefreshErisEventsGroup
+  deriving DecidableEq, Repr
+
+namespace IncrementalRefreshErisEventsGroups
+
+def encode (message : IncrementalRefreshErisEventsGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.incrementalRefreshErisEventsGroup.val.length)
+    ++ (encodeMany IncrementalRefreshErisEventsGroup.encode message.incrementalRefreshErisEventsGroup.val))
+
+def decode (bytes : List UInt8) : Option (IncrementalRefreshErisEventsGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup8, bytes) ← decodeUInt 1 bytes
+  let (incrementalRefreshErisEventsGroup_, bytes) ← decodeMany IncrementalRefreshErisEventsGroup.decode numInGroup8.toNat bytes
+  if fits_incrementalRefreshErisEventsGroup : incrementalRefreshErisEventsGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, incrementalRefreshErisEventsGroup := ⟨incrementalRefreshErisEventsGroup_, fits_incrementalRefreshErisEventsGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : IncrementalRefreshErisEventsGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : IncrementalRefreshErisEventsGroups) : (encode message).length ≤ 2298 := by
+  have bound_incrementalRefreshErisEventsGroup := message.incrementalRefreshErisEventsGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const IncrementalRefreshErisEventsGroup.encode 9 IncrementalRefreshErisEventsGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : IncrementalRefreshErisEventsGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 IncrementalRefreshErisEventsGroup.encode IncrementalRefreshErisEventsGroup.decode IncrementalRefreshErisEventsGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.incrementalRefreshErisEventsGroup.length_lt]
+  rfl
+
+end IncrementalRefreshErisEventsGroups
+
 /-- Eris Original Group -/
 structure ErisOriginalGroup where
   mdUpdateActionChar : Alpha 1
@@ -3755,7 +4001,7 @@ structure ErisOriginalGroup where
   maturityDate : BitVec 16
   referenceId50 : Alpha 50
   erisSecurityAltIdGroups : ErisSecurityAltIdGroups
-  eventsGroups : EventsGroups
+  incrementalRefreshErisEventsGroups : IncrementalRefreshErisEventsGroups
   deriving DecidableEq, Repr
 
 namespace ErisOriginalGroup
@@ -3779,7 +4025,7 @@ def encode (message : ErisOriginalGroup) : List UInt8 :=
     ++ (encodeUIntLE 2 message.maturityDate
     ++ (Alpha.encode message.referenceId50
     ++ (ErisSecurityAltIdGroups.encode message.erisSecurityAltIdGroups
-    ++ (EventsGroups.encode message.eventsGroups))))))))))))))))))
+    ++ (IncrementalRefreshErisEventsGroups.encode message.incrementalRefreshErisEventsGroups))))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (ErisOriginalGroup × List UInt8) := do
   let (mdUpdateActionChar, bytes) ← Alpha.decode 1 bytes
@@ -3800,8 +4046,8 @@ def decode (bytes : List UInt8) : Option (ErisOriginalGroup × List UInt8) := do
   let (maturityDate, bytes) ← decodeUIntLE 2 bytes
   let (referenceId50, bytes) ← Alpha.decode 50 bytes
   let (erisSecurityAltIdGroups, bytes) ← ErisSecurityAltIdGroups.decode bytes
-  let (eventsGroups, bytes) ← EventsGroups.decode bytes
-  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, calFutPx, mdEntryPositionNo, numberOfOrders, tradeId, aggressorSide, symbol, securityGroup26, securityType, securityExchange, productOptional, maturityDate, referenceId50, erisSecurityAltIdGroups, eventsGroups }, bytes)
+  let (incrementalRefreshErisEventsGroups, bytes) ← IncrementalRefreshErisEventsGroups.decode bytes
+  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, calFutPx, mdEntryPositionNo, numberOfOrders, tradeId, aggressorSide, symbol, securityGroup26, securityType, securityExchange, productOptional, maturityDate, referenceId50, erisSecurityAltIdGroups, incrementalRefreshErisEventsGroups }, bytes)
 
 theorem encode_length_pos (message : ErisOriginalGroup) : (encode message).length > 0 := by
   unfold encode
@@ -3811,7 +4057,7 @@ theorem encode_length_pos (message : ErisOriginalGroup) : (encode message).lengt
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : ErisOriginalGroup) : (encode message).length ≤ 9373 := by
   have bound_erisSecurityAltIdGroups := ErisSecurityAltIdGroups.encode_length_le message.erisSecurityAltIdGroups
-  have bound_eventsGroups := EventsGroups.encode_length_le message.eventsGroups
+  have bound_incrementalRefreshErisEventsGroups := IncrementalRefreshErisEventsGroups.encode_length_le message.incrementalRefreshErisEventsGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, Alpha.encode_length, encodeUIntLE_length, MdEntryPxDecimal.encode_length, CalFutPx.encode_length, encodeUInt_length]
   omega
@@ -3855,7 +4101,7 @@ theorem encode_length_le (message : ErisOriginalGroup) : (encode message).length
   dsimp only
   rw [List.append_assoc, ErisSecurityAltIdGroups.decode_encode, some_bind]
   dsimp only
-  rw [EventsGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshErisEventsGroups.decode_encode, some_bind]
   rfl
 
 end ErisOriginalGroup
@@ -3978,7 +4224,7 @@ structure ErisGroup where
   referenceId50 : Alpha 50
   mdQuoteType : BitVec 8
   erisSecurityAltIdGroups : ErisSecurityAltIdGroups
-  eventsGroups : EventsGroups
+  incrementalRefreshErisEventsGroups : IncrementalRefreshErisEventsGroups
   deriving DecidableEq, Repr
 
 namespace ErisGroup
@@ -4003,7 +4249,7 @@ def encode (message : ErisGroup) : List UInt8 :=
     ++ (Alpha.encode message.referenceId50
     ++ (encodeUInt 1 message.mdQuoteType
     ++ (ErisSecurityAltIdGroups.encode message.erisSecurityAltIdGroups
-    ++ (EventsGroups.encode message.eventsGroups)))))))))))))))))))
+    ++ (IncrementalRefreshErisEventsGroups.encode message.incrementalRefreshErisEventsGroups)))))))))))))))))))
 
 def decode (bytes : List UInt8) : Option (ErisGroup × List UInt8) := do
   let (mdUpdateActionChar, bytes) ← Alpha.decode 1 bytes
@@ -4025,8 +4271,8 @@ def decode (bytes : List UInt8) : Option (ErisGroup × List UInt8) := do
   let (referenceId50, bytes) ← Alpha.decode 50 bytes
   let (mdQuoteType, bytes) ← decodeUInt 1 bytes
   let (erisSecurityAltIdGroups, bytes) ← ErisSecurityAltIdGroups.decode bytes
-  let (eventsGroups, bytes) ← EventsGroups.decode bytes
-  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, calFutPx, mdEntryPositionNo, numberOfOrders, tradeId, aggressorSide, symbol, securityGroup26, securityType, securityExchange, productOptional, maturityDate, referenceId50, mdQuoteType, erisSecurityAltIdGroups, eventsGroups }, bytes)
+  let (incrementalRefreshErisEventsGroups, bytes) ← IncrementalRefreshErisEventsGroups.decode bytes
+  pure ({ mdUpdateActionChar, mdEntryType, rptSeq, mdEntryPxDecimal, mdEntrySizeOptional, calFutPx, mdEntryPositionNo, numberOfOrders, tradeId, aggressorSide, symbol, securityGroup26, securityType, securityExchange, productOptional, maturityDate, referenceId50, mdQuoteType, erisSecurityAltIdGroups, incrementalRefreshErisEventsGroups }, bytes)
 
 theorem encode_length_pos (message : ErisGroup) : (encode message).length > 0 := by
   unfold encode
@@ -4036,7 +4282,7 @@ theorem encode_length_pos (message : ErisGroup) : (encode message).length > 0 :=
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : ErisGroup) : (encode message).length ≤ 9374 := by
   have bound_erisSecurityAltIdGroups := ErisSecurityAltIdGroups.encode_length_le message.erisSecurityAltIdGroups
-  have bound_eventsGroups := EventsGroups.encode_length_le message.eventsGroups
+  have bound_incrementalRefreshErisEventsGroups := IncrementalRefreshErisEventsGroups.encode_length_le message.incrementalRefreshErisEventsGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, Alpha.encode_length, encodeUIntLE_length, MdEntryPxDecimal.encode_length, CalFutPx.encode_length, encodeUInt_length]
   omega
@@ -4082,7 +4328,7 @@ theorem encode_length_le (message : ErisGroup) : (encode message).length ≤ 937
   dsimp only
   rw [List.append_assoc, ErisSecurityAltIdGroups.decode_encode, some_bind]
   dsimp only
-  rw [EventsGroups.decode_encode, some_bind]
+  rw [IncrementalRefreshErisEventsGroups.decode_encode, some_bind]
   rfl
 
 end ErisGroup
@@ -4920,6 +5166,88 @@ theorem encode_length_pos (message : InterpolationFactor) : (encode message).len
 
 end InterpolationFactor
 
+/-- Eris Leg Security Alt Id Group: 27 bytes -/
+structure ErisLegSecurityAltIdGroup where
+  legSecurityAltId : Alpha 26
+  legSecurityAltIdSource : BitVec 8
+  deriving DecidableEq, Repr
+
+namespace ErisLegSecurityAltIdGroup
+
+def encode (message : ErisLegSecurityAltIdGroup) : List UInt8 :=
+  Alpha.encode message.legSecurityAltId
+    ++ (encodeUInt 1 message.legSecurityAltIdSource)
+
+def decode (bytes : List UInt8) : Option (ErisLegSecurityAltIdGroup × List UInt8) := do
+  let (legSecurityAltId, bytes) ← Alpha.decode 26 bytes
+  let (legSecurityAltIdSource, bytes) ← decodeUInt 1 bytes
+  pure ({ legSecurityAltId, legSecurityAltIdSource }, bytes)
+
+@[simp] theorem encode_length (message : ErisLegSecurityAltIdGroup) : (encode message).length = 27 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length, encodeUInt_length]
+
+theorem encode_length_pos (message : ErisLegSecurityAltIdGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : ErisLegSecurityAltIdGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+end ErisLegSecurityAltIdGroup
+
+/-- Eris Leg Security Alt Id Groups -/
+structure ErisLegSecurityAltIdGroups where
+  blockLength : BitVec 16
+  erisLegSecurityAltIdGroup : Bounded 1 ErisLegSecurityAltIdGroup
+  deriving DecidableEq, Repr
+
+namespace ErisLegSecurityAltIdGroups
+
+def encode (message : ErisLegSecurityAltIdGroups) : List UInt8 :=
+  encodeUIntLE 2 message.blockLength
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.erisLegSecurityAltIdGroup.val.length)
+    ++ (encodeMany ErisLegSecurityAltIdGroup.encode message.erisLegSecurityAltIdGroup.val))
+
+def decode (bytes : List UInt8) : Option (ErisLegSecurityAltIdGroups × List UInt8) := do
+  let (blockLength, bytes) ← decodeUIntLE 2 bytes
+  let (numInGroup8, bytes) ← decodeUInt 1 bytes
+  let (erisLegSecurityAltIdGroup_, bytes) ← decodeMany ErisLegSecurityAltIdGroup.decode numInGroup8.toNat bytes
+  if fits_erisLegSecurityAltIdGroup : erisLegSecurityAltIdGroup_.length < 256 ^ 1 then
+    pure ({ blockLength, erisLegSecurityAltIdGroup := ⟨erisLegSecurityAltIdGroup_, fits_erisLegSecurityAltIdGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : ErisLegSecurityAltIdGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : ErisLegSecurityAltIdGroups) : (encode message).length ≤ 6888 := by
+  have bound_erisLegSecurityAltIdGroup := message.erisLegSecurityAltIdGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUIntLE_length, encodeUInt_length, encodeMany_length_const ErisLegSecurityAltIdGroup.encode 27 ErisLegSecurityAltIdGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : ErisLegSecurityAltIdGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 ErisLegSecurityAltIdGroup.encode ErisLegSecurityAltIdGroup.decode ErisLegSecurityAltIdGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.erisLegSecurityAltIdGroup.length_lt]
+  rfl
+
+end ErisLegSecurityAltIdGroups
+
 /-- Eris Legs Group -/
 structure ErisLegsGroup where
   legBenchmarkCurveName : Alpha 5
@@ -4935,7 +5263,7 @@ structure ErisLegsGroup where
   legSecurityGroup : Alpha 12
   legDateOffset : BitVec 8
   interpolationFactor : InterpolationFactor
-  erisSecurityAltIdGroups : ErisSecurityAltIdGroups
+  erisLegSecurityAltIdGroups : ErisLegSecurityAltIdGroups
   deriving DecidableEq, Repr
 
 namespace ErisLegsGroup
@@ -4954,7 +5282,7 @@ def encode (message : ErisLegsGroup) : List UInt8 :=
     ++ (Alpha.encode message.legSecurityGroup
     ++ (encodeUInt 1 message.legDateOffset
     ++ (InterpolationFactor.encode message.interpolationFactor
-    ++ (ErisSecurityAltIdGroups.encode message.erisSecurityAltIdGroups)))))))))))))
+    ++ (ErisLegSecurityAltIdGroups.encode message.erisLegSecurityAltIdGroups)))))))))))))
 
 def decode (bytes : List UInt8) : Option (ErisLegsGroup × List UInt8) := do
   let (legBenchmarkCurveName, bytes) ← Alpha.decode 5 bytes
@@ -4970,8 +5298,8 @@ def decode (bytes : List UInt8) : Option (ErisLegsGroup × List UInt8) := do
   let (legSecurityGroup, bytes) ← Alpha.decode 12 bytes
   let (legDateOffset, bytes) ← decodeUInt 1 bytes
   let (interpolationFactor, bytes) ← InterpolationFactor.decode bytes
-  let (erisSecurityAltIdGroups, bytes) ← ErisSecurityAltIdGroups.decode bytes
-  pure ({ legBenchmarkCurveName, rateDescriptor, previousFixingDate, legPayFrequencey, previousFixingRate, legSymbol, erisLegRatioQty, legSide, legCurrency, legSecurityType4, legSecurityGroup, legDateOffset, interpolationFactor, erisSecurityAltIdGroups }, bytes)
+  let (erisLegSecurityAltIdGroups, bytes) ← ErisLegSecurityAltIdGroups.decode bytes
+  pure ({ legBenchmarkCurveName, rateDescriptor, previousFixingDate, legPayFrequencey, previousFixingRate, legSymbol, erisLegRatioQty, legSide, legCurrency, legSecurityType4, legSecurityGroup, legDateOffset, interpolationFactor, erisLegSecurityAltIdGroups }, bytes)
 
 theorem encode_length_pos (message : ErisLegsGroup) : (encode message).length > 0 := by
   unfold encode
@@ -4980,7 +5308,7 @@ theorem encode_length_pos (message : ErisLegsGroup) : (encode message).length > 
 
 /-- The most bytes an encoding can take -/
 theorem encode_length_le (message : ErisLegsGroup) : (encode message).length ≤ 7003 := by
-  have bound_erisSecurityAltIdGroups := ErisSecurityAltIdGroups.encode_length_le message.erisSecurityAltIdGroups
+  have bound_erisLegSecurityAltIdGroups := ErisLegSecurityAltIdGroups.encode_length_le message.erisLegSecurityAltIdGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, Alpha.encode_length, encodeUIntLE_length, PreviousFixingRate.encode_length, encodeUInt_length, InterpolationFactor.encode_length]
   omega
@@ -5014,7 +5342,7 @@ theorem encode_length_le (message : ErisLegsGroup) : (encode message).length ≤
   dsimp only
   rw [List.append_assoc, InterpolationFactor.decode_encode, some_bind]
   dsimp only
-  rw [ErisSecurityAltIdGroups.decode_encode, some_bind]
+  rw [ErisLegSecurityAltIdGroups.decode_encode, some_bind]
   rfl
 
 end ErisLegsGroup
@@ -6221,24 +6549,24 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (Payload × List UInt
 
 end Payload
 
-/-- Message -/
-structure Message where
+/-- Mdp3 Message -/
+structure Mdp3Message where
   blockLength : BitVec 16
   schemaId : BitVec 16
   version : BitVec 16
   payload : Payload
   deriving DecidableEq, Repr
 
-namespace Message
+namespace Mdp3Message
 
-def encodeBody (message : Message) : List UInt8 :=
+def encodeBody (message : Mdp3Message) : List UInt8 :=
   encodeUIntLE 2 message.blockLength
     ++ (encodeUIntLE 2 (Payload.tag message.payload)
     ++ (encodeUIntLE 2 message.schemaId
     ++ (encodeUIntLE 2 message.version
     ++ (Payload.encode message.payload))))
 
-def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
+def decodeBody (bytes : List UInt8) : Option (Mdp3Message × List UInt8) := do
   let (blockLength, bytes) ← decodeUIntLE 2 bytes
   let (templateId, bytes) ← decodeUIntLE 2 bytes
   let (schemaId, bytes) ← decodeUIntLE 2 bytes
@@ -6246,7 +6574,7 @@ def decodeBody (bytes : List UInt8) : Option (Message × List UInt8) := do
   let (payload, bytes) ← Payload.decode templateId bytes
   pure ({ blockLength, schemaId, version, payload }, bytes)
 
-theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
+theorem decodeBody_encodeBody (message : Mdp3Message) (rest : List UInt8) :
     decodeBody (encodeBody message ++ rest) = some (message, rest) := by
   unfold decodeBody encodeBody
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
@@ -6261,42 +6589,42 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
   rfl
 
 /-- Size rule: Message Size counts the bytes after it plus 2, so it is written from the body; the body has no bound the prefix must fit, so it is read by its content and the prefix is not checked -/
-def encode (message : Message) : List UInt8 :=
+def encode (message : Mdp3Message) : List UInt8 :=
   encodeUIntLE 2 (BitVec.ofNat (8 * 2) ((encodeBody message).length + 2)) ++ encodeBody message
 
-def decode (bytes : List UInt8) : Option (Message × List UInt8) := do
+def decode (bytes : List UInt8) : Option (Mdp3Message × List UInt8) := do
   let (_, bytes) ← decodeUIntLE 2 bytes
   decodeBody bytes
 
-@[simp] theorem decode_encode (message : Message) (rest : List UInt8) :
+@[simp] theorem decode_encode (message : Mdp3Message) (rest : List UInt8) :
     decode (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   exact decodeBody_encodeBody message rest
 
-theorem encode_length_pos (message : Message) : (encode message).length > 0 := by
+theorem encode_length_pos (message : Mdp3Message) : (encode message).length > 0 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length]
   omega
 
-end Message
+end Mdp3Message
 
 /-- Udp Packet -/
 structure UdpPacket where
   binaryPacketHeader : BinaryPacketHeader
-  message : List Message
+  mdp3Message : List Mdp3Message
   deriving DecidableEq, Repr
 
 namespace UdpPacket
 
 def encode (message : UdpPacket) : List UInt8 :=
   BinaryPacketHeader.encode message.binaryPacketHeader
-    ++ (encodeMany Message.encode message.message)
+    ++ (encodeMany Mdp3Message.encode message.mdp3Message)
 
 def decode (bytes : List UInt8) : Option UdpPacket := do
   let (binaryPacketHeader, bytes) ← BinaryPacketHeader.decode bytes
-  let message ← decodeAll Message.decode bytes.length bytes
-  pure { binaryPacketHeader, message }
+  let mdp3Message ← decodeAll Mdp3Message.decode bytes.length bytes
+  pure { binaryPacketHeader, mdp3Message }
 
 theorem encode_length_pos (message : UdpPacket) : (encode message).length > 0 := by
   unfold encode
@@ -6307,7 +6635,7 @@ theorem decode_encode (message : UdpPacket) : decode (encode message) = some mes
   unfold decode encode
   rw [BinaryPacketHeader.decode_encode, some_bind]
   dsimp only
-  rw [decodeAll_encodeMany Message.encode Message.decode Message.decode_encode Message.encode_length_pos message.message _ (encodeMany_length_ge Message.encode Message.encode_length_pos message.message), some_bind]
+  rw [decodeAll_encodeMany Mdp3Message.encode Mdp3Message.decode Mdp3Message.decode_encode Mdp3Message.encode_length_pos message.mdp3Message _ (encodeMany_length_ge Mdp3Message.encode Mdp3Message.encode_length_pos message.mdp3Message), some_bind]
   rfl
 
 end UdpPacket

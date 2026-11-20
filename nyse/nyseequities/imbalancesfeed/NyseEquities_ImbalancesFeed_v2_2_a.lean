@@ -21,14 +21,15 @@ namespace Omi.NyseNyseequitiesImbalancesfeedXdpV22A
 
 /-- Auction Type: one byte code -/
 def AuctionType.codes : List UInt8 :=
-  [0x4F, 0x4D, 0x48, 0x43, 0x52]
+  [0x4F, 0x4D, 0x48, 0x43, 0x50, 0x52]
 
 inductive AuctionType where
   | earlyOpening -- Early Opening
   | coreOpening -- Core Opening
   | reopening -- Reopening
   | closing -- Closing
-  | regulatoryImbalance -- Regulatory Imbalance
+  | extremeClosingImbalance -- Extreme Closing Imbalance
+  | regulatoryClosingImbalance -- Regulatory Closing Imbalance
   | unlisted (byte : { byte : UInt8 // byte ∉ AuctionType.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
@@ -39,7 +40,8 @@ def toByte : AuctionType → UInt8
   | .coreOpening => 0x4D
   | .reopening => 0x48
   | .closing => 0x43
-  | .regulatoryImbalance => 0x52
+  | .extremeClosingImbalance => 0x50
+  | .regulatoryClosingImbalance => 0x52
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
@@ -48,7 +50,8 @@ def listed (byte : UInt8) : AuctionType :=
   else if byte = 0x4D then .coreOpening
   else if byte = 0x48 then .reopening
   else if byte = 0x43 then .closing
-  else .regulatoryImbalance
+  else if byte = 0x50 then .extremeClosingImbalance
+  else .regulatoryClosingImbalance
 
 def ofByte (byte : UInt8) : AuctionType :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
@@ -59,7 +62,8 @@ theorem ofByte_toByte (value : AuctionType) : ofByte value.toByte = value := by
   | coreOpening => decide
   | reopening => decide
   | closing => decide
-  | regulatoryImbalance => decide
+  | extremeClosingImbalance => decide
+  | regulatoryClosingImbalance => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : AuctionType) : List UInt8 :=
@@ -197,30 +201,30 @@ def SignificantImbalance.codes : List UInt8 :=
   [0x20, 0x59]
 
 inductive SignificantImbalance where
-  | notApplicable -- Not Applicable
-  | yes -- Yes
+  | notSignificant -- Not Significant
+  | significant -- Significant
   | unlisted (byte : { byte : UInt8 // byte ∉ SignificantImbalance.codes }) -- any other code, kept as it is
   deriving DecidableEq, Repr
 
 namespace SignificantImbalance
 
 def toByte : SignificantImbalance → UInt8
-  | .notApplicable => 0x20
-  | .yes => 0x59
+  | .notSignificant => 0x20
+  | .significant => 0x59
   | .unlisted byte => byte.val
 
 /-- The constructor of a listed code -/
 def listed (byte : UInt8) : SignificantImbalance :=
-  if byte = 0x20 then .notApplicable
-  else .yes
+  if byte = 0x20 then .notSignificant
+  else .significant
 
 def ofByte (byte : UInt8) : SignificantImbalance :=
   if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
 
 theorem ofByte_toByte (value : SignificantImbalance) : ofByte value.toByte = value := by
   cases value with
-  | notApplicable => decide
-  | yes => decide
+  | notSignificant => decide
+  | significant => decide
   | unlisted byte => simp [ofByte, toByte, byte.property]
 
 def encode (value : SignificantImbalance) : List UInt8 :=

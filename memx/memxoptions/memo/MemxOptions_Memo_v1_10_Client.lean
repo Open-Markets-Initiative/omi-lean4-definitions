@@ -867,6 +867,108 @@ theorem encode_length_le (message : ShortTwoSidedBulkQuoteMessage) : (encode mes
 
 end ShortTwoSidedBulkQuoteMessage
 
+/-- Long Two Sided Quotes Group: 33 bytes -/
+structure LongTwoSidedQuotesGroup where
+  listSeqNo : BitVec 8
+  optionsSecurityIdLongTwoSidedBulkQuoteOptionsSecurityId : Alpha 8
+  bidSizeUint32 : BitVec 32
+  bidPxPriceType : BitVec 64
+  offerSizeUint32 : BitVec 32
+  offerPxPriceType : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace LongTwoSidedQuotesGroup
+
+def encode (message : LongTwoSidedQuotesGroup) : List UInt8 :=
+  encodeUInt 1 message.listSeqNo
+    ++ (Alpha.encode message.optionsSecurityIdLongTwoSidedBulkQuoteOptionsSecurityId
+    ++ (encodeUInt 4 message.bidSizeUint32
+    ++ (encodeUInt 8 message.bidPxPriceType
+    ++ (encodeUInt 4 message.offerSizeUint32
+    ++ (encodeUInt 8 message.offerPxPriceType)))))
+
+def decode (bytes : List UInt8) : Option (LongTwoSidedQuotesGroup × List UInt8) := do
+  let (listSeqNo, bytes) ← decodeUInt 1 bytes
+  let (optionsSecurityIdLongTwoSidedBulkQuoteOptionsSecurityId, bytes) ← Alpha.decode 8 bytes
+  let (bidSizeUint32, bytes) ← decodeUInt 4 bytes
+  let (bidPxPriceType, bytes) ← decodeUInt 8 bytes
+  let (offerSizeUint32, bytes) ← decodeUInt 4 bytes
+  let (offerPxPriceType, bytes) ← decodeUInt 8 bytes
+  pure ({ listSeqNo, optionsSecurityIdLongTwoSidedBulkQuoteOptionsSecurityId, bidSizeUint32, bidPxPriceType, offerSizeUint32, offerPxPriceType }, bytes)
+
+@[simp] theorem encode_length (message : LongTwoSidedQuotesGroup) : (encode message).length = 33 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, Alpha.encode_length]
+
+theorem encode_length_pos (message : LongTwoSidedQuotesGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LongTwoSidedQuotesGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+end LongTwoSidedQuotesGroup
+
+/-- Long Two Sided Quotes Groups -/
+structure LongTwoSidedQuotesGroups where
+  blockLengthShort : BitVec 8
+  longTwoSidedQuotesGroup : Bounded 1 LongTwoSidedQuotesGroup
+  deriving DecidableEq, Repr
+
+namespace LongTwoSidedQuotesGroups
+
+def encode (message : LongTwoSidedQuotesGroups) : List UInt8 :=
+  encodeUInt 1 message.blockLengthShort
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.longTwoSidedQuotesGroup.val.length)
+    ++ (encodeMany LongTwoSidedQuotesGroup.encode message.longTwoSidedQuotesGroup.val))
+
+def decode (bytes : List UInt8) : Option (LongTwoSidedQuotesGroups × List UInt8) := do
+  let (blockLengthShort, bytes) ← decodeUInt 1 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (longTwoSidedQuotesGroup_, bytes) ← decodeMany LongTwoSidedQuotesGroup.decode numInGroup.toNat bytes
+  if fits_longTwoSidedQuotesGroup : longTwoSidedQuotesGroup_.length < 256 ^ 1 then
+    pure ({ blockLengthShort, longTwoSidedQuotesGroup := ⟨longTwoSidedQuotesGroup_, fits_longTwoSidedQuotesGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : LongTwoSidedQuotesGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : LongTwoSidedQuotesGroups) : (encode message).length ≤ 8417 := by
+  have bound_longTwoSidedQuotesGroup := message.longTwoSidedQuotesGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const LongTwoSidedQuotesGroup.encode 33 LongTwoSidedQuotesGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : LongTwoSidedQuotesGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 LongTwoSidedQuotesGroup.encode LongTwoSidedQuotesGroup.decode LongTwoSidedQuotesGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.longTwoSidedQuotesGroup.length_lt]
+  rfl
+
+end LongTwoSidedQuotesGroups
+
 /-- Long Two Sided Bulk Quote Message -/
 structure LongTwoSidedBulkQuoteMessage where
   sendingTime : BitVec 64
@@ -879,7 +981,7 @@ structure LongTwoSidedBulkQuoteMessage where
   cancelGroupId : BitVec 16
   riskGroupId : BitVec 16
   partiesGroups : PartiesGroups
-  twoSidedQuotesGroups : TwoSidedQuotesGroups
+  longTwoSidedQuotesGroups : LongTwoSidedQuotesGroups
   deriving DecidableEq, Repr
 
 namespace LongTwoSidedBulkQuoteMessage
@@ -895,7 +997,7 @@ def encode (message : LongTwoSidedBulkQuoteMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.cancelGroupId
     ++ (encodeUInt 2 message.riskGroupId
     ++ (PartiesGroups.encode message.partiesGroups
-    ++ (TwoSidedQuotesGroups.encode message.twoSidedQuotesGroups))))))))))
+    ++ (LongTwoSidedQuotesGroups.encode message.longTwoSidedQuotesGroups))))))))))
 
 def decode (bytes : List UInt8) : Option (LongTwoSidedBulkQuoteMessage × List UInt8) := do
   let (sendingTime, bytes) ← decodeUInt 8 bytes
@@ -908,8 +1010,8 @@ def decode (bytes : List UInt8) : Option (LongTwoSidedBulkQuoteMessage × List U
   let (cancelGroupId, bytes) ← decodeUInt 2 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (partiesGroups, bytes) ← PartiesGroups.decode bytes
-  let (twoSidedQuotesGroups, bytes) ← TwoSidedQuotesGroups.decode bytes
-  pure ({ sendingTime, clordid, timeInForce, execInst, tradingCapacity, mtpGroupId, matchTradePrevention, cancelGroupId, riskGroupId, partiesGroups, twoSidedQuotesGroups }, bytes)
+  let (longTwoSidedQuotesGroups, bytes) ← LongTwoSidedQuotesGroups.decode bytes
+  pure ({ sendingTime, clordid, timeInForce, execInst, tradingCapacity, mtpGroupId, matchTradePrevention, cancelGroupId, riskGroupId, partiesGroups, longTwoSidedQuotesGroups }, bytes)
 
 theorem encode_length_pos (message : LongTwoSidedBulkQuoteMessage) : (encode message).length > 0 := by
   unfold encode
@@ -917,9 +1019,9 @@ theorem encode_length_pos (message : LongTwoSidedBulkQuoteMessage) : (encode mes
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : LongTwoSidedBulkQuoteMessage) : (encode message).length ≤ 8968 := by
+theorem encode_length_le (message : LongTwoSidedBulkQuoteMessage) : (encode message).length ≤ 13048 := by
   have bound_partiesGroups := PartiesGroups.encode_length_le message.partiesGroups
-  have bound_twoSidedQuotesGroups := TwoSidedQuotesGroups.encode_length_le message.twoSidedQuotesGroups
+  have bound_longTwoSidedQuotesGroups := LongTwoSidedQuotesGroups.encode_length_le message.longTwoSidedQuotesGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, TimeInForce.encode_length]
   omega
@@ -947,7 +1049,7 @@ theorem encode_length_le (message : LongTwoSidedBulkQuoteMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, PartiesGroups.decode_encode, some_bind]
   dsimp only
-  rw [TwoSidedQuotesGroups.decode_encode, some_bind]
+  rw [LongTwoSidedQuotesGroups.decode_encode, some_bind]
   rfl
 
 end LongTwoSidedBulkQuoteMessage
@@ -1134,6 +1236,103 @@ theorem encode_length_le (message : ShortOneSidedBulkQuoteMessage) : (encode mes
 
 end ShortOneSidedBulkQuoteMessage
 
+/-- Long One Sided Quotes Group: 22 bytes -/
+structure LongOneSidedQuotesGroup where
+  listSeqNo : BitVec 8
+  optionsSecurityIdLongOneSidedBulkQuoteOptionsSecurityId : Alpha 8
+  side : Side
+  quantityLong : BitVec 32
+  price : BitVec 64
+  deriving DecidableEq, Repr
+
+namespace LongOneSidedQuotesGroup
+
+def encode (message : LongOneSidedQuotesGroup) : List UInt8 :=
+  encodeUInt 1 message.listSeqNo
+    ++ (Alpha.encode message.optionsSecurityIdLongOneSidedBulkQuoteOptionsSecurityId
+    ++ (Side.encode message.side
+    ++ (encodeUInt 4 message.quantityLong
+    ++ (encodeUInt 8 message.price))))
+
+def decode (bytes : List UInt8) : Option (LongOneSidedQuotesGroup × List UInt8) := do
+  let (listSeqNo, bytes) ← decodeUInt 1 bytes
+  let (optionsSecurityIdLongOneSidedBulkQuoteOptionsSecurityId, bytes) ← Alpha.decode 8 bytes
+  let (side, bytes) ← Side.decode bytes
+  let (quantityLong, bytes) ← decodeUInt 4 bytes
+  let (price, bytes) ← decodeUInt 8 bytes
+  pure ({ listSeqNo, optionsSecurityIdLongOneSidedBulkQuoteOptionsSecurityId, side, quantityLong, price }, bytes)
+
+@[simp] theorem encode_length (message : LongOneSidedQuotesGroup) : (encode message).length = 22 := by
+  unfold encode
+  simp only [List.length_append, encodeUInt_length, Alpha.encode_length, Side.encode_length]
+
+theorem encode_length_pos (message : LongOneSidedQuotesGroup) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LongOneSidedQuotesGroup) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, Side.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+end LongOneSidedQuotesGroup
+
+/-- Long One Sided Quotes Groups -/
+structure LongOneSidedQuotesGroups where
+  blockLengthShort : BitVec 8
+  longOneSidedQuotesGroup : Bounded 1 LongOneSidedQuotesGroup
+  deriving DecidableEq, Repr
+
+namespace LongOneSidedQuotesGroups
+
+def encode (message : LongOneSidedQuotesGroups) : List UInt8 :=
+  encodeUInt 1 message.blockLengthShort
+    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.longOneSidedQuotesGroup.val.length)
+    ++ (encodeMany LongOneSidedQuotesGroup.encode message.longOneSidedQuotesGroup.val))
+
+def decode (bytes : List UInt8) : Option (LongOneSidedQuotesGroups × List UInt8) := do
+  let (blockLengthShort, bytes) ← decodeUInt 1 bytes
+  let (numInGroup, bytes) ← decodeUInt 1 bytes
+  let (longOneSidedQuotesGroup_, bytes) ← decodeMany LongOneSidedQuotesGroup.decode numInGroup.toNat bytes
+  if fits_longOneSidedQuotesGroup : longOneSidedQuotesGroup_.length < 256 ^ 1 then
+    pure ({ blockLengthShort, longOneSidedQuotesGroup := ⟨longOneSidedQuotesGroup_, fits_longOneSidedQuotesGroup⟩ }, bytes)
+  else none
+
+theorem encode_length_pos (message : LongOneSidedQuotesGroups) : (encode message).length > 0 := by
+  unfold encode
+  simp only [encodeUInt_length, List.length_append, ← Nat.add_assoc]
+  omega
+
+/-- The most bytes an encoding can take -/
+theorem encode_length_le (message : LongOneSidedQuotesGroups) : (encode message).length ≤ 5612 := by
+  have bound_longOneSidedQuotesGroup := message.longOneSidedQuotesGroup.length_lt
+  unfold encode
+  simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, encodeMany_length_const LongOneSidedQuotesGroup.encode 22 LongOneSidedQuotesGroup.encode_length]
+  omega
+
+@[simp] theorem decode_encode (message : LongOneSidedQuotesGroups) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  dsimp only
+  rw [decodeMany_bounded 1 LongOneSidedQuotesGroup.encode LongOneSidedQuotesGroup.decode LongOneSidedQuotesGroup.decode_encode, some_bind]
+  dsimp only
+  rw [dite_eq_left message.longOneSidedQuotesGroup.length_lt]
+  rfl
+
+end LongOneSidedQuotesGroups
+
 /-- Long One Sided Bulk Quote Message -/
 structure LongOneSidedBulkQuoteMessage where
   sendingTime : BitVec 64
@@ -1146,7 +1345,7 @@ structure LongOneSidedBulkQuoteMessage where
   cancelGroupId : BitVec 16
   riskGroupId : BitVec 16
   partiesGroups : PartiesGroups
-  oneSidedQuotesGroups : OneSidedQuotesGroups
+  longOneSidedQuotesGroups : LongOneSidedQuotesGroups
   deriving DecidableEq, Repr
 
 namespace LongOneSidedBulkQuoteMessage
@@ -1162,7 +1361,7 @@ def encode (message : LongOneSidedBulkQuoteMessage) : List UInt8 :=
     ++ (encodeUInt 2 message.cancelGroupId
     ++ (encodeUInt 2 message.riskGroupId
     ++ (PartiesGroups.encode message.partiesGroups
-    ++ (OneSidedQuotesGroups.encode message.oneSidedQuotesGroups))))))))))
+    ++ (LongOneSidedQuotesGroups.encode message.longOneSidedQuotesGroups))))))))))
 
 def decode (bytes : List UInt8) : Option (LongOneSidedBulkQuoteMessage × List UInt8) := do
   let (sendingTime, bytes) ← decodeUInt 8 bytes
@@ -1175,8 +1374,8 @@ def decode (bytes : List UInt8) : Option (LongOneSidedBulkQuoteMessage × List U
   let (cancelGroupId, bytes) ← decodeUInt 2 bytes
   let (riskGroupId, bytes) ← decodeUInt 2 bytes
   let (partiesGroups, bytes) ← PartiesGroups.decode bytes
-  let (oneSidedQuotesGroups, bytes) ← OneSidedQuotesGroups.decode bytes
-  pure ({ sendingTime, clordid, timeInForce, execInst, tradingCapacity, mtpGroupId, matchTradePrevention, cancelGroupId, riskGroupId, partiesGroups, oneSidedQuotesGroups }, bytes)
+  let (longOneSidedQuotesGroups, bytes) ← LongOneSidedQuotesGroups.decode bytes
+  pure ({ sendingTime, clordid, timeInForce, execInst, tradingCapacity, mtpGroupId, matchTradePrevention, cancelGroupId, riskGroupId, partiesGroups, longOneSidedQuotesGroups }, bytes)
 
 theorem encode_length_pos (message : LongOneSidedBulkQuoteMessage) : (encode message).length > 0 := by
   unfold encode
@@ -1184,9 +1383,9 @@ theorem encode_length_pos (message : LongOneSidedBulkQuoteMessage) : (encode mes
   omega
 
 /-- The most bytes an encoding can take -/
-theorem encode_length_le (message : LongOneSidedBulkQuoteMessage) : (encode message).length ≤ 8203 := by
+theorem encode_length_le (message : LongOneSidedBulkQuoteMessage) : (encode message).length ≤ 10243 := by
   have bound_partiesGroups := PartiesGroups.encode_length_le message.partiesGroups
-  have bound_oneSidedQuotesGroups := OneSidedQuotesGroups.encode_length_le message.oneSidedQuotesGroups
+  have bound_longOneSidedQuotesGroups := LongOneSidedQuotesGroups.encode_length_le message.longOneSidedQuotesGroups
   unfold encode
   simp only [List.length_append, ← Nat.add_assoc, encodeUInt_length, Alpha.encode_length, TimeInForce.encode_length]
   omega
@@ -1214,7 +1413,7 @@ theorem encode_length_le (message : LongOneSidedBulkQuoteMessage) : (encode mess
   dsimp only
   rw [List.append_assoc, PartiesGroups.decode_encode, some_bind]
   dsimp only
-  rw [OneSidedQuotesGroups.decode_encode, some_bind]
+  rw [LongOneSidedQuotesGroups.decode_encode, some_bind]
   rfl
 
 end LongOneSidedBulkQuoteMessage

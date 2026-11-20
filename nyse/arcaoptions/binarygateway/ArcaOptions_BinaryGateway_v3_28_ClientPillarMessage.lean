@@ -41,12 +41,6 @@ Note: New Bulk Quote Message is not framed: its length Seq Msg Length is not an 
 Note: New Bulk Quote With Order Id Message is not framed: its length Seq Msg Length is not an
 integer it reads
 
-Note: Optional Order Add On is stated optional on a length comparison, but Exposed's fixed layout
-makes that comparison always hold, so it is read as a mandatory part
-
-Note: Optional Order Add On is stated optional on a length comparison, but Covered's fixed layout
-makes that comparison always hold, so it is read as a mandatory part
-
 Note: New Order Cross Message is not framed: its length Seq Msg Length is not an integer it reads
 
 Note: Bulk Cancel Request Message is not framed: its length Seq Msg Length is not an integer it
@@ -1010,7 +1004,7 @@ theorem decode_encode (message : NewBulkQuoteWithOrderIdMessage) : decode (encod
 
 end NewBulkQuoteWithOrderIdMessage
 
-/-- Exposed: 147 bytes -/
+/-- Exposed: 100 bytes -/
 structure Exposed where
   subMsgHeader : SubMsgHeader
   symbolId : BitVec 32
@@ -1026,7 +1020,6 @@ structure Exposed where
   userData : Alpha 10
   legOpenClose : BitVec 64
   auctionId : BitVec 64
-  optionalOrderAddOn : OptionalOrderAddOn
   deriving DecidableEq, Repr
 
 namespace Exposed
@@ -1045,8 +1038,7 @@ def encode (message : Exposed) : List UInt8 :=
     ++ (encodeUIntLE 4 message.minQty
     ++ (Alpha.encode message.userData
     ++ (encodeUIntLE 8 message.legOpenClose
-    ++ (encodeUIntLE 8 message.auctionId
-    ++ (OptionalOrderAddOn.encode message.optionalOrderAddOn))))))))))))))
+    ++ (encodeUIntLE 8 message.auctionId)))))))))))))
 
 def decode (bytes : List UInt8) : Option (Exposed × List UInt8) := do
   let (subMsgHeader, bytes) ← SubMsgHeader.decode bytes
@@ -1063,12 +1055,11 @@ def decode (bytes : List UInt8) : Option (Exposed × List UInt8) := do
   let (userData, bytes) ← Alpha.decode 10 bytes
   let (legOpenClose, bytes) ← decodeUIntLE 8 bytes
   let (auctionId, bytes) ← decodeUIntLE 8 bytes
-  let (optionalOrderAddOn, bytes) ← OptionalOrderAddOn.decode bytes
-  pure ({ subMsgHeader, symbolId, mpid, marketMaker, mpSubId, clOrdId, origClOrdId, bitfieldOrderInstructions, price, orderQty, minQty, userData, legOpenClose, auctionId, optionalOrderAddOn }, bytes)
+  pure ({ subMsgHeader, symbolId, mpid, marketMaker, mpSubId, clOrdId, origClOrdId, bitfieldOrderInstructions, price, orderQty, minQty, userData, legOpenClose, auctionId }, bytes)
 
-@[simp] theorem encode_length (message : Exposed) : (encode message).length = 147 := by
+@[simp] theorem encode_length (message : Exposed) : (encode message).length = 100 := by
   unfold encode
-  simp only [List.length_append, SubMsgHeader.encode_length, encodeUIntLE_length, Alpha.encode_length, OptionalOrderAddOn.encode_length]
+  simp only [List.length_append, SubMsgHeader.encode_length, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : Exposed) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1103,14 +1094,12 @@ theorem encode_length_pos (message : Exposed) : (encode message).length > 0 := b
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [OptionalOrderAddOn.decode_encode, some_bind]
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
 end Exposed
 
-/-- Covered: 147 bytes -/
+/-- Covered: 100 bytes -/
 structure Covered where
   subMsgHeader : SubMsgHeader
   symbolId : BitVec 32
@@ -1126,7 +1115,6 @@ structure Covered where
   userData : Alpha 10
   legOpenClose : BitVec 64
   auctionId : BitVec 64
-  optionalOrderAddOn : OptionalOrderAddOn
   deriving DecidableEq, Repr
 
 namespace Covered
@@ -1145,8 +1133,7 @@ def encode (message : Covered) : List UInt8 :=
     ++ (encodeUIntLE 4 message.minQty
     ++ (Alpha.encode message.userData
     ++ (encodeUIntLE 8 message.legOpenClose
-    ++ (encodeUIntLE 8 message.auctionId
-    ++ (OptionalOrderAddOn.encode message.optionalOrderAddOn))))))))))))))
+    ++ (encodeUIntLE 8 message.auctionId)))))))))))))
 
 def decode (bytes : List UInt8) : Option (Covered × List UInt8) := do
   let (subMsgHeader, bytes) ← SubMsgHeader.decode bytes
@@ -1163,12 +1150,11 @@ def decode (bytes : List UInt8) : Option (Covered × List UInt8) := do
   let (userData, bytes) ← Alpha.decode 10 bytes
   let (legOpenClose, bytes) ← decodeUIntLE 8 bytes
   let (auctionId, bytes) ← decodeUIntLE 8 bytes
-  let (optionalOrderAddOn, bytes) ← OptionalOrderAddOn.decode bytes
-  pure ({ subMsgHeader, symbolId, mpid, marketMaker, mpSubId, clOrdId, origClOrdId, bitfieldOrderInstructions, price, orderQty, minQty, userData, legOpenClose, auctionId, optionalOrderAddOn }, bytes)
+  pure ({ subMsgHeader, symbolId, mpid, marketMaker, mpSubId, clOrdId, origClOrdId, bitfieldOrderInstructions, price, orderQty, minQty, userData, legOpenClose, auctionId }, bytes)
 
-@[simp] theorem encode_length (message : Covered) : (encode message).length = 147 := by
+@[simp] theorem encode_length (message : Covered) : (encode message).length = 100 := by
   unfold encode
-  simp only [List.length_append, SubMsgHeader.encode_length, encodeUIntLE_length, Alpha.encode_length, OptionalOrderAddOn.encode_length]
+  simp only [List.length_append, SubMsgHeader.encode_length, encodeUIntLE_length, Alpha.encode_length]
 
 theorem encode_length_pos (message : Covered) : (encode message).length > 0 := by
   rw [encode_length]
@@ -1203,14 +1189,12 @@ theorem encode_length_pos (message : Covered) : (encode message).length > 0 := b
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
-  rw [OptionalOrderAddOn.decode_encode, some_bind]
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
   rfl
 
 end Covered
 
-/-- New Order Cross Message: 371 bytes -/
+/-- New Order Cross Message: 277 bytes -/
 structure NewOrderCrossMessage where
   crossId : BitVec 64
   allocationPct : BitVec 8
@@ -1254,7 +1238,7 @@ def decode (bytes : List UInt8) : Option (NewOrderCrossMessage × List UInt8) :=
   let (covered, bytes) ← Covered.decode bytes
   pure ({ crossId, allocationPct, clearingFirmExposed, clearingAccountExposed, optionalDataExposed, clearingFirmCovered, clearingAccountCovered, optionalDataCovered, reserved16, exposed, covered }, bytes)
 
-@[simp] theorem encode_length (message : NewOrderCrossMessage) : (encode message).length = 371 := by
+@[simp] theorem encode_length (message : NewOrderCrossMessage) : (encode message).length = 277 := by
   unfold encode
   simp only [List.length_append, encodeUIntLE_length, encodeUInt_length, Alpha.encode_length, Exposed.encode_length, Covered.encode_length]
 
