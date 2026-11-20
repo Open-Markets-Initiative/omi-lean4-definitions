@@ -1761,6 +1761,69 @@ theorem readGroup_part (count delimiter : List UInt8) (members : List (List UInt
     simp only [List.isEmpty_cons, Bool.false_eq_true, ite_false, decodeGroup, ite_true, decodeDecimal_encodeDecimal,
       some_bind, cut, List.length_map, mapM_map encode decode roundtrip]
 
+/-- A group leading an entry of another: its count token whatever it holds, then its entries. The entry it
+    leads is cut where that token stands, so it is written even where the group holds none -/
+def Part.groupLed (count : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members) (items : List α) : Part :=
+  ⟨count :: members,
+   ⟨count, encodeDecimal items.length⟩ :: items.flatMap encode,
+   by
+     intro token inside
+     simp only [List.mem_cons, List.mem_flatMap] at inside
+     rcases inside with first | ⟨item, _, holds⟩
+     · subst first; simp
+     · exact List.mem_cons_of_mem _ (within item token holds)⟩
+
+theorem paired_groupLed (paired : Pairing) (count : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members)
+    (tagged : (61 : UInt8) ∉ count) (alone : paired.find? (fun entry => entry.1 == count) = none)
+    (taken : ∀ item, Paired paired (encode item)) (items : List α) :
+    Paired paired (Part.groupLed count members encode within items).tokens :=
+  .plain _ _ tagged (encodeDecimal_free items.length) alone (paired_flatMap paired encode taken items)
+
+theorem readGroup_partLed (count delimiter : List UInt8) (members : List (List UInt8))
+    (encode : α → List Token) (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members)
+    (decode : List Token → Option α) (roundtrip : ∀ item, decode (encode item) = some item)
+    (led : ∀ item, Lead delimiter (encode item))
+    (items : List α) (tokens : List Token)
+    (agrees : select (count :: members) tokens = (Part.groupLed count members encode within items).tokens) :
+    readGroup count delimiter members decode tokens = some items := by
+  unfold readGroup
+  rw [agrees]
+  simp only [Part.groupLed]
+  cases items with
+  | nil => simp [decodeGroup, decodeDecimal_encodeDecimal, chunks, some_bind]
+  | cons item others =>
+    have nonempty : ∀ item, encode item ≠ [] := by
+      intro item; rcases led item with ⟨_, _, shaped, _⟩; rw [shaped]; simp
+    have cut := chunks_entries delimiter ((item :: others).map encode)
+      (by intro entry inside; simp only [List.mem_map] at inside; rcases inside with ⟨it, _, rfl⟩; exact led it)
+      ((item :: others).flatMap encode).length
+      (by rw [List.length_map]; exact flatMap_length_ge encode nonempty _)
+    rw [← List.flatMap_def] at cut
+    simp only [decodeGroup, ite_true, decodeDecimal_encodeDecimal,
+      some_bind, cut, List.length_map, mapM_map encode decode roundtrip]
+
+/-- An entry led by a group: the group's count token, then tokens none of which carries that tag, where the
+    group's own entries and every later part write other tags -/
+theorem lead_groupLed (count : List UInt8) (members : List (List UInt8)) (encode : α → List Token)
+    (within : ∀ item, ∀ token ∈ encode item, token.tag ∈ members) (items : List α)
+    (others : List Part) (tagged : List (List (List UInt8))) (shape : others.map Part.tags = tagged)
+    (inner : count ∉ members) (apart : count ∉ tagged.flatten) :
+    Lead count (encodeParts (Part.groupLed count members encode within items :: others)) := by
+  refine ⟨encodeDecimal items.length, items.flatMap encode ++ encodeParts others, ?_, ?_⟩
+  · simp [encodeParts, Part.groupLed]
+  · intro token inside same
+    rcases List.mem_append.mp inside with mine | later
+    · simp only [List.mem_flatMap] at mine
+      rcases mine with ⟨item, _, holds⟩
+      have := within item token holds
+      rw [same] at this
+      exact inner this
+    · have := encodeParts_within others token later
+      rw [shape, same] at this
+      exact apart this
+
 /-- An entry's tokens lead with its delimiter, where its first part is the delimiter and no later part writes that tag -/
 theorem lead_parts (delimiter : List UInt8) (value : Terminated 1) (others : List Part) (tagged : List (List (List UInt8)))
     (shape : others.map Part.tags = tagged) (apart : delimiter ∉ tagged.flatten) :

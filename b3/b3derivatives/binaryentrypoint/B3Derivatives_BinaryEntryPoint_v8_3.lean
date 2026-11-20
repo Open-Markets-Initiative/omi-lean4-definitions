@@ -11,6 +11,8 @@ and a packet read to the end of its data decodes to the messages that were writt
 Text fields are kept byte for byte, padding included, so what is decoded encodes back unchanged.
 Prices with implied decimals are proven as the integers on the wire.
 
+Note: Event Indicator is a bit field set, proven as its 1 byte integer rather than bit by bit
+
 License: MIT No Attribution
 -/
 
@@ -3379,14 +3381,14 @@ def encode (message : OutboundBusinessHeader) : List UInt8 :=
   encodeUIntLE 4 message.sessionId
     ++ (encodeUIntLE 4 message.msgSeqNum
     ++ (encodeUIntLE 8 message.sendingTime
-    ++ (encodeUInt 1 message.eventIndicator
+    ++ (encodeUIntLE 1 message.eventIndicator
     ++ (encodeUInt 1 message.marketSegmentIdOptional))))
 
 def decode (bytes : List UInt8) : Option (OutboundBusinessHeader × List UInt8) := do
   let (sessionId, bytes) ← decodeUIntLE 4 bytes
   let (msgSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (sendingTime, bytes) ← decodeUIntLE 8 bytes
-  let (eventIndicator, bytes) ← decodeUInt 1 bytes
+  let (eventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (marketSegmentIdOptional, bytes) ← decodeUInt 1 bytes
   pure ({ sessionId, msgSeqNum, sendingTime, eventIndicator, marketSegmentIdOptional }, bytes)
 
@@ -3407,7 +3409,7 @@ theorem encode_length_pos (message : OutboundBusinessHeader) : (encode message).
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [decodeUInt_encodeUInt, some_bind]
   rfl
@@ -5032,7 +5034,7 @@ def encode (message : BidirectionalBusinessHeader) : List UInt8 :=
   encodeUIntLE 4 message.sessionId
     ++ (encodeUIntLE 4 message.msgSeqNum
     ++ (encodeUIntLE 8 message.sendingTime
-    ++ (encodeUInt 1 message.eventIndicator
+    ++ (encodeUIntLE 1 message.eventIndicator
     ++ (encodeUInt 1 message.marketSegmentIdOptional
     ++ (Alpha.encode message.paddingChar2)))))
 
@@ -5040,7 +5042,7 @@ def decode (bytes : List UInt8) : Option (BidirectionalBusinessHeader × List UI
   let (sessionId, bytes) ← decodeUIntLE 4 bytes
   let (msgSeqNum, bytes) ← decodeUIntLE 4 bytes
   let (sendingTime, bytes) ← decodeUIntLE 8 bytes
-  let (eventIndicator, bytes) ← decodeUInt 1 bytes
+  let (eventIndicator, bytes) ← decodeUIntLE 1 bytes
   let (marketSegmentIdOptional, bytes) ← decodeUInt 1 bytes
   let (paddingChar2, bytes) ← Alpha.decode 2 bytes
   pure ({ sessionId, msgSeqNum, sendingTime, eventIndicator, marketSegmentIdOptional, paddingChar2 }, bytes)
@@ -5062,7 +5064,7 @@ theorem encode_length_pos (message : BidirectionalBusinessHeader) : (encode mess
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only

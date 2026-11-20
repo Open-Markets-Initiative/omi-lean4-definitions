@@ -24,7 +24,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 1,988 | 6,549,468 |
+| 2,026 | 6,743,243 |
 
 ## Testing
 
@@ -181,6 +181,7 @@ Enjoy.
 [Aquis.AquisEquities.TcpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisEquities/TcpHeader.md "Tcp Headers"
 [Aquis.AquisEquities.TradingProtocol]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisEquities/TradingProtocol.md "Aquis Trading Protocol"
 [Aquis.AquisEquities.UdpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisEquities/UdpHeader.md "Udp Headers"
+[Aquis.AquisStockExchange.MarketData]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisStockExchange/MarketData.md ""
 [Aquis.AquisStockExchange.RealTime]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisStockExchange/RealTime.md "Real Time Market Data Feed"
 [Aquis.AquisStockExchange.Replay]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisStockExchange/Replay.md "Replay"
 [Aquis.AquisStockExchange.Snapshot]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisStockExchange/Snapshot.md "Snapshot"
@@ -352,7 +353,9 @@ Enjoy.
 [Cboe.EdgxOptions.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/EdgxOptions/OrderEntry.md "Order Entry"
 [Cboe.EdgxOptions.Purge]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/EdgxOptions/Purge.md "Purge"
 [Cboe.MatchNow.DropCopy]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/MatchNow/DropCopy.md "Drop Copy"
+[Cboe.MatchNow.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/MatchNow/OrderEntry.md "Order Entry"
 [Cboe.NeoEquities.DropCopy]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/NeoEquities/DropCopy.md "Drop Copy"
+[Cboe.NeoEquities.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Cboe/Protocols/NeoEquities/OrderEntry.md "Order Entry"
 [CixAts.CixAspen.MarketDataFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/CixAts/Protocols/CixAspen/MarketDataFeed.md "CIX Market Data Feed"
 [CixAts.CixAspen.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/CixAts/Protocols/CixAspen/OrderEntry.md "Order Entry"
 [CixAts.CixAspen.Rerequest]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/CixAts/Protocols/CixAspen/Rerequest.md "CIX Udp Rerequest"
@@ -385,6 +388,7 @@ Enjoy.
 [Eurex.T7.Edci]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Edci.md "Extended Derivatives Clearing Interface"
 [Eurex.T7.Eobi]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Eobi.md "Enhanced Order Book Interface"
 [Eurex.T7.Eti]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Eti.md "Enhanced Trading Interface"
+[Eurex.T7.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/OrderEntry.md "Order Entry"
 [Eurex.T7.Xti]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Eurex/Protocols/T7/Xti.md "Cash Enhanced Trading Interface"
 [Euronext.Optiq.DropCopy]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Euronext/Protocols/Optiq/DropCopy.md "Drop Copy"
 [Euronext.Optiq.DropCopyGateway]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Euronext/Protocols/Optiq/DropCopyGateway.md "Drop Copy Gateway"
@@ -427,6 +431,9 @@ Enjoy.
 [Hkex.HkexDerivatives.Standard]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexDerivatives/Standard.md "Orion Market Data Derivatives Standard"
 [Hkex.HkexDerivatives.StandardRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexDerivatives/StandardRefresh.md "Orion Market Data Derivatives Standard Refresh"
 [Hkex.HkexDerivatives.StandardRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexDerivatives/StandardRetrans.md "Orion Market Data Derivatives Standard Retransmission"
+[Hkex.HkexSecurities.Combined]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/Combined.md "Orion Market Data Cash Combined"
+[Hkex.HkexSecurities.CombinedRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/CombinedRefresh.md "Orion Market Data Cash Combined Refresh"
+[Hkex.HkexSecurities.CombinedRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/CombinedRetrans.md "Orion Market Data Cash Combined Retransmission"
 [Hkex.HkexSecurities.DropCopy]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/DropCopy.md "Drop Copy"
 [Hkex.HkexSecurities.FullTick]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/FullTick.md "Orion Market Data Cash FullTick"
 [Hkex.HkexSecurities.FullTickRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/FullTickRefresh.md "Orion Market Data Cash FullTick Refresh"
@@ -434,7 +441,14 @@ Enjoy.
 [Hkex.HkexSecurities.Index]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/Index.md "Orion Market Data Cash Index"
 [Hkex.HkexSecurities.IndexRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/IndexRefresh.md "Orion Market Data Cash Index Refresh"
 [Hkex.HkexSecurities.IndexRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/IndexRetrans.md "Orion Market Data Cash Index Retransmission"
+[Hkex.HkexSecurities.Mmdh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/Mmdh.md "Orion Market Data Cash Mainland Market Data Hub"
 [Hkex.HkexSecurities.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/OrderEntry.md "Order Entry"
+[Hkex.HkexSecurities.Premium]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/Premium.md "Orion Market Data Cash Premium"
+[Hkex.HkexSecurities.PremiumRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/PremiumRefresh.md "Orion Market Data Cash Premium Refresh"
+[Hkex.HkexSecurities.PremiumRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/PremiumRetrans.md "Orion Market Data Cash Premium Retransmission"
+[Hkex.HkexSecurities.Standard]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/Standard.md "Orion Market Data Cash Standard"
+[Hkex.HkexSecurities.StandardRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/StandardRefresh.md "Orion Market Data Cash Standard Refresh"
+[Hkex.HkexSecurities.StandardRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/HkexSecurities/StandardRetrans.md "Orion Market Data Cash Standard Retransmission"
 [Hkex.Sse.ChinaConnect]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/Sse/ChinaConnect.md "Orion Market Data China Connect"
 [Hkex.Sse.ChinaConnectRefresh]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/Sse/ChinaConnectRefresh.md "Orion Market Data China Connect Refresh"
 [Hkex.Sse.ChinaConnectRetrans]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Hkex/Protocols/Sse/ChinaConnectRetrans.md "Orion Market Data China Connect Retransmission"
