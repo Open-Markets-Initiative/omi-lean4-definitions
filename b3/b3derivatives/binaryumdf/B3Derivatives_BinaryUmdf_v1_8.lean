@@ -261,7 +261,7 @@ end MdEntryType
 /-- Packet Header: 16 bytes -/
 structure PacketHeader where
   channelId : BitVec 8
-  packetReserved : BitVec 8
+  packetReserved : Alpha 1
   sequenceVersion : BitVec 16
   sequenceNumber : BitVec 32
   sendingTime : BitVec 64
@@ -271,14 +271,14 @@ namespace PacketHeader
 
 def encode (message : PacketHeader) : List UInt8 :=
   encodeUInt 1 message.channelId
-    ++ (encodeUInt 1 message.packetReserved
+    ++ (Alpha.encode message.packetReserved
     ++ (encodeUIntLE 2 message.sequenceVersion
     ++ (encodeUIntLE 4 message.sequenceNumber
     ++ (encodeUIntLE 8 message.sendingTime))))
 
 def decode (bytes : List UInt8) : Option (PacketHeader × List UInt8) := do
   let (channelId, bytes) ← decodeUInt 1 bytes
-  let (packetReserved, bytes) ← decodeUInt 1 bytes
+  let (packetReserved, bytes) ← Alpha.decode 1 bytes
   let (sequenceVersion, bytes) ← decodeUIntLE 2 bytes
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (sendingTime, bytes) ← decodeUIntLE 8 bytes
@@ -286,7 +286,7 @@ def decode (bytes : List UInt8) : Option (PacketHeader × List UInt8) := do
 
 @[simp] theorem encode_length (message : PacketHeader) : (encode message).length = 16 := by
   unfold encode
-  simp only [List.length_append, encodeUInt_length, encodeUIntLE_length]
+  simp only [List.length_append, encodeUInt_length, Alpha.encode_length, encodeUIntLE_length]
 
 theorem encode_length_pos (message : PacketHeader) : (encode message).length > 0 := by
   rw [encode_length]
@@ -297,7 +297,7 @@ theorem encode_length_pos (message : PacketHeader) : (encode message).length > 0
   unfold decode encode
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
-  rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
   dsimp only
   rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
   dsimp only

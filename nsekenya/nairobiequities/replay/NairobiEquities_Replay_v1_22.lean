@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# Nairobi Securities Exchange Nairobi Equities Real Time v1.22
+# Nairobi Securities Exchange Nairobi Equities Replay v1.22
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;
@@ -30,10 +30,155 @@ bit
 Note: Update Price Point Flags is a bit field set, proven as its 1 byte integer rather than bit by
 bit
 
+Note: Tcp Unit's Length is written from its body but not checked on decode, since the body has no
+bound the prefix must fit; the body is read by its content
+
 License: MIT No Attribution
 -/
 
-namespace Omi.NairobiNairobiequitiesRealtimeMitchV122
+namespace Omi.NsekenyaNairobiequitiesReplayMitchV122
+
+/-- Login Status: one byte code -/
+def LoginStatus.codes : List UInt8 :=
+  [0x41, 0x61, 0x62, 0x63, 0x64, 0x65]
+
+inductive LoginStatus where
+  | loginAccepted -- Login Accepted
+  | compIdInactiveLocked -- Comp Id Inactive Locked
+  | loginLimitReached -- Login Limit Reached
+  | serviceUnavailable -- Service Unavailable
+  | concurrentLimitReached -- Concurrent Limit Reached
+  | failedOther -- Failed Other
+  | unlisted (byte : { byte : UInt8 // byte ∉ LoginStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace LoginStatus
+
+def toByte : LoginStatus → UInt8
+  | .loginAccepted => 0x41
+  | .compIdInactiveLocked => 0x61
+  | .loginLimitReached => 0x62
+  | .serviceUnavailable => 0x63
+  | .concurrentLimitReached => 0x64
+  | .failedOther => 0x65
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : LoginStatus :=
+  if byte = 0x41 then .loginAccepted
+  else if byte = 0x61 then .compIdInactiveLocked
+  else if byte = 0x62 then .loginLimitReached
+  else if byte = 0x63 then .serviceUnavailable
+  else if byte = 0x64 then .concurrentLimitReached
+  else .failedOther
+
+def ofByte (byte : UInt8) : LoginStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : LoginStatus) : ofByte value.toByte = value := by
+  cases value with
+  | loginAccepted => decide
+  | compIdInactiveLocked => decide
+  | loginLimitReached => decide
+  | serviceUnavailable => decide
+  | concurrentLimitReached => decide
+  | failedOther => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : LoginStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (LoginStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : LoginStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : LoginStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : LoginStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end LoginStatus
+
+/-- Replay Status: one byte code -/
+def ReplayStatus.codes : List UInt8 :=
+  [0x41, 0x44, 0x49, 0x4F, 0x55, 0x63, 0x64, 0x65]
+
+inductive ReplayStatus where
+  | requestAccepted -- Request Accepted
+  | requestLimitReached -- Request Limit Reached
+  | invalidMarketDataGroup -- Invalid Market Data Group
+  | outOfRange -- Out Of Range
+  | replayUnavailable -- Replay Unavailable
+  | concurrentLimitReached -- Concurrent Limit Reached
+  | unsupportedMessageType -- Unsupported Message Type
+  | failedOther -- Failed Other
+  | unlisted (byte : { byte : UInt8 // byte ∉ ReplayStatus.codes }) -- any other code, kept as it is
+  deriving DecidableEq, Repr
+
+namespace ReplayStatus
+
+def toByte : ReplayStatus → UInt8
+  | .requestAccepted => 0x41
+  | .requestLimitReached => 0x44
+  | .invalidMarketDataGroup => 0x49
+  | .outOfRange => 0x4F
+  | .replayUnavailable => 0x55
+  | .concurrentLimitReached => 0x63
+  | .unsupportedMessageType => 0x64
+  | .failedOther => 0x65
+  | .unlisted byte => byte.val
+
+/-- The constructor of a listed code -/
+def listed (byte : UInt8) : ReplayStatus :=
+  if byte = 0x41 then .requestAccepted
+  else if byte = 0x44 then .requestLimitReached
+  else if byte = 0x49 then .invalidMarketDataGroup
+  else if byte = 0x4F then .outOfRange
+  else if byte = 0x55 then .replayUnavailable
+  else if byte = 0x63 then .concurrentLimitReached
+  else if byte = 0x64 then .unsupportedMessageType
+  else .failedOther
+
+def ofByte (byte : UInt8) : ReplayStatus :=
+  if known : byte ∈ codes then listed byte else .unlisted ⟨byte, known⟩
+
+theorem ofByte_toByte (value : ReplayStatus) : ofByte value.toByte = value := by
+  cases value with
+  | requestAccepted => decide
+  | requestLimitReached => decide
+  | invalidMarketDataGroup => decide
+  | outOfRange => decide
+  | replayUnavailable => decide
+  | concurrentLimitReached => decide
+  | unsupportedMessageType => decide
+  | failedOther => decide
+  | unlisted byte => simp [ofByte, toByte, byte.property]
+
+def encode (value : ReplayStatus) : List UInt8 :=
+  [value.toByte]
+
+def decode : List UInt8 → Option (ReplayStatus × List UInt8)
+  | byte :: rest => some (ofByte byte, rest)
+  | [] => none
+
+@[simp] theorem encode_length (value : ReplayStatus) : (encode value).length = 1 :=
+  rfl
+
+theorem encode_length_pos (value : ReplayStatus) : (encode value).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (value : ReplayStatus) (rest : List UInt8) :
+    decode (encode value ++ rest) = some (value, rest) := by
+  simp [decode, encode, ofByte_toByte]
+
+end ReplayStatus
 
 /-- Event Code: one byte code -/
 def EventCode.codes : List UInt8 :=
@@ -1199,6 +1344,177 @@ theorem encode_length_pos (value : TopOfBookAction) : (encode value).length > 0 
   simp [decode, encode, ofByte_toByte]
 
 end TopOfBookAction
+
+/-- Login Request Message: 16 bytes -/
+structure LoginRequestMessage where
+  username : Alpha 6
+  password : Alpha 10
+  deriving DecidableEq, Repr
+
+namespace LoginRequestMessage
+
+def encode (message : LoginRequestMessage) : List UInt8 :=
+  Alpha.encode message.username
+    ++ (Alpha.encode message.password)
+
+def decode (bytes : List UInt8) : Option (LoginRequestMessage × List UInt8) := do
+  let (username, bytes) ← Alpha.decode 6 bytes
+  let (password, bytes) ← Alpha.decode 10 bytes
+  pure ({ username, password }, bytes)
+
+@[simp] theorem encode_length (message : LoginRequestMessage) : (encode message).length = 16 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length]
+
+theorem encode_length_pos (message : LoginRequestMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LoginRequestMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [Alpha.decode_encode, some_bind]
+  rfl
+
+end LoginRequestMessage
+
+/-- Login Response Message: 1 bytes -/
+structure LoginResponseMessage where
+  loginStatus : LoginStatus
+  deriving DecidableEq, Repr
+
+namespace LoginResponseMessage
+
+def encode (message : LoginResponseMessage) : List UInt8 :=
+  LoginStatus.encode message.loginStatus
+
+def decode (bytes : List UInt8) : Option (LoginResponseMessage × List UInt8) := do
+  let (loginStatus, bytes) ← LoginStatus.decode bytes
+  pure ({ loginStatus }, bytes)
+
+@[simp] theorem encode_length (message : LoginResponseMessage) : (encode message).length = 1 := by
+  unfold encode
+  simp only [LoginStatus.encode_length]
+
+theorem encode_length_pos (message : LoginResponseMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : LoginResponseMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [LoginStatus.decode_encode, some_bind]
+  rfl
+
+end LoginResponseMessage
+
+/-- Replay Request Message: 7 bytes -/
+structure ReplayRequestMessage where
+  marketDataGroup : Alpha 1
+  firstMessage : BitVec 32
+  count : BitVec 16
+  deriving DecidableEq, Repr
+
+namespace ReplayRequestMessage
+
+def encode (message : ReplayRequestMessage) : List UInt8 :=
+  Alpha.encode message.marketDataGroup
+    ++ (encodeUIntLE 4 message.firstMessage
+    ++ (encodeUIntLE 2 message.count))
+
+def decode (bytes : List UInt8) : Option (ReplayRequestMessage × List UInt8) := do
+  let (marketDataGroup, bytes) ← Alpha.decode 1 bytes
+  let (firstMessage, bytes) ← decodeUIntLE 4 bytes
+  let (count, bytes) ← decodeUIntLE 2 bytes
+  pure ({ marketDataGroup, firstMessage, count }, bytes)
+
+@[simp] theorem encode_length (message : ReplayRequestMessage) : (encode message).length = 7 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length]
+
+theorem encode_length_pos (message : ReplayRequestMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : ReplayRequestMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [decodeUIntLE_encodeUIntLE, some_bind]
+  rfl
+
+end ReplayRequestMessage
+
+/-- Replay Response Message: 8 bytes -/
+structure ReplayResponseMessage where
+  marketDataGroup : Alpha 1
+  firstMessage : BitVec 32
+  count : BitVec 16
+  replayStatus : ReplayStatus
+  deriving DecidableEq, Repr
+
+namespace ReplayResponseMessage
+
+def encode (message : ReplayResponseMessage) : List UInt8 :=
+  Alpha.encode message.marketDataGroup
+    ++ (encodeUIntLE 4 message.firstMessage
+    ++ (encodeUIntLE 2 message.count
+    ++ (ReplayStatus.encode message.replayStatus)))
+
+def decode (bytes : List UInt8) : Option (ReplayResponseMessage × List UInt8) := do
+  let (marketDataGroup, bytes) ← Alpha.decode 1 bytes
+  let (firstMessage, bytes) ← decodeUIntLE 4 bytes
+  let (count, bytes) ← decodeUIntLE 2 bytes
+  let (replayStatus, bytes) ← ReplayStatus.decode bytes
+  pure ({ marketDataGroup, firstMessage, count, replayStatus }, bytes)
+
+@[simp] theorem encode_length (message : ReplayResponseMessage) : (encode message).length = 8 := by
+  unfold encode
+  simp only [List.length_append, Alpha.encode_length, encodeUIntLE_length, ReplayStatus.encode_length]
+
+theorem encode_length_pos (message : ReplayResponseMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : ReplayResponseMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, Alpha.decode_encode, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  dsimp only
+  rw [ReplayStatus.decode_encode, some_bind]
+  rfl
+
+end ReplayResponseMessage
+
+/-- Logout Request Message: 0 bytes -/
+structure LogoutRequestMessage where
+  deriving DecidableEq, Repr
+
+namespace LogoutRequestMessage
+
+def encode (_ : LogoutRequestMessage) : List UInt8 :=
+  []
+
+def decode (bytes : List UInt8) : Option (LogoutRequestMessage × List UInt8) :=
+  some (⟨⟩, bytes)
+
+@[simp] theorem encode_length (message : LogoutRequestMessage) : (encode message).length = 0 := by
+  simp [encode]
+
+@[simp] theorem decode_encode (message : LogoutRequestMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  simp [decode, encode]
+
+end LogoutRequestMessage
 
 /-- Time Message: 4 bytes -/
 structure TimeMessage where
@@ -2992,6 +3308,11 @@ end TopOfBookMessage
 
 /-- Any Payload, selected by Message Type -/
 inductive Payload where
+  | loginRequestMessage (message : LoginRequestMessage) -- 1
+  | loginResponseMessage (message : LoginResponseMessage) -- 2
+  | replayRequestMessage (message : ReplayRequestMessage) -- 3
+  | replayResponseMessage (message : ReplayResponseMessage) -- 4
+  | logoutRequestMessage (message : LogoutRequestMessage) -- 5
   | timeMessage (message : TimeMessage) -- 84
   | systemEventMessage (message : SystemEventMessage) -- 83
   | symbolDirectoryMessage (message : SymbolDirectoryMessage) -- 82
@@ -3025,6 +3346,11 @@ namespace Payload
 
 /-- The Message Type each message is sent under -/
 def tag : Payload → BitVec 8
+  | .loginRequestMessage _ => 1
+  | .loginResponseMessage _ => 2
+  | .replayRequestMessage _ => 3
+  | .replayResponseMessage _ => 4
+  | .logoutRequestMessage _ => 5
   | .timeMessage _ => 84
   | .systemEventMessage _ => 83
   | .symbolDirectoryMessage _ => 82
@@ -3054,6 +3380,11 @@ def tag : Payload → BitVec 8
   | .topOfBookMessage _ => 113
 
 def encode : Payload → List UInt8
+  | .loginRequestMessage message => LoginRequestMessage.encode message
+  | .loginResponseMessage message => LoginResponseMessage.encode message
+  | .replayRequestMessage message => ReplayRequestMessage.encode message
+  | .replayResponseMessage message => ReplayResponseMessage.encode message
+  | .logoutRequestMessage message => LogoutRequestMessage.encode message
   | .timeMessage message => TimeMessage.encode message
   | .systemEventMessage message => SystemEventMessage.encode message
   | .symbolDirectoryMessage message => SymbolDirectoryMessage.encode message
@@ -3085,6 +3416,21 @@ def encode : Payload → List UInt8
 /-- The most bytes any message's encoding can take -/
 theorem encode_length_le (message : Payload) : (encode message).length ≤ 1063 := by
   cases message with
+  | loginRequestMessage inner =>
+    simp only [encode, LoginRequestMessage.encode_length]
+    omega
+  | loginResponseMessage inner =>
+    simp only [encode, LoginResponseMessage.encode_length]
+    omega
+  | replayRequestMessage inner =>
+    simp only [encode, ReplayRequestMessage.encode_length]
+    omega
+  | replayResponseMessage inner =>
+    simp only [encode, ReplayResponseMessage.encode_length]
+    omega
+  | logoutRequestMessage inner =>
+    simp only [encode, LogoutRequestMessage.encode_length]
+    omega
   | timeMessage inner =>
     simp only [encode, TimeMessage.encode_length]
     omega
@@ -3168,7 +3514,12 @@ theorem encode_length_le (message : Payload) : (encode message).length ≤ 1063 
     omega
 
 def decode (tag : BitVec 8) (bytes : List UInt8) : Option (Payload × List UInt8) :=
-  if tag = 84 then (TimeMessage.decode bytes).map fun (message, rest) => (.timeMessage message, rest)
+  if tag = 1 then (LoginRequestMessage.decode bytes).map fun (message, rest) => (.loginRequestMessage message, rest)
+  else if tag = 2 then (LoginResponseMessage.decode bytes).map fun (message, rest) => (.loginResponseMessage message, rest)
+  else if tag = 3 then (ReplayRequestMessage.decode bytes).map fun (message, rest) => (.replayRequestMessage message, rest)
+  else if tag = 4 then (ReplayResponseMessage.decode bytes).map fun (message, rest) => (.replayResponseMessage message, rest)
+  else if tag = 5 then (LogoutRequestMessage.decode bytes).map fun (message, rest) => (.logoutRequestMessage message, rest)
+  else if tag = 84 then (TimeMessage.decode bytes).map fun (message, rest) => (.timeMessage message, rest)
   else if tag = 83 then (SystemEventMessage.decode bytes).map fun (message, rest) => (.systemEventMessage message, rest)
   else if tag = 82 then (SymbolDirectoryMessage.decode bytes).map fun (message, rest) => (.symbolDirectoryMessage message, rest)
   else if tag = 72 then (SymbolStatusMessage.decode bytes).map fun (message, rest) => (.symbolStatusMessage message, rest)
@@ -3231,6 +3582,21 @@ theorem decodeBody_encodeBody (message : Message) (rest : List UInt8) :
 theorem encodeBody_length_lt (message : Message) : (encodeBody message).length + 2 < 256 ^ 2 := by
   unfold encodeBody
   cases message.payload with
+  | loginRequestMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, LoginRequestMessage.encode_length]
+    omega
+  | loginResponseMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, LoginResponseMessage.encode_length]
+    omega
+  | replayRequestMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, ReplayRequestMessage.encode_length]
+    omega
+  | replayResponseMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, ReplayResponseMessage.encode_length]
+    omega
+  | logoutRequestMessage inner =>
+    simp only [Payload.encode, List.length_append, encodeUInt_length, LogoutRequestMessage.encode_length]
+    omega
   | timeMessage inner =>
     simp only [Payload.encode, List.length_append, encodeUInt_length, TimeMessage.encode_length]
     omega
@@ -3331,43 +3697,33 @@ theorem encode_length_pos (message : Message) : (encode message).length > 0 := b
 
 end Message
 
-/-- Packet -/
-structure Packet where
-  length : BitVec 16
+/-- Tcp Unit -/
+structure TcpUnit where
   marketDataGroup : Alpha 1
   sequenceNumber : BitVec 32
   message : Bounded 1 Message
   deriving DecidableEq, Repr
 
-namespace Packet
+namespace TcpUnit
 
-def encode (message : Packet) : List UInt8 :=
-  encodeUIntLE 2 message.length
-    ++ (encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
+def encodeBody (message : TcpUnit) : List UInt8 :=
+  encodeUInt 1 (BitVec.ofNat (8 * 1) message.message.val.length)
     ++ (Alpha.encode message.marketDataGroup
     ++ (encodeUIntLE 4 message.sequenceNumber
-    ++ (encodeMany Message.encode message.message.val))))
+    ++ (encodeMany Message.encode message.message.val)))
 
-def decode (bytes : List UInt8) : Option (Packet × List UInt8) := do
-  let (length, bytes) ← decodeUIntLE 2 bytes
+def decodeBody (bytes : List UInt8) : Option (TcpUnit × List UInt8) := do
   let (messageCount, bytes) ← decodeUInt 1 bytes
   let (marketDataGroup, bytes) ← Alpha.decode 1 bytes
   let (sequenceNumber, bytes) ← decodeUIntLE 4 bytes
   let (message_, bytes) ← decodeMany Message.decode messageCount.toNat bytes
   if fits_message : message_.length < 256 ^ 1 then
-    pure ({ length, marketDataGroup, sequenceNumber, message := ⟨message_, fits_message⟩ }, bytes)
+    pure ({ marketDataGroup, sequenceNumber, message := ⟨message_, fits_message⟩ }, bytes)
   else none
 
-theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
-  unfold encode
-  simp only [encodeUIntLE_length, List.length_append, ← Nat.add_assoc]
-  omega
-
-@[simp] theorem decode_encode (message : Packet) (rest : List UInt8) :
-    decode (encode message ++ rest) = some (message, rest) := by
-  unfold decode encode
-  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
-  dsimp only
+theorem decodeBody_encodeBody (message : TcpUnit) (rest : List UInt8) :
+    decodeBody (encodeBody message ++ rest) = some (message, rest) := by
+  unfold decodeBody encodeBody
   rw [List.append_assoc, decodeUInt_encodeUInt, some_bind]
   dsimp only
   rw [List.append_assoc, Alpha.decode_encode, some_bind]
@@ -3379,6 +3735,46 @@ theorem encode_length_pos (message : Packet) : (encode message).length > 0 := by
   rw [dite_eq_left message.message.length_lt]
   rfl
 
+/-- Size rule: Length counts the bytes after it plus 2, so it is written from the body; the body has no bound the prefix must fit, so it is read by its content and the prefix is not checked -/
+def encode (message : TcpUnit) : List UInt8 :=
+  encodeUIntLE 2 (BitVec.ofNat (8 * 2) ((encodeBody message).length + 2)) ++ encodeBody message
+
+def decode (bytes : List UInt8) : Option (TcpUnit × List UInt8) := do
+  let (_, bytes) ← decodeUIntLE 2 bytes
+  decodeBody bytes
+
+@[simp] theorem decode_encode (message : TcpUnit) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [List.append_assoc, decodeUIntLE_encodeUIntLE, some_bind]
+  exact decodeBody_encodeBody message rest
+
+theorem encode_length_pos (message : TcpUnit) : (encode message).length > 0 := by
+  unfold encode
+  simp only [List.length_append, encodeUIntLE_length]
+  omega
+
+end TcpUnit
+
+/-- Packet -/
+structure Packet where
+  tcpUnit : List TcpUnit
+  deriving DecidableEq, Repr
+
+namespace Packet
+
+def encode (message : Packet) : List UInt8 :=
+  encodeMany TcpUnit.encode message.tcpUnit
+
+def decode (bytes : List UInt8) : Option Packet := do
+  let tcpUnit ← decodeAll TcpUnit.decode bytes.length bytes
+  pure { tcpUnit }
+
+theorem decode_encode (message : Packet) : decode (encode message) = some message := by
+  unfold decode encode
+  rw [decodeAll_encodeMany TcpUnit.encode TcpUnit.decode TcpUnit.decode_encode TcpUnit.encode_length_pos message.tcpUnit _ (encodeMany_length_ge TcpUnit.encode TcpUnit.encode_length_pos message.tcpUnit), some_bind]
+  rfl
+
 end Packet
 
-end Omi.NairobiNairobiequitiesRealtimeMitchV122
+end Omi.NsekenyaNairobiequitiesReplayMitchV122

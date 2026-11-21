@@ -1,7 +1,7 @@
 import Wire
 
 /-!
-# Nairobi Securities Exchange Nairobi Bonds Market Data v2.14
+# Nairobi Securities Exchange Nairobi Derivatives Market Data v2.14
 
 Generated from the binary model, with the proofs the model's rules call for: every record
 decodes back to what was encoded; a message dispatch selects the message its type names;
@@ -20,7 +20,7 @@ covers
 License: MIT No Attribution
 -/
 
-namespace Omi.NairobiNairobibondsMarketdataMitsV214Client
+namespace Omi.NsekenyaNairobiderivativesMarketdataMitsV214Client
 
 /-- User Name: 16 bytes -/
 structure UserName where
@@ -1093,4 +1093,4 @@ theorem decode_encode (message : ClientPacket) : decode (encode message) = some 
 
 end ClientPacket
 
-end Omi.NairobiNairobibondsMarketdataMitsV214Client
+end Omi.NsekenyaNairobiderivativesMarketdataMitsV214Client
