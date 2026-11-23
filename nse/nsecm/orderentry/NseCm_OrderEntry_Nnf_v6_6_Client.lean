@@ -190,6 +190,36 @@ theorem encode_length_pos (message : MessageDownloadRequestMessage) : (encode me
 
 end MessageDownloadRequestMessage
 
+/-- Secure Box Registration Request Message: 2 bytes -/
+structure SecureBoxRegistrationRequestMessage where
+  boxId : BitVec 16
+  deriving DecidableEq, Repr
+
+namespace SecureBoxRegistrationRequestMessage
+
+def encode (message : SecureBoxRegistrationRequestMessage) : List UInt8 :=
+  encodeUInt 2 message.boxId
+
+def decode (bytes : List UInt8) : Option (SecureBoxRegistrationRequestMessage × List UInt8) := do
+  let (boxId, bytes) ← decodeUInt 2 bytes
+  pure ({ boxId }, bytes)
+
+@[simp] theorem encode_length (message : SecureBoxRegistrationRequestMessage) : (encode message).length = 2 := by
+  unfold encode
+  simp only [encodeUInt_length]
+
+theorem encode_length_pos (message : SecureBoxRegistrationRequestMessage) : (encode message).length > 0 := by
+  rw [encode_length]
+  decide
+
+@[simp] theorem decode_encode (message : SecureBoxRegistrationRequestMessage) (rest : List UInt8) :
+    decode (encode message ++ rest) = some (message, rest) := by
+  unfold decode encode
+  rw [decodeUInt_encodeUInt, some_bind]
+  rfl
+
+end SecureBoxRegistrationRequestMessage
+
 /-- Sec Info: 12 bytes -/
 structure SecInfo where
   symbol : Alpha 10
@@ -1239,6 +1269,7 @@ inductive ClientMessagePayload where
   | branchOrderValueLimitUpdateInMessage (message : BranchOrderValueLimitUpdateInMessage) -- 5716
   | cancelOnLogoutStatusRequestMessage (message : CancelOnLogoutStatusRequestMessage) -- 5790
   | messageDownloadRequestMessage (message : MessageDownloadRequestMessage) -- 7000
+  | secureBoxRegistrationRequestMessage (message : SecureBoxRegistrationRequestMessage) -- 23008
   | auctionInquiryRequestMessage (message : AuctionInquiryRequestMessage) -- 18016
   | boxSignOffMessage (message : BoxSignOffMessage) -- 20322
   | boxSignOnRequestMessage (message : BoxSignOnRequestMessage) -- 23000
@@ -1267,6 +1298,7 @@ def tag : ClientMessagePayload → BitVec 16
   | .branchOrderValueLimitUpdateInMessage _ => 5716
   | .cancelOnLogoutStatusRequestMessage _ => 5790
   | .messageDownloadRequestMessage _ => 7000
+  | .secureBoxRegistrationRequestMessage _ => 23008
   | .auctionInquiryRequestMessage _ => 18016
   | .boxSignOffMessage _ => 20322
   | .boxSignOnRequestMessage _ => 23000
@@ -1291,6 +1323,7 @@ def encode : ClientMessagePayload → List UInt8
   | .branchOrderValueLimitUpdateInMessage message => BranchOrderValueLimitUpdateInMessage.encode message
   | .cancelOnLogoutStatusRequestMessage message => CancelOnLogoutStatusRequestMessage.encode message
   | .messageDownloadRequestMessage message => MessageDownloadRequestMessage.encode message
+  | .secureBoxRegistrationRequestMessage message => SecureBoxRegistrationRequestMessage.encode message
   | .auctionInquiryRequestMessage message => AuctionInquiryRequestMessage.encode message
   | .boxSignOffMessage message => BoxSignOffMessage.encode message
   | .boxSignOnRequestMessage message => BoxSignOnRequestMessage.encode message
@@ -1322,6 +1355,9 @@ theorem encode_length_le (message : ClientMessagePayload) : (encode message).len
     omega
   | messageDownloadRequestMessage inner =>
     simp only [encode, MessageDownloadRequestMessage.encode_length]
+    omega
+  | secureBoxRegistrationRequestMessage inner =>
+    simp only [encode, SecureBoxRegistrationRequestMessage.encode_length]
     omega
   | auctionInquiryRequestMessage inner =>
     simp only [encode, AuctionInquiryRequestMessage.encode_length]
@@ -1385,6 +1421,7 @@ def decode (tag : BitVec 16) (bytes : List UInt8) : Option (ClientMessagePayload
   if tag = 5716 then (BranchOrderValueLimitUpdateInMessage.decode bytes).map fun (message, rest) => (.branchOrderValueLimitUpdateInMessage message, rest)
   else if tag = 5790 then (CancelOnLogoutStatusRequestMessage.decode bytes).map fun (message, rest) => (.cancelOnLogoutStatusRequestMessage message, rest)
   else if tag = 7000 then (MessageDownloadRequestMessage.decode bytes).map fun (message, rest) => (.messageDownloadRequestMessage message, rest)
+  else if tag = 23008 then (SecureBoxRegistrationRequestMessage.decode bytes).map fun (message, rest) => (.secureBoxRegistrationRequestMessage message, rest)
   else if tag = 18016 then (AuctionInquiryRequestMessage.decode bytes).map fun (message, rest) => (.auctionInquiryRequestMessage message, rest)
   else if tag = 20322 then (BoxSignOffMessage.decode bytes).map fun (message, rest) => (.boxSignOffMessage message, rest)
   else if tag = 23000 then (BoxSignOnRequestMessage.decode bytes).map fun (message, rest) => (.boxSignOnRequestMessage message, rest)
@@ -1451,6 +1488,9 @@ theorem encodeBody_length_lt (message : ClientMessage) : (encodeBody message).le
     omega
   | messageDownloadRequestMessage inner =>
     simp only [ClientMessagePayload.encode, MessageDownloadRequestMessage.encode_length]
+    omega
+  | secureBoxRegistrationRequestMessage inner =>
+    simp only [ClientMessagePayload.encode, SecureBoxRegistrationRequestMessage.encode_length]
     omega
   | auctionInquiryRequestMessage inner =>
     simp only [ClientMessagePayload.encode, AuctionInquiryRequestMessage.encode_length]

@@ -3182,16 +3182,16 @@ end BusinessBodies
 
 /-- Packet Body -/
 structure PacketBodyPresent (numBody : BitVec 8) where
-  packetBody : Peeked (HeartbeatBody numBody) (BusinessBodies numBody) HeartbeatBody.encode BusinessBodies.encode 2 48
+  packetBody : Peeked (HeartbeatBody numBody) (BusinessBodies numBody) (HeartbeatBody.encode : HeartbeatBody numBody → List UInt8) (BusinessBodies.encode : BusinessBodies numBody → List UInt8) 2 [48]
   deriving DecidableEq, Repr
 
 namespace PacketBodyPresent
 
 def encode {numBody : BitVec 8} (message : PacketBodyPresent numBody) : List UInt8 :=
-  encodePeek HeartbeatBody.encode BusinessBodies.encode message.packetBody
+  encodePeek (HeartbeatBody.encode : HeartbeatBody numBody → List UInt8) (BusinessBodies.encode : BusinessBodies numBody → List UInt8) message.packetBody
 
 def decode (numBody : BitVec 8) (bytes : List UInt8) : Option (PacketBodyPresent numBody × List UInt8) := do
-  let (packetBody, bytes) ← decodePeek 2 48 (decodeKeyed HeartbeatBody.encode (HeartbeatBody.decode numBody) 2 48) (decodeUnkeyed BusinessBodies.encode (BusinessBodies.decode numBody) 2 48) bytes
+  let (packetBody, bytes) ← decodePeek 2 [48] (decodeKeyed (HeartbeatBody.encode : HeartbeatBody numBody → List UInt8) (HeartbeatBody.decode numBody) 2 [48]) (decodeUnkeyed (BusinessBodies.encode : BusinessBodies numBody → List UInt8) (BusinessBodies.decode numBody) 2 [48]) bytes
   pure ({ packetBody }, bytes)
 
 theorem encode_length_pos {numBody : BitVec 8} (message : PacketBodyPresent numBody) : (encode message).length > 0 := by
@@ -3202,7 +3202,7 @@ theorem encode_length_pos {numBody : BitVec 8} (message : PacketBodyPresent numB
 @[simp] theorem decode_encode (numBody : BitVec 8) (message : PacketBodyPresent numBody) (rest : List UInt8) :
     decode numBody (encode message ++ rest) = some (message, rest) := by
   unfold decode encode
-  rw [decodePeek_encodePeek HeartbeatBody.encode (HeartbeatBody.decode numBody) BusinessBodies.encode (BusinessBodies.decode numBody) 2 48 (HeartbeatBody.decode_encode numBody) (BusinessBodies.decode_encode numBody), some_bind]
+  rw [decodePeek_encodePeek (HeartbeatBody.encode : HeartbeatBody numBody → List UInt8) (HeartbeatBody.decode numBody) (BusinessBodies.encode : BusinessBodies numBody → List UInt8) (BusinessBodies.decode numBody) 2 [48] (HeartbeatBody.decode_encode numBody) (BusinessBodies.decode_encode numBody), some_bind]
   rfl
 
 end PacketBodyPresent

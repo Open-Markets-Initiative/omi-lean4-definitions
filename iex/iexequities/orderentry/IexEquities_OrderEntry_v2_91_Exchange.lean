@@ -1062,6 +1062,51 @@ theorem IEXTradeBust.taken (record : IEXTradeBust) : Paired pairing (encodeParts
                   (paired_cons pairing _ _ (paired_optional pairing [57, 56, 56, 50] record.feeCode (by decide) (by decide))
                    (paired_none pairing)))))))))))))))))
 
+structure BusinessMessageReject where
+  refSeqNum : Option (Terminated 1)  -- tag 45
+  refMsgType : Terminated 1  -- tag 372
+  businessRejectReason : Terminated 1  -- tag 380
+  text : Option (Terminated 1)  -- tag 58
+
+def BusinessMessageReject.parts (record : BusinessMessageReject) : List Part :=
+  [Part.optional [52, 53] record.refSeqNum,
+   Part.required [51, 55, 50] record.refMsgType,
+   Part.required [51, 56, 48] record.businessRejectReason,
+   Part.optional [53, 56] record.text]
+
+def BusinessMessageReject.tags : List (List (List UInt8)) :=
+  [[[52, 53]], [[51, 55, 50]], [[51, 56, 48]], [[53, 56]]]
+
+theorem BusinessMessageReject.shape (record : BusinessMessageReject) : record.parts.map Part.tags = BusinessMessageReject.tags := rfl
+
+def BusinessMessageReject.decode (tokens : List Token) : Option BusinessMessageReject := do
+  let refSeqNum ← readOptional [52, 53] tokens
+  let refMsgType ← readRequired [51, 55, 50] tokens
+  let businessRejectReason ← readRequired [51, 56, 48] tokens
+  let text ← readOptional [53, 56] tokens
+  pure { refSeqNum, refMsgType, businessRejectReason, text }
+
+theorem BusinessMessageReject.decode_agrees (record : BusinessMessageReject) (tokens : List Token)
+    (agrees : ∀ tags ∈ BusinessMessageReject.tags, select tags tokens = select tags (encodeParts record.parts)) :
+    BusinessMessageReject.decode tokens = some record := by
+  have distinct : BusinessMessageReject.tags.flatten.Nodup := by decide +kernel
+  have refSeqNum := readOptional_part [52, 53] record.refSeqNum tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 0 (by decide +kernel)))
+  have refMsgType := readRequired_part [51, 55, 50] record.refMsgType tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 1 (by decide +kernel)))
+  have businessRejectReason := readRequired_part [51, 56, 48] record.businessRejectReason tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 2 (by decide +kernel)))
+  have text := readOptional_part [53, 56] record.text tokens
+    ((agrees _ (by decide +kernel)).trans (select_part _ _ record.shape distinct 3 (by decide +kernel)))
+  simp only [BusinessMessageReject.decode, refSeqNum, refMsgType, businessRejectReason, text, some_bind] <;> rfl
+
+theorem BusinessMessageReject.taken (record : BusinessMessageReject) : Paired pairing (encodeParts record.parts) :=
+  paired_cons pairing _ _ (paired_optional pairing [52, 53] record.refSeqNum (by decide) (by decide))
+   (paired_cons pairing _ _ (paired_required pairing [51, 55, 50] record.refMsgType (by decide) (by decide))
+    (paired_cons pairing _ _ (paired_required pairing [51, 56, 48] record.businessRejectReason (by decide) (by decide))
+     (paired_cons pairing _ _ (paired_optional pairing [53, 56] record.text (by decide) (by decide))
+      (paired_none pairing))))
+
 inductive Message where
   | logon (header : Header) (r0 : Logon)
   | heartbeat (header : Header) (r0 : Heartbeat)
@@ -1081,6 +1126,7 @@ inductive Message where
   | executionReportPendingReplace (header : Header) (r0 : ExecutionReport) (r1 : ExecutionReportPendingReplace)
   | orderCancelReject (header : Header) (r0 : OrderCancelReject)
   | iEXTradeBust (header : Header) (r0 : IEXTradeBust)
+  | businessMessageReject (header : Header) (r0 : BusinessMessageReject)
 
 def Message.tokens : Message → List Token
   | .logon header r0 => ⟨[51, 53], [65]⟩ :: encodeParts (header.parts ++ r0.parts)
@@ -1101,6 +1147,7 @@ def Message.tokens : Message → List Token
   | .executionReportPendingReplace header r0 r1 => ⟨[51, 53], [56]⟩ :: encodeParts (header.parts ++ r0.parts ++ [Part.required [49, 53, 48] ⟨[69], by decide⟩] ++ r1.parts)
   | .orderCancelReject header r0 => ⟨[51, 53], [57]⟩ :: encodeParts (header.parts ++ r0.parts)
   | .iEXTradeBust header r0 => ⟨[51, 53], [85, 67, 67]⟩ :: encodeParts (header.parts ++ r0.parts)
+  | .businessMessageReject header r0 => ⟨[51, 53], [106]⟩ :: encodeParts (header.parts ++ r0.parts)
 
 def Message.decode : List Token → Option Message
   | [] => none
@@ -1227,6 +1274,12 @@ def Message.decode : List Token → Option Message
           let header ← Header.decode rest
           let r0 ← IEXTradeBust.decode rest
           pure (.iEXTradeBust header r0)
+        else none
+      else if token.value = [106] then
+        if known (Header.tags ++ BusinessMessageReject.tags) rest then do
+          let header ← Header.decode rest
+          let r0 ← BusinessMessageReject.decode rest
+          pure (.businessMessageReject header r0)
         else none
       else none
     else none
@@ -1393,6 +1446,14 @@ theorem Message.decode_iEXTradeBust (header : Header) (r0 : IEXTradeBust) :
   simp only [List.nil_append, List.append_nil] at c0 c1 knows
   simp +decide only [Message.tokens, Message.decode, knows, c0, c1, ite_true, ite_false, some_bind] <;> rfl
 
+theorem Message.decode_businessMessageReject (header : Header) (r0 : BusinessMessageReject) :
+    Message.decode (Message.tokens (.businessMessageReject header r0)) = some (.businessMessageReject header r0) := by
+  have c0 := Header.decode_agrees header _ (agrees_slice ([]) (header.parts) (r0.parts) ([]) (Header.tags) (BusinessMessageReject.tags) rfl rfl (by decide +kernel))
+  have c1 := BusinessMessageReject.decode_agrees r0 _ (agrees_slice (header.parts) (r0.parts) ([]) (Header.tags) (BusinessMessageReject.tags) ([]) rfl rfl (by decide +kernel))
+  have knows := known_parts (header.parts ++ r0.parts) (Header.tags ++ BusinessMessageReject.tags) rfl
+  simp only [List.nil_append, List.append_nil] at c0 c1 knows
+  simp +decide only [Message.tokens, Message.decode, knows, c0, c1, ite_true, ite_false, some_bind] <;> rfl
+
 theorem Message.decode_tokens (message : Message) : Message.decode message.tokens = some message := by
   cases message with
   | logon header r0 => exact Message.decode_logon header r0
@@ -1413,6 +1474,7 @@ theorem Message.decode_tokens (message : Message) : Message.decode message.token
   | executionReportPendingReplace header r0 r1 => exact Message.decode_executionReportPendingReplace header r0 r1
   | orderCancelReject header r0 => exact Message.decode_orderCancelReject header r0
   | iEXTradeBust header r0 => exact Message.decode_iEXTradeBust header r0
+  | businessMessageReject header r0 => exact Message.decode_businessMessageReject header r0
 
 def Message.encode (message : Message) : List UInt8 := encodeTokens message.tokens
 
@@ -1564,6 +1626,14 @@ theorem Message.decodeBytes_iEXTradeBust (header : Header) (r0 : IEXTradeBust) :
   rw [tokens, some_bind]
   exact Message.decode_iEXTradeBust header r0
 
+theorem Message.decodeBytes_businessMessageReject (header : Header) (r0 : BusinessMessageReject) :
+    Message.decodeBytes (Message.encode (.businessMessageReject header r0)) = some (.businessMessageReject header r0) := by
+  have tokens := decodeTokens_message pairing ⟨[51, 53], [106]⟩ (header.parts ++ r0.parts)
+    (by decide) (by decide) (by decide) (paired_parts pairing (header.parts) (r0.parts) (Header.taken header) (BusinessMessageReject.taken r0))
+  simp only [Message.decodeBytes, Message.encode, Message.tokens] at tokens ⊢
+  rw [tokens, some_bind]
+  exact Message.decode_businessMessageReject header r0
+
 theorem Message.decodeBytes_encode (message : Message) : Message.decodeBytes message.encode = some message := by
   cases message with
   | logon header r0 => exact Message.decodeBytes_logon header r0
@@ -1584,6 +1654,7 @@ theorem Message.decodeBytes_encode (message : Message) : Message.decodeBytes mes
   | executionReportPendingReplace header r0 r1 => exact Message.decodeBytes_executionReportPendingReplace header r0 r1
   | orderCancelReject header r0 => exact Message.decodeBytes_orderCancelReject header r0
   | iEXTradeBust header r0 => exact Message.decodeBytes_iEXTradeBust header r0
+  | businessMessageReject header r0 => exact Message.decodeBytes_businessMessageReject header r0
 
 /-- BeginString as the venue fixes it: FIX.4.2 -/
 def begin : List UInt8 := [56, 61, 70, 73, 88, 46, 52, 46, 50, 1]

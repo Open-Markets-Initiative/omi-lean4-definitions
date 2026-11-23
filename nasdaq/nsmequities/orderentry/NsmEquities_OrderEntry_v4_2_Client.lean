@@ -1109,18 +1109,15 @@ theorem Message.decodeBytes_encode (message : Message) : Message.decodeBytes mes
   | sequenceReset header r0 => exact Message.decodeBytes_sequenceReset header r0
   | testRequest header r0 => exact Message.decodeBytes_testRequest header r0
 
-/-- BeginString as the venue states it: one of FIX.4.0, FIX.4.1, FIX.4.2, read with the message -/
-def begins : List (List UInt8) := [[70, 73, 88, 46, 52, 46, 48], [70, 73, 88, 46, 52, 46, 49], [70, 73, 88, 46, 52, 46, 50]]
+/-- BeginString as the venue fixes it: FIX.4.2 -/
+def begin : List UInt8 := [56, 61, 70, 73, 88, 46, 52, 46, 50, 1]
 
-/-- A packet: the BeginString it was sent under, and the message -/
-abbrev Packet := Terminated 1 × Message
+def Packet.encode (message : Message) : List UInt8 := encodeFix begin Message.encode message
 
-def Packet.encode (packet : Packet) : List UInt8 := encodeFixAmong Message.encode packet
+def Packet.decode (bytes : List UInt8) : Option (Message × List UInt8) := decodeFix begin Message.decodeBytes bytes
 
-def Packet.decode (bytes : List UInt8) : Option (Packet × List UInt8) := decodeFixAmong begins Message.decodeBytes bytes
-
-theorem Packet.decode_encode (packet : Packet) (stated : packet.1.val ∈ begins) (rest : List UInt8) :
-    Packet.decode (Packet.encode packet ++ rest) = some (packet, rest) :=
-  decodeFixAmong_encodeFixAmong begins Message.encode Message.decodeBytes Message.decodeBytes_encode packet stated rest
+theorem Packet.decode_encode (message : Message) (rest : List UInt8) :
+    Packet.decode (Packet.encode message ++ rest) = some (message, rest) :=
+  decodeFix_encodeFix begin Message.encode Message.decodeBytes Message.decodeBytes_encode message rest
 
 end Omi.NasdaqNsmequitiesOrderentryFixV42Client

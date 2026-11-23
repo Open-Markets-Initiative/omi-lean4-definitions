@@ -950,17 +950,24 @@ theorem decodeFallback_encode (w : Nat) (listed : List Nat) (encode : α → Lis
 
 /-! ## Peeked messages -/
 
-/- A message told apart by a byte inside its own encoding rather than a tag ahead of it: xmt's packet body
+/- A message told apart by bytes inside its own encoding rather than a tag ahead of it: xmt's packet body
     is a heartbeat when the third byte of its first body is the heartbeat's message type, and business
-    bodies otherwise, the length that frames each body leading that byte. The byte is read without
-    taking it, and each arm carries the proof of what its encoding holds there, so the arm read is the
-    arm written -/
+    bodies otherwise, the length that frames each body leading that byte. The bytes are read without
+    taking them, and each arm carries the proof of what its encoding holds there, so the arm read is the
+    arm written. A dispatch of several keyed arms is a chain of these, each arm's other the rest of the
+    chain, and one with no arm for any other key ends on a keyed arm alone -/
 
-/-- A value whose encoding holds `key` at `offset`: the arm a peeked dispatch takes on that key -/
-abbrev Keyed (encode : α → List UInt8) (offset : Nat) (key : UInt8) := { item : α // (encode item)[offset]? = some key }
+/-- The bytes a peek looks at: `width` of them from `offset`, or fewer where the bytes end first -/
+def peekAt (offset width : Nat) (bytes : List UInt8) : List UInt8 :=
+  (bytes.drop offset).take width
 
-/-- A value whose encoding holds a byte other than `key` at `offset`: the arm a peeked dispatch takes on any other -/
-abbrev Unkeyed (encode : α → List UInt8) (offset : Nat) (key : UInt8) := { item : α // ((encode item)[offset]?.any (· ≠ key)) = true }
+/-- A value whose encoding holds `key` from `offset`: the arm a peeked dispatch takes on that key -/
+abbrev Keyed (encode : α → List UInt8) (offset : Nat) (key : List UInt8) :=
+  { item : α // offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) = key }
+
+/-- A value whose encoding holds something other than `key` from `offset`: the arm a peeked dispatch takes on any other -/
+abbrev Unkeyed (encode : α → List UInt8) (offset : Nat) (key : List UInt8) :=
+  { item : α // offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) ≠ key }
 
 instance [DecidableEq α] {encode : α → List UInt8} : DecidableEq (Keyed encode offset key) :=
   fun a b => decidable_of_iff (a.val = b.val) Subtype.ext_iff.symm
@@ -974,20 +981,35 @@ instance [Repr α] {encode : α → List UInt8} : Repr (Keyed encode offset key)
 instance [Repr α] {encode : α → List UInt8} : Repr (Unkeyed encode offset key) where
   reprPrec item prec := reprPrec item.val prec
 
-/-- A message told by the byte at `offset` of its own encoding, read without taking it: `key` there is the keyed arm, any other byte the other -/
-abbrev Peeked (α β : Type) (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt8) (offset : Nat) (key : UInt8) :=
+/-- A message told by the bytes from `offset` of its own encoding, read without taking them: `key` there is the keyed arm, anything else the other -/
+abbrev Peeked (α β : Type) (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt8) (offset : Nat) (key : List UInt8) :=
   Keyed encodeKeyed offset key ⊕ Unkeyed encodeOther offset key
 
-def decodeKeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+/-- Equality of peeked messages, stated once for the sum so a chain of many arms finds it without unfolding every arm -/
+instance [DecidableEq α] [DecidableEq β] {encodeKeyed : α → List UInt8} {encodeOther : β → List UInt8} :
+    DecidableEq (Peeked α β encodeKeyed encodeOther offset key) :=
+  inferInstanceAs (DecidableEq (Keyed encodeKeyed offset key ⊕ Unkeyed encodeOther offset key))
+
+instance [Repr α] [Repr β] {encodeKeyed : α → List UInt8} {encodeOther : β → List UInt8} :
+    Repr (Peeked α β encodeKeyed encodeOther offset key) :=
+  inferInstanceAs (Repr (Keyed encodeKeyed offset key ⊕ Unkeyed encodeOther offset key))
+
+/-- A keyed arm's encoding: the value it carries, encoded -/
+def Keyed.encode (encode : α → List UInt8) (item : Keyed encode offset key) : List UInt8 :=
+  encode item.val
+
+def decodeKeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : List UInt8)
     (bytes : List UInt8) : Option (Keyed encode offset key × List UInt8) :=
   match decode bytes with
-  | some (item, rest) => if keyed : (encode item)[offset]? = some key then some (⟨item, keyed⟩, rest) else none
+  | some (item, rest) =>
+    if keyed : offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) = key then some (⟨item, keyed⟩, rest) else none
   | none => none
 
-def decodeUnkeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+def decodeUnkeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : List UInt8)
     (bytes : List UInt8) : Option (Unkeyed encode offset key × List UInt8) :=
   match decode bytes with
-  | some (item, rest) => if other : ((encode item)[offset]?.any (· ≠ key)) = true then some (⟨item, other⟩, rest) else none
+  | some (item, rest) =>
+    if other : offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) ≠ key then some (⟨item, other⟩, rest) else none
   | none => none
 
 def encodePeek (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt8) :
@@ -995,10 +1017,10 @@ def encodePeek (encodeKeyed : α → List UInt8) (encodeOther : β → List UInt
   | .inl item => encodeKeyed item.val
   | .inr item => encodeOther item.val
 
-def decodePeek (offset : Nat) (key : UInt8)
+def decodePeek (offset : Nat) (key : List UInt8)
     (keyed : List UInt8 → Option (α × List UInt8)) (other : List UInt8 → Option (β × List UInt8))
     (bytes : List UInt8) : Option ((α ⊕ β) × List UInt8) :=
-  if bytes[offset]? = some key then
+  if peekAt offset key.length bytes = key then
     match keyed bytes with
     | some (item, rest) => some (.inl item, rest)
     | none => none
@@ -1007,7 +1029,7 @@ def decodePeek (offset : Nat) (key : UInt8)
     | some (item, rest) => some (.inr item, rest)
     | none => none
 
-theorem decodeKeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+theorem decodeKeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : List UInt8)
     (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest))
     (item : Keyed encode offset key) (rest : List UInt8) :
     decodeKeyed encode decode offset key (encode item.val ++ rest) = some (item, rest) := by
@@ -1016,7 +1038,14 @@ theorem decodeKeyed_encode (encode : α → List UInt8) (decode : List UInt8 →
   dsimp only
   rw [dite_eq_left item.property]
 
-theorem decodeUnkeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : UInt8)
+/-- A keyed arm ending a chain decodes to what it was encoded from, as its own value -/
+theorem decodeKeyed_encodeKeyed (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : List UInt8)
+    (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest))
+    (item : Keyed encode offset key) (rest : List UInt8) :
+    decodeKeyed encode decode offset key (Keyed.encode encode item ++ rest) = some (item, rest) :=
+  decodeKeyed_encode encode decode offset key roundTrip item rest
+
+theorem decodeUnkeyed_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8)) (offset : Nat) (key : List UInt8)
     (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest))
     (item : Unkeyed encode offset key) (rest : List UInt8) :
     decodeUnkeyed encode decode offset key (encode item.val ++ rest) = some (item, rest) := by
@@ -1025,21 +1054,19 @@ theorem decodeUnkeyed_encode (encode : α → List UInt8) (decode : List UInt8 �
   dsimp only
   rw [dite_eq_left item.property]
 
-/-- The byte at `offset` of a keyed arm's encoding is its key, and something else for the other arm: either way, the offset lies inside the encoding -/
-theorem Keyed.within {encode : α → List UInt8} (item : Keyed encode offset key) : offset < (encode item.val).length := by
-  have h := item.property
-  rw [List.getElem?_eq_some_iff] at h
-  exact h.1
+/-- The bytes a peek looks at are the encoding's own wherever the encoding holds all of them, whatever follows it -/
+theorem peekAt_append {bytes : List UInt8} (rest : List UInt8) (within : offset + width ≤ bytes.length) :
+    peekAt offset width (bytes ++ rest) = peekAt offset width bytes := by
+  unfold peekAt
+  rw [List.drop_append_of_le_length (by omega), List.take_append_of_le_length (by simp; omega)]
 
-theorem Unkeyed.within {encode : α → List UInt8} (item : Unkeyed encode offset key) : offset < (encode item.val).length := by
-  have h := item.property
-  cases e : (encode item.val)[offset]? with
-  | none => rw [e] at h; simp at h
-  | some _ => rw [List.getElem?_eq_some_iff] at e; exact e.1
+/-- A keyed arm's encoding holds all of its key -/
+theorem Keyed.within {encode : α → List UInt8} (item : Keyed encode offset key) : offset + key.length ≤ (encode item.val).length :=
+  item.property.1
 
-/-- A peeked message decodes to what it was encoded from: the byte its arm holds at the offset is the one the dispatch reads, whatever follows it -/
+/-- A peeked message decodes to what it was encoded from: the bytes its arm holds at the offset are the ones the dispatch reads, whatever follows it -/
 theorem decodePeek_encodePeek (encodeKeyed : α → List UInt8) (decodeKeyed' : List UInt8 → Option (α × List UInt8))
-    (encodeOther : β → List UInt8) (decodeOther : List UInt8 → Option (β × List UInt8)) (offset : Nat) (key : UInt8)
+    (encodeOther : β → List UInt8) (decodeOther : List UInt8 → Option (β × List UInt8)) (offset : Nat) (key : List UInt8)
     (keyedTrip : ∀ item rest, decodeKeyed' (encodeKeyed item ++ rest) = some (item, rest))
     (otherTrip : ∀ item rest, decodeOther (encodeOther item ++ rest) = some (item, rest))
     (message : Peeked α β encodeKeyed encodeOther offset key) (rest : List UInt8) :
@@ -1047,26 +1074,201 @@ theorem decodePeek_encodePeek (encodeKeyed : α → List UInt8) (decodeKeyed' : 
       (encodePeek encodeKeyed encodeOther message ++ rest) = some (message, rest) := by
   cases message with
   | inl item =>
-    have read : (encodeKeyed item.val ++ rest)[offset]? = some key := by
-      rw [List.getElem?_append_left item.within]; exact item.property
+    have read : peekAt offset key.length (encodeKeyed item.val ++ rest) = key := by
+      rw [peekAt_append rest item.within]; exact item.property.2
     unfold decodePeek encodePeek
     rw [ite_eq_left read, decodeKeyed_encode encodeKeyed decodeKeyed' offset key keyedTrip item rest]
   | inr item =>
-    have read : ¬ (encodeOther item.val ++ rest)[offset]? = some key := by
-      rw [List.getElem?_append_left item.within]
-      intro same
-      have h := item.property
-      rw [same] at h
-      simp at h
+    have read : ¬ peekAt offset key.length (encodeOther item.val ++ rest) = key := by
+      rw [peekAt_append rest item.property.1]; exact item.property.2
     unfold decodePeek encodePeek
     rw [ite_eq_right read, decodeUnkeyed_encode encodeOther decodeOther offset key otherTrip item rest]
 
-/-- A peeked message's encoding is at least a byte: it holds one at the offset -/
-theorem encodePeek_length_pos {encodeKeyed : α → List UInt8} {encodeOther : β → List UInt8} {offset : Nat} {key : UInt8}
-    (message : Peeked α β encodeKeyed encodeOther offset key) : (encodePeek encodeKeyed encodeOther message).length > 0 := by
+/- A peeked message whose arms read to the end of what they are given: inside a frame, the bytes the frame
+    counts are the arm's and nothing follows, so each arm is read from exactly them -/
+
+/-- A decoder of what remains made to read all it is given: it must leave nothing -/
+def decodeWhole (decode : List UInt8 → Option (α × List UInt8)) (bytes : List UInt8) : Option α :=
+  match decode bytes with
+  | some (item, []) => some item
+  | _ => none
+
+theorem decodeWhole_encode (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8))
+    (roundTrip : ∀ item rest, decode (encode item ++ rest) = some (item, rest)) (item : α) :
+    decodeWhole decode (encode item) = some item := by
+  have whole := roundTrip item []
+  rw [List.append_nil] at whole
+  simp [decodeWhole, whole]
+
+def decodeKeyedWhole (encode : α → List UInt8) (decode : List UInt8 → Option α) (offset : Nat) (key : List UInt8)
+    (bytes : List UInt8) : Option (Keyed encode offset key) :=
+  match decode bytes with
+  | some item =>
+    if keyed : offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) = key then some ⟨item, keyed⟩ else none
+  | none => none
+
+def decodeUnkeyedWhole (encode : α → List UInt8) (decode : List UInt8 → Option α) (offset : Nat) (key : List UInt8)
+    (bytes : List UInt8) : Option (Unkeyed encode offset key) :=
+  match decode bytes with
+  | some item =>
+    if other : offset + key.length ≤ (encode item).length ∧ peekAt offset key.length (encode item) ≠ key then some ⟨item, other⟩ else none
+  | none => none
+
+def decodePeekWhole (offset : Nat) (key : List UInt8)
+    (keyed : List UInt8 → Option α) (other : List UInt8 → Option β) (bytes : List UInt8) : Option (α ⊕ β) :=
+  if peekAt offset key.length bytes = key then (keyed bytes).map .inl else (other bytes).map .inr
+
+theorem decodeKeyedWhole_encode (encode : α → List UInt8) (decode : List UInt8 → Option α) (offset : Nat) (key : List UInt8)
+    (roundTrip : ∀ item, decode (encode item) = some item) (item : Keyed encode offset key) :
+    decodeKeyedWhole encode decode offset key (encode item.val) = some item := by
+  unfold decodeKeyedWhole
+  rw [roundTrip]
+  dsimp only
+  rw [dite_eq_left item.property]
+
+/-- A keyed arm ending a chain read whole decodes to what it was encoded from, as its own value -/
+theorem decodeKeyedWhole_encodeKeyed (encode : α → List UInt8) (decode : List UInt8 → Option α) (offset : Nat) (key : List UInt8)
+    (roundTrip : ∀ item, decode (encode item) = some item) (item : Keyed encode offset key) :
+    decodeKeyedWhole encode decode offset key (Keyed.encode encode item) = some item :=
+  decodeKeyedWhole_encode encode decode offset key roundTrip item
+
+theorem decodeUnkeyedWhole_encode (encode : α → List UInt8) (decode : List UInt8 → Option α) (offset : Nat) (key : List UInt8)
+    (roundTrip : ∀ item, decode (encode item) = some item) (item : Unkeyed encode offset key) :
+    decodeUnkeyedWhole encode decode offset key (encode item.val) = some item := by
+  unfold decodeUnkeyedWhole
+  rw [roundTrip]
+  dsimp only
+  rw [dite_eq_left item.property]
+
+/-- A peeked message read whole decodes to what it was encoded from: its arm holds the bytes the dispatch reads at the offset -/
+theorem decodePeekWhole_encodePeek (encodeKeyed : α → List UInt8) (decodeKeyed' : List UInt8 → Option α)
+    (encodeOther : β → List UInt8) (decodeOther : List UInt8 → Option β) (offset : Nat) (key : List UInt8)
+    (keyedTrip : ∀ item, decodeKeyed' (encodeKeyed item) = some item)
+    (otherTrip : ∀ item, decodeOther (encodeOther item) = some item)
+    (message : Peeked α β encodeKeyed encodeOther offset key) :
+    decodePeekWhole offset key (decodeKeyedWhole encodeKeyed decodeKeyed' offset key) (decodeUnkeyedWhole encodeOther decodeOther offset key)
+      (encodePeek encodeKeyed encodeOther message) = some message := by
   cases message with
-  | inl item => exact Nat.lt_of_le_of_lt (Nat.zero_le offset) item.within
-  | inr item => exact Nat.lt_of_le_of_lt (Nat.zero_le offset) item.within
+  | inl item =>
+    unfold decodePeekWhole encodePeek
+    rw [ite_eq_left item.property.2, decodeKeyedWhole_encode encodeKeyed decodeKeyed' offset key keyedTrip item]
+    rfl
+  | inr item =>
+    unfold decodePeekWhole encodePeek
+    rw [ite_eq_right item.property.2, decodeUnkeyedWhole_encode encodeOther decodeOther offset key otherTrip item]
+    rfl
+
+/-- A peeked message's encoding is at least a byte: it holds its key, of a byte or more, at the offset -/
+theorem encodePeek_length_pos {encodeKeyed : α → List UInt8} {encodeOther : β → List UInt8} {offset : Nat} {key : List UInt8}
+    (message : Peeked α β encodeKeyed encodeOther offset key) (held : 0 < key.length := by decide) :
+    (encodePeek encodeKeyed encodeOther message).length > 0 := by
+  cases message with
+  | inl item => have := item.within; simp only [encodePeek]; omega
+  | inr item => have := item.property.1; simp only [encodePeek]; omega
+
+/-! ## Messages handed their tag -/
+
+/- A message whose tag a record further out reads: nse's cryptographic tail is chosen by the message length
+    its packet's header states, a field the tail's own record never reads. The record holding the message is
+    handed that value, and the message carries the proof that its tag is it, so the tag read is the tag the
+    message was chosen by -/
+
+/-- A message whose tag is `tag` -/
+abbrev Handed (tagOf : α → τ) (tag : τ) := { message : α // tagOf message = tag }
+
+instance [DecidableEq α] {tagOf : α → τ} : DecidableEq (Handed tagOf tag) :=
+  fun a b => decidable_of_iff (a.val = b.val) Subtype.ext_iff.symm
+
+instance [Repr α] {tagOf : α → τ} : Repr (Handed tagOf tag) where
+  reprPrec message prec := reprPrec message.val prec
+
+/-- A handed message's encoding: the message it carries, encoded -/
+def encodeHanded (encode : α → List UInt8) {tagOf : α → τ} {tag : τ} (message : Handed tagOf tag) : List UInt8 :=
+  encode message.val
+
+/-- Read the message the handed tag chooses, and keep it only where its tag is that one -/
+def decodeHanded [DecidableEq τ] (tagOf : α → τ) (decode : τ → List UInt8 → Option (α × List UInt8)) (tag : τ)
+    (bytes : List UInt8) : Option (Handed tagOf tag × List UInt8) :=
+  match decode tag bytes with
+  | some (message, rest) => if tagged : tagOf message = tag then some (⟨message, tagged⟩, rest) else none
+  | none => none
+
+/-- A handed message decodes to what it was encoded from: its tag is the one it is handed, so the dispatch's own round trip applies -/
+theorem decodeHanded_encodeHanded [DecidableEq τ] (tagOf : α → τ) (encode : α → List UInt8)
+    (decode : τ → List UInt8 → Option (α × List UInt8))
+    (roundTrip : ∀ message rest, decode (tagOf message) (encode message ++ rest) = some (message, rest))
+    (tag : τ) (message : Handed tagOf tag) (rest : List UInt8) :
+    decodeHanded tagOf decode tag (encodeHanded encode message ++ rest) = some (message, rest) := by
+  obtain ⟨message, tagged⟩ := message
+  subst tagged
+  unfold decodeHanded encodeHanded
+  rw [roundTrip]
+  simp
+
+theorem encodeHanded_eq (encode : α → List UInt8) {tagOf : α → τ} {tag : τ} (message : Handed tagOf tag) :
+    encodeHanded encode message = encode message.val := rfl
+
+/-! ## Messages told by their width -/
+
+/- A message keyed on the length framing it, when it closes the frame and its arms are of different fixed
+    widths: nse's gateway router response ends in a cryptographic tail of sixteen or twenty eight bytes, keyed
+    on the message length its frame is counted by. The frame hands its body exactly the bytes it counts, so
+    the tail is the arm as wide as what is left of them -/
+
+/-- A choice of two messages, each written as itself -/
+def encodeEither (encodeLeft : α → List UInt8) (encodeRight : β → List UInt8) : α ⊕ β → List UInt8
+  | .inl item => encodeLeft item
+  | .inr item => encodeRight item
+
+/-- The left message where it is given exactly its width, else the right -/
+def decodeByWidth (width : Nat) (left : List UInt8 → Option α) (right : List UInt8 → Option β)
+    (bytes : List UInt8) : Option (α ⊕ β) :=
+  if bytes.length = width then (left bytes).map .inl else (right bytes).map .inr
+
+/-- A message told by its width decodes to what it was encoded from: the left is always its width and the right never is -/
+theorem decodeByWidth_encodeEither (encodeLeft : α → List UInt8) (decodeLeft : List UInt8 → Option α)
+    (encodeRight : β → List UInt8) (decodeRight : List UInt8 → Option β) (width : Nat)
+    (leftWidth : ∀ item, (encodeLeft item).length = width) (rightWidth : ∀ item, (encodeRight item).length ≠ width)
+    (leftTrip : ∀ item, decodeLeft (encodeLeft item) = some item)
+    (rightTrip : ∀ item, decodeRight (encodeRight item) = some item) (message : α ⊕ β) :
+    decodeByWidth width decodeLeft decodeRight (encodeEither encodeLeft encodeRight message) = some message := by
+  cases message with
+  | inl item => simp [decodeByWidth, encodeEither, leftWidth, leftTrip]
+  | inr item => simp [decodeByWidth, encodeEither, rightWidth, rightTrip]
+
+/-! ## Values present on a condition -/
+
+/- A value present when a test on fields its record reads ahead of it holds: ise's depth incremental carries a
+    price when its update action is a new or a change, szse's packet header an original size when its compress
+    flag is set. The value carries the proof that it is there exactly when the test holds, so the record that
+    decodes it reads it exactly when it was written -/
+
+/-- A value there exactly when `present` is -/
+abbrev When (present : Bool) (α : Type) := { value : Option α // value.isSome = present }
+
+instance [DecidableEq α] : DecidableEq (When present α) :=
+  fun a b => decidable_of_iff (a.val = b.val) Subtype.ext_iff.symm
+
+instance [Repr α] : Repr (When present α) where
+  reprPrec value prec := reprPrec value.val prec
+
+/-- A conditioned value written only when it is there -/
+def encodeWhen (encode : α → List UInt8) {present : Bool} (value : When present α) : List UInt8 :=
+  encodeOptional encode value.val
+
+/-- A conditioned value read exactly when its test holds -/
+def decodeWhen (decode : List UInt8 → Option (α × List UInt8)) (present : Bool) (bytes : List UInt8) :
+    Option (When present α × List UInt8) :=
+  if held : present = true then (decode bytes).map (fun (value, rest) => (⟨some value, by simp [held]⟩, rest))
+  else some (⟨none, by simp at held; simp [held]⟩, bytes)
+
+theorem decodeWhen_encodeWhen (encode : α → List UInt8) (decode : List UInt8 → Option (α × List UInt8))
+    (round : ∀ (value : α) (rest : List UInt8), decode (encode value ++ rest) = some (value, rest))
+    (present : Bool) (value : When present α) (rest : List UInt8) :
+    decodeWhen decode present (encodeWhen encode value ++ rest) = some (value, rest) := by
+  obtain ⟨value, held⟩ := value
+  subst held
+  cases value <;> simp [decodeWhen, encodeWhen, encodeOptional, round]
 
 /-! ## Fix tag=value fields: a tag, its value, and the separator that ends it -/
 
